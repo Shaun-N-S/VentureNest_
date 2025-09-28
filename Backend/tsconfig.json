@@ -5,8 +5,8 @@
 
     /* Module + Target */
     "target": "ES2021",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
 
     /* Path Aliases */
     "baseUrl": "./src",
@@ -14,7 +14,8 @@
       "@shared/*": ["shared/*"],
       "@frameworks/*": ["frameworks/*"],
       "@infrastructure/*": ["infrastructure/*"],
-      "@config/*": ["config/*"]
+      "@config/*": ["config/*"],
+      "@domain/*":["domain/*"]
     },
 
     /* Strictness + Safety */

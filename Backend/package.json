@@ -49,9 +49,12 @@
     "typescript-eslint": "^8.44.0"
   },
   "scripts": {
+    "start": "node dist/app.js",
+    "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/app.ts",
+    "build": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write ."
   },
-  "type": "module"
+  "type": "commonjs"
 }
