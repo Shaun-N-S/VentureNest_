@@ -1,5 +1,6 @@
 import { IUserModel } from "@infrastructure/db/models/userModel";
 import { CreateUserDTO } from "application/dto/user/createUserDTO";
+import { LoginUserDTO } from "application/dto/user/LoginUserDTO";
 import { UserEntity } from "domain/entities/user/userEntity";
 import { UserRole } from "domain/enum/userRole";
 import { UserStatus } from "domain/enum/userStatus";
@@ -32,11 +33,17 @@ export class UserMapper {
     };
   }
 
-  // static toCreateUserResponseDTO(user: UserEntity): CreateUserResponseDTO {
-  //   return {
-  //     success: true,
-  //   };
-  // }
+  static toLoginUserResponse(user: UserEntity): LoginUserDTO {
+    return {
+      _id: user._id,
+      userName: user.userName,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      isFirstLogin: user.isFirstLogin,
+      updatedAt: user.updatedAt,
+    };
+  }
 
   static toMongooseDocument(user: UserEntity) {
     return {

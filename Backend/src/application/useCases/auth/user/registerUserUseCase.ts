@@ -3,7 +3,7 @@ import { IHashPasswordService } from "@domain/interfaces/services/IHashPasswordS
 import { USER_ERRORS } from "@shared/constants/error";
 import { CreateUserDTO } from "application/dto/user/createUserDTO";
 import { UserMapper } from "application/mappers/userMappers";
-import { ICreateUserUseCase } from "@domain/interfaces/useCases/user/auth/ICreateUserUseCase";
+import { ICreateUserUseCase } from "@domain/interfaces/useCases/auth/user/ICreateUserUseCase";
 
 export class RegisterUserUseCase implements ICreateUserUseCase {
   constructor(

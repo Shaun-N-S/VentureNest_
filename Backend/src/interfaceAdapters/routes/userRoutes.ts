@@ -11,11 +11,15 @@ export class User_Router {
 
   private _setRoute() {
     this._route.post("/users", (req: Request, res: Response) => {
-      userAuthController.sendOtp(req, res);
+      userAuthController.signUpSendOtp(req, res);
     });
 
     this._route.post("/users/verify-otp", (req: Request, res: Response) => {
       userAuthController.registerUser(req, res);
+    });
+
+    this._route.post("/users/login", (req: Request, res: Response) => {
+      userAuthController.loginUser(req, res);
     });
   }
 
