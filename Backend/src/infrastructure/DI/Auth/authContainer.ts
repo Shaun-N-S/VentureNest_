@@ -6,10 +6,13 @@ import { EmailService } from "@infrastructure/services/Email/emailService";
 import { HashPassword } from "@infrastructure/services/hashPasswordService";
 import { JWTService } from "@infrastructure/services/jwtService";
 import { OtpService } from "@infrastructure/services/otpService";
-import { SendOtpUseCase } from "application/useCases/auth/sendOtpUseCase";
+import { SignUpSendOtpUseCase } from "application/useCases/auth/user/signUpSendOtpUseCase";
 import { VerifyOtpUseCase } from "application/useCases/auth/verifyOtpUseCase";
-import { RegisterUserUseCase } from "application/useCases/User/Signup/registerUserUseCase";
+import { RegisterUserUseCase } from "application/useCases/auth/user/registerUserUseCase";
 import { UserAuthController } from "interfaceAdapters/controller/Auth/userAuthController";
+import { UserLoginUseCase } from "application/useCases/auth/user/loginUserUseCase";
+import { TokenCreationUseCase } from "application/useCases/auth/tokenCreationUseCase";
+import { CacheUserUseCase } from "application/useCases/auth/user/cacheUserUseCase";
 
 //Repositories & Services
 const userRepository = new UserRepository(userModel);
@@ -22,7 +25,7 @@ const jwtService = new JWTService();
 
 //UseCases
 const registerUserUseCase = new RegisterUserUseCase(userRepository, hashService);
-const userSendOtpUseCase = new SendOtpUseCase(
+const userSendOtpUseCase = new SignUpSendOtpUseCase(
   otpService,
   otpContentGenerator,
   emailService,
@@ -30,10 +33,16 @@ const userSendOtpUseCase = new SendOtpUseCase(
   cacheStorage
 );
 const verifyOtpUseCase = new VerifyOtpUseCase(cacheStorage);
+const userLoginUseCase = new UserLoginUseCase(userRepository, hashService);
+const tokenCreationUseCase = new TokenCreationUseCase(jwtService);
+const cacheUserUseCase = new CacheUserUseCase(cacheStorage);
 
 //Controller
 export const userAuthController = new UserAuthController(
   registerUserUseCase,
   userSendOtpUseCase,
-  verifyOtpUseCase
+  verifyOtpUseCase,
+  userLoginUseCase,
+  tokenCreationUseCase,
+  cacheUserUseCase
 );

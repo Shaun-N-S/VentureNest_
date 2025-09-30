@@ -1,6 +1,15 @@
-const App = () => {
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+import UserRoutes from "./routes/UserRoutes"
+
+function App() {
   return (
-    <div>App</div>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/*" element={<UserRoutes />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   )
 }
 

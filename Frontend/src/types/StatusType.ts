@@ -1,0 +1,1 @@
+export type StatusTypes = "ACTIVE" | "INACTIVE" | "BLOCKED"

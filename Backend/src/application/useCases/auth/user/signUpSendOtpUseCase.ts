@@ -4,11 +4,10 @@ import { IEmailContentGenerator } from "@domain/interfaces/services/IEmail/IEmai
 import { IEmailService } from "@domain/interfaces/services/IEmail/IEmailService";
 import { IOtpEmailTemplate } from "@domain/interfaces/services/IEmail/IOtpEmailTemplate";
 import { IOtpService } from "@domain/interfaces/services/IOtp/IOtp";
-import { ISendOtpUseCase } from "@domain/interfaces/useCases/auth/ISendOtp";
-import { RegisterUserType } from "@domain/types/RegisterUserTypes";
+import { ISignUpSendOtpUseCase } from "@domain/interfaces/useCases/auth/user/ISignUpSendOtp";
 import { USER_ERRORS } from "@shared/constants/error";
 
-export class SendOtpUseCase implements ISendOtpUseCase {
+export class SignUpSendOtpUseCase implements ISignUpSendOtpUseCase {
   private _otpService: IOtpService;
   private _otpTemplateGenerator: IEmailContentGenerator;
   private _emailService: IEmailService;
@@ -29,7 +28,7 @@ export class SendOtpUseCase implements ISendOtpUseCase {
     this._cacheStorage = cacheStorage;
   }
 
-  async sendOtp(email: string): Promise<void> {
+  async signUpSendOtp(email: string): Promise<void> {
     const existingEmail = await this._userRepository.findByEmail(email);
     if (existingEmail) {
       throw new Error(USER_ERRORS.USER_ALREADY_EXISTS);
