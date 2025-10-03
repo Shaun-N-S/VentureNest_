@@ -3,4 +3,5 @@ import { IBaseRepository } from "./IBaseRepository";
 
 export interface IUserRepository extends IBaseRepository<UserEntity> {
   findByEmail(email: string): Promise<UserEntity | null>;
+  findByIdAndUpdatePassword(email: string, password: string): Promise<void>;
 }

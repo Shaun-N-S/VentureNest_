@@ -26,7 +26,17 @@ export class User_Router {
       userAuthController.loginUser(req, res);
     });
 
-    this._route.post("/users/forget-password", (req: Request, res: Response) => {});
+    this._route.post("/users/forget-password", (req: Request, res: Response) => {
+      userAuthController.forgetPassword(req, res);
+    });
+
+    this._route.post("/users/forget-password/verify-otp", (req: Request, res: Response) => {
+      userAuthController.forgetPasswordVerifyOtp(req, res);
+    });
+
+    this._route.post("/users/forget-password/reset-password", (req: Request, res: Response) => {
+      userAuthController.forgetPasswordResetPassword(req, res);
+    });
   }
 
   public get_router(): Router {

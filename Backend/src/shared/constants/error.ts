@@ -7,6 +7,10 @@ export const Errors = {
   INVALID_EMAIL: "Please provide a valid email",
   PASSWORD_REQUIRED: "Password requried",
   INVALID_USERDATA: "Invalid user data ",
+  INVALID_DATA: "Invalid data format",
+  INVALID_OTP: "Otp expired or invalid otp",
+  TOKEN_EXPIRED: "Token expired",
+  TOKEN_MISMATCH: "Token not matching ",
 };
 
 export const USER_ERRORS = {

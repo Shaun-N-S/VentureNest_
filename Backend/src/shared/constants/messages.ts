@@ -6,6 +6,7 @@ export const MESSAGES = {
     PROFILE_UPDATED: "Profile updated successfully.",
     PASSWORD_CHANGED: "Password changed successfully.",
     ACCOUNT_VERIFIED: "Account verified successfully.",
+    PASSWORD_RESET_SUCCESSFULLY: "Password reset successfully",
     // DELETED: "User deleted successfully.",
   },
 
@@ -17,9 +18,15 @@ export const MESSAGES = {
 
   OTP: {
     OTP_SUCCESSFULL: "Otp sent successfully",
+    RESEND_OTP_SUCCESSFULL: "Otp resended successfully",
+    OTP_VERIFIED_SUCCESSFULL: "Otp verified successfully",
   },
 
   INVESTOR: {
     REGISTER_SUCCESS: "Investor registered successfully.",
+  },
+
+  EMAIL: {
+    FORGET_PASSWORD_OTP: "OTP for forgot password",
   },
 };

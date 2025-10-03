@@ -48,4 +48,8 @@ export class UserRepository
     if (!doc) return null;
     return UserMapper.fromMongooseDocument(doc);
   }
+
+  async findByIdAndUpdatePassword(email: string, password: string): Promise<void> {
+    await this._model.updateOne({ email }, { $set: { password } });
+  }
 }

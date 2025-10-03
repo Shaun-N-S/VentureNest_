@@ -16,6 +16,11 @@ import { setRefreshTokenCookie } from "@shared/utils/setRefreshTokenCookie";
 import { otpSchema } from "@shared/validations/otpValidator";
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 import { IResendOtpUseCase } from "@domain/interfaces/useCases/auth/IResendOtp";
+import { IForgetPasswordSendOtpUseCaes } from "@domain/interfaces/useCases/auth/IForgetPasswordSendOtp";
+import { forgetPasswordVerifyOtpSchema } from "@shared/validations/forgetPasswordVerifyOtpValidator";
+import { IForgetPasswordVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordVerifyOtp";
+import { forgetPasswordResetPasswordSchema } from "@shared/validations/forgetPasswordResetPasswordValidator";
+import { IForgetPasswordResetPasswordUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordResetPassword";
 
 export class UserAuthController {
   constructor(
@@ -26,7 +31,10 @@ export class UserAuthController {
     private _tokenCreationUseCase: ITokenCreationUseCase,
     private _cacheUserUseCase: ICacheUserUseCase,
     private _cacheStorage: IKeyValueTTLCaching,
-    private _resendOptUseCase: IResendOtpUseCase
+    private _resendOptUseCase: IResendOtpUseCase,
+    private _forgetPasswordSendOtpUseCase: IForgetPasswordSendOtpUseCaes,
+    private _forgetPasswordVerifyOtpUseCase: IForgetPasswordVerifyOtpUseCase,
+    private _forgetPasswordResetPasswordUseCase: IForgetPasswordResetPasswordUseCase
   ) {}
 
   async signUpSendOtp(req: Request, res: Response): Promise<void> {
@@ -127,6 +135,7 @@ export class UserAuthController {
       res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.OTP_SUCCESSFULL });
     } catch (error) {
       console.log(`Error while sending otp : ${error}`);
+      res.status(HTTPStatus.BAD_REQUEST).json({ message: "Error while resending otp" });
     }
   }
 
@@ -136,6 +145,46 @@ export class UserAuthController {
       if (validatedEmail.error) {
         throw new Error(Errors.INVALID_EMAIL);
       }
-    } catch (error) {}
+
+      await this._forgetPasswordSendOtpUseCase.sendOtp(validatedEmail.data);
+
+      res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.RESEND_OTP_SUCCESSFULL });
+    } catch (error) {
+      res.status(HTTPStatus.BAD_REQUEST).json({
+        message: "Error while sending forget password otp",
+      });
+    }
+  }
+
+  async forgetPasswordVerifyOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const data = forgetPasswordVerifyOtpSchema.safeParse(req.body);
+
+      if (data.error) {
+        throw new Error(Errors.INVALID_DATA);
+      }
+
+      const token = await this._forgetPasswordVerifyOtpUseCase.verify(data.data);
+
+      res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.OTP_VERIFIED_SUCCESSFULL, token });
+    } catch (error) {
+      res.status(HTTPStatus.BAD_REQUEST).json({ message: Errors.OTP_VERIFICATION_FAILED });
+    }
+  }
+
+  async forgetPasswordResetPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const data = forgetPasswordResetPasswordSchema.safeParse(req.body);
+
+      if (data.error) {
+        throw new Error(Errors.INVALID_DATA);
+      }
+
+      await this._forgetPasswordResetPasswordUseCase.reset(data.data);
+
+      res.status(HTTPStatus.OK).json({ message: MESSAGES.USERS.PASSWORD_RESET_SUCCESSFULLY });
+    } catch (error) {
+      res.status(HTTPStatus.BAD_REQUEST).json({ message: "Error while reseting new password" });
+    }
   }
 }

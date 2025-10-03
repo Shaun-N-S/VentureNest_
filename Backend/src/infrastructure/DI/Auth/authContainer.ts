@@ -20,6 +20,10 @@ import { RegisterInvestorUseCase } from "application/useCases/auth/investor/regi
 import { InvestorLoginUseCase } from "application/useCases/auth/investor/investorLoginUseCase";
 import { CacheInvestorUseCase } from "application/useCases/auth/investor/CacheInvestorUseCase";
 import { ResendOtpUseCase } from "application/useCases/auth/resendOtpUseCase";
+import { ForgetPasswordOtpUseCase } from "application/useCases/auth/forgetPasswordSendOtpUseCase";
+import { ForgetPasswordVerifyOtpUseCase } from "application/useCases/auth/forgetPasswordVerifyOtpUseCase";
+import { TokenSerivce } from "@infrastructure/services/tokenService";
+import { ForgetPasswordResetPasswordUseCase } from "application/useCases/auth/forgetPasswordResetPasswordUseCase";
 
 //Repositories & Services
 const userRepository = new UserRepository(userModel);
@@ -30,6 +34,7 @@ const emailService = new EmailService();
 const cacheStorage = new KeyValueTTLCaching();
 const jwtService = new JWTService();
 const investorRepository = new InvestorRepository(investorModel);
+const tokenSerivce = new TokenSerivce();
 
 //UseCases
 const registerUserUseCase = new RegisterUserUseCase(userRepository, cacheStorage);
@@ -57,6 +62,23 @@ const resendOtpUseCase = new ResendOtpUseCase(
   investorRepository,
   cacheStorage
 );
+const forgetPasswordSendOtpUseCase = new ForgetPasswordOtpUseCase(
+  userRepository,
+  investorRepository,
+  otpService,
+  otpContentGenerator,
+  emailService,
+  cacheStorage
+);
+const forgetPasswordVerifyOtpUseCase = new ForgetPasswordVerifyOtpUseCase(
+  cacheStorage,
+  tokenSerivce
+);
+const forgetPasswordResetPasswordUseCase = new ForgetPasswordResetPasswordUseCase(
+  cacheStorage,
+  hashService,
+  userRepository
+);
 
 //Controller
 export const userAuthController = new UserAuthController(
@@ -67,7 +89,10 @@ export const userAuthController = new UserAuthController(
   tokenCreationUseCase,
   cacheUserUseCase,
   cacheStorage,
-  resendOtpUseCase
+  resendOtpUseCase,
+  forgetPasswordSendOtpUseCase,
+  forgetPasswordVerifyOtpUseCase,
+  forgetPasswordResetPasswordUseCase
 );
 
 export const investorAuthController = new InvestorAuthController(
