@@ -10,6 +10,7 @@ import { DateTimeUtil } from "@shared/utils/DateTimeUtil";
 import { createStream } from "rotating-file-stream";
 import path from "path";
 import { Investor_Router } from "interfaceAdapters/routes/investorRoutes";
+import { Admin_Routes } from "interfaceAdapters/routes/adminRoutes";
 
 class Express_app {
   private _app: Express;
@@ -80,6 +81,9 @@ class Express_app {
     this._app.use("/auth/", new User_Router().get_router());
 
     this._app.use("/auth", new Investor_Router().get_router());
+
+    this._app.use("/auth", new Admin_Routes().get_router());
+    this._app.use("/admin", new Admin_Routes().get_router());
   }
 
   listen() {

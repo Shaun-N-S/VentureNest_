@@ -1,5 +1,6 @@
 import { IUserModel } from "@infrastructure/db/models/userModel";
 import { CreateUserDTO } from "application/dto/auth/createUserDTO";
+import { LoginAdminResponseDTO } from "application/dto/auth/LoginAdminDTO";
 import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";
 import { UserEntity } from "domain/entities/user/userEntity";
 import { UserRole } from "domain/enum/userRole";
@@ -43,6 +44,16 @@ export class UserMapper {
       isFirstLogin: user.isFirstLogin,
       adminVerified: user.adminVerified,
       updatedAt: user.updatedAt,
+    };
+  }
+
+  static toLoginAdminResponse(user: UserEntity): LoginAdminResponseDTO {
+    return {
+      _id: user._id,
+      userName: user.userName,
+      email: user.email,
+      role: user.role,
+      status: user.status,
     };
   }
 

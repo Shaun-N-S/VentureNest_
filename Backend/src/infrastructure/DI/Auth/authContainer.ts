@@ -24,6 +24,8 @@ import { ForgetPasswordOtpUseCase } from "application/useCases/auth/forgetPasswo
 import { ForgetPasswordVerifyOtpUseCase } from "application/useCases/auth/forgetPasswordVerifyOtpUseCase";
 import { TokenSerivce } from "@infrastructure/services/tokenService";
 import { ForgetPasswordResetPasswordUseCase } from "application/useCases/auth/forgetPasswordResetPasswordUseCase";
+import { AdminAuthController } from "interfaceAdapters/controller/Auth/adminAuthController";
+import { AdminLoginUseCase } from "application/useCases/auth/admin/adminLoginUseCase";
 
 //Repositories & Services
 const userRepository = new UserRepository(userModel);
@@ -79,6 +81,7 @@ const forgetPasswordResetPasswordUseCase = new ForgetPasswordResetPasswordUseCas
   hashService,
   userRepository
 );
+const adminLoginUseCase = new AdminLoginUseCase(userRepository, hashService);
 
 //Controller
 export const userAuthController = new UserAuthController(
@@ -103,4 +106,10 @@ export const investorAuthController = new InvestorAuthController(
   tokenCreationUseCase,
   cacheInvestorUseCase,
   resendOtpUseCase
+);
+
+export const adminAuthController = new AdminAuthController(
+  adminLoginUseCase,
+  cacheUserUseCase,
+  tokenCreationUseCase
 );

@@ -95,7 +95,6 @@ export class UserAuthController {
   async loginUser(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = loginSchema.parse(req.body);
-      console.log(email, password);
 
       const user = await this._userLoginUseCase.userLogin(email, password);
       console.log(user);
