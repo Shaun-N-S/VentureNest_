@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { StatusTypes } from "../../../types/StatusType";
-import type { UserRole } from "../../../types/UserRole";
+import type { StatusTypes } from "../../types/StatusType";
+import type { UserRole } from "../../types/UserRole";
 
 export interface UserAuthData {
   userName: string;
@@ -9,7 +9,6 @@ export interface UserAuthData {
   status: StatusTypes;
   isFirstLogin: boolean;
   updatedAt: string;
-  accessToken: string;
 }
 
 const initialState: UserAuthData = {
@@ -19,21 +18,19 @@ const initialState: UserAuthData = {
   status: "ACTIVE",
   isFirstLogin: true,
   updatedAt: new Date().toISOString(),
-  accessToken: "",
 };
 
-const userAuthDataSlice = createSlice({
-  name: "UserAuthData",
+const AuthDataSlice = createSlice({
+  name: "AuthData",
   initialState,
   reducers: {
-    // Set all data at once
     setData: (state, action: PayloadAction<UserAuthData>) => {
-      return { ...action.payload }; // replace entire state with payload
+      return { ...action.payload };
     },
-    // Optionally, clear all data (for logout)
+
     clearData: () => initialState,
   },
 });
 
-export const { setData, clearData } = userAuthDataSlice.actions;
-export default userAuthDataSlice.reducer;
+export const { setData, clearData } = AuthDataSlice.actions;
+export default AuthDataSlice.reducer;

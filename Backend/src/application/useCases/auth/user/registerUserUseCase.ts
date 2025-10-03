@@ -1,24 +1,29 @@
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
-import { IHashPasswordService } from "@domain/interfaces/services/IHashPasswordService";
 import { USER_ERRORS } from "@shared/constants/error";
-import { CreateUserDTO } from "application/dto/user/createUserDTO";
 import { UserMapper } from "application/mappers/userMappers";
 import { ICreateUserUseCase } from "@domain/interfaces/useCases/auth/user/ICreateUserUseCase";
+import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
+import { redisRegisterSchema } from "@shared/validations/userRegisterValidator";
 
 export class RegisterUserUseCase implements ICreateUserUseCase {
   constructor(
     private _userRepository: IUserRepository,
-    private _hashService: IHashPasswordService
+    private _cacheStorage: IKeyValueTTLCaching
   ) {}
 
-  async createUser(user: CreateUserDTO): Promise<void> {
-    const existingUser = await this._userRepository.findByEmail(user.email);
+  async createUser(email: string): Promise<void> {
+    const existingUser = await this._userRepository.findByEmail(email);
     if (existingUser) {
       throw new Error(USER_ERRORS.USER_ALREADY_EXISTS);
     }
 
-    const hashedPassword = await this._hashService.hashPassword(user.password);
-    const userEntity = UserMapper.toEntity({ ...user, password: hashedPassword });
+    const redisUserData = await this._cacheStorage.getData(`USERDATA/${email}`);
+    const userData = redisRegisterSchema.safeParse(JSON.parse(redisUserData!));
+
+    console.log(redisUserData);
+    console.log("userData from redis :", userData.data);
+
+    const userEntity = UserMapper.toEntity(userData.data!);
 
     await this._userRepository.save(userEntity);
   }

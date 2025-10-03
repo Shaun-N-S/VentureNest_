@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import SignupForm, { type SignupFormValues } from "../../components/auth/SignUpForm";
-import { useUserSignUp, useUserVerifyOtp } from "../../hooks/AuthHooks";
+import { useUserResendOtp, useUserSignUp, useUserVerifyOtp } from "../../hooks/AuthHooks";
 import toast from "react-hot-toast";
 import OTPModal from "../../components/modals/OtpModal";
 import { useState } from "react";
@@ -10,9 +10,10 @@ import type { SignupPayload } from "../../types/AuthPayloads";
 export default function UserSignUpPage() {
 
     const [isOtpModalOpen, setOtpModalOpen] = useState(false);
-    const [userData,setUserData] = useState<SignupPayload>({email:"",password:"",userName:""})
+    const [userData, setUserData] = useState<SignupPayload>({ email: "", password: "", userName: "" })
     const { mutate: signup } = useUserSignUp();
     const { mutate: verifyOtp } = useUserVerifyOtp()
+    const { mutate: resendOtp } = useUserResendOtp()
     const navigate = useNavigate();
 
     const handleUserSignUp = (values: SignupFormValues) => {
@@ -41,7 +42,7 @@ export default function UserSignUpPage() {
     const handleVerifyOtp = (otp: string) => {
         console.log(userData)
         verifyOtp(
-            { otp, values:userData },
+            { otp, email: userData.email },
             {
                 onSuccess: (res) => {
                     if (res.success) {
@@ -55,6 +56,19 @@ export default function UserSignUpPage() {
                 }
             }
         )
+    }
+
+
+    const handleResendOtp = (email: string) => {
+        resendOtp(email, {
+            onSuccess: (res) => {
+                console.log("response from resend otp :", res);
+                toast.success("OTP Resended successfully");
+            },
+            onError: (err) => {
+                console.log(err);
+            }
+        })
     }
 
 
@@ -75,7 +89,7 @@ export default function UserSignUpPage() {
                 <SignupForm onSubmit={handleUserSignUp} />
 
                 {/* <OTPModal isOpen={isOtpModalOpen} onClose={() => setOtpModalOpen(false)} onVerify={handleVerifyModal} /> */}
-                <OTPModal isOpen={isOtpModalOpen} onClose={() => setOtpModalOpen(false)} onVerify={handleVerifyOtp} />
+                <OTPModal isOpen={isOtpModalOpen} onClose={() => setOtpModalOpen(false)} onVerify={handleVerifyOtp} onResend={handleResendOtp} />
 
                 {/* Footer / Login Link */}
                 <p className="text-center text-gray-500 mt-6 text-sm">

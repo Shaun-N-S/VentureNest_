@@ -18,6 +18,10 @@ export class User_Router {
       userAuthController.registerUser(req, res);
     });
 
+    this._route.post("/users/resend-otp", (req: Request, res: Response) => {
+      userAuthController.signUpSendOtp(req, res);
+    });
+
     this._route.post("/users/login", (req: Request, res: Response) => {
       userAuthController.loginUser(req, res);
     });

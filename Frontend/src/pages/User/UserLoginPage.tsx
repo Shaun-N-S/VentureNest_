@@ -3,7 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useUserLogin } from "../../hooks/AuthHooks";
 import { useDispatch } from "react-redux";
-import { setData } from "../../store/Slice/userSlice/authDataSlice";
+import { setData } from "../../store/Slice/authDataSlice";
+import { AxiosError } from "axios";
+import { setToken } from "../../store/Slice/tokenSlice";
 
 const UserLoginPage = () => {
 
@@ -13,16 +15,20 @@ const UserLoginPage = () => {
 
 
     const handleUserLogin = (values: LoginFormData) => {
-        console.log("Login values:", values);
-        toast.success("Login attempted!");
         login(values, {
             onSuccess: (res) => {
-                console.log("login successfull , ", res.data);
-                dispatch(setData(res.data))
+                console.log("login successfull , ", res.data.accessToken);
+                toast.success('Login successfull')
+                dispatch(setData(res.data.user));
+                dispatch(setToken(res.data.accessToken));
                 navigate('/home')
             },
             onError: (err) => {
-                console.log("Error while login ,", err)
+                if(err instanceof AxiosError){
+                    const errMsg = err.response?.data?.message;
+                    console.log("Error while login ,", err)
+                    toast.error(errMsg)
+                }
             }
         })
     };

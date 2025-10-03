@@ -18,4 +18,5 @@ export const USER_ERRORS = {
 
 export const INVESTOR_ERRORS = {
   INVESTOR_ALREADY_EXISTS: "Investor already exists",
+  INVESTOR_BLOKED: "Investor is blocked",
 };

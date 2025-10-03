@@ -6,13 +6,19 @@ import { EmailService } from "@infrastructure/services/Email/emailService";
 import { HashPassword } from "@infrastructure/services/hashPasswordService";
 import { JWTService } from "@infrastructure/services/jwtService";
 import { OtpService } from "@infrastructure/services/otpService";
-import { SignUpSendOtpUseCase } from "application/useCases/auth/user/signUpSendOtpUseCase";
+import { SignUpSendOtpUseCase } from "application/useCases/auth/signUpSendOtpUseCase";
 import { VerifyOtpUseCase } from "application/useCases/auth/verifyOtpUseCase";
 import { RegisterUserUseCase } from "application/useCases/auth/user/registerUserUseCase";
 import { UserAuthController } from "interfaceAdapters/controller/Auth/userAuthController";
 import { UserLoginUseCase } from "application/useCases/auth/user/loginUserUseCase";
 import { TokenCreationUseCase } from "application/useCases/auth/tokenCreationUseCase";
 import { CacheUserUseCase } from "application/useCases/auth/user/cacheUserUseCase";
+import { InvestorRepository } from "@infrastructure/repostiories/investorRepository";
+import { investorModel } from "@infrastructure/db/models/investorModel";
+import { InvestorAuthController } from "interfaceAdapters/controller/Auth/investorAuthController";
+import { RegisterInvestorUseCase } from "application/useCases/auth/investor/registerInvestorUseCase";
+import { InvestorLoginUseCase } from "application/useCases/auth/investor/investorLoginUseCase";
+import { CacheInvestorUseCase } from "application/useCases/auth/investor/CacheInvestorUseCase";
 
 //Repositories & Services
 const userRepository = new UserRepository(userModel);
@@ -22,27 +28,43 @@ const otpContentGenerator = new OtpEmailContentGenerator();
 const emailService = new EmailService();
 const cacheStorage = new KeyValueTTLCaching();
 const jwtService = new JWTService();
+const investorRepository = new InvestorRepository(investorModel);
 
 //UseCases
-const registerUserUseCase = new RegisterUserUseCase(userRepository, hashService);
-const userSendOtpUseCase = new SignUpSendOtpUseCase(
+const registerUserUseCase = new RegisterUserUseCase(userRepository, cacheStorage);
+const registerInvestorUseCase = new RegisterInvestorUseCase(investorRepository, cacheStorage);
+const sendOtpUseCase = new SignUpSendOtpUseCase(
   otpService,
   otpContentGenerator,
   emailService,
   userRepository,
-  cacheStorage
+  investorRepository,
+  cacheStorage,
+  hashService
 );
 const verifyOtpUseCase = new VerifyOtpUseCase(cacheStorage);
 const userLoginUseCase = new UserLoginUseCase(userRepository, hashService);
 const tokenCreationUseCase = new TokenCreationUseCase(jwtService);
 const cacheUserUseCase = new CacheUserUseCase(cacheStorage);
+const investorLoginUseCase = new InvestorLoginUseCase(investorRepository, hashService);
+const cacheInvestorUseCase = new CacheInvestorUseCase(cacheStorage);
 
 //Controller
 export const userAuthController = new UserAuthController(
   registerUserUseCase,
-  userSendOtpUseCase,
+  sendOtpUseCase,
   verifyOtpUseCase,
   userLoginUseCase,
   tokenCreationUseCase,
-  cacheUserUseCase
+  cacheUserUseCase,
+  cacheStorage
+);
+
+export const investorAuthController = new InvestorAuthController(
+  registerInvestorUseCase,
+  sendOtpUseCase,
+  verifyOtpUseCase,
+  investorLoginUseCase,
+  tokenCreationUseCase,
+  cacheInvestorUseCase
 );

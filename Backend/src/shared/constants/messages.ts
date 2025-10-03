@@ -18,4 +18,8 @@ export const MESSAGES = {
   OTP: {
     OTP_SUCCESSFULL: "Otp sent successfully",
   },
+
+  INVESTOR: {
+    REGISTER_SUCCESS: "Investor registered successfully.",
+  },
 };

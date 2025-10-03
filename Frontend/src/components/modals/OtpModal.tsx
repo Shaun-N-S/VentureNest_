@@ -4,9 +4,10 @@ type OTPModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onVerify: (otp: string) => void;
+  onResend: (email: string) => void;
 };
 
-const OTPModal = ({ isOpen, onClose, onVerify }: OTPModalProps) => {
+const OTPModal = ({ isOpen, onClose, onVerify, onResend }: OTPModalProps) => {
   const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
@@ -35,7 +36,7 @@ const OTPModal = ({ isOpen, onClose, onVerify }: OTPModalProps) => {
   const handleResend = () => {
     setTimer(60);
     setCanResend(false);
-    // Call resend OTP API here
+    // onResend(email);
   };
 
   const handleVerify = () => {
@@ -72,9 +73,8 @@ const OTPModal = ({ isOpen, onClose, onVerify }: OTPModalProps) => {
           <button
             disabled={!canResend}
             onClick={handleResend}
-            className={`text-indigo-600 font-semibold hover:underline ${
-              !canResend ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`text-indigo-600 font-semibold hover:underline ${!canResend ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
             Resend OTP
           </button>

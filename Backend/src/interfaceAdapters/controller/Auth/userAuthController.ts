@@ -13,26 +13,30 @@ import { ICacheUserUseCase } from "@domain/interfaces/useCases/auth/user/ICacheU
 import { loginSchema } from "@shared/validations/loginValidator";
 import { UserRole } from "@domain/enum/userRole";
 import { setRefreshTokenCookie } from "@shared/utils/setRefreshTokenCookie";
+import { otpSchema } from "@shared/validations/otpValidator";
+import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 
 export class UserAuthController {
   constructor(
-    private _registerUseCase: ICreateUserUseCase,
+    private _registerUserUseCase: ICreateUserUseCase,
     private _sendOtpUseCase: ISignUpSendOtpUseCase,
     private _verifyOtpUseCase: IVerifyOtpUseCase,
     private _userLoginUseCase: IUserLoginUseCase,
     private _tokenCreationUseCase: ITokenCreationUseCase,
-    private _cacheUserUseCase: ICacheUserUseCase
+    private _cacheUserUseCase: ICacheUserUseCase,
+    private _cacheStorage: IKeyValueTTLCaching
   ) {}
 
   async signUpSendOtp(req: Request, res: Response): Promise<void> {
     try {
-      const validatedEmail = emailSchema.safeParse(req.body.email);
-      if (!validatedEmail) {
-        throw new Error(Errors.INVALID_EMAIL);
+      // const validatedEmail = emailSchema.safeParse(req.body.email);
+      const userData = registerUserSchema.safeParse(req.body);
+      if (userData.error) {
+        throw new Error(Errors.INVALID_USERDATA);
       }
 
       console.log("reached here !!");
-      await this._sendOtpUseCase.signUpSendOtp(validatedEmail.data!);
+      await this._sendOtpUseCase.signUpSendOtp(userData.data!);
 
       res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.OTP_SUCCESSFULL });
     } catch (error) {
@@ -43,24 +47,32 @@ export class UserAuthController {
 
   async registerUser(req: Request, res: Response): Promise<void> {
     try {
-      const userData = registerUserSchema.safeParse(req.body);
-      console.log("userdata : ", userData);
-      if (!userData.success) {
-        res.status(HTTPStatus.BAD_REQUEST).json({ message: Errors.INVALID_USERDATA });
+      const validatedEmail = emailSchema.safeParse(req.body.email);
+      const validatedOtp = otpSchema.safeParse(req.body.otp);
+      console.log("email : ", validatedEmail.data);
+      if (validatedEmail.error) {
+        res.status(HTTPStatus.BAD_REQUEST).json({ message: Errors.INVALID_EMAIL });
         return;
       }
 
-      const { otp, email, userName, password } = userData.data!;
+      if (validatedOtp.error) {
+        res.status(HTTPStatus.BAD_REQUEST).json({ message: Errors.OTP_ERROR });
+        return;
+      }
+
+      const otp = validatedOtp.data;
+      const email = validatedEmail.data;
       console.log("otp", otp);
+      console.log("email ", email);
 
-      const verifiedOtp = await this._verifyOtpUseCase.verifyOtp(email, otp);
-
+      const verifiedOtp = await this._verifyOtpUseCase.verifyOtp(email, otp!);
+      console.log("verifiedOtp", verifiedOtp);
       if (!verifiedOtp) {
         res.status(HTTPStatus.BAD_REQUEST).json({ message: Errors.OTP_VERIFICATION_FAILED });
         return;
       }
 
-      const user = await this._registerUseCase.createUser({ userName, email, password });
+      const user = await this._registerUserUseCase.createUser(email);
       console.log("user after creating : ", user);
 
       res.status(HTTPStatus.OK).json({ success: true, data: user });

@@ -1,3 +1,5 @@
+import { CreateUserDTO } from "application/dto/auth/createUserDTO";
+
 export interface ISignUpSendOtpUseCase {
-  signUpSendOtp(email: string): Promise<void>;
+  signUpSendOtp(userData: CreateUserDTO): Promise<void>;
 }

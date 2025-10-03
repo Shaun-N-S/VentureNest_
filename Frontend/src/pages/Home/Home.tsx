@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
 import { persistor, type Rootstate } from '../../store/store'
 import { useDispatch } from 'react-redux'
-import { clearData } from '../../store/Slice/userSlice/authDataSlice'
+import { clearData } from '../../store/Slice/authDataSlice'
 import { useNavigate } from 'react-router-dom'
 
 const Home = () => {
@@ -11,7 +11,6 @@ const Home = () => {
     console.log("userData from redux store",userData);
     const handleLogout = () =>{
         dispatch(clearData());
-        persistor.purge();
         navigate('/login');
         
     }

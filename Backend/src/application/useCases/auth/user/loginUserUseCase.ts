@@ -3,7 +3,7 @@ import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository
 import { IHashPasswordService } from "@domain/interfaces/services/IHashPasswordService";
 import { IUserLoginUseCase } from "@domain/interfaces/useCases/auth/user/IUserLoginUseCase";
 import { Errors, USER_ERRORS } from "@shared/constants/error";
-import { LoginUserDTO } from "application/dto/user/LoginUserDTO";
+import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";
 import { UserMapper } from "application/mappers/userMappers";
 
 export class UserLoginUseCase implements IUserLoginUseCase {
@@ -15,7 +15,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     this._hashService = hashService;
   }
 
-  async userLogin(email: string, password: string): Promise<LoginUserDTO> {
+  async userLogin(email: string, password: string): Promise<LoginUserResponseDTO> {
     const user = await this._userRepository.findByEmail(email);
 
     if (!user) {
@@ -32,7 +32,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
       throw new Error(Errors.INVALID_CREDENTIALS);
     }
 
-    const response: LoginUserDTO = UserMapper.toLoginUserResponse(user);
+    const response: LoginUserResponseDTO = UserMapper.toLoginUserResponse(user);
     return response;
   }
 }

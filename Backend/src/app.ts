@@ -9,6 +9,7 @@ import { User_Router } from "interfaceAdapters/routes/userRoutes";
 import { DateTimeUtil } from "@shared/utils/DateTimeUtil";
 import { createStream } from "rotating-file-stream";
 import path from "path";
+import { Investor_Router } from "interfaceAdapters/routes/investorRoutes";
 
 class Express_app {
   private _app: Express;
@@ -77,6 +78,8 @@ class Express_app {
 
   private _setRoutes() {
     this._app.use("/auth/", new User_Router().get_router());
+
+    this._app.use("/auth", new Investor_Router().get_router());
   }
 
   listen() {
