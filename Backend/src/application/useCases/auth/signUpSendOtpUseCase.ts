@@ -59,6 +59,6 @@ export class SignUpSendOtpUseCase implements ISignUpSendOtpUseCase {
     this._emailService.sendEmail(emailTemplate as Required<IOtpEmailTemplate>);
     this._cacheStorage.setData(`otp/${userData.email}`, 5 * 60, OTP);
     userData.password = await this._hashService.hashPassword(userData.password);
-    this._cacheStorage.setData(`USERDATA/${userData.email}`, 5 * 60, JSON.stringify(userData));
+    this._cacheStorage.setData(`USERDATA/${userData.email}`, 30 * 60, JSON.stringify(userData));
   }
 }

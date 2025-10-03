@@ -112,4 +112,13 @@ export class UserAuthController {
       });
     }
   }
+
+  async resendOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const validatedEmail = emailSchema.safeParse(req.body.email);
+      if (validatedEmail.error) {
+        throw new Error(Errors.INVALID_EMAIL);
+      }
+    } catch (error) {}
+  }
 }
