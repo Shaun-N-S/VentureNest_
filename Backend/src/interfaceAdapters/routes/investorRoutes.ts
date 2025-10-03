@@ -18,6 +18,10 @@ export class Investor_Router {
       investorAuthController.registerInvestor(req, res);
     });
 
+    this._route.post("/investors/resend-otp", (req: Request, res: Response) => {
+      investorAuthController.resendOtp(req, res);
+    });
+
     this._route.post("/investors/login", (req: Request, res: Response) => {
       investorAuthController.loginInvestor(req, res);
     });

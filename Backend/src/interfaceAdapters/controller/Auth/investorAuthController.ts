@@ -2,6 +2,7 @@ import { UserRole } from "@domain/enum/userRole";
 import { ICacheInvestorUseCase } from "@domain/interfaces/useCases/auth/investor/ICacheInvestorUseCase";
 import { ICreateInvestorUseCase } from "@domain/interfaces/useCases/auth/investor/ICreateInvestorUseCase";
 import { IInvestorLoginUseCase } from "@domain/interfaces/useCases/auth/investor/IInvestorLoginUseCase";
+import { IResendOtpUseCase } from "@domain/interfaces/useCases/auth/IResendOtp";
 import { ITokenCreationUseCase } from "@domain/interfaces/useCases/auth/ITokenCreation";
 import { IVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IVerifyOtp";
 import { ISignUpSendOtpUseCase } from "@domain/interfaces/useCases/auth/user/ISignUpSendOtp";
@@ -22,7 +23,8 @@ export class InvestorAuthController {
     private _verifyOtpUseCase: IVerifyOtpUseCase,
     private _investorLoginUseCase: IInvestorLoginUseCase,
     private _tokenCreationUseCase: ITokenCreationUseCase,
-    private _cacheInvestorUseCase: ICacheInvestorUseCase
+    private _cacheInvestorUseCase: ICacheInvestorUseCase,
+    private _resendOtpUseCase: IResendOtpUseCase
   ) {}
 
   async signUpSendOtp(req: Request, res: Response): Promise<void> {
@@ -99,6 +101,22 @@ export class InvestorAuthController {
         message: Errors.INVALID_CREDENTIALS,
         error: error instanceof Error ? error.message : "Error while validating investor",
       });
+    }
+  }
+
+  async resendOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const validatedEmail = emailSchema.safeParse(req.body.email);
+      console.log(validatedEmail.data);
+      if (validatedEmail.error) {
+        throw new Error(Errors.INVALID_EMAIL);
+      }
+      console.log("reached...");
+      await this._resendOtpUseCase.resendOtp(validatedEmail.data);
+
+      res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.OTP_SUCCESSFULL });
+    } catch (error) {
+      console.log(`Error while sending otp : ${error}`);
     }
   }
 }

@@ -19,12 +19,14 @@ export class User_Router {
     });
 
     this._route.post("/users/resend-otp", (req: Request, res: Response) => {
-      userAuthController.signUpSendOtp(req, res);
+      userAuthController.resendOtp(req, res);
     });
 
     this._route.post("/users/login", (req: Request, res: Response) => {
       userAuthController.loginUser(req, res);
     });
+
+    this._route.post("/users/forget-password", (req: Request, res: Response) => {});
   }
 
   public get_router(): Router {

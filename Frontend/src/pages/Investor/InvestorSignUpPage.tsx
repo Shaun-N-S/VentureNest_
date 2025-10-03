@@ -1,5 +1,5 @@
 import toast from "react-hot-toast"
-import { useInvestorSignUp, useInvestorVerifyOtp } from "../../hooks/AuthHooks"
+import { useInvestorResendOtp, useInvestorSignUp, useInvestorVerifyOtp } from "../../hooks/AuthHooks"
 import type { SignupPayload } from "../../types/AuthPayloads"
 import { useState } from "react"
 import { motion } from "framer-motion"
@@ -14,6 +14,7 @@ const InvestorSignUpPage = () => {
     const [isOtpModalOpen, setOtpModalOpen] = useState(false);
     const { mutate: signup } = useInvestorSignUp()
     const { mutate: verifyOtp } = useInvestorVerifyOtp()
+    const { mutate: resendOtp } = useInvestorResendOtp()
 
     const navigate = useNavigate()
 
@@ -58,7 +59,16 @@ const InvestorSignUpPage = () => {
         )
     }
 
-    const handleResendOtp = () => { }
+    const handleResendOtp = (email: string) => {
+        resendOtp(email, {
+            onSuccess: (res) => {
+                toast.success("OTP Resend successfully");
+            },
+            onError: (err) => {
+                toast.error("Failed to resend OTP");
+            }
+        });
+    }
 
     console.log("Investor data in state : ", investorData);
 
@@ -92,7 +102,7 @@ const InvestorSignUpPage = () => {
                         isOpen={isOtpModalOpen}
                         onClose={() => setOtpModalOpen(false)}
                         onVerify={handleVerifyOtp}
-                        onResend={handleResendOtp}
+                        onResend={() => handleResendOtp(investorData.email)}
                     />
 
                     <p className="mt-6 text-center text-sm text-foreground/70">

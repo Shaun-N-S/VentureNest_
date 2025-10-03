@@ -27,7 +27,7 @@ export const useUserVerifyOtp = () => {
 
 export const useUserResendOtp = () => {
   return useMutation({
-    mutationFn: (otp: string) => userResendOtp(otp),
+    mutationFn: (email: string) => userResendOtp(email),
   });
 };
 

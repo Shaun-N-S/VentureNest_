@@ -15,6 +15,7 @@ import { UserRole } from "@domain/enum/userRole";
 import { setRefreshTokenCookie } from "@shared/utils/setRefreshTokenCookie";
 import { otpSchema } from "@shared/validations/otpValidator";
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
+import { IResendOtpUseCase } from "@domain/interfaces/useCases/auth/IResendOtp";
 
 export class UserAuthController {
   constructor(
@@ -24,7 +25,8 @@ export class UserAuthController {
     private _userLoginUseCase: IUserLoginUseCase,
     private _tokenCreationUseCase: ITokenCreationUseCase,
     private _cacheUserUseCase: ICacheUserUseCase,
-    private _cacheStorage: IKeyValueTTLCaching
+    private _cacheStorage: IKeyValueTTLCaching,
+    private _resendOptUseCase: IResendOtpUseCase
   ) {}
 
   async signUpSendOtp(req: Request, res: Response): Promise<void> {
@@ -35,7 +37,6 @@ export class UserAuthController {
         throw new Error(Errors.INVALID_USERDATA);
       }
 
-      console.log("reached here !!");
       await this._sendOtpUseCase.signUpSendOtp(userData.data!);
 
       res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.OTP_SUCCESSFULL });
@@ -114,6 +115,22 @@ export class UserAuthController {
   }
 
   async resendOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const validatedEmail = emailSchema.safeParse(req.body.email);
+      console.log(validatedEmail.data);
+      if (validatedEmail.error) {
+        throw new Error(Errors.INVALID_EMAIL);
+      }
+      console.log("reached...");
+      await this._resendOptUseCase.resendOtp(validatedEmail.data);
+
+      res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.OTP_SUCCESSFULL });
+    } catch (error) {
+      console.log(`Error while sending otp : ${error}`);
+    }
+  }
+
+  async forgetPassword(req: Request, res: Response): Promise<void> {
     try {
       const validatedEmail = emailSchema.safeParse(req.body.email);
       if (validatedEmail.error) {

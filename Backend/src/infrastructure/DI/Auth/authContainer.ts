@@ -19,6 +19,7 @@ import { InvestorAuthController } from "interfaceAdapters/controller/Auth/invest
 import { RegisterInvestorUseCase } from "application/useCases/auth/investor/registerInvestorUseCase";
 import { InvestorLoginUseCase } from "application/useCases/auth/investor/investorLoginUseCase";
 import { CacheInvestorUseCase } from "application/useCases/auth/investor/CacheInvestorUseCase";
+import { ResendOtpUseCase } from "application/useCases/auth/resendOtpUseCase";
 
 //Repositories & Services
 const userRepository = new UserRepository(userModel);
@@ -48,6 +49,14 @@ const tokenCreationUseCase = new TokenCreationUseCase(jwtService);
 const cacheUserUseCase = new CacheUserUseCase(cacheStorage);
 const investorLoginUseCase = new InvestorLoginUseCase(investorRepository, hashService);
 const cacheInvestorUseCase = new CacheInvestorUseCase(cacheStorage);
+const resendOtpUseCase = new ResendOtpUseCase(
+  otpService,
+  otpContentGenerator,
+  emailService,
+  userRepository,
+  investorRepository,
+  cacheStorage
+);
 
 //Controller
 export const userAuthController = new UserAuthController(
@@ -57,7 +66,8 @@ export const userAuthController = new UserAuthController(
   userLoginUseCase,
   tokenCreationUseCase,
   cacheUserUseCase,
-  cacheStorage
+  cacheStorage,
+  resendOtpUseCase
 );
 
 export const investorAuthController = new InvestorAuthController(
@@ -66,5 +76,6 @@ export const investorAuthController = new InvestorAuthController(
   verifyOtpUseCase,
   investorLoginUseCase,
   tokenCreationUseCase,
-  cacheInvestorUseCase
+  cacheInvestorUseCase,
+  resendOtpUseCase
 );
