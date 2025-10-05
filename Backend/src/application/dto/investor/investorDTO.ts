@@ -1,7 +1,7 @@
 import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
 
-export interface LoginUserResponseDTO {
+export interface InvestorDTO {
   _id: string;
   userName: string;
   email: string;
@@ -11,4 +11,5 @@ export interface LoginUserResponseDTO {
   adminVerified: boolean;
   profileImg: string;
   updatedAt: Date;
+  createdAt: Date;
 }

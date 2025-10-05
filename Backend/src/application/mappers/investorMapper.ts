@@ -4,6 +4,7 @@ import { UserStatus } from "@domain/enum/userStatus";
 import { IInvestorModel } from "@infrastructure/db/models/investorModel";
 import { CreateUserDTO } from "application/dto/auth/createUserDTO";
 import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";
+import { InvestorDTO } from "application/dto/investor/investorDTO";
 import mongoose from "mongoose";
 
 export class InvestorMapper {
@@ -52,7 +53,23 @@ export class InvestorMapper {
       status: investor.status,
       isFirstLogin: investor.isFirstLogin,
       adminVerified: investor.adminVerified,
+      profileImg: investor.profileImg || "",
       updatedAt: investor.updatedAt,
+    };
+  }
+
+  static toDTO(entity: InvestorEntity): InvestorDTO {
+    return {
+      _id: entity._id,
+      userName: entity.userName,
+      email: entity.email,
+      role: entity.role,
+      status: entity.status,
+      adminVerified: entity.adminVerified,
+      isFirstLogin: entity.isFirstLogin,
+      profileImg: entity.profileImg || "",
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
     };
   }
 

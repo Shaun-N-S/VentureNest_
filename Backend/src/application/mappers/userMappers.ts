@@ -2,6 +2,7 @@ import { IUserModel } from "@infrastructure/db/models/userModel";
 import { CreateUserDTO } from "application/dto/auth/createUserDTO";
 import { LoginAdminResponseDTO } from "application/dto/auth/LoginAdminDTO";
 import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";
+import { UserDTO } from "application/dto/user/userDTO";
 import { UserEntity } from "domain/entities/user/userEntity";
 import { UserRole } from "domain/enum/userRole";
 import { UserStatus } from "domain/enum/userStatus";
@@ -34,6 +35,21 @@ export class UserMapper {
     };
   }
 
+  static toDTO(entity: UserEntity): UserDTO {
+    return {
+      _id: entity._id,
+      userName: entity.userName,
+      email: entity.email,
+      role: entity.role,
+      status: entity.status,
+      adminVerified: entity.adminVerified,
+      isFirstLogin: entity.isFirstLogin,
+      profileImg: entity.profileImg || "",
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    };
+  }
+
   static toLoginUserResponse(user: UserEntity): LoginUserResponseDTO {
     return {
       _id: user._id,
@@ -43,6 +59,7 @@ export class UserMapper {
       status: user.status,
       isFirstLogin: user.isFirstLogin,
       adminVerified: user.adminVerified,
+      profileImg: user.profileImg || "",
       updatedAt: user.updatedAt,
     };
   }
