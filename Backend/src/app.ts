@@ -78,11 +78,12 @@ class Express_app {
   }
 
   private _setRoutes() {
-    this._app.use("/auth/", new User_Router().get_router());
-
+    // Auth routes
+    this._app.use("/auth", new User_Router().get_router());
     this._app.use("/auth", new Investor_Router().get_router());
-
     this._app.use("/auth", new Admin_Routes().get_router());
+
+    // Admin routes
     this._app.use("/admin", new Admin_Routes().get_router());
   }
 

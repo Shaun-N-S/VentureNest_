@@ -1,5 +1,3 @@
-// src/infrastructure/constants/routes.ts
-
 export const ROUTES = {
   AUTH: {
     USER: {
@@ -18,10 +16,22 @@ export const ROUTES = {
       VERIFY_OTP: "/investors/verify-otp",
       RESEND_OTP: "/investors/resend-otp",
       LOGIN: "/investors/login",
+      FORGET_PASSWORD: {
+        REQUEST: "/investors/forget-password",
+        VERIFY_OTP: "/investors/forget-password/verify-otp",
+        RESET_PASSWORD: "/investors/forget-password/reset-password",
+      },
     },
     ADMIN: {
+      BASE: "/admin",
       LOGIN: "/admin/login",
-      USERS: "/admin/users",
     },
+  },
+  ADMIN: {
+    BASE: "",
+    USERS: "/users",
+    INVESTORS: "/investors",
+    UPDATE_USER_STATUS: "/users/update-status",
+    UPDATE_INVESTOR_STATUS: "/investors/update-status",
   },
 };

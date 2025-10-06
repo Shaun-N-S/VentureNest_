@@ -7,7 +7,7 @@ import {
   investorVerifyOtp,
   loginInvestor,
   loginUser,
-  SignupInvestor,
+  signupInvestor,
   signupUser,
   updateUserStatus,
   userForgetPassword,
@@ -56,12 +56,12 @@ export const useForgetPasswordResetPassword = () => {
     mutationFn: ({
       email,
       token,
-      newPassword,
+      password,
     }: {
       email: string;
       token: string;
-      newPassword: string;
-    }) => userResetPassword({ email, token, newPassword }),
+      password: string;
+    }) => userResetPassword({ email, token, password }),
   });
 };
 
@@ -74,7 +74,7 @@ export const useUserLogin = () => {
 //investor
 export const useInvestorSignUp = () => {
   return useMutation({
-    mutationFn: (data: SignupPayload) => SignupInvestor(data),
+    mutationFn: (data: SignupPayload) => signupInvestor(data),
   });
 };
 

@@ -1,9 +1,10 @@
 import AxiosInstance from "../axios/axios";
+import { API_ROUTES } from "../constants/apiRoutes";
 import type { LoginPayload, SignupPayload } from "../types/AuthPayloads";
 
-//users
+// 🧍 Users
 export const signupUser = async (data: SignupPayload) => {
-  const response = await AxiosInstance.post("/auth/users", data);
+  const response = await AxiosInstance.post(API_ROUTES.AUTH.USER_SIGNUP, data);
   return response.data;
 };
 
@@ -14,8 +15,7 @@ export const userVerifyOtp = async ({
   otp: string;
   email: string;
 }) => {
-  console.log(email, "values");
-  const response = await AxiosInstance.post("/auth/users/verify-otp", {
+  const response = await AxiosInstance.post(API_ROUTES.AUTH.USER_VERIFY_OTP, {
     otp,
     email,
   });
@@ -23,16 +23,17 @@ export const userVerifyOtp = async ({
 };
 
 export const userResendOtp = async (email: string) => {
-  const response = await AxiosInstance.post("/auth/users/resend-otp", {
+  const response = await AxiosInstance.post(API_ROUTES.AUTH.USER_RESEND_OTP, {
     email,
   });
   return response.data;
 };
 
 export const userForgetPassword = async (email: string) => {
-  const response = await AxiosInstance.post("/auth/users/forget-password", {
-    email,
-  });
+  const response = await AxiosInstance.post(
+    API_ROUTES.AUTH.USER_FORGET_PASSWORD,
+    { email }
+  );
   return response.data;
 };
 
@@ -44,36 +45,46 @@ export const userForgetPasswordVerifyOtp = async ({
   otp: string;
 }) => {
   const response = await AxiosInstance.post(
-    "/auth/users/forget-password/verify-otp",
-    { email, otp }
+    API_ROUTES.AUTH.USER_FORGET_VERIFY_OTP,
+    {
+      email,
+      otp,
+    }
   );
   return response.data;
 };
 
 export const userResetPassword = async ({
   email,
-  newPassword,
+  password,
   token,
 }: {
   email: string;
-  newPassword: string;
+  password: string;
   token: string;
 }) => {
   const response = await AxiosInstance.post(
-    "/auth/users/forget-password/reset-password",
-    { email, newPassword, token }
+    API_ROUTES.AUTH.USER_RESET_PASSWORD,
+    {
+      email,
+      password,
+      token,
+    }
   );
-  return response;
-};
-
-export const loginUser = async (data: LoginPayload) => {
-  const response = await AxiosInstance.post("/auth/users/login", data);
   return response.data;
 };
 
-//investors
-export const SignupInvestor = async (data: SignupPayload) => {
-  const response = await AxiosInstance.post("/auth/investors", data);
+export const loginUser = async (data: LoginPayload) => {
+  const response = await AxiosInstance.post(API_ROUTES.AUTH.USER_LOGIN, data);
+  return response.data;
+};
+
+// Investors
+export const signupInvestor = async (data: SignupPayload) => {
+  const response = await AxiosInstance.post(
+    API_ROUTES.AUTH.INVESTOR_SIGNUP,
+    data
+  );
   return response.data;
 };
 
@@ -84,25 +95,33 @@ export const investorVerifyOtp = async ({
   otp: string;
   values: SignupPayload;
 }) => {
-  const response = await AxiosInstance.post("/auth/investors/verify-otp", {
-    otp,
-    ...values,
-  });
+  const response = await AxiosInstance.post(
+    API_ROUTES.AUTH.INVESTOR_VERIFY_OTP,
+    {
+      otp,
+      ...values,
+    }
+  );
   return response.data;
 };
 
 export const investorResendOtp = async (email: string) => {
-  const response = await AxiosInstance.post("/auth/investors/resend-otp", {
-    email,
-  });
+  const response = await AxiosInstance.post(
+    API_ROUTES.AUTH.INVESTOR_RESEND_OTP,
+    { email }
+  );
   return response.data;
 };
 
 export const loginInvestor = async (data: LoginPayload) => {
-  const response = await AxiosInstance.post("/auth/investors/login", data);
+  const response = await AxiosInstance.post(
+    API_ROUTES.AUTH.INVESTOR_LOGIN,
+    data
+  );
   return response.data;
 };
 
+// Admin — Users
 export const getAllUsers = async (
   page = 1,
   limit = 10,
@@ -116,10 +135,30 @@ export const getAllUsers = async (
   if (status) params.append("status", status);
   if (search) params.append("search", search);
 
-  const response = await AxiosInstance.get(`/admin/users?${params.toString()}`);
+  const response = await AxiosInstance.get(
+    `${API_ROUTES.ADMIN.USERS}?${params.toString()}`
+  );
   return response.data;
 };
 
+export const updateUserStatus = async ({
+  userId,
+  currentStatus,
+}: {
+  userId: string;
+  currentStatus: string;
+}) => {
+  const response = await AxiosInstance.post(
+    API_ROUTES.ADMIN.USERS_UPDATE_STATUS,
+    {
+      userId,
+      currentStatus,
+    }
+  );
+  return response.data;
+};
+
+//Admin — Investors
 export const getAllInvestors = async (
   page = 1,
   limit = 10,
@@ -134,23 +173,9 @@ export const getAllInvestors = async (
   if (search) params.append("search", search);
 
   const response = await AxiosInstance.get(
-    `/admin/investors?${params.toString()}`
+    `${API_ROUTES.ADMIN.INVESTORS}?${params.toString()}`
   );
   return response.data;
-};
-
-export const updateUserStatus = async ({
-  userId,
-  currentStatus,
-}: {
-  userId: string;
-  currentStatus: string;
-}) => {
-  const response = await AxiosInstance.post("/admin/users/update-status", {
-    userId,
-    currentStatus,
-  });
-  return response;
 };
 
 export const updateInvestorStatus = async ({
@@ -160,10 +185,12 @@ export const updateInvestorStatus = async ({
   investorId: string;
   currentStatus: string;
 }) => {
-  const response = await AxiosInstance.post("/admin/investors/update-status", {
-    investorId,
-    currentStatus,
-  });
-
-  return response;
+  const response = await AxiosInstance.post(
+    API_ROUTES.ADMIN.INVESTORS_UPDATE_STATUS,
+    {
+      investorId,
+      currentStatus,
+    }
+  );
+  return response.data;
 };
