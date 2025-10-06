@@ -22,8 +22,9 @@ export class ForgetPasswordOtpUseCase implements IForgetPasswordSendOtpUseCaes {
 
   async sendOtp(email: string): Promise<void> {
     const user = await this._userRepository.findByEmail(email);
-
-    if (!user) {
+    const investor = await this._investorRepository.findByEmail(email);
+    console.log(investor);
+    if (!user || !investor) {
       throw new Error(USER_ERRORS.USER_NOT_FOUND);
     }
 

@@ -50,10 +50,10 @@ const InvestorSignUpPage = () => {
                         toast.success("OTP Verified Successfully");
                         setOtpModalOpen(false);
                     }
-                    navigate('/investors/login')
+                    navigate('/investor/login')
                 },
                 onError: (err) => {
-                    console.error("Error while verifying otp", err);
+                    console.log("Error while verifying otp", err);
                 }
             }
         )

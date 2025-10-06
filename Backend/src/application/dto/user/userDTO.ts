@@ -9,7 +9,7 @@ export interface UserDTO {
   status: UserStatus;
   isFirstLogin: boolean;
   adminVerified: boolean;
-  profileImg: string;
+  profileImg?: string;
   updatedAt: Date;
   createdAt: Date;
 }

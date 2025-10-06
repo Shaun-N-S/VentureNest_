@@ -8,7 +8,9 @@ export class GetAllInvestorUseCase implements IGetAllInvestorUseCase {
 
   async getAllInvestors(
     page: number,
-    limit: number
+    limit: number,
+    status?: string,
+    search?: string
   ): Promise<{
     investors: InvestorDTO[];
     totalInvestors: number;
@@ -18,11 +20,11 @@ export class GetAllInvestorUseCase implements IGetAllInvestorUseCase {
     const skip = (page - 1) * limit;
 
     const [investors, totalInvestors] = await Promise.all([
-      this._investorRepository.findAll(skip, limit),
-      this._investorRepository.count(),
+      this._investorRepository.findAll(skip, limit, status, search),
+      this._investorRepository.count(status, search),
     ]);
 
-    const investorDTOs = investors.map((user) => InvestorMapper.toDTO(user));
+    const investorDTOs = investors.map((i) => InvestorMapper.toDTO(i));
 
     return {
       investors: investorDTOs,

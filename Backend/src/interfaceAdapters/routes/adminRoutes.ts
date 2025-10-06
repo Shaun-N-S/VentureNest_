@@ -1,3 +1,5 @@
+import { adminInvestorController } from "@infrastructure/DI/Admin/adminInvestorContainer";
+import { adminUserController } from "@infrastructure/DI/Admin/adminUserContainer";
 import { adminAuthController } from "@infrastructure/DI/Auth/authContainer";
 import { Request, Response, Router } from "express";
 
@@ -14,7 +16,21 @@ export class Admin_Routes {
       adminAuthController.adminLogin(req, res);
     });
 
-    this._route.get("/users", (req: Request, res: Response) => {});
+    this._route.get("/users", (req: Request, res: Response) => {
+      adminUserController.getAllUsers(req, res);
+    });
+
+    this._route.get("/investors", (req: Request, res: Response) => {
+      adminInvestorController.getAllInvestor(req, res);
+    });
+
+    this._route.post("/users/update-status", (req: Request, res: Response) => {
+      adminUserController.updateUserStatus(req, res);
+    });
+
+    this._route.post("/investors/update-status", (req: Request, res: Response) => {
+      adminInvestorController.updateInvestorStatus(req, res);
+    });
   }
 
   public get_router(): Router {

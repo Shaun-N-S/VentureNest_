@@ -1,4 +1,7 @@
 import { UserRole } from "@domain/enum/userRole";
+import { IForgetPasswordResetPasswordUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordResetPassword";
+import { IForgetPasswordSendOtpUseCaes } from "@domain/interfaces/useCases/auth/IForgetPasswordSendOtp";
+import { IForgetPasswordVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordVerifyOtp";
 import { ICacheInvestorUseCase } from "@domain/interfaces/useCases/auth/investor/ICacheInvestorUseCase";
 import { ICreateInvestorUseCase } from "@domain/interfaces/useCases/auth/investor/ICreateInvestorUseCase";
 import { IInvestorLoginUseCase } from "@domain/interfaces/useCases/auth/investor/IInvestorLoginUseCase";
@@ -11,6 +14,8 @@ import { HTTPStatus } from "@shared/constants/httpStatus";
 import { MESSAGES } from "@shared/constants/messages";
 import { setRefreshTokenCookie } from "@shared/utils/setRefreshTokenCookie";
 import { emailSchema } from "@shared/validations/emailValidator";
+import { forgetPasswordResetPasswordSchema } from "@shared/validations/forgetPasswordResetPasswordValidator";
+import { forgetPasswordVerifyOtpSchema } from "@shared/validations/forgetPasswordVerifyOtpValidator";
 import { loginSchema } from "@shared/validations/loginValidator";
 import { otpSchema } from "@shared/validations/otpValidator";
 import { registerUserSchema } from "@shared/validations/userRegisterValidator";
@@ -24,7 +29,10 @@ export class InvestorAuthController {
     private _investorLoginUseCase: IInvestorLoginUseCase,
     private _tokenCreationUseCase: ITokenCreationUseCase,
     private _cacheInvestorUseCase: ICacheInvestorUseCase,
-    private _resendOtpUseCase: IResendOtpUseCase
+    private _resendOtpUseCase: IResendOtpUseCase,
+    private _forgetPasswordSendOtpUseCase: IForgetPasswordSendOtpUseCaes,
+    private _forgetPasswordVerifyOtpUseCase: IForgetPasswordVerifyOtpUseCase,
+    private _forgetPasswordResetPasswordUseCase: IForgetPasswordResetPasswordUseCase
   ) {}
 
   async signUpSendOtp(req: Request, res: Response): Promise<void> {
@@ -117,6 +125,55 @@ export class InvestorAuthController {
       res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.OTP_SUCCESSFULL });
     } catch (error) {
       console.log(`Error while sending otp : ${error}`);
+    }
+  }
+
+  async forgetPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const validatedEmail = emailSchema.safeParse(req.body.email);
+      if (validatedEmail.error) {
+        throw new Error(Errors.INVALID_EMAIL);
+      }
+
+      await this._forgetPasswordSendOtpUseCase.sendOtp(validatedEmail.data);
+
+      res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.RESEND_OTP_SUCCESSFULL });
+    } catch (error) {
+      res.status(HTTPStatus.BAD_REQUEST).json({
+        message: "Error while sending forget password otp",
+      });
+    }
+  }
+
+  async forgetPasswordVerifyOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const data = forgetPasswordVerifyOtpSchema.safeParse(req.body);
+
+      if (data.error) {
+        throw new Error(Errors.INVALID_DATA);
+      }
+
+      const token = await this._forgetPasswordVerifyOtpUseCase.verify(data.data);
+
+      res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.OTP_VERIFIED_SUCCESSFULL, token });
+    } catch (error) {
+      res.status(HTTPStatus.BAD_REQUEST).json({ message: Errors.OTP_VERIFICATION_FAILED });
+    }
+  }
+
+  async forgetPasswordResetPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const data = forgetPasswordResetPasswordSchema.safeParse(req.body);
+
+      if (data.error) {
+        throw new Error(Errors.INVALID_DATA);
+      }
+
+      await this._forgetPasswordResetPasswordUseCase.reset(data.data);
+
+      res.status(HTTPStatus.OK).json({ message: MESSAGES.USERS.PASSWORD_RESET_SUCCESSFULLY });
+    } catch (error) {
+      res.status(HTTPStatus.BAD_REQUEST).json({ message: "Error while reseting new password" });
     }
   }
 }

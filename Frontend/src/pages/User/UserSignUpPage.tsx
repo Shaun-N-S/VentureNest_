@@ -55,7 +55,7 @@ export default function UserSignUpPage() {
           navigate('/login')
 
         }, onError: (err) => {
-          console.error("Error while verifying otp ", err);
+          console.log("Error while verifying otp ", err);
         }
       }
     )
@@ -81,9 +81,9 @@ export default function UserSignUpPage() {
       {/* <div className="mx-auto grid min-h-screen w-full max-w-6xl grid-cols-1 md:grid-cols-2"> */}
       {/* Left design panel - hidden on small screens for better mobile UX */}
       <motion.div
-        initial={{ opacity: 0, x: -16 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        // initial={{ opacity: 0, x: -16 }}
+        // animate={{ opacity: 1, x: 0 }}
+        // transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative h-full"
       >
         {/* Replace previous image-based panel with reusable component */}

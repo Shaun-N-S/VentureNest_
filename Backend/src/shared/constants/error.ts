@@ -11,6 +11,8 @@ export const Errors = {
   INVALID_OTP: "Otp expired or invalid otp",
   TOKEN_EXPIRED: "Token expired",
   TOKEN_MISMATCH: "Token not matching ",
+  INVALID_PAGINATION_PARAMETERS: "Invalid pagination parameters",
+  FAILED_USER_FETCHING: "Failed to Fetch Users",
 };
 
 export const USER_ERRORS = {

@@ -105,7 +105,10 @@ export const investorAuthController = new InvestorAuthController(
   investorLoginUseCase,
   tokenCreationUseCase,
   cacheInvestorUseCase,
-  resendOtpUseCase
+  resendOtpUseCase,
+  forgetPasswordSendOtpUseCase,
+  forgetPasswordVerifyOtpUseCase,
+  forgetPasswordResetPasswordUseCase
 );
 
 export const adminAuthController = new AdminAuthController(

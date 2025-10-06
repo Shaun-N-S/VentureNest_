@@ -19,11 +19,10 @@ const InvestorLoginPage = () => {
     const handleInvestorLogin = (values: LoginFormData) => {
         login(values, {
             onSuccess: (res) => {
-                console.log("Investor login successfull :", res.data);
                 toast.success("Login Successfull");
-                dispatch(setData(res.data))
+                dispatch(setData(res.data.investor))
                 dispatch(setToken(res.data.accessToken))
-                navigate('/home');
+                navigate('/investor/home');
             },
             onError: (err) => {
                 if (err instanceof AxiosError) {

@@ -5,8 +5,8 @@ import type { UserRole } from "../../types/UserRole";
 export interface UserAuthData {
   userName: string;
   email: string;
-  role: UserRole;
-  status: StatusTypes;
+  role: UserRole | null;
+  status: StatusTypes | null;
   isFirstLogin: boolean;
   updatedAt: string;
 }
@@ -14,8 +14,8 @@ export interface UserAuthData {
 const initialState: UserAuthData = {
   userName: "",
   email: "",
-  role: "USER",
-  status: "ACTIVE",
+  role: null,
+  status: null,
   isFirstLogin: true,
   updatedAt: new Date().toISOString(),
 };

@@ -1,4 +1,5 @@
 import { userAuthController } from "@infrastructure/DI/Auth/authContainer";
+import { ROUTES } from "@shared/constants/routes";
 import { Request, Response, Router } from "express";
 
 export class User_Router {
@@ -10,33 +11,36 @@ export class User_Router {
   }
 
   private _setRoute() {
-    this._route.post("/users", (req: Request, res: Response) => {
+    this._route.post(ROUTES.AUTH.USER.BASE, (req: Request, res: Response) => {
       userAuthController.signUpSendOtp(req, res);
     });
 
-    this._route.post("/users/verify-otp", (req: Request, res: Response) => {
+    this._route.post(ROUTES.AUTH.USER.VERIFY_OTP, (req: Request, res: Response) => {
       userAuthController.registerUser(req, res);
     });
 
-    this._route.post("/users/resend-otp", (req: Request, res: Response) => {
+    this._route.post(ROUTES.AUTH.USER.RESEND_OTP, (req: Request, res: Response) => {
       userAuthController.resendOtp(req, res);
     });
 
-    this._route.post("/users/login", (req: Request, res: Response) => {
+    this._route.post(ROUTES.AUTH.USER.LOGIN, (req: Request, res: Response) => {
       userAuthController.loginUser(req, res);
     });
 
-    this._route.post("/users/forget-password", (req: Request, res: Response) => {
+    this._route.post(ROUTES.AUTH.USER.FORGET_PASSWORD.REQUEST, (req: Request, res: Response) => {
       userAuthController.forgetPassword(req, res);
     });
 
-    this._route.post("/users/forget-password/verify-otp", (req: Request, res: Response) => {
+    this._route.post(ROUTES.AUTH.USER.FORGET_PASSWORD.VERIFY_OTP, (req: Request, res: Response) => {
       userAuthController.forgetPasswordVerifyOtp(req, res);
     });
 
-    this._route.post("/users/forget-password/reset-password", (req: Request, res: Response) => {
-      userAuthController.forgetPasswordResetPassword(req, res);
-    });
+    this._route.post(
+      ROUTES.AUTH.USER.FORGET_PASSWORD.RESET_PASSWORD,
+      (req: Request, res: Response) => {
+        userAuthController.forgetPasswordResetPassword(req, res);
+      }
+    );
   }
 
   public get_router(): Router {

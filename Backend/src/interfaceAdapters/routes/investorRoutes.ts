@@ -25,6 +25,18 @@ export class Investor_Router {
     this._route.post("/investors/login", (req: Request, res: Response) => {
       investorAuthController.loginInvestor(req, res);
     });
+
+    this._route.post("/investors/forget-password", (req: Request, res: Response) => {
+      investorAuthController.forgetPassword(req, res);
+    });
+
+    this._route.post("/investors/forget-password/verify-otp", (req: Request, res: Response) => {
+      investorAuthController.forgetPasswordVerifyOtp(req, res);
+    });
+
+    this._route.post("/investors/forget-password/reset-password", (req: Request, res: Response) => {
+      investorAuthController.forgetPasswordResetPassword(req, res);
+    });
   }
 
   public get_router(): Router {
