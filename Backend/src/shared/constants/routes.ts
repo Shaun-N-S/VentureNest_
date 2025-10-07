@@ -5,6 +5,7 @@ export const ROUTES = {
       VERIFY_OTP: "/users/verify-otp",
       RESEND_OTP: "/users/resend-otp",
       LOGIN: "/users/login",
+      LOGOUT: "/users/logout",
       FORGET_PASSWORD: {
         REQUEST: "/users/forget-password",
         VERIFY_OTP: "/users/forget-password/verify-otp",

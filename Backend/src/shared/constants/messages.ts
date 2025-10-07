@@ -7,6 +7,7 @@ export const MESSAGES = {
     PASSWORD_CHANGED: "Password changed successfully.",
     ACCOUNT_VERIFIED: "Account verified successfully.",
     PASSWORD_RESET_SUCCESSFULLY: "Password reset successfully",
+    LOUTGOUT_SUCCESSFUL: "Logged out successfully ",
     // DELETED: "User deleted successfully.",
   },
 
@@ -28,5 +29,9 @@ export const MESSAGES = {
 
   EMAIL: {
     FORGET_PASSWORD_OTP: "OTP for forgot password",
+  },
+
+  REFRESH_TOKEN: {
+    REFRESH_SUCCESSFUL: "Successfully got a new accessToken",
   },
 };

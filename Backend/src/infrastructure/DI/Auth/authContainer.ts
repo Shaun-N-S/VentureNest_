@@ -26,6 +26,9 @@ import { TokenSerivce } from "@infrastructure/services/tokenService";
 import { ForgetPasswordResetPasswordUseCase } from "application/useCases/auth/forgetPasswordResetPasswordUseCase";
 import { AdminAuthController } from "interfaceAdapters/controller/Auth/adminAuthController";
 import { AdminLoginUseCase } from "application/useCases/auth/admin/adminLoginUseCase";
+import { RefreshTokenUseCase } from "application/useCases/auth/refreshTokenUseCase";
+import { TokenInvalidationUseCase } from "application/useCases/auth/tokenInvalidationUseCase";
+import { ForgetPasswordInvestorResetPasswordUseCase } from "application/useCases/auth/forgetPasswordInvestorResetPassword";
 
 //Repositories & Services
 const userRepository = new UserRepository(userModel);
@@ -81,7 +84,14 @@ const forgetPasswordResetPasswordUseCase = new ForgetPasswordResetPasswordUseCas
   hashService,
   userRepository
 );
+const forgetPasswordInvestorResetPasswordUseCase = new ForgetPasswordInvestorResetPasswordUseCase(
+  cacheStorage,
+  hashService,
+  investorRepository
+);
 const adminLoginUseCase = new AdminLoginUseCase(userRepository, hashService);
+const tokenRefreshUseCase = new RefreshTokenUseCase(jwtService);
+const tokenValidationUseCase = new TokenInvalidationUseCase(jwtService, cacheStorage);
 
 //Controller
 export const userAuthController = new UserAuthController(
@@ -95,7 +105,9 @@ export const userAuthController = new UserAuthController(
   resendOtpUseCase,
   forgetPasswordSendOtpUseCase,
   forgetPasswordVerifyOtpUseCase,
-  forgetPasswordResetPasswordUseCase
+  forgetPasswordResetPasswordUseCase,
+  tokenRefreshUseCase,
+  tokenValidationUseCase
 );
 
 export const investorAuthController = new InvestorAuthController(
@@ -108,7 +120,7 @@ export const investorAuthController = new InvestorAuthController(
   resendOtpUseCase,
   forgetPasswordSendOtpUseCase,
   forgetPasswordVerifyOtpUseCase,
-  forgetPasswordResetPasswordUseCase
+  forgetPasswordInvestorResetPasswordUseCase
 );
 
 export const adminAuthController = new AdminAuthController(

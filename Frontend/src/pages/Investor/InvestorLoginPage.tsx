@@ -4,7 +4,6 @@ import { useInvestorLogin } from "../../hooks/AuthHooks"
 import { useDispatch } from "react-redux"
 import { setData } from "../../store/Slice/authDataSlice"
 import { Link, useNavigate } from "react-router-dom"
-import { AxiosError } from "axios"
 import { setToken } from "../../store/Slice/tokenSlice"
 import { motion } from "framer-motion"
 import LeftPanel from "../../components/auth/LeftPanal"
@@ -20,15 +19,16 @@ const InvestorLoginPage = () => {
         login(values, {
             onSuccess: (res) => {
                 toast.success("Login Successfull");
+                console.log("login success", res)
                 dispatch(setData(res.data.investor))
                 dispatch(setToken(res.data.accessToken))
                 navigate('/investor/home');
             },
             onError: (err) => {
-                if (err instanceof AxiosError) {
-                    const errMsg = err.response?.data?.message;
+                if (err instanceof Error) {
+                    // const errMsg = err.response?.data?.message;
                     console.log("Error while login ,", err)
-                    toast.error(errMsg)
+                    toast.error(err.message)
                 }
             }
         })
@@ -62,7 +62,7 @@ const InvestorLoginPage = () => {
                                 <img src="/placeholder-logo.svg" alt="VentureNest logo" className="h-6 w-6" />
                                 <span className="text-sm font-medium text-muted-foreground">VentureNest</span>
                             </div>
-                            <h1 className="text-2xl font-semibold tracking-tight text-pretty text-balance ">Welcome back</h1>
+                            <h1 className="text-2xl font-semibold tracking-tight text-balance ">Welcome back</h1>
                             <p className="mt-1 text-sm text-muted-foreground">Sign in to continue to your dashboard.</p>
                         </div>
 
@@ -75,14 +75,14 @@ const InvestorLoginPage = () => {
                         <div className="px-6 pb-6">
                             <div className="flex items-center justify-between text-sm">
                                 <a
-                                    href="#"
+                                    href="forgot-password"
                                     className="text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
                                 >
                                     Forgot password?
                                 </a>
                                 <div className="text-muted-foreground">
                                     {"Don't have an account? "}
-                                    <Link to="/investors/signup" className="text-primary font-medium hover:underline underline-offset-4">
+                                    <Link to="/investor/signup" className="text-primary font-medium hover:underline underline-offset-4">
                                         Sign up
                                     </Link>
                                 </div>

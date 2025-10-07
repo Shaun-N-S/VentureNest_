@@ -21,6 +21,10 @@ import { forgetPasswordVerifyOtpSchema } from "@shared/validations/forgetPasswor
 import { IForgetPasswordVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordVerifyOtp";
 import { forgetPasswordResetPasswordSchema } from "@shared/validations/forgetPasswordResetPasswordValidator";
 import { IForgetPasswordResetPasswordUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordResetPassword";
+import { IRefreshTokenUseCase } from "@domain/interfaces/useCases/auth/IRefreshToken";
+import { success } from "zod";
+import { ITokenInvalidationUseCase } from "@domain/interfaces/useCases/auth/ITokenInvalidationUseCase";
+import { clearRefreshTokenCookie } from "@shared/utils/clearRefreshTokenCookie";
 
 export class UserAuthController {
   constructor(
@@ -34,7 +38,9 @@ export class UserAuthController {
     private _resendOptUseCase: IResendOtpUseCase,
     private _forgetPasswordSendOtpUseCase: IForgetPasswordSendOtpUseCaes,
     private _forgetPasswordVerifyOtpUseCase: IForgetPasswordVerifyOtpUseCase,
-    private _forgetPasswordResetPasswordUseCase: IForgetPasswordResetPasswordUseCase
+    private _forgetPasswordResetPasswordUseCase: IForgetPasswordResetPasswordUseCase,
+    private _tokenRefreshUseCase: IRefreshTokenUseCase,
+    private _tokenInvalidationUseCase: ITokenInvalidationUseCase
   ) {}
 
   async signUpSendOtp(req: Request, res: Response): Promise<void> {
@@ -149,8 +155,9 @@ export class UserAuthController {
 
       res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.RESEND_OTP_SUCCESSFULL });
     } catch (error) {
+      console.log(error);
       res.status(HTTPStatus.BAD_REQUEST).json({
-        message: "Error while sending forget password otp",
+        message: error ? error : "Error while sending forget password otp",
       });
     }
   }
@@ -173,9 +180,10 @@ export class UserAuthController {
 
   async forgetPasswordResetPassword(req: Request, res: Response): Promise<void> {
     try {
+      console.log(req.body);
       const data = forgetPasswordResetPasswordSchema.safeParse(req.body);
-
       if (data.error) {
+        console.log(data);
         throw new Error(Errors.INVALID_DATA);
       }
 
@@ -184,6 +192,41 @@ export class UserAuthController {
       res.status(HTTPStatus.OK).json({ message: MESSAGES.USERS.PASSWORD_RESET_SUCCESSFULLY });
     } catch (error) {
       res.status(HTTPStatus.BAD_REQUEST).json({ message: "Error while reseting new password" });
+    }
+  }
+
+  async handleTokenRefresh(req: Request, res: Response): Promise<void> {
+    try {
+      const refreshToken = req.cookies.refreshToken;
+      const accessToken = await this._tokenRefreshUseCase.refresh(refreshToken);
+
+      res
+        .status(HTTPStatus.OK)
+        .json({ success: true, message: MESSAGES.REFRESH_TOKEN.REFRESH_SUCCESSFUL, accessToken });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(HTTPStatus.BAD_REQUEST)
+        .json({ success: false, message: "Error while creating accessToken" });
+    }
+  }
+
+  async handleLogout(req: Request, res: Response): Promise<void> {
+    try {
+      const refreshToken = req.cookies.RefreshToken;
+      console.log(refreshToken);
+      console.log(req.cookies);
+
+      await this._tokenInvalidationUseCase.refreshToken(refreshToken);
+
+      clearRefreshTokenCookie(res);
+
+      res.status(HTTPStatus.OK).json({ success: true, message: MESSAGES.USERS.LOGOUT_SUCCESS });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(HTTPStatus.BAD_REQUEST)
+        .json({ success: false, message: "Error while logging out" });
     }
   }
 }

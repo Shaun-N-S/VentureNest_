@@ -40,6 +40,10 @@ export class User_Router {
     this._route.post(USER.FORGET_PASSWORD.RESET_PASSWORD, (req: Request, res: Response) =>
       userAuthController.forgetPasswordResetPassword(req, res)
     );
+
+    this._route.post(USER.LOGOUT, (req: Request, res: Response) => {
+      userAuthController.handleLogout(req, res);
+    });
   }
 
   public get_router(): Router {

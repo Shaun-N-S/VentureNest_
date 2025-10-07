@@ -107,7 +107,7 @@ const InvestorSignUpPage = () => {
 
                     <p className="mt-6 text-center text-sm text-foreground/70">
                         Already have an account?{" "}
-                        <Link to="/investors/login" className="font-medium text-primary underline-offset-4 hover:underline">
+                        <Link to="/investor/login" className="font-medium text-primary underline-offset-4 hover:underline">
                             Log in
                         </Link>
                     </p>

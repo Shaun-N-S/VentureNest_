@@ -16,6 +16,8 @@ import {
   userResetPassword,
   userVerifyOtp,
   updateInvestorStatus,
+  logoutUser,
+  investorResetPassword,
 } from "../services/AuthServices";
 
 //users
@@ -62,6 +64,20 @@ export const useForgetPasswordResetPassword = () => {
       token: string;
       password: string;
     }) => userResetPassword({ email, token, password }),
+  });
+};
+
+export const useForgetPasswordInvestorResetPassword = () => {
+  return useMutation({
+    mutationFn: ({
+      email,
+      token,
+      password,
+    }: {
+      email: string;
+      token: string;
+      password: string;
+    }) => investorResetPassword({ email, token, password }),
   });
 };
 
@@ -142,5 +158,11 @@ export const useUpdateInvestorStatus = () => {
       investorId: string;
       currentStatus: string;
     }) => updateInvestorStatus({ investorId, currentStatus }),
+  });
+};
+
+export const useLogout = () => {
+  return useMutation({
+    mutationFn: logoutUser,
   });
 };

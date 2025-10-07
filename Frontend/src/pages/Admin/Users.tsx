@@ -218,7 +218,7 @@ const Users: React.FC = () => {
 
         {/* Pagination */}
         {users.length > 0 && (
-          <div className="flex justify-between items-center mt-6  justify-center w-full">
+          <div className="flex items-center mt-6  justify-center w-full">
             {/* <div className="text-sm text-gray-600">
               Showing {(page - 1) * limit + 1} to {Math.min(page * limit, (page - 1) * limit + users.length)} entries
             </div> */}

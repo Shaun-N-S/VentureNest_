@@ -19,7 +19,7 @@ export class JWTService implements IJWTService {
       throw new Error("Access Token Secret Key Not Found");
     }
 
-    return sign(payload, secertKey, { expiresIn: "1d" });
+    return sign(payload, secertKey, { expiresIn: "7d" });
   }
 
   verifyAccessToken(token: string): JWTPayloadType | null {
@@ -42,11 +42,8 @@ export class JWTService implements IJWTService {
       throw new Error("Access Token Secret Key Not Found");
     }
 
-    verify(token, secertKey, (err, decoded) => {
-      if (err) return null;
-      return decoded as JWTPayloadType;
-    });
-
-    return null;
+    const decoded = verify(token, secertKey);
+    if (!decoded) return null;
+    return decoded as JWTPayloadType;
   }
 }

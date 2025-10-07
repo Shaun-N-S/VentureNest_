@@ -4,11 +4,12 @@ import { AxiosError } from "axios";
 import LeftPanel from "../../components/auth/LeftPanal";
 import toast from "react-hot-toast";
 import {
+  useForgetPasswordInvestorResetPassword,
   useForgetPasswordResetPassword,
   useForgetPasswordVerifyOtp,
   useUserForgetPassword,
 } from "../../hooks/AuthHooks";
-import z from "zod";
+import z, { ZodError } from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -58,7 +59,7 @@ const ForgotPasswordPage = () => {
 
   const { mutate: forgetpasswordEmail } = useUserForgetPassword();
   const { mutate: forgetpasswordVerifyOtp } = useForgetPasswordVerifyOtp();
-  const { mutate: forgetPasswordResetPassword } = useForgetPasswordResetPassword();
+  const { mutate: forgetPasswordInvestorResetPassword } = useForgetPasswordInvestorResetPassword();
 
 
   const handleEmailSubmit = async () => {
@@ -115,10 +116,10 @@ const ForgotPasswordPage = () => {
     }
     setErrors({});
     console.log({ email, token, password })
-    forgetPasswordResetPassword({ email, token, password }, {
+    forgetPasswordInvestorResetPassword({ email, token, password }, {
       onSuccess: (res) => {
         console.log(res);
-        navigate("/login")
+        navigate("/investor/login")
         setStep(1);
         setEmail("");
         setOtp("");
@@ -255,7 +256,7 @@ const ForgotPasswordPage = () => {
 
             <div className="px-6 pb-6 text-sm text-muted-foreground text-center">
               Remember your password?{" "}
-              <a href="/login" className="text-primary font-medium hover:underline">
+              <a href="/investor/login" className="text-primary font-medium hover:underline">
                 Login
               </a>
             </div>

@@ -13,6 +13,8 @@ export const Errors = {
   TOKEN_MISMATCH: "Token not matching ",
   INVALID_PAGINATION_PARAMETERS: "Invalid pagination parameters",
   FAILED_USER_FETCHING: "Failed to Fetch Users",
+  REFRESH_TOKEN_EXPIRED: "Refresh Token expired !",
+  INVALID_TOKEN: "Invalid Token !",
 };
 
 export const USER_ERRORS = {

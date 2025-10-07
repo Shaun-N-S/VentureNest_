@@ -12,8 +12,13 @@ export const API_ROUTES = {
     INVESTOR_VERIFY_OTP: "/auth/investors/verify-otp",
     INVESTOR_RESEND_OTP: "/auth/investors/resend-otp",
     INVESTOR_LOGIN: "/auth/investors/login",
+    INVESTOR_RESET_PASSWORD: "/auth/investors/forget-password/reset-password",
 
     ADMIN_LOGIN: "/auth/admin/login",
+
+    REFRESH:"/auth/refresh",
+
+    USERS_LOGOUT:"/auth/users/logout"
   },
 
   ADMIN: {

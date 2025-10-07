@@ -1,4 +1,5 @@
 import { UserRole } from "@domain/enum/userRole";
+import { IForgetPasswordInvestorResetPasswordUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordInvestorResetPassword";
 import { IForgetPasswordResetPasswordUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordResetPassword";
 import { IForgetPasswordSendOtpUseCaes } from "@domain/interfaces/useCases/auth/IForgetPasswordSendOtp";
 import { IForgetPasswordVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordVerifyOtp";
@@ -32,7 +33,7 @@ export class InvestorAuthController {
     private _resendOtpUseCase: IResendOtpUseCase,
     private _forgetPasswordSendOtpUseCase: IForgetPasswordSendOtpUseCaes,
     private _forgetPasswordVerifyOtpUseCase: IForgetPasswordVerifyOtpUseCase,
-    private _forgetPasswordResetPasswordUseCase: IForgetPasswordResetPasswordUseCase
+    private _forgetPasswordResetPasswordUseCase: IForgetPasswordInvestorResetPasswordUseCase
   ) {}
 
   async signUpSendOtp(req: Request, res: Response): Promise<void> {
@@ -164,7 +165,7 @@ export class InvestorAuthController {
   async forgetPasswordResetPassword(req: Request, res: Response): Promise<void> {
     try {
       const data = forgetPasswordResetPasswordSchema.safeParse(req.body);
-
+      console.log(data);
       if (data.error) {
         throw new Error(Errors.INVALID_DATA);
       }

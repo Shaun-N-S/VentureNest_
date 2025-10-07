@@ -16,6 +16,7 @@ export interface UserEntity {
   linkedInUrl?: string;
   profileImg?: string;
   website?: string;
+
   bio?: string;
   dateOfBirth?: Date | undefined;
   phoneNumber?: string;

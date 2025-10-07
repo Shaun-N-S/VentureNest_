@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import AxiosInstance from "../axios/axios";
 import { API_ROUTES } from "../constants/apiRoutes";
 import type { LoginPayload, SignupPayload } from "../types/AuthPayloads";
@@ -74,6 +75,22 @@ export const userResetPassword = async ({
   return response.data;
 };
 
+export const investorResetPassword = async ({
+  email,
+  password,
+  token,
+}: {
+  email: string;
+  password: string;
+  token: string;
+}) => {
+  const respones = await AxiosInstance.post(
+    API_ROUTES.AUTH.INVESTOR_RESET_PASSWORD,
+    { email, password, token }
+  );
+  return respones;
+};
+
 export const loginUser = async (data: LoginPayload) => {
   const response = await AxiosInstance.post(API_ROUTES.AUTH.USER_LOGIN, data);
   return response.data;
@@ -114,11 +131,20 @@ export const investorResendOtp = async (email: string) => {
 };
 
 export const loginInvestor = async (data: LoginPayload) => {
-  const response = await AxiosInstance.post(
-    API_ROUTES.AUTH.INVESTOR_LOGIN,
-    data
-  );
-  return response.data;
+  try {
+    const response = await AxiosInstance.post(
+      API_ROUTES.AUTH.INVESTOR_LOGIN,
+      data
+    );
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.log("invester login error")
+    if (error instanceof AxiosError) {
+      throw new Error(error.response?.data.error);
+    }
+    console.log("error");
+  }
 };
 
 // Admin — Users
@@ -192,5 +218,10 @@ export const updateInvestorStatus = async ({
       currentStatus,
     }
   );
+  return response.data;
+};
+
+export const logoutUser = async () => {
+  const response = await AxiosInstance.post(API_ROUTES.AUTH.USERS_LOGOUT);
   return response.data;
 };

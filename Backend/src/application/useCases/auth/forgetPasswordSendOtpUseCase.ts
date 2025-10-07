@@ -1,3 +1,4 @@
+import { UserRole } from "@domain/enum/userRole";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
@@ -6,9 +7,8 @@ import { IEmailService } from "@domain/interfaces/services/IEmail/IEmailService"
 import { IOtpEmailTemplate } from "@domain/interfaces/services/IEmail/IOtpEmailTemplate";
 import { IOtpService } from "@domain/interfaces/services/IOtp/IOtp";
 import { IForgetPasswordSendOtpUseCaes } from "@domain/interfaces/useCases/auth/IForgetPasswordSendOtp";
-import { Errors, USER_ERRORS } from "@shared/constants/error";
+import { USER_ERRORS } from "@shared/constants/error";
 import { MESSAGES } from "@shared/constants/messages";
-import { emailSchema } from "@shared/validations/emailValidator";
 
 export class ForgetPasswordOtpUseCase implements IForgetPasswordSendOtpUseCaes {
   constructor(
@@ -23,8 +23,13 @@ export class ForgetPasswordOtpUseCase implements IForgetPasswordSendOtpUseCaes {
   async sendOtp(email: string): Promise<void> {
     const user = await this._userRepository.findByEmail(email);
     const investor = await this._investorRepository.findByEmail(email);
-    console.log(investor);
-    if (!user || !investor) {
+    console.log("investor :", investor);
+    console.log("user :", user);
+    if (!user?.role && !investor) {
+      throw new Error(USER_ERRORS.USER_NOT_FOUND);
+    }
+
+    if (user?.role === UserRole.ADMIN) {
       throw new Error(USER_ERRORS.USER_NOT_FOUND);
     }
 
