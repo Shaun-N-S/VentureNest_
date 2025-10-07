@@ -1,25 +1,37 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 
 type OTPModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onVerify: (otp: string) => void;
+  onResend: () => void;
 };
 
-const OTPModal = ({ isOpen, onClose, onVerify }: OTPModalProps) => {
-  const [otp, setOtp] = useState("");
-  const [timer, setTimer] = useState(60);
+const OTPModal = ({ isOpen, onClose, onVerify, onResend }: OTPModalProps) => {
+  const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
+  const [timeLeft, setTimeLeft] = useState<number>(120);
   const [canResend, setCanResend] = useState(false);
+
 
   useEffect(() => {
     if (!isOpen) return;
 
-    setOtp("");
-    setTimer(60);
+    setOtp(Array(6).fill(""));
+    const interval = startTimer();
+
+    return () => clearInterval(interval);
+  }, [isOpen]);
+
+  const startTimer = () => {
     setCanResend(false);
+    setTimeLeft(120);
 
     const interval = setInterval(() => {
-      setTimer((prev) => {
+      setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
           setCanResend(true);
@@ -29,74 +41,156 @@ const OTPModal = ({ isOpen, onClose, onVerify }: OTPModalProps) => {
       });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [isOpen]);
-
-  const handleResend = () => {
-    setTimer(60);
-    setCanResend(false);
-    // Call resend OTP API here
+    return interval;
   };
 
-  const handleVerify = () => {
-    if (otp.length === 6) {
-      onVerify(otp);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
+
+
+  const handleChange = (index: number, value: string) => {
+    if (value && !/^\d+$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value.slice(-1);
+    setOtp(newOtp);
+
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`otp-input-${index + 1}`);
+      nextInput?.focus();
     }
   };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-input-${index - 1}`);
+      prevInput?.focus();
+    }
+  };
+
+  // Handle paste OTP
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("Text").trim();
+    if (!/^\d+$/.test(pastedData)) return;
+
+    const digits = pastedData.split("").slice(0, 6);
+    const newOtp = [...otp];
+    digits.forEach((digit, idx) => (newOtp[idx] = digit));
+    setOtp(newOtp);
+
+    // focus last filled input
+    const nextIndex = digits.length < 6 ? digits.length : 5;
+    const input = document.getElementById(`otp-input-${nextIndex}`);
+    input?.focus();
+  };
+
+  const handleVerifyClick = () => {
+    const otpString = otp.join("");
+    if (otpString.length === 6) onVerify(otpString);
+  };
+
+const handleResendClick = () => {
+  onResend();
+  startTimer();
+}
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black opacity-30"
-        onClick={onClose} // click outside to close
-      />
-
-      {/* Modal */}
-      <div className="relative bg-white rounded-3xl w-96 max-w-xs p-8 shadow-2xl animate-fadeIn">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">Enter OTP</h2>
-        <p className="text-gray-500 mb-6">We sent a 6-digit OTP to your email or phone.</p>
-
-        <input
-          type="text"
-          value={otp}
-          onChange={(e) => setOtp(e.target.value.replace(/\D/, "").slice(0, 6))}
-          placeholder="Enter OTP"
-          className="w-full text-center text-xl tracking-widest py-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none mb-4"
-        />
-
-        <div className="flex justify-between items-center mb-6 text-sm text-gray-500">
-          <span>Expires in: {timer}s</span>
-          <button
-            disabled={!canResend}
-            onClick={handleResend}
-            className={`text-indigo-600 font-semibold hover:underline ${
-              !canResend ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+        >
+          <motion.div
+            className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-lg"
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            onClick={(e) => e.stopPropagation()}
           >
-            Resend OTP
-          </button>
-        </div>
+            {/* Close Button */}
+            <button
+              className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
+              onClick={onClose}
+            >
+              <X size={20} />
+            </button>
 
-        <div className="flex gap-4">
-          <button
-            onClick={onClose}
-            className="flex-1 bg-gray-200 py-2 rounded-xl font-semibold hover:bg-gray-300 transition"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleVerify}
-            className="flex-1 bg-indigo-600 text-white py-2 rounded-xl font-semibold hover:bg-indigo-700 transition"
-          >
-            Verify
-          </button>
-        </div>
-      </div>
-    </div>
+            {/* Header */}
+            <div className="mb-6 text-center">
+              <motion.h2
+                className="mb-2 text-2xl font-bold text-gray-900"
+                initial={{ y: -10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+              >
+                Enter OTP
+              </motion.h2>
+              <motion.p
+                className="text-gray-600"
+                initial={{ y: -10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+              >
+                We've sent a 6-digit OTP to your email. Please enter it below.
+              </motion.p>
+            </div>
+
+            {/* OTP Inputs */}
+            <motion.div className="mb-6 flex justify-center space-x-2">
+              {otp.map((digit, index) => (
+                <Input
+                  key={index}
+                  id={`otp-input-${index}`}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  onPaste={handlePaste} // <-- added paste
+                  className="h-14 w-12 text-center text-xl font-bold"
+                  autoFocus={index === 0}
+                />
+              ))}
+            </motion.div>
+
+            {/* Timer & Resend */}
+            <motion.div className="mb-4 text-center">
+              <p className="text-sm text-gray-500">Time left: {formatTime(timeLeft)}</p>
+              <button
+                className={`text-indigo-600 font-semibold hover:underline mt-2 ${!canResend ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                onClick={handleResendClick}
+                disabled={!canResend}
+              >
+                Resend OTP
+              </button>
+            </motion.div>
+
+            {/* Verify Button */}
+            <motion.div>
+              <Button
+                className="w-full"
+                onClick={handleVerifyClick}
+                disabled={otp.join("").length !== 6 || timeLeft <= 0}
+              >
+                Verify
+              </Button>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
-export default OTPModal;
+export default React.memo(OTPModal);

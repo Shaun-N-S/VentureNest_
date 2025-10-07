@@ -1,14 +1,15 @@
-import { IBaseRepository } from "domain/interfaces/repositories/IBaseRepository";
-import { Model } from "mongoose";
+import { Model, Document } from "mongoose";
 
-export abstract class BaseRepository<T> implements IBaseRepository<T> {
-  constructor(protected _model: Model<T>) {}
+export abstract class BaseRepository<TEntity, TModel extends Document> {
+  constructor(protected _model: Model<TModel>) {}
 
-  async save(data: T): Promise<T> {
-    return (await this._model.create(data)) as T;
-  }
-
-  async findById(id: string): Promise<T | null> {
-    return await this._model.findById(id);
-  }
+  abstract save(data: TEntity): Promise<TEntity>;
+  abstract findById(id: string): Promise<TEntity | null>;
+  abstract findAll(
+    skip?: number,
+    limit?: number,
+    status?: string,
+    search?: string
+  ): Promise<TEntity[]>;
+  abstract count(status?: string, search?: string): Promise<number>;
 }
