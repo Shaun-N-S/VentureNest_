@@ -18,7 +18,9 @@ import {
   updateInvestorStatus,
   logoutUser,
   investorResetPassword,
+  googleLogin,
 } from "../services/AuthServices";
+import { profileCompletion } from "../services/Investor/InvestorProfileService";
 
 //users
 export const useUserSignUp = () => {
@@ -164,5 +166,23 @@ export const useUpdateInvestorStatus = () => {
 export const useLogout = () => {
   return useMutation({
     mutationFn: logoutUser,
+  });
+};
+
+export const useGoogleLoginMutation = () => {
+  return useMutation({
+    mutationFn: googleLogin,
+  });
+};
+
+export const useInvestorProfileCompletion = () => {
+  return useMutation({
+    mutationFn: ({
+      formData,
+      investorId,
+    }: {
+      formData: unknown;
+      investorId: string;
+    }) => profileCompletion({ formData, investorId }),
   });
 };

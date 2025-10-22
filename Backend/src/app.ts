@@ -1,9 +1,8 @@
 import { CONFIG } from "@config/config";
 import { mongoConnect } from "@infrastructure/db/connectDB/mongoConnect";
-import express, { Express } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import morgan from "morgan";
-
 import cookieParser from "cookie-parser";
 import { User_Router } from "interfaceAdapters/routes/userRoutes";
 import { DateTimeUtil } from "@shared/utils/DateTimeUtil";
@@ -11,6 +10,7 @@ import { createStream } from "rotating-file-stream";
 import path from "path";
 import { Investor_Router } from "interfaceAdapters/routes/investorRoutes";
 import { Admin_Routes } from "interfaceAdapters/routes/adminRoutes";
+import { errorHandlingMiddleware } from "interfaceAdapters/middleware/errorHandlingMiddleware";
 
 class Express_app {
   private _app: Express;
@@ -20,6 +20,7 @@ class Express_app {
     this._setLoggingMiddleware();
     this._setMiddleware();
     this._setRoutes();
+    this._setErrorHandlingMiddleware();
   }
 
   private _setMiddleware() {
@@ -31,6 +32,12 @@ class Express_app {
     );
     this._app.use(express.json());
     this._app.use(cookieParser());
+  }
+
+  private _setErrorHandlingMiddleware() {
+    this._app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+      errorHandlingMiddleware(err, req, res, next);
+    });
   }
 
   private _setLoggingMiddleware() {

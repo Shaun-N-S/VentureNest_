@@ -8,6 +8,7 @@ import { IHashPasswordService } from "@domain/interfaces/services/IHashPasswordS
 import { IOtpService } from "@domain/interfaces/services/IOtp/IOtp";
 import { ISignUpSendOtpUseCase } from "@domain/interfaces/useCases/auth/user/ISignUpSendOtp";
 import { USER_ERRORS } from "@shared/constants/error";
+import { AlreadyExisitingExecption } from "application/constants/exceptions";
 import { CreateUserDTO } from "application/dto/auth/createUserDTO";
 
 export class SignUpSendOtpUseCase implements ISignUpSendOtpUseCase {
@@ -45,7 +46,7 @@ export class SignUpSendOtpUseCase implements ISignUpSendOtpUseCase {
       existingInvestorEmail,
     ]);
     if (existingUser || existingInvestor) {
-      throw new Error(USER_ERRORS.USER_ALREADY_EXISTS);
+      throw new AlreadyExisitingExecption(USER_ERRORS.USER_ALREADY_EXISTS);
     }
     const OTP = this._otpService.generateOtp();
     console.log(`OTP : ${OTP} and email: ${userData.email}`);

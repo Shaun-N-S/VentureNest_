@@ -19,16 +19,21 @@ const InvestorLoginPage = () => {
         login(values, {
             onSuccess: (res) => {
                 toast.success("Login Successfull");
-                console.log("login success", res)
+                console.log("login success", res.data.investor)
                 dispatch(setData(res.data.investor))
                 dispatch(setToken(res.data.accessToken))
-                navigate('/investor/home');
+                if (res.data.investor.isFirstLogin) {
+                    navigate('/investor/profile-completion')
+                } else {
+                    navigate('/investor/home');
+                }
             },
             onError: (err) => {
                 if (err instanceof Error) {
-                    // const errMsg = err.response?.data?.message;
+                    const errMsg = err?.response?.data?.message;
+                    console.log(err)
                     console.log("Error while login ,", err)
-                    toast.error(err.message)
+                    toast.error(errMsg)
                 }
             }
         })

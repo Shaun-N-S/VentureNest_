@@ -4,17 +4,28 @@ export const Errors = {
   DATA_MISSING: "Data is missing check email , userName and password",
   OTP_VERIFICATION_FAILED: "Otp verification failed",
   OTP_ERROR: "Error while sending otp",
+  INVALID_OTP: "Invalid otp ",
+  OTP_RESEND_ERROR: "Error while resending otp",
   INVALID_EMAIL: "Please provide a valid email",
   PASSWORD_REQUIRED: "Password requried",
   INVALID_USERDATA: "Invalid user data ",
   INVALID_DATA: "Invalid data format",
-  INVALID_OTP: "Otp expired or invalid otp",
+  OTP_EXPIRED: "Otp expired or invalid otp",
   TOKEN_EXPIRED: "Token expired",
   TOKEN_MISMATCH: "Token not matching ",
   INVALID_PAGINATION_PARAMETERS: "Invalid pagination parameters",
   FAILED_USER_FETCHING: "Failed to Fetch Users",
   REFRESH_TOKEN_EXPIRED: "Refresh Token expired !",
   INVALID_TOKEN: "Invalid Token !",
+  ERROR_IN_LOGOUT: "Error while logging out !",
+  ERROR_CREATING_ACCESS_TOKEN: "Error while creating access token !",
+  ERROR_IN_RESETING_PASSWORD: "Error while reseting password !",
+  INTERNAL_SERVER_ERROR: "Internal Server Error",
+  AUTHENTICATION_CODE_MISSING: "Authentication code missing",
+  INVALID_ROLE: "Invalid role !",
+  TOKEN_DATA_MISSING: "Token data is missing",
+  INVALID_LOGIN_TYPE: "Invalid login type",
+  PASSWORD_NOT_MATCHING: "Password not matching",
 };
 
 export const USER_ERRORS = {
@@ -22,9 +33,15 @@ export const USER_ERRORS = {
   USER_INACTIVE: "User is inactive",
   USER_BLOCKED: "User is blocked ",
   USER_NOT_FOUND: "User not found !",
+  USER_INVALIDATION: "Error while validating user !",
+  NO_USERS_FOUND: "No users found",
 };
 
 export const INVESTOR_ERRORS = {
   INVESTOR_ALREADY_EXISTS: "Investor already exists",
   INVESTOR_BLOKED: "Investor is blocked",
+  INVESTOR_NOT_FOUND: "Investor not found !",
+  INVESTOR_INVALIDATION: "Error while validating investor !",
+  NO_INVESTORS_FOUND: "No investors found",
+  PROFILE_UPDATION_FAILED: "Failed to update investor profile",
 };

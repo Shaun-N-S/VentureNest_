@@ -1,9 +1,8 @@
-import { AxiosError } from "axios";
 import AxiosInstance from "../axios/axios";
 import { API_ROUTES } from "../constants/apiRoutes";
 import type { LoginPayload, SignupPayload } from "../types/AuthPayloads";
 
-// 🧍 Users
+// Users
 export const signupUser = async (data: SignupPayload) => {
   const response = await AxiosInstance.post(API_ROUTES.AUTH.USER_SIGNUP, data);
   return response.data;
@@ -93,6 +92,7 @@ export const investorResetPassword = async ({
 
 export const loginUser = async (data: LoginPayload) => {
   const response = await AxiosInstance.post(API_ROUTES.AUTH.USER_LOGIN, data);
+  console.log("response", response);
   return response.data;
 };
 
@@ -131,20 +131,12 @@ export const investorResendOtp = async (email: string) => {
 };
 
 export const loginInvestor = async (data: LoginPayload) => {
-  try {
-    const response = await AxiosInstance.post(
-      API_ROUTES.AUTH.INVESTOR_LOGIN,
-      data
-    );
-    console.log(response);
-    return response.data;
-  } catch (error) {
-    console.log("invester login error")
-    if (error instanceof AxiosError) {
-      throw new Error(error.response?.data.error);
-    }
-    console.log("error");
-  }
+  const response = await AxiosInstance.post(
+    API_ROUTES.AUTH.INVESTOR_LOGIN,
+    data
+  );
+  console.log(response);
+  return response.data;
 };
 
 // Admin — Users
@@ -223,5 +215,10 @@ export const updateInvestorStatus = async ({
 
 export const logoutUser = async () => {
   const response = await AxiosInstance.post(API_ROUTES.AUTH.USERS_LOGOUT);
+  return response.data;
+};
+
+export const googleLogin = async (data: { authorizationCode: string; role: string }) => {
+  const response = await AxiosInstance.post(API_ROUTES.AUTH.GOOGLE_LOGIN, data);
   return response.data;
 };

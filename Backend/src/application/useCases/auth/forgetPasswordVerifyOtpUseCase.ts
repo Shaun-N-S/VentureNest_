@@ -2,6 +2,7 @@ import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValu
 import { ITokenService } from "@domain/interfaces/services/ITokenService";
 import { IForgetPasswordVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordVerifyOtp";
 import { Errors } from "@shared/constants/error";
+import { InvalidOTPExecption, OTPExpiredException } from "application/constants/exceptions";
 import { ForgetPasswordVerifyOtpRequestDTO } from "application/dto/auth/forgetPasswordDTO";
 
 export class ForgetPasswordVerifyOtpUseCase implements IForgetPasswordVerifyOtpUseCase {
@@ -14,11 +15,11 @@ export class ForgetPasswordVerifyOtpUseCase implements IForgetPasswordVerifyOtpU
     const cachedOtp = await this._cacheStorage.getData(`FOTP/${email}`);
 
     if (!cachedOtp) {
-      throw new Error(Errors.OTP_MISSING);
+      throw new OTPExpiredException(Errors.OTP_MISSING);
     }
 
     if (otp !== cachedOtp) {
-      throw new Error(Errors.INVALID_OTP);
+      throw new InvalidOTPExecption(Errors.INVALID_OTP);
     }
 
     const token = await this._tokenService.createToken();

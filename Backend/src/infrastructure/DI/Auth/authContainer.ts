@@ -29,6 +29,9 @@ import { AdminLoginUseCase } from "application/useCases/auth/admin/adminLoginUse
 import { RefreshTokenUseCase } from "application/useCases/auth/refreshTokenUseCase";
 import { TokenInvalidationUseCase } from "application/useCases/auth/tokenInvalidationUseCase";
 import { ForgetPasswordInvestorResetPasswordUseCase } from "application/useCases/auth/forgetPasswordInvestorResetPassword";
+import { AuthMiddleware } from "interfaceAdapters/middleware/authMiddleware";
+import { UserGoogleLoginUseCase } from "application/useCases/auth/userGoogleLoginUseCase";
+import { GoogleAuthService } from "@infrastructure/services/googleAuthService";
 
 //Repositories & Services
 const userRepository = new UserRepository(userModel);
@@ -40,6 +43,7 @@ const cacheStorage = new KeyValueTTLCaching();
 const jwtService = new JWTService();
 const investorRepository = new InvestorRepository(investorModel);
 const tokenSerivce = new TokenSerivce();
+const googleAuthService = new GoogleAuthService();
 
 //UseCases
 const registerUserUseCase = new RegisterUserUseCase(userRepository, cacheStorage);
@@ -90,8 +94,9 @@ const forgetPasswordInvestorResetPasswordUseCase = new ForgetPasswordInvestorRes
   investorRepository
 );
 const adminLoginUseCase = new AdminLoginUseCase(userRepository, hashService);
-const tokenRefreshUseCase = new RefreshTokenUseCase(jwtService);
+const tokenRefreshUseCase = new RefreshTokenUseCase(jwtService, cacheStorage);
 const tokenValidationUseCase = new TokenInvalidationUseCase(jwtService, cacheStorage);
+const googleLoginUseCase = new UserGoogleLoginUseCase(userRepository, googleAuthService);
 
 //Controller
 export const userAuthController = new UserAuthController(
@@ -107,7 +112,9 @@ export const userAuthController = new UserAuthController(
   forgetPasswordVerifyOtpUseCase,
   forgetPasswordResetPasswordUseCase,
   tokenRefreshUseCase,
-  tokenValidationUseCase
+  tokenValidationUseCase,
+  jwtService,
+  googleLoginUseCase
 );
 
 export const investorAuthController = new InvestorAuthController(
@@ -128,3 +135,5 @@ export const adminAuthController = new AdminAuthController(
   cacheUserUseCase,
   tokenCreationUseCase
 );
+
+export const authMiddleware = new AuthMiddleware(jwtService, cacheStorage);

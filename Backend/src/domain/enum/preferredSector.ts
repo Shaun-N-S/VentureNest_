@@ -8,7 +8,7 @@ export enum PreferredSector {
   SAAS = "SaaS",
   BLOCKCHAIN = "BlockChain/Crypto",
   GREENTECH = "GreenTech",
-  REAL_ESTATE = "Real Estate/PropTech",
+  PROPTECH = "Real Estate/PropTech",
   FOODTECH = "FoodTech",
   GAMING = "Gaming",
   SOCIAL_MEDIA = "Social Media",

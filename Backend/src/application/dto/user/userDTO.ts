@@ -10,6 +10,6 @@ export interface UserDTO {
   isFirstLogin: boolean;
   adminVerified: boolean;
   profileImg?: string;
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt?: Date;
+  createdAt?: Date;
 }

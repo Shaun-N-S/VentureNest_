@@ -54,6 +54,10 @@ const InvestorSignUpPage = () => {
                 },
                 onError: (err) => {
                     console.log("Error while verifying otp", err);
+                    if (err instanceof Error) {
+                        // console.log("Error while verifying otp ", err.response.data.message);
+                        toast.error(err.response.data.message)
+                    }
                 }
             }
         )

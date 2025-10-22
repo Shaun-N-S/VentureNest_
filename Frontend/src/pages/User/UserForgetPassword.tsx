@@ -94,7 +94,7 @@ const ForgotPasswordPage = () => {
     forgetpasswordVerifyOtp({ email, otp }, {
       onSuccess: (res) => {
         console.log(res)
-        setToken(res.token);
+        setToken(res.data);
         setStep(3);
         toast.success("OTP verified successfully");
       },
@@ -109,7 +109,7 @@ const ForgotPasswordPage = () => {
     const result = PasswordSchema.safeParse({ password, confirmPassword });
     if (!result.success) {
       const fieldErrors: { [key: string]: string } = {};
-      result.error.issues.forEach((e: any) => (fieldErrors[e.path[0]] = e.message));
+      result.error.issues.forEach((e:  typeof result.error.issues[0]) => (fieldErrors[e.path[0].toString()] = e.message));
       setErrors(fieldErrors);
       return;
     }

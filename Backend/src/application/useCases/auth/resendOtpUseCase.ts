@@ -7,6 +7,7 @@ import { IOtpEmailTemplate } from "@domain/interfaces/services/IEmail/IOtpEmailT
 import { IOtpService } from "@domain/interfaces/services/IOtp/IOtp";
 import { IResendOtpUseCase } from "@domain/interfaces/useCases/auth/IResendOtp";
 import { USER_ERRORS } from "@shared/constants/error";
+import { AlreadyExisitingExecption } from "application/constants/exceptions";
 
 export class ResendOtpUseCase implements IResendOtpUseCase {
   private _otpService: IOtpService;
@@ -41,7 +42,7 @@ export class ResendOtpUseCase implements IResendOtpUseCase {
     ]);
 
     if (existingUser || existingInvestor) {
-      throw new Error(USER_ERRORS.USER_ALREADY_EXISTS);
+      throw new AlreadyExisitingExecption(USER_ERRORS.USER_ALREADY_EXISTS);
     }
     const OTP = this._otpService.generateOtp();
     console.log("new OTP : ", OTP);

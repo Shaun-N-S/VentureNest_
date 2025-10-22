@@ -24,33 +24,34 @@ AxiosInstance.interceptors.response.use(
   (res) => res,
   async (err) => {
     const orignialRequest = err.config;
-
+    console.log(err.response)
     if (
       err.response.status === 401 &&
-      err.response.data.error === "Invalid Token" &&
+      err.response.data.message === "Invalid Token !" &&
       !orignialRequest.retry
     ) {
+      console.log("retrying")
       try {
         orignialRequest.retry = true;
         const response = await AxiosInstance.post(API_ROUTES.AUTH.REFRESH);
-        store.dispatch(setToken(response.data.accessToken));
-        orignialRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+        store.dispatch(setToken(response.data.data));
+        orignialRequest.headers.Authorization = `Bearer ${response.data.data}`;
         return AxiosInstance(orignialRequest);
       } catch (error) {
         console.log(error);
         const userRole = store.getState().authData.role;
         store.dispatch(clearData());
         store.dispatch(deleteToken());
-        if (userRole === "INVESTOR") {
-          window.location.href = `/${userRole}/login`;
-        } else if (userRole === "ADMIN") {
-          window.location.href = `/${userRole}/login`;
-        } else {
-          window.location.href = `/login`;
-        }
+        // if (userRole === "INVESTOR") {
+        //   window.location.href = `/${userRole}/login`;
+        // } else if (userRole === "ADMIN") {
+        //   window.location.href = `/${userRole}/login`;
+        // } else {
+        //   window.location.href = `/login`;
+        // }
       }
-    }
-    Promise.reject(err)
+    } 
+    return Promise.reject(err);
   }
 );
 

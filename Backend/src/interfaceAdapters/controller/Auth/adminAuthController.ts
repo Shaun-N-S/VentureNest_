@@ -2,12 +2,12 @@ import { UserRole } from "@domain/enum/userRole";
 import { IAdminLoginUseCase } from "@domain/interfaces/useCases/auth/admin/IAdminLoginUseCase";
 import { ITokenCreationUseCase } from "@domain/interfaces/useCases/auth/ITokenCreation";
 import { ICacheUserUseCase } from "@domain/interfaces/useCases/auth/user/ICacheUserUseCase";
-import { Errors } from "@shared/constants/error";
-import { HTTPStatus } from "@shared/constants/httpStatus";
+import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { MESSAGES } from "@shared/constants/messages";
+import { ResponseHelper } from "@shared/utils/responseHelper";
 import { setRefreshTokenCookie } from "@shared/utils/setRefreshTokenCookie";
 import { loginSchema } from "@shared/validations/loginValidator";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 export class AdminAuthController {
   constructor(
@@ -16,7 +16,7 @@ export class AdminAuthController {
     private _tokenCreationUseCase: ITokenCreationUseCase
   ) {}
 
-  async adminLogin(req: Request, res: Response): Promise<void> {
+  async adminLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { email, password } = loginSchema.parse(req.body);
 
@@ -30,18 +30,16 @@ export class AdminAuthController {
 
       setRefreshTokenCookie(res, token.refreshToken);
 
-      //   await this._cacheUserUseCaes.cacheUser(user);
+      // await this._cacheUserUseCaes.cacheUser(user);
 
-      res.status(HTTPStatus.OK).json({
-        success: true,
-        message: MESSAGES.USERS.LOGIN_SUCCESS,
-        data: { user, accessToken: token.accessToken },
-      });
+      ResponseHelper.success(
+        res,
+        MESSAGES.USERS.LOGIN_SUCCESS,
+        { user, accessToken: token.accessToken },
+        HTTPSTATUS.OK
+      );
     } catch (error) {
-      res.status(HTTPStatus.BAD_REQUEST).json({
-        message: Errors.INVALID_CREDENTIALS,
-        error: error instanceof Error ? error.message : "Error while validating user",
-      });
+      next(error);
     }
   }
 }

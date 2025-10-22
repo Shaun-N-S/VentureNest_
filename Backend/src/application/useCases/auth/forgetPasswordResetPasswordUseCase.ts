@@ -3,6 +3,7 @@ import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValu
 import { IHashPasswordService } from "@domain/interfaces/services/IHashPasswordService";
 import { IForgetPasswordResetPasswordUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordResetPassword";
 import { Errors } from "@shared/constants/error";
+import { TokenExpiredException, TokenMissingException } from "application/constants/exceptions";
 import { ForgetPasswordResetPasswordRequestDTO } from "application/dto/auth/forgetPasswordDTO";
 
 export class ForgetPasswordResetPasswordUseCase implements IForgetPasswordResetPasswordUseCase {
@@ -16,11 +17,11 @@ export class ForgetPasswordResetPasswordUseCase implements IForgetPasswordResetP
     const cachedToken = await this._cacheStorage.getData(`FToken/${email}`);
 
     if (!cachedToken) {
-      throw new Error(Errors.TOKEN_EXPIRED);
+      throw new TokenExpiredException(Errors.TOKEN_EXPIRED);
     }
 
     if (cachedToken !== token) {
-      throw new Error(Errors.TOKEN_MISMATCH);
+      throw new TokenMissingException(Errors.TOKEN_MISMATCH);
     }
 
     const hashedPassword = await this._hashService.hashPassword(password);

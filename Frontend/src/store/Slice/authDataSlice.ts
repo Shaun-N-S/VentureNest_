@@ -3,6 +3,7 @@ import type { StatusTypes } from "../../types/StatusType";
 import type { UserRole } from "../../types/UserRole";
 
 export interface UserAuthData {
+  id: string;
   userName: string;
   email: string;
   role: UserRole | null;
@@ -11,7 +12,12 @@ export interface UserAuthData {
   updatedAt: string;
 }
 
+interface userPayload extends UserAuthData {
+  _id: string;
+}
+
 const initialState: UserAuthData = {
+  id: "",
   userName: "",
   email: "",
   role: null,
@@ -24,8 +30,17 @@ const AuthDataSlice = createSlice({
   name: "AuthData",
   initialState,
   reducers: {
-    setData: (state, action: PayloadAction<UserAuthData>) => {
-      return { ...action.payload };
+    setData: (state, action: PayloadAction<userPayload>) => {
+      
+      return {
+        email: action.payload.email,
+        id: action.payload._id,
+        userName: action.payload.userName,
+        isFirstLogin: action.payload.isFirstLogin,
+        role: action.payload.role,
+        status: action.payload.status,
+        updatedAt: action.payload.updatedAt,
+      };
     },
 
     clearData: () => initialState,

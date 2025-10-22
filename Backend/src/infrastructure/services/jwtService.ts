@@ -1,4 +1,6 @@
 import { CONFIG } from "@config/config";
+import { Errors } from "@shared/constants/error";
+import { TokenExpiredException } from "application/constants/exceptions";
 import { IJWTService } from "domain/interfaces/services/IJWTService";
 import { JWTPayloadType } from "domain/types/JWTPayloadTypes";
 import { verify, sign } from "jsonwebtoken";
@@ -27,13 +29,15 @@ export class JWTService implements IJWTService {
     if (!secertKey) {
       throw new Error("Access Token Secret Key Not Found");
     }
-
-    verify(token, secertKey, (err, decoded) => {
-      if (err) return null;
-      return decoded as JWTPayloadType;
-    });
-
-    return null;
+    try {
+      const decoded = verify(token, secertKey);
+      if (decoded) {
+        return decoded as JWTPayloadType;
+      }
+      return null;
+    } catch (error) {
+      throw new TokenExpiredException(Errors.INVALID_TOKEN);
+    }
   }
 
   verifyRefreshToken(token: string): JWTPayloadType | null {

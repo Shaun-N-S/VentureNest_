@@ -1,8 +1,11 @@
 import { IGetAllInvestorUseCase } from "@domain/interfaces/useCases/admin/investor/IGetAllInvestorUseCase";
 import { IUpdateInvestorStatusUseCase } from "@domain/interfaces/useCases/admin/investor/IUpdateInvestorStatusUseCase";
-import { Errors } from "@shared/constants/error";
-import { HTTPStatus } from "@shared/constants/httpStatus";
-import { Request, Response } from "express";
+import { Errors, INVESTOR_ERRORS } from "@shared/constants/error";
+import { HTTPSTATUS } from "@shared/constants/httpStatus";
+import { MESSAGES } from "@shared/constants/messages";
+import { ResponseHelper } from "@shared/utils/responseHelper";
+import { InvalidDataException } from "application/constants/exceptions";
+import { NextFunction, Request, Response } from "express";
 
 export class AdminInvestorController {
   constructor(
@@ -10,7 +13,7 @@ export class AdminInvestorController {
     private _updateInvestorStatusUseCase: IUpdateInvestorStatusUseCase
   ) {}
 
-  async getAllInvestor(req: Request, res: Response): Promise<void> {
+  async getAllInvestor(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -18,34 +21,34 @@ export class AdminInvestorController {
       const search = req.query.search as string | undefined;
 
       if (page < 1 || limit < 1 || limit > 100) {
-        res.status(HTTPStatus.BAD_REQUEST).json({
-          success: false,
-          message: Errors.INVALID_PAGINATION_PARAMETERS,
-        });
-        return;
+        throw new InvalidDataException(Errors.INVALID_PAGINATION_PARAMETERS);
       }
 
       const result = await this._getAllInvestorUseCase.getAllInvestors(page, limit, status, search);
       console.log(result);
 
-      res.status(HTTPStatus.OK).json({ success: true, data: result });
+      if (!result || result.investors?.length === 0) {
+        throw new InvalidDataException(INVESTOR_ERRORS.NO_INVESTORS_FOUND);
+      }
+
+      ResponseHelper.success(
+        res,
+        MESSAGES.USERS.GET_ALL_INVESTORS,
+        { data: result },
+        HTTPSTATUS.OK
+      );
     } catch (error) {
       console.log("Error in getAllInvestor: ", error);
-      res.status(HTTPStatus.BAD_REQUEST).json({
-        success: false,
-        message: Errors.FAILED_USER_FETCHING,
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
+      next(error);
     }
   }
 
-  async updateInvestorStatus(req: Request, res: Response): Promise<void> {
+  async updateInvestorStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { investorId, currentStatus } = req.body;
 
       if (!investorId || !currentStatus) {
-        res.status(400).json({ message: Errors.INVALID_CREDENTIALS });
-        return;
+        throw new InvalidDataException(Errors.INVALID_CREDENTIALS);
       }
 
       const result = await this._updateInvestorStatusUseCase.updateInvestorStatus(
@@ -53,17 +56,14 @@ export class AdminInvestorController {
         currentStatus
       );
 
-      res.status(200).json({
-        success: true,
-        message: "User status updated successfully",
-        data: result.investor,
-      });
+      ResponseHelper.success(
+        res,
+        MESSAGES.ADMIN.UPDATE_STATUS,
+        { data: result.investor },
+        HTTPSTATUS.OK
+      );
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Failed to update user status",
-        error: error instanceof Error ? error.message : error,
-      });
+      next(error);
     }
   }
 }

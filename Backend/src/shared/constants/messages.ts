@@ -9,13 +9,15 @@ export const MESSAGES = {
     PASSWORD_RESET_SUCCESSFULLY: "Password reset successfully",
     LOUTGOUT_SUCCESSFUL: "Logged out successfully ",
     // DELETED: "User deleted successfully.",
+    STATUS_UPDATED_SUCCESSFULLY: "User status updated successfully ",
+    GET_ALL_USERS: "Fetched all users successfully",
+    GET_ALL_INVESTORS: "Fetched all investors successfully",
   },
 
-  //   Admin: {
-  //     VERIFIED_USER: "User verified successfully by admin.",
-  //     BLOCKED_USER: "User blocked successfully.",
-  //     UNBLOCKED_USER: "User unblocked successfully.",
-  //   },
+  ADMIN: {
+    VERIFIED_USER: "User verified successfully by admin.",
+    UPDATE_STATUS: "User status updated",
+  },
 
   OTP: {
     OTP_SUCCESSFULL: "Otp sent successfully",
@@ -25,6 +27,7 @@ export const MESSAGES = {
 
   INVESTOR: {
     REGISTER_SUCCESS: "Investor registered successfully.",
+    PROFILE_COMPLETION_SUCCESS: "Profile completion successful",
   },
 
   EMAIL: {
