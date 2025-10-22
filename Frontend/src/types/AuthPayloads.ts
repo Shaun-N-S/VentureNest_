@@ -1,4 +1,3 @@
-
 export type SignupPayload = {
   userName: string;
   email: string;
@@ -14,3 +13,5 @@ export type LoginPayload = {
   email: string;
   password: string;
 };
+
+// export type InvestorProfileCompletion = {};

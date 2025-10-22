@@ -9,6 +9,7 @@ import { IOtpService } from "@domain/interfaces/services/IOtp/IOtp";
 import { IForgetPasswordSendOtpUseCaes } from "@domain/interfaces/useCases/auth/IForgetPasswordSendOtp";
 import { USER_ERRORS } from "@shared/constants/error";
 import { MESSAGES } from "@shared/constants/messages";
+import { NotFoundExecption } from "application/constants/exceptions";
 
 export class ForgetPasswordOtpUseCase implements IForgetPasswordSendOtpUseCaes {
   constructor(
@@ -26,11 +27,11 @@ export class ForgetPasswordOtpUseCase implements IForgetPasswordSendOtpUseCaes {
     console.log("investor :", investor);
     console.log("user :", user);
     if (!user?.role && !investor) {
-      throw new Error(USER_ERRORS.USER_NOT_FOUND);
+      throw new NotFoundExecption(USER_ERRORS.USER_NOT_FOUND);
     }
 
     if (user?.role === UserRole.ADMIN) {
-      throw new Error(USER_ERRORS.USER_NOT_FOUND);
+      throw new NotFoundExecption(USER_ERRORS.USER_NOT_FOUND);
     }
 
     const otp = this._otpService.generateOtp();

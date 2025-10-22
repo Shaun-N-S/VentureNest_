@@ -1,6 +1,5 @@
 import { UserRole } from "@domain/enum/userRole";
 import { IForgetPasswordInvestorResetPasswordUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordInvestorResetPassword";
-import { IForgetPasswordResetPasswordUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordResetPassword";
 import { IForgetPasswordSendOtpUseCaes } from "@domain/interfaces/useCases/auth/IForgetPasswordSendOtp";
 import { IForgetPasswordVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordVerifyOtp";
 import { ICacheInvestorUseCase } from "@domain/interfaces/useCases/auth/investor/ICacheInvestorUseCase";
@@ -11,8 +10,9 @@ import { ITokenCreationUseCase } from "@domain/interfaces/useCases/auth/ITokenCr
 import { IVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IVerifyOtp";
 import { ISignUpSendOtpUseCase } from "@domain/interfaces/useCases/auth/user/ISignUpSendOtp";
 import { Errors } from "@shared/constants/error";
-import { HTTPStatus } from "@shared/constants/httpStatus";
+import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { MESSAGES } from "@shared/constants/messages";
+import { ResponseHelper } from "@shared/utils/responseHelper";
 import { setRefreshTokenCookie } from "@shared/utils/setRefreshTokenCookie";
 import { emailSchema } from "@shared/validations/emailValidator";
 import { forgetPasswordResetPasswordSchema } from "@shared/validations/forgetPasswordResetPasswordValidator";
@@ -20,7 +20,8 @@ import { forgetPasswordVerifyOtpSchema } from "@shared/validations/forgetPasswor
 import { loginSchema } from "@shared/validations/loginValidator";
 import { otpSchema } from "@shared/validations/otpValidator";
 import { registerUserSchema } from "@shared/validations/userRegisterValidator";
-import { Request, Response } from "express";
+import { InvalidDataException, InvalidOTPExecption } from "application/constants/exceptions";
+import { NextFunction, Request, Response } from "express";
 
 export class InvestorAuthController {
   constructor(
@@ -36,30 +37,28 @@ export class InvestorAuthController {
     private _forgetPasswordResetPasswordUseCase: IForgetPasswordInvestorResetPasswordUseCase
   ) {}
 
-  async signUpSendOtp(req: Request, res: Response): Promise<void> {
+  async signUpSendOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const investorData = registerUserSchema.safeParse(req.body);
       if (investorData.error) {
-        throw new Error(Errors.INVALID_USERDATA);
+        throw new InvalidDataException(Errors.INVALID_USERDATA);
       }
 
       await this._sendOtpUseCase.signUpSendOtp(investorData.data!);
 
-      res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.OTP_SUCCESSFULL });
+      ResponseHelper.success(res, MESSAGES.OTP.OTP_SUCCESSFULL, HTTPSTATUS.OK);
     } catch (error) {
-      console.log(` error while sending otp : ${error}`);
-      res.status(HTTPStatus.BAD_REQUEST).json({ message: Errors.OTP_ERROR });
+      next(error);
     }
   }
 
-  async registerInvestor(req: Request, res: Response): Promise<void> {
+  async registerInvestor(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const validatedEmail = emailSchema.safeParse(req.body.email);
       const validatedOtp = otpSchema.safeParse(req.body.otp);
 
       if (validatedEmail.error) {
-        res.status(HTTPStatus.BAD_REQUEST).json({ message: Errors.INVALID_EMAIL });
-        return;
+        throw new InvalidDataException(Errors.INVALID_EMAIL);
       }
 
       const email = validatedEmail.data;
@@ -68,23 +67,18 @@ export class InvestorAuthController {
       const verifiedOtp = await this._verifyOtpUseCase.verifyOtp(email, otp!);
 
       if (!verifiedOtp) {
-        res.status(HTTPStatus.BAD_REQUEST).json({ message: Errors.OTP_VERIFICATION_FAILED });
-        return;
+        throw new InvalidOTPExecption(Errors.OTP_VERIFICATION_FAILED);
       }
 
       await this._registerInvestorUseCase.createInvestor(email);
 
-      res
-        .status(HTTPStatus.OK)
-        .json({ success: true, message: MESSAGES.INVESTOR.REGISTER_SUCCESS });
+      ResponseHelper.success(res, MESSAGES.INVESTOR.REGISTER_SUCCESS, HTTPSTATUS.CREATED);
     } catch (error) {
-      res
-        .status(HTTPStatus.BAD_REQUEST)
-        .json({ success: false, message: error instanceof Error ? error.message : "Server Error" });
+      next(error);
     }
   }
 
-  async loginInvestor(req: Request, res: Response): Promise<void> {
+  async loginInvestor(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { email, password } = loginSchema.parse(req.body);
 
@@ -100,81 +94,81 @@ export class InvestorAuthController {
 
       await this._cacheInvestorUseCase.cacheInvestor(investor);
 
-      res.status(HTTPStatus.OK).json({
-        success: true,
-        message: "Login successfull",
-        data: { investor, accessToken: token.accessToken },
-      });
+      ResponseHelper.success(
+        res,
+        MESSAGES.USERS.LOGIN_SUCCESS,
+        { investor, accessToken: token.accessToken },
+        HTTPSTATUS.OK
+      );
     } catch (error) {
-      res.status(HTTPStatus.BAD_REQUEST).json({
-        message: Errors.INVALID_CREDENTIALS,
-        error: error instanceof Error ? error.message : "Error while validating investor",
-      });
+      next(error);
     }
   }
 
-  async resendOtp(req: Request, res: Response): Promise<void> {
+  async resendOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const validatedEmail = emailSchema.safeParse(req.body.email);
       console.log(validatedEmail.data);
       if (validatedEmail.error) {
-        throw new Error(Errors.INVALID_EMAIL);
+        throw new InvalidDataException(Errors.INVALID_EMAIL);
       }
-      console.log("reached...");
+
       await this._resendOtpUseCase.resendOtp(validatedEmail.data);
 
-      res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.OTP_SUCCESSFULL });
+      ResponseHelper.success(res, MESSAGES.OTP.OTP_SUCCESSFULL, HTTPSTATUS.OK);
     } catch (error) {
-      console.log(`Error while sending otp : ${error}`);
+      next(error);
     }
   }
 
-  async forgetPassword(req: Request, res: Response): Promise<void> {
+  async forgetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const validatedEmail = emailSchema.safeParse(req.body.email);
       if (validatedEmail.error) {
-        throw new Error(Errors.INVALID_EMAIL);
+        throw new InvalidDataException(Errors.INVALID_EMAIL);
       }
 
       await this._forgetPasswordSendOtpUseCase.sendOtp(validatedEmail.data);
 
-      res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.RESEND_OTP_SUCCESSFULL });
+      ResponseHelper.success(res, MESSAGES.OTP.RESEND_OTP_SUCCESSFULL, HTTPSTATUS.OK);
     } catch (error) {
-      res.status(HTTPStatus.BAD_REQUEST).json({
-        message: "Error while sending forget password otp",
-      });
+      next(error);
     }
   }
 
-  async forgetPasswordVerifyOtp(req: Request, res: Response): Promise<void> {
+  async forgetPasswordVerifyOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const data = forgetPasswordVerifyOtpSchema.safeParse(req.body);
 
       if (data.error) {
-        throw new Error(Errors.INVALID_DATA);
+        throw new InvalidDataException(Errors.INVALID_DATA);
       }
 
-      const token = await this._forgetPasswordVerifyOtpUseCase.verify(data.data);
+      await this._forgetPasswordVerifyOtpUseCase.verify(data.data);
 
-      res.status(HTTPStatus.OK).json({ message: MESSAGES.OTP.OTP_VERIFIED_SUCCESSFULL, token });
+      ResponseHelper.success(res, MESSAGES.OTP.OTP_VERIFIED_SUCCESSFULL, HTTPSTATUS.OK);
     } catch (error) {
-      res.status(HTTPStatus.BAD_REQUEST).json({ message: Errors.OTP_VERIFICATION_FAILED });
+      next(error);
     }
   }
 
-  async forgetPasswordResetPassword(req: Request, res: Response): Promise<void> {
+  async forgetPasswordResetPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const data = forgetPasswordResetPasswordSchema.safeParse(req.body);
       console.log(data);
       if (data.error) {
-        throw new Error(Errors.INVALID_DATA);
+        throw new InvalidDataException(Errors.INVALID_DATA);
       }
 
       await this._forgetPasswordResetPasswordUseCase.reset(data.data);
 
-      res.status(HTTPStatus.OK).json({ message: MESSAGES.USERS.PASSWORD_RESET_SUCCESSFULLY });
+      ResponseHelper.success(res, MESSAGES.USERS.PASSWORD_RESET_SUCCESSFULLY, HTTPSTATUS.OK);
     } catch (error) {
-      res.status(HTTPStatus.BAD_REQUEST).json({ message: "Error while reseting new password" });
+      next(error);
     }
   }
 }

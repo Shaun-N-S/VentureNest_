@@ -17,6 +17,6 @@ export class UpdateInvestorStatusUseCase implements IUpdateInvestorStatusUseCase
 
     if (!updatedInvestor) throw new Error(USER_ERRORS.USER_NOT_FOUND);
 
-    return { investor: updatedInvestor };
+    return { investor: updatedInvestor as InvestorDTO };
   }
 }

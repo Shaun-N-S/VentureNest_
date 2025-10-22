@@ -2,6 +2,7 @@ import { UserStatus } from "@domain/enum/userStatus";
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 import { IUpdateUserStatusUseCase } from "@domain/interfaces/useCases/admin/user/IUpdateUserStatusUseCase";
 import { USER_ERRORS } from "@shared/constants/error";
+import { NotFoundExecption } from "application/constants/exceptions";
 import { UserDTO } from "application/dto/user/userDTO";
 
 export class UpdateUserStatusUseCase implements IUpdateUserStatusUseCase {
@@ -12,8 +13,8 @@ export class UpdateUserStatusUseCase implements IUpdateUserStatusUseCase {
 
     const updatedUser = await this._userRepository.updateStatus(userId, newStatus);
 
-    if (!updatedUser) throw new Error(USER_ERRORS.USER_NOT_FOUND);
+    if (!updatedUser) throw new NotFoundExecption(USER_ERRORS.USER_NOT_FOUND);
 
-    return { user: updatedUser };
+    return { user: updatedUser as UserDTO };
   }
 }

@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    password: { type: String, required: true },
+    password: { type: String },
     isFirstLogin: { type: Boolean, default: true },
 
     linkedInUrl: { type: String },

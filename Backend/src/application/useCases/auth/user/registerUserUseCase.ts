@@ -4,6 +4,7 @@ import { UserMapper } from "application/mappers/userMappers";
 import { ICreateUserUseCase } from "@domain/interfaces/useCases/auth/user/ICreateUserUseCase";
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 import { redisRegisterSchema } from "@shared/validations/userRegisterValidator";
+import { AlreadyExisitingExecption } from "application/constants/exceptions";
 
 export class RegisterUserUseCase implements ICreateUserUseCase {
   constructor(
@@ -14,7 +15,7 @@ export class RegisterUserUseCase implements ICreateUserUseCase {
   async createUser(email: string): Promise<void> {
     const existingUser = await this._userRepository.findByEmail(email);
     if (existingUser) {
-      throw new Error(USER_ERRORS.USER_ALREADY_EXISTS);
+      throw new AlreadyExisitingExecption(USER_ERRORS.USER_ALREADY_EXISTS);
     }
 
     const redisUserData = await this._cacheStorage.getData(`USERDATA/${email}`);

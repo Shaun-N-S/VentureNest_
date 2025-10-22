@@ -3,10 +3,10 @@ import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
 
 export interface UserEntity {
-  _id: string;
+  _id?: string;
   userName: string;
   email: string;
-  password: string;
+  password?: string;
   isFirstLogin: boolean;
   interestedTopics: PreferredSector[];
   role: UserRole;
@@ -24,6 +24,7 @@ export interface UserEntity {
   aadharImg?: string;
   selfieImg?: string;
   verifiedAt?: Date | undefined;
-  createdAt: Date;
-  updatedAt: Date;
+  googleId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

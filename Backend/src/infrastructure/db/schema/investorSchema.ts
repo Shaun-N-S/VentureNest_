@@ -8,7 +8,8 @@ const investorSchema = new mongoose.Schema(
   {
     userName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String },
+    isFirstLogin: { type: Boolean, default: true },
     linkedInUrl: { type: String },
     profileImg: { type: String },
     website: { type: String },
@@ -18,20 +19,20 @@ const investorSchema = new mongoose.Schema(
 
     role: { type: String, enum: Object.values(UserRole), default: UserRole.INVESTOR },
 
-    status: { type: String, enum: Object.values(UserStatus) },
+    status: { type: String, enum: Object.values(UserStatus), default: UserStatus.ACTIVE },
 
     location: { type: String },
     companyName: { type: String },
     experience: { type: Number },
 
-    PreferredSector: [{ type: String, enum: Object.values(PreferredSector) }],
+    preferredSector: [{ type: String, enum: Object.values(PreferredSector) }],
 
-    preferredStartUpStages: [{ type: String, enum: Object.values(StartupStage) }],
+    preferredStartupStage: [{ type: String, enum: Object.values(StartupStage) }],
 
     investmentMin: { type: Number },
     investmentMax: { type: Number },
 
-    portfolio: { type: String },
+    portfolioPdf: { type: String },
 
     adminVerified: { type: Boolean, default: false },
     aadharImg: { type: String },

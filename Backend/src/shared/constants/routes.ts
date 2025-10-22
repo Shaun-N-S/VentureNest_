@@ -5,7 +5,9 @@ export const ROUTES = {
       VERIFY_OTP: "/users/verify-otp",
       RESEND_OTP: "/users/resend-otp",
       LOGIN: "/users/login",
+      REFRESH: "/refresh",
       LOGOUT: "/users/logout",
+      GOOGLE_LOGIN: "/users/google-login",
       FORGET_PASSWORD: {
         REQUEST: "/users/forget-password",
         VERIFY_OTP: "/users/forget-password/verify-otp",
@@ -35,4 +37,6 @@ export const ROUTES = {
     UPDATE_USER_STATUS: "/users/update-status",
     UPDATE_INVESTOR_STATUS: "/investors/update-status",
   },
+  USERS: {},
+  INVESTORS: {},
 };

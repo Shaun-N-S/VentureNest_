@@ -1,36 +1,83 @@
 import LoginForm, { type LoginFormData } from "../../components/auth/LoginForm"
 import { Link, useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
-import { useUserLogin } from "../../hooks/AuthHooks"
+import { useGoogleLoginMutation, useUserLogin } from "../../hooks/AuthHooks"
 import { useDispatch } from "react-redux"
 import { setData } from "../../store/Slice/authDataSlice"
 import { setToken } from "../../store/Slice/tokenSlice"
 import { motion } from "framer-motion"
 import { AxiosError } from "axios"
 import LeftPanel from "../../components/auth/LeftPanal"
+import { Button } from "../../components/ui/button"
+import { useGoogleLogin } from "@react-oauth/google"
 
 const UserLoginPage = () => {
-  const { mutate: login } = useUserLogin()
+  const { mutate: userLogin } = useUserLogin()
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const { mutate: googleLoginMutate } = useGoogleLoginMutation();
 
   const handleUserLogin = (values: LoginFormData) => {
-    login(values, {
+    userLogin(values, {
       onSuccess: (res) => {
+        console.log("response", res)
         toast.success("Login successfull")
         dispatch(setData(res.data.user))
         dispatch(setToken(res.data.accessToken))
         navigate("/home")
       },
       onError: (err) => {
+        console.log("cath", err)
+        console.log("axios error  ")
         if (err instanceof AxiosError) {
-          const errMsg = err.response?.data?.message
-          console.log("Error while login ,", err)
+          const errMsg = err.response?.data.message
+          console.log("Error while login ,", errMsg)
           toast.error(errMsg)
         }
       },
     })
   }
+
+  const login = useGoogleLogin({
+    onSuccess: (res) => handleGoogleLoginSuccess(res.code),
+    onError: (err) => console.log(err),
+    flow: "auth-code",
+  });
+
+  const handleGoogleLoginSuccess = (code: string) => {
+    const role = "USER"
+    googleLoginMutate(
+      { authorizationCode: code, role },
+      {
+        onSuccess: (res) => {
+          if (res.data?.user.role !== role) {
+            toast.error(`You are not a ${role}`);
+            return;
+          }
+          toast.success(res.message);
+          console.log(res.data.user)
+          dispatch(
+            setData({
+              email: res.data.user.email,
+              id: res.data.user._id,
+              isFirstLogin: res.data.user.isFirstLogin,
+              role: res.data.user.role,
+              status: res.data.user.status,
+              updatedAt: res.data.user.updateAt,
+              userName: res.data.user.userName
+            })
+          );
+          dispatch(setToken(res.data?.accessToken || ""));
+
+        },
+        onError: (err) => {
+          toast.error("Google login failed");
+          console.error(err);
+        },
+      }
+    );
+  };
+
 
   return (
     <div className="min-h-screen md:h-screen grid grid-cols-1 md:grid-cols-2 items-stretch bg-background text-foreground md:overflow-hidden">
@@ -67,6 +114,20 @@ const UserLoginPage = () => {
             {/* Form */}
             <div className="px-6 pb-4">
               <LoginForm onSubmit={handleUserLogin} />
+
+              <Button
+                onClick={() => login()}
+                type="button"
+                className="w-full mt-4 x-4 py-2 border flex gap-2 bg-white hover:bg-gray-50  border-slate-200  rounded-lg text-slate-700  hover:border-slate-300  hover:text-slate-900  hover:shadow transition duration-150"
+              >
+                <img
+                  className="w-6 h-6"
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  loading="lazy"
+                  alt="google logo"
+                ></img>
+                Login
+              </Button>
             </div>
 
             {/* Footer actions */}

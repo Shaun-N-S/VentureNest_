@@ -30,6 +30,7 @@ export class UserMapper {
       aadharImg: "",
       selfieImg: "",
       verifiedAt: undefined,
+      googleId: "",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -37,7 +38,7 @@ export class UserMapper {
 
   static toDTO(entity: UserEntity): UserDTO {
     return {
-      _id: entity._id,
+      _id: entity._id!,
       userName: entity.userName,
       email: entity.email,
       role: entity.role,
@@ -45,14 +46,14 @@ export class UserMapper {
       adminVerified: entity.adminVerified,
       isFirstLogin: entity.isFirstLogin,
       profileImg: entity.profileImg || "",
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
+      createdAt: entity.createdAt || new Date(),
+      updatedAt: entity.createdAt || new Date(),
     };
   }
 
   static toLoginUserResponse(user: UserEntity): LoginUserResponseDTO {
     return {
-      _id: user._id,
+      _id: user._id!,
       userName: user.userName,
       email: user.email,
       role: user.role,
@@ -60,13 +61,12 @@ export class UserMapper {
       isFirstLogin: user.isFirstLogin,
       adminVerified: user.adminVerified,
       profileImg: user.profileImg || "",
-      updatedAt: user.updatedAt,
     };
   }
 
   static toLoginAdminResponse(user: UserEntity): LoginAdminResponseDTO {
     return {
-      _id: user._id,
+      _id: user._id!,
       userName: user.userName,
       email: user.email,
       role: user.role,

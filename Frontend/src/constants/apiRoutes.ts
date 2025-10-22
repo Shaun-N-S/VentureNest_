@@ -13,12 +13,15 @@ export const API_ROUTES = {
     INVESTOR_RESEND_OTP: "/auth/investors/resend-otp",
     INVESTOR_LOGIN: "/auth/investors/login",
     INVESTOR_RESET_PASSWORD: "/auth/investors/forget-password/reset-password",
+    INVESTOR_PROFILE_COMPLETION: "/auth/investor/profile-completion",
 
     ADMIN_LOGIN: "/auth/admin/login",
 
-    REFRESH:"/auth/refresh",
+    REFRESH: "/auth/refresh",
 
-    USERS_LOGOUT:"/auth/users/logout"
+    USERS_LOGOUT: "/auth/users/logout",
+
+    GOOGLE_LOGIN: "/auth/users/google-login",
   },
 
   ADMIN: {

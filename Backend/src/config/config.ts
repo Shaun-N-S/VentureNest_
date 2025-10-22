@@ -11,4 +11,6 @@ export const CONFIG = {
   REDIS_URL: process.env.REDIS_URL,
   JWT_SECRET: process.env.JWT_SECRET,
   NODE_ENV: process.env.NODE_ENV,
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
+  GOOGLE_CLIENT_SECERT: process.env.GOOGLE_CLIENT_SECERT || "",
 };

@@ -10,5 +10,4 @@ export interface LoginUserResponseDTO {
   isFirstLogin: boolean;
   adminVerified: boolean;
   profileImg: string;
-  updatedAt: Date;
 }

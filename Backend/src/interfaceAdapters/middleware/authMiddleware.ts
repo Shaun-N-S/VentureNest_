@@ -1,8 +1,8 @@
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 import { IJWTService } from "@domain/interfaces/services/IJWTService";
 import { Errors } from "@shared/constants/error";
-import { HTTPStatus } from "@shared/constants/httpStatus";
-import { Request, Response } from "express";
+import { HTTPSTATUS } from "@shared/constants/httpStatus";
+import { NextFunction, Request, Response } from "express";
 
 export class AuthMiddleware {
   constructor(
@@ -10,27 +10,31 @@ export class AuthMiddleware {
     private _cacheService: IKeyValueTTLCaching
   ) {}
 
-  verify = async (req: Request, res: Response) => {
+  verify = async (req: Request, res: Response, next: NextFunction) => {
+    console.log("verify reached !!!!");
     const header = req.header("Authorization");
 
     if (!header?.startsWith("Bearer ")) {
-      res.status(HTTPStatus.UNAUTHORIZED).json({ success: false, message: Errors.INVALID_TOKEN });
+      res.status(HTTPSTATUS.UNAUTHORIZED).json({ success: false, message: Errors.INVALID_TOKEN });
       return;
     }
-
+    console.log("bearer");
     const token = header.split(" ")[1];
     const decoded = this._jwtService.verifyAccessToken(token as string);
+    console.log(decoded);
     if (!decoded) {
-      res.status(HTTPStatus.UNAUTHORIZED).json({ success: false, message: Errors.INVALID_TOKEN });
+      res.status(HTTPSTATUS.UNAUTHORIZED).json({ success: false, message: Errors.INVALID_TOKEN });
       return;
     }
+    console.log("verified");
 
-    const blackListed = await this._cacheService.getData(`blackList:${decoded.userId}`); //jti
+    const blackListed = await this._cacheService.getData(`blackList:${token}`);
 
     if (blackListed) {
-      res.status(HTTPStatus.UNAUTHORIZED).json({ success: false, message: Errors.INVALID_TOKEN });
+      res.status(HTTPSTATUS.UNAUTHORIZED).json({ success: false, message: Errors.INVALID_TOKEN });
       return;
     }
     (req as any).user = { role: decoded.role, userId: decoded.userId };
+    next();
   };
 }

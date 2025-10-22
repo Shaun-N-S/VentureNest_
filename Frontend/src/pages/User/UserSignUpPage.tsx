@@ -6,6 +6,7 @@ import { useState } from "react"
 import LeftPanel from "../../components/auth/LeftPanal"
 import toast from "react-hot-toast"
 import { motion } from "framer-motion"
+import { AxiosError } from "axios"
 
 
 type SignupPayload = { userName: string; email: string; password: string }
@@ -55,7 +56,10 @@ export default function UserSignUpPage() {
           navigate('/login')
 
         }, onError: (err) => {
-          console.log("Error while verifying otp ", err);
+          if (err instanceof Error) {
+            // console.log("Error while verifying otp ", err.response.data.message);
+            toast.error(err.response.data.message)
+          }
         }
       }
     )
@@ -63,7 +67,7 @@ export default function UserSignUpPage() {
 
 
   const handleResendOtp = (email: string) => {
-    console.log("Sending resend OTP...",email);
+    console.log("Sending resend OTP...", email);
     resendOtp(email, {
       onSuccess: (res) => {
         console.log("response from resend otp :", res);

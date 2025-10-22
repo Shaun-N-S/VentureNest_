@@ -46,7 +46,7 @@ export class InvestorMapper {
 
   static toLoginInvestorResponse(investor: InvestorEntity): LoginUserResponseDTO {
     return {
-      _id: investor._id,
+      _id: investor._id!,
       userName: investor.userName,
       email: investor.email,
       role: investor.role,
@@ -54,13 +54,12 @@ export class InvestorMapper {
       isFirstLogin: investor.isFirstLogin,
       adminVerified: investor.adminVerified,
       profileImg: investor.profileImg || "",
-      updatedAt: investor.updatedAt,
     };
   }
 
   static toDTO(entity: InvestorEntity): InvestorDTO {
     return {
-      _id: entity._id,
+      _id: entity._id!,
       userName: entity.userName,
       email: entity.email,
       role: entity.role,
@@ -68,8 +67,8 @@ export class InvestorMapper {
       adminVerified: entity.adminVerified,
       isFirstLogin: entity.isFirstLogin,
       profileImg: entity.profileImg || "",
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
+      createdAt: entity.createdAt || new Date(),
+      updatedAt: entity.updatedAt || new Date(),
     };
   }
 

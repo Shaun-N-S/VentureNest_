@@ -148,7 +148,7 @@ export default function LandingPage() {
                                 variant="secondary"
                                 className="h-11 rounded-lg border border-input bg-secondary text-secondary-foreground shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md"
                             >
-                                <Link to="/investors/login">
+                                <Link to="/investor/login">
                                     Join as an Investor
                                     <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                                 </Link>

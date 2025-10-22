@@ -1,6 +1,7 @@
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 import { IVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IVerifyOtp";
 import { Errors } from "@shared/constants/error";
+import { OTPExpiredException } from "application/constants/exceptions";
 
 export class VerifyOtpUseCase implements IVerifyOtpUseCase {
   private _cacheStorage: IKeyValueTTLCaching;
@@ -13,7 +14,7 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
     const cachedOtp = await this._cacheStorage.getData(`otp/${email}`);
     console.log("cachedOtp : ", cachedOtp);
     if (!cachedOtp) {
-      throw new Error(Errors.OTP_MISSING);
+      throw new OTPExpiredException(Errors.OTP_MISSING);
     }
     const otpVerified = otp === cachedOtp;
     if (otpVerified) {
