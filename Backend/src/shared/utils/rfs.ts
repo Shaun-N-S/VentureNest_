@@ -1,4 +1,4 @@
-import rfs from "rotating-file-stream";
+const rfs = require("rotating-file-stream");
 import fs from "fs";
 import path from "path";
 
@@ -18,7 +18,7 @@ export const createRotatingFileStream = (
   ensureDir(dirPath);
 
   return rfs.createStream(
-    (time) => {
+    (time: Date) => {
       if (!time) return path.join(dirPath, "buffer.log");
       const fileName = new Date().toISOString().split("T")[0] + ".log";
       return path.join(dirPath, fileName);

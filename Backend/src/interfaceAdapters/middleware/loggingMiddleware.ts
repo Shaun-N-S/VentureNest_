@@ -7,7 +7,7 @@ import path from "path";
 export function loggingMiddleware(app: Express) {
   if (CONFIG.NODE_ENV === "DEVELOPMENT") {
     app.use(morgan("combined"));
-  } else if (CONFIG.NODE_ENV === "PRODUCTION") {
+  } else {
     const accessLogsStream = createRotatingFileStream(
       "1d",
       7,
