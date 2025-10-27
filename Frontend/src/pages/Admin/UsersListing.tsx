@@ -7,13 +7,8 @@ import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { X } from "lucide-react";
 import StatusChangeModal from "../../components/modals/StatusChangeModal";
-
-interface User {
-    _id: string;
-    userName: string;
-    email: string;
-    status: "ACTIVE" | "BLOCKED";
-}
+import { useQueryClient } from "@tanstack/react-query";
+import type { IGetAllUsersResponse, User } from "../../types/AuthPayloads";
 
 interface TableUser extends User {
     id: string;
@@ -41,12 +36,12 @@ const UsersListing: React.FC = () => {
 
 
     const { mutate: updateUserStatus, isPending: isUpdating } = useUpdateUserStatus();
+    const queryClient = useQueryClient();
 
 
     const users: User[] = useMemo(() => data?.data?.data?.users || [], [data]);
     const totalPages = useMemo(() => data?.data?.data?.totalPages || 1, [data]);
-    console.log(data?.data?.data?.users);
-    console.log(totalPages)
+    console.log("users data in ", users);
 
 
     const formattedUsers: TableUser[] = useMemo(
@@ -58,7 +53,6 @@ const UsersListing: React.FC = () => {
         [users]
     );
 
-    // Search handler
     const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchInput(e.target.value);
     }, []);
@@ -68,22 +62,33 @@ const UsersListing: React.FC = () => {
         setPage(1);
     }, [searchInput]);
 
-    // Status filter handler
     const handleStatusChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
         setStatusFilter(e.target.value);
         setPage(1);
     }, []);
 
-    // Toggle user active/block status
     const handleStatusToggle = useCallback(
         (userId: string, currentStatus: "ACTIVE" | "BLOCKED") => {
             updateUserStatus(
                 { userId, currentStatus },
                 {
                     onSuccess: () => {
-                        const newStatus = currentStatus === "ACTIVE" ? "blocked" : "activated";
+                        const newStatus: User["status"] = currentStatus === "ACTIVE" ? "BLOCKED" : "ACTIVE";
                         toast.success(`User ${newStatus} successfully`);
-                        refetch();
+                        queryClient.setQueryData(
+                            ["users", page, limit, statusFilter, debouncedSearch],
+                            (oldData: IGetAllUsersResponse) => {
+                                if (!oldData) return oldData;
+
+                                const updatedUsers = oldData.data.data.users.map((user: User) =>
+                                    user._id === userId ? { ...user, status: newStatus } : user
+                                );
+
+                                const newData = structuredClone(oldData);
+                                newData.data.data.users = updatedUsers;
+                                return newData
+                            }
+                        )
                     },
                     onError: (err) => {
                         if (err instanceof AxiosError) {
@@ -95,7 +100,7 @@ const UsersListing: React.FC = () => {
                 }
             );
         },
-        [updateUserStatus, refetch]
+        [updateUserStatus, queryClient, page, limit, statusFilter, debouncedSearch]
     );
 
     const handleClearSearch = useCallback(() => {
@@ -105,7 +110,6 @@ const UsersListing: React.FC = () => {
         refetch();
     }, [refetch]);
 
-    // Properly typed table headers
     const headers = useMemo(
         () => [
             {

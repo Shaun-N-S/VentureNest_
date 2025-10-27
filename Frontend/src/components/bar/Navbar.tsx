@@ -4,6 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import type { UserRole } from "../../types/UserRole";
 import saasFounder from "../../assets/saas-founder-portrait.jpg";
+import { useSelector } from "react-redux";
+import type { Rootstate } from "../../store/store";
+import { useLogout } from "../../hooks/AuthHooks";
+import { useDispatch } from "react-redux";
+import { clearData } from "../../store/Slice/authDataSlice";
+import { deleteToken } from "../../store/Slice/tokenSlice";
+import toast from "react-hot-toast";
 
 interface NavbarProps {
   role: UserRole;
@@ -42,10 +49,39 @@ const menuItems: Record<UserRole, { name: string; path: string }[]> = {
 const Navbar: React.FC<NavbarProps> = ({ role }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const userData = useSelector((state: Rootstate) => state.authData);
+  const { mutate: logout } = useLogout()
+  const dispatch = useDispatch()
+  console.log("navbar data from redux", userData)
 
   const handleNavigation = (path: string) => {
     navigate(path);
-    setIsOpen(false); // close mobile menu
+    setIsOpen(false);
+  };
+
+
+  const handleLogout = () => {
+    const currentRole = userData.role;
+    console.log(currentRole);
+
+    logout(undefined, {
+      onSuccess: () => {
+        dispatch(clearData());
+        dispatch(deleteToken());
+        toast.success("Logged out successfully!");
+
+        if (currentRole === "INVESTOR") {
+          navigate("/investor/login");
+        } else if (currentRole === "ADMIN") {
+          navigate("/admin/login");
+        } else {
+          navigate("/login");
+        }
+      },
+      onError: () => {
+        toast.error("Logout failed. Please try again.");
+      },
+    });
   };
 
   return (
@@ -78,11 +114,38 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
             <MessageCircle className="w-5 h-5 cursor-pointer text-gray-600 hover:text-black" />
           )}
           <Bell className="w-5 h-5 cursor-pointer text-gray-600 hover:text-black" />
-          <img
-            src={saasFounder}
-            alt="profile"
-            className="w-8 h-8 rounded-full object-cover cursor-pointer"
-          />
+          <div
+            className="relative"
+            onMouseEnter={() => setIsOpen(true)}
+            onMouseLeave={() => setIsOpen(false)}
+          >
+            <img
+              src={userData.profileImg}
+              alt="profile"
+              className="w-8 h-8 rounded-full object-cover cursor-pointer"
+            />
+
+            {/* Dropdown */}
+            <div
+              className={`absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50 transition-all duration-200 ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+            >
+              <ul className="py-2 text-sm text-gray-700">
+                <li
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => console.log("Go to Profile")}
+                >
+                  Your Profile
+                </li>
+                <li
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
 
         {/* Mobile Toggle */}

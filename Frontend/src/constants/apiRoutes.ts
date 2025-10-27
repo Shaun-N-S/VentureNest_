@@ -7,6 +7,7 @@ export const API_ROUTES = {
     USER_FORGET_VERIFY_OTP: "/auth/users/forget-password/verify-otp",
     USER_RESET_PASSWORD: "/auth/users/forget-password/reset-password",
     USER_LOGIN: "/auth/users/login",
+    USER_GOOGLE_LOGIN: "/auth/users/google-login",
 
     INVESTOR_SIGNUP: "/auth/investors",
     INVESTOR_VERIFY_OTP: "/auth/investors/verify-otp",
@@ -14,14 +15,13 @@ export const API_ROUTES = {
     INVESTOR_LOGIN: "/auth/investors/login",
     INVESTOR_RESET_PASSWORD: "/auth/investors/forget-password/reset-password",
     INVESTOR_PROFILE_COMPLETION: "/auth/investor/profile-completion",
+    INVESTOR_GOOGLE_LOGIN: "/auth/investors/google-login",
 
     ADMIN_LOGIN: "/auth/admin/login",
 
     REFRESH: "/auth/refresh",
 
     USERS_LOGOUT: "/auth/users/logout",
-
-    GOOGLE_LOGIN: "/auth/users/google-login",
   },
 
   ADMIN: {

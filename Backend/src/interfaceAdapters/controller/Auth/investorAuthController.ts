@@ -1,7 +1,9 @@
 import { UserRole } from "@domain/enum/userRole";
+import { IJWTService } from "@domain/interfaces/services/IJWTService";
 import { IForgetPasswordInvestorResetPasswordUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordInvestorResetPassword";
 import { IForgetPasswordSendOtpUseCaes } from "@domain/interfaces/useCases/auth/IForgetPasswordSendOtp";
 import { IForgetPasswordVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IForgetPasswordVerifyOtp";
+import { IGoogleLoginUseCase } from "@domain/interfaces/useCases/auth/IGoogleLoginUseCase";
 import { ICacheInvestorUseCase } from "@domain/interfaces/useCases/auth/investor/ICacheInvestorUseCase";
 import { ICreateInvestorUseCase } from "@domain/interfaces/useCases/auth/investor/ICreateInvestorUseCase";
 import { IInvestorLoginUseCase } from "@domain/interfaces/useCases/auth/investor/IInvestorLoginUseCase";
@@ -17,6 +19,7 @@ import { setRefreshTokenCookie } from "@shared/utils/setRefreshTokenCookie";
 import { emailSchema } from "@shared/validations/emailValidator";
 import { forgetPasswordResetPasswordSchema } from "@shared/validations/forgetPasswordResetPasswordValidator";
 import { forgetPasswordVerifyOtpSchema } from "@shared/validations/forgetPasswordVerifyOtpValidator";
+import { googleLoginSchema } from "@shared/validations/googleLoginValidator";
 import { loginSchema } from "@shared/validations/loginValidator";
 import { otpSchema } from "@shared/validations/otpValidator";
 import { registerUserSchema } from "@shared/validations/userRegisterValidator";
@@ -34,7 +37,9 @@ export class InvestorAuthController {
     private _resendOtpUseCase: IResendOtpUseCase,
     private _forgetPasswordSendOtpUseCase: IForgetPasswordSendOtpUseCaes,
     private _forgetPasswordVerifyOtpUseCase: IForgetPasswordVerifyOtpUseCase,
-    private _forgetPasswordResetPasswordUseCase: IForgetPasswordInvestorResetPasswordUseCase
+    private _forgetPasswordResetPasswordUseCase: IForgetPasswordInvestorResetPasswordUseCase,
+    private _googleLoginUseCase: IGoogleLoginUseCase,
+    private _jwtService: IJWTService
   ) {}
 
   async signUpSendOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -167,6 +172,43 @@ export class InvestorAuthController {
       await this._forgetPasswordResetPasswordUseCase.reset(data.data);
 
       ResponseHelper.success(res, MESSAGES.USERS.PASSWORD_RESET_SUCCESSFULLY, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async googleLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      console.log(req.body);
+      const loginData = googleLoginSchema.safeParse(req.body);
+
+      if (loginData.error) {
+        throw new InvalidDataException(loginData.error.message);
+      }
+
+      const responseDTO = await this._googleLoginUseCase.execute(loginData.data);
+
+      const accessToken = await this._jwtService.createAccessToken({
+        userId: responseDTO._id,
+        role: responseDTO.role,
+      });
+
+      const refreshToken = await this._jwtService.createRefreshToken({
+        userId: responseDTO._id,
+        role: responseDTO.role,
+      });
+
+      setRefreshTokenCookie(res, refreshToken);
+
+      ResponseHelper.success(
+        res,
+        MESSAGES.INVESTOR.LOGIN_SUCCESS,
+        {
+          investor: responseDTO,
+          accessToken: accessToken,
+        },
+        HTTPSTATUS.OK
+      );
     } catch (error) {
       next(error);
     }

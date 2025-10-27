@@ -27,6 +27,7 @@ export const MESSAGES = {
 
   INVESTOR: {
     REGISTER_SUCCESS: "Investor registered successfully.",
+    LOGIN_SUCCESS: "Investor logged in successfully.",
     PROFILE_COMPLETION_SUCCESS: "Profile completion successful",
   },
 

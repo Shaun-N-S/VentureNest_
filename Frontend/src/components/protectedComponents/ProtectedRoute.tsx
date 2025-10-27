@@ -16,7 +16,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    // Wait for redux to hydrate
     const timeout = setTimeout(() => {
       if (!accessToken) {
         switch (userRole) {
@@ -31,12 +30,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         }
       }
       setIsChecking(false);
-    }, 100); // small delay to let redux update
+    }, 100);
 
     return () => clearTimeout(timeout);
   }, [accessToken, navigate, userRole]);
 
-  // While checking, render nothing to avoid flicker
   if (isChecking) return null;
 
   return accessToken ? <>{children}</> : null;

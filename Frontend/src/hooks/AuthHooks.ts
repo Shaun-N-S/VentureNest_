@@ -18,7 +18,8 @@ import {
   updateInvestorStatus,
   logoutUser,
   investorResetPassword,
-  googleLogin,
+  userGoogleLogin,
+  investorGoogleLogin,
 } from "../services/AuthServices";
 import { profileCompletion } from "../services/Investor/InvestorProfileService";
 
@@ -171,7 +172,13 @@ export const useLogout = () => {
 
 export const useGoogleLoginMutation = () => {
   return useMutation({
-    mutationFn: googleLogin,
+    mutationFn: userGoogleLogin,
+  });
+};
+
+export const useInvestorGoogleLoginMutation = () => {
+  return useMutation({
+    mutationFn: investorGoogleLogin,
   });
 };
 

@@ -1,27 +1,41 @@
 import toast from "react-hot-toast"
 import LoginForm, { type LoginFormData } from "../../components/auth/LoginForm"
-import { useInvestorLogin } from "../../hooks/AuthHooks"
+import { useInvestorGoogleLoginMutation, useInvestorLogin } from "../../hooks/AuthHooks"
 import { useDispatch } from "react-redux"
 import { setData } from "../../store/Slice/authDataSlice"
 import { Link, useNavigate } from "react-router-dom"
 import { setToken } from "../../store/Slice/tokenSlice"
 import { motion } from "framer-motion"
 import LeftPanel from "../../components/auth/LeftPanal"
+import { useGoogleLogin } from "@react-oauth/google"
+import { Button } from "../../components/ui/button"
+import { AxiosError } from "axios"
 
 const InvestorLoginPage = () => {
 
 
-    const { mutate: login } = useInvestorLogin()
+    const { mutate: Investorlogin } = useInvestorLogin()
+    const { mutate: googleLoginMutate } = useInvestorGoogleLoginMutation()
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const handleInvestorLogin = (values: LoginFormData) => {
-        login(values, {
+        Investorlogin(values, {
             onSuccess: (res) => {
                 toast.success("Login Successfull");
                 console.log("login success", res.data.investor)
-                dispatch(setData(res.data.investor))
-                dispatch(setToken(res.data.accessToken))
+                dispatch(
+                    setData({
+                        _id: res.data.investor._id,
+                        userName: res.data.investor.userName,
+                        email: res.data.investor.email,
+                        role: res.data.investor.role,
+                        status: res.data.investor.status,
+                        isFirstLogin: res.data.investor.isFirstLogin,
+                        profileImg: res.data.investor.profileImg
+                    })
+                );
+                dispatch(setToken(res.data?.accessToken || ""));
                 if (res.data.investor.isFirstLogin) {
                     navigate('/investor/profile-completion')
                 } else {
@@ -29,7 +43,7 @@ const InvestorLoginPage = () => {
                 }
             },
             onError: (err) => {
-                if (err instanceof Error) {
+                if (err instanceof AxiosError) {
                     const errMsg = err?.response?.data?.message;
                     console.log(err)
                     console.log("Error while login ,", err)
@@ -37,6 +51,46 @@ const InvestorLoginPage = () => {
                 }
             }
         })
+    }
+
+    const login = useGoogleLogin({
+        onSuccess: (res) => handleGoogleLoginSuccess(res.code),
+        onError: (err) => console.log(err),
+        flow: "auth-code",
+    })
+
+    const handleGoogleLoginSuccess = (code: string) => {
+        const role = "INVESTOR"
+        googleLoginMutate({ authorizationCode: code, role },
+            {
+                onSuccess: (res) => {
+                    if (res.data?.investor.role !== role) {
+                        toast.error(`You are not a ${role}`);
+                        return;
+                    }
+                    toast.success(res.message);
+                    console.log(res.data);
+                    dispatch(
+                        setData({
+                            _id: res.data.investor._id,
+                            userName: res.data.investor.userName,
+                            email: res.data.investor.email,
+                            role: res.data.investor.role,
+                            status: res.data.investor.status,
+                            isFirstLogin: res.data.investor.isFirstLogin,
+                            profileImg: res.data.investor.profileImg
+                        })
+                    );
+                    dispatch(setToken(res.data?.accessToken || ""));
+                },
+                onError: (err) => {
+                    toast.error("Google Login Failed");
+                    console.error(err);
+                }
+            }
+        )
+
+
     }
 
     return (
@@ -74,6 +128,20 @@ const InvestorLoginPage = () => {
                         {/* Form */}
                         <div className="px-6 pb-4">
                             <LoginForm onSubmit={handleInvestorLogin} />
+
+                            <Button
+                                onClick={() => login()}
+                                type="button"
+                                className="w-full mt-4 x-4 py-2 border flex gap-2 bg-white hover:bg-gray-50  border-slate-200  rounded-lg text-slate-700  hover:border-slate-300  hover:text-slate-900  hover:shadow transition duration-150"
+                            >
+                                <img
+                                    className="w-6 h-6"
+                                    src="https://www.svgrepo.com/show/475656/google-color.svg"
+                                    loading="lazy"
+                                    alt="google logo"
+                                ></img>
+                                Login
+                            </Button>
                         </div>
 
                         {/* Footer actions */}

@@ -30,8 +30,9 @@ import { RefreshTokenUseCase } from "application/useCases/auth/refreshTokenUseCa
 import { TokenInvalidationUseCase } from "application/useCases/auth/tokenInvalidationUseCase";
 import { ForgetPasswordInvestorResetPasswordUseCase } from "application/useCases/auth/forgetPasswordInvestorResetPassword";
 import { AuthMiddleware } from "interfaceAdapters/middleware/authMiddleware";
-import { UserGoogleLoginUseCase } from "application/useCases/auth/userGoogleLoginUseCase";
+import { UserGoogleLoginUseCase } from "application/useCases/auth/user/userGoogleLoginUseCase";
 import { GoogleAuthService } from "@infrastructure/services/googleAuthService";
+import { InvestorGoogleLoginUseCase } from "application/useCases/auth/investor/investorGoogleLoginUseCase";
 
 //Repositories & Services
 const userRepository = new UserRepository(userModel);
@@ -97,6 +98,10 @@ const adminLoginUseCase = new AdminLoginUseCase(userRepository, hashService);
 const tokenRefreshUseCase = new RefreshTokenUseCase(jwtService, cacheStorage);
 const tokenValidationUseCase = new TokenInvalidationUseCase(jwtService, cacheStorage);
 const googleLoginUseCase = new UserGoogleLoginUseCase(userRepository, googleAuthService);
+const investorGoogleLoginUseCase = new InvestorGoogleLoginUseCase(
+  investorRepository,
+  googleAuthService
+);
 
 //Controller
 export const userAuthController = new UserAuthController(
@@ -127,7 +132,9 @@ export const investorAuthController = new InvestorAuthController(
   resendOtpUseCase,
   forgetPasswordSendOtpUseCase,
   forgetPasswordVerifyOtpUseCase,
-  forgetPasswordInvestorResetPasswordUseCase
+  forgetPasswordInvestorResetPasswordUseCase,
+  investorGoogleLoginUseCase,
+  jwtService
 );
 
 export const adminAuthController = new AdminAuthController(

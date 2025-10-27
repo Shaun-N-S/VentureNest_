@@ -10,4 +10,5 @@ export interface IGoogleLoginResponseDTO {
   userName: string;
   _id: string;
   role: UserRole;
+  profileImg: string;
 }

@@ -3,7 +3,7 @@ import { IVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IVerifyOtp";
 import { ICreateUserUseCase } from "@domain/interfaces/useCases/auth/user/ICreateUserUseCase";
 import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { Errors } from "@shared/constants/error";
-import { NextFunction, Request, response, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { MESSAGES } from "@shared/constants/messages";
 import { emailSchema } from "@shared/validations/emailValidator";
 import { registerUserSchema } from "@shared/validations/userRegisterValidator";

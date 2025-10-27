@@ -27,16 +27,23 @@ export class Admin_Routes {
         adminUserController.getAllUsers(req, res, next)
     );
 
-    this._route.post(ADMIN.UPDATE_USER_STATUS, (req: Request, res: Response, next: NextFunction) =>
-      adminUserController.updateUserStatus(req, res, next)
+    this._route.post(
+      ADMIN.UPDATE_USER_STATUS,
+      authMiddleware.verify,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminUserController.updateUserStatus(req, res, next)
     );
 
-    this._route.get(ADMIN.INVESTORS, (req: Request, res: Response, next: NextFunction) =>
-      adminInvestorController.getAllInvestor(req, res, next)
+    this._route.get(
+      ADMIN.INVESTORS,
+      authMiddleware.verify,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminInvestorController.getAllInvestor(req, res, next)
     );
 
     this._route.post(
       ADMIN.UPDATE_INVESTOR_STATUS,
+      authMiddleware.verify,
       (req: Request, res: Response, next: NextFunction) =>
         adminInvestorController.updateInvestorStatus(req, res, next)
     );

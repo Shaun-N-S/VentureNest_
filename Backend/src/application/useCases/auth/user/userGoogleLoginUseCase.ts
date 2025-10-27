@@ -19,7 +19,7 @@ export class UserGoogleLoginUseCase implements IGoogleLoginUseCase {
     authorizationCode,
     role,
   }: IGoogleLoginRequestDTO): Promise<IGoogleLoginResponseDTO> {
-    const { email, googleId, userName } =
+    const { email, googleId, userName, profileImage } =
       await this._googleAuthService.authorize(authorizationCode);
 
     let user = await this._userRepository.findByEmail(email);
@@ -33,8 +33,11 @@ export class UserGoogleLoginUseCase implements IGoogleLoginUseCase {
         role: UserRole.USER,
         interestedTopics: [],
         status: UserStatus.ACTIVE,
+        googleId: googleId,
+        profileImg: profileImage,
       };
       const id = await this._userRepository.googleSignUp(user);
+      user._id = id;
     }
     return UserMapper.toLoginUserResponse(user);
   }

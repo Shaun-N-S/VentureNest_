@@ -10,16 +10,16 @@ interface ProtectedLoginProps {
 const ProtectedLogin: React.FC<ProtectedLoginProps> = ({ children }) => {
   const navigate = useNavigate();
   const accessToken = useSelector((state: Rootstate) => state.token.token);
-  const userRole = useSelector((state: Rootstate) => state.authData.role);
+  const userData = useSelector((state: Rootstate) => state.authData);
 
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (accessToken) {
-        switch (userRole) {
+        switch (userData.role) {
           case "INVESTOR":
-            navigate("/investor/home");
+            handleInvestor()
             break;
           case "ADMIN":
             navigate("/admin/dashboard");
@@ -31,8 +31,16 @@ const ProtectedLogin: React.FC<ProtectedLoginProps> = ({ children }) => {
       setIsChecking(false);
     }, 100);
 
+    const handleInvestor = () => {
+      if (userData.isFirstLogin) {
+        navigate('/investor/profile-completion');
+      } else {
+        navigate("/investor/home")
+      }
+    }
+
     return () => clearTimeout(timeout);
-  }, [accessToken, navigate, userRole]);
+  }, [accessToken, navigate, userData.role]);
 
   if (isChecking) return null;
 

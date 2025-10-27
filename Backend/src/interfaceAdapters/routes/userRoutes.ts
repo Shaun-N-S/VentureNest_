@@ -11,51 +11,51 @@ export class User_Router {
   }
 
   private _setRoute() {
-    const USER = ROUTES.AUTH.USER;
+    const USER_AUTH = ROUTES.AUTH.USER;
 
-    this._route.post(USER.BASE, (req: Request, res: Response, next: NextFunction) =>
+    this._route.post(USER_AUTH.BASE, (req: Request, res: Response, next: NextFunction) =>
       userAuthController.signUpSendOtp(req, res, next)
     );
 
-    this._route.post(USER.VERIFY_OTP, (req: Request, res: Response, next: NextFunction) =>
+    this._route.post(USER_AUTH.VERIFY_OTP, (req: Request, res: Response, next: NextFunction) =>
       userAuthController.registerUser(req, res, next)
     );
 
-    this._route.post(USER.RESEND_OTP, (req: Request, res: Response, next: NextFunction) =>
+    this._route.post(USER_AUTH.RESEND_OTP, (req: Request, res: Response, next: NextFunction) =>
       userAuthController.resendOtp(req, res, next)
     );
 
-    this._route.post(USER.LOGIN, (req: Request, res: Response, next: NextFunction) =>
+    this._route.post(USER_AUTH.LOGIN, (req: Request, res: Response, next: NextFunction) =>
       userAuthController.loginUser(req, res, next)
     );
 
     this._route.post(
-      USER.FORGET_PASSWORD.REQUEST,
+      USER_AUTH.FORGET_PASSWORD.REQUEST,
       (req: Request, res: Response, next: NextFunction) =>
         userAuthController.forgetPassword(req, res, next)
     );
 
     this._route.post(
-      USER.FORGET_PASSWORD.VERIFY_OTP,
+      USER_AUTH.FORGET_PASSWORD.VERIFY_OTP,
       (req: Request, res: Response, next: NextFunction) =>
         userAuthController.forgetPasswordVerifyOtp(req, res, next)
     );
 
     this._route.post(
-      USER.FORGET_PASSWORD.RESET_PASSWORD,
+      USER_AUTH.FORGET_PASSWORD.RESET_PASSWORD,
       (req: Request, res: Response, next: NextFunction) =>
         userAuthController.forgetPasswordResetPassword(req, res, next)
     );
 
-    this._route.post(USER.LOGOUT, (req: Request, res: Response, next: NextFunction) => {
+    this._route.post(USER_AUTH.LOGOUT, (req: Request, res: Response, next: NextFunction) => {
       userAuthController.handleLogout(req, res, next);
     });
 
-    this._route.post(USER.REFRESH, (req: Request, res: Response, next: NextFunction) =>
+    this._route.post(USER_AUTH.REFRESH, (req: Request, res: Response, next: NextFunction) =>
       userAuthController.handleTokenRefresh(req, res, next)
     );
 
-    this._route.post(USER.GOOGLE_LOGIN, (req: Request, res: Response, next: NextFunction) => {
+    this._route.post(USER_AUTH.GOOGLE_LOGIN, (req: Request, res: Response, next: NextFunction) => {
       userAuthController.googleLogin(req, res, next);
     });
   }
