@@ -7,7 +7,7 @@ import {
   useForgetPasswordResetPassword,
   useForgetPasswordVerifyOtp,
   useUserForgetPassword,
-} from "../../hooks/AuthHooks";
+} from "../../hooks/Auth/AuthHooks";
 import z from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -109,7 +109,7 @@ const ForgotPasswordPage = () => {
     const result = PasswordSchema.safeParse({ password, confirmPassword });
     if (!result.success) {
       const fieldErrors: { [key: string]: string } = {};
-      result.error.issues.forEach((e:  typeof result.error.issues[0]) => (fieldErrors[e.path[0].toString()] = e.message));
+      result.error.issues.forEach((e: typeof result.error.issues[0]) => (fieldErrors[e.path[0].toString()] = e.message));
       setErrors(fieldErrors);
       return;
     }

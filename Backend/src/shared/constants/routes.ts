@@ -13,6 +13,7 @@ export const ROUTES = {
         VERIFY_OTP: "/users/forget-password/verify-otp",
         RESET_PASSWORD: "/users/forget-password/reset-password",
       },
+      GET_PROFILE_IMG: "/users/get-profileImg/:id",
     },
     INVESTOR: {
       BASE: "/investors",
@@ -40,6 +41,8 @@ export const ROUTES = {
   },
   USERS: {},
   INVESTORS: {
-    PROFILE: {},
+    PROFILE: {
+      COMPLETION: "/investor/profile-completion",
+    },
   },
 };

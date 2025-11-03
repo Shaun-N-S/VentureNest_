@@ -2,6 +2,7 @@ import { authMiddleware, investorAuthController } from "@infrastructure/DI/Auth/
 import { investorProfileController } from "@infrastructure/DI/Investor/InvestorProfileContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
+import { uploadMulter } from "interfaceAdapters/middleware/multer";
 
 export class Investor_Router {
   private _route: Router;
@@ -57,10 +58,13 @@ export class Investor_Router {
     );
 
     //investor profile setup routes
-    // const INVESTOR_PROFILE = ROUTES.INVESTORS.
 
     this._route.post(
-      "/investor/profile-completion",
+      ROUTES.INVESTORS.PROFILE.COMPLETION,
+      uploadMulter.fields([
+        { name: "profileImg", maxCount: 1 },
+        { name: "portfolioPdf", maxCount: 1 },
+      ]),
       (req: Request, res: Response, next: NextFunction) => {
         investorProfileController.profileCompletion(req, res, next);
       }

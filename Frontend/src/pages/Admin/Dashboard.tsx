@@ -5,7 +5,7 @@ import { clearData } from "../../store/Slice/authDataSlice";
 import { deleteToken } from "../../store/Slice/tokenSlice";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
-import { useLogout } from "../../hooks/AuthHooks";
+import { useLogout } from "../../hooks/Auth/AuthHooks";
 import toast from "react-hot-toast";
 
 const Dashboard = () => {

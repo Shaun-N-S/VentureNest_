@@ -1,14 +1,14 @@
 import toast from "react-hot-toast"
-import LoginForm, { type LoginFormData } from "../../components/auth/LoginForm"
-import { useInvestorGoogleLoginMutation, useInvestorLogin } from "../../hooks/AuthHooks"
+import LoginForm, { type LoginFormData } from "../../../components/auth/LoginForm"
+import { useInvestorGoogleLoginMutation, useInvestorLogin } from "../../../hooks/Auth/AuthHooks"
 import { useDispatch } from "react-redux"
-import { setData } from "../../store/Slice/authDataSlice"
+import { setData } from "../../../store/Slice/authDataSlice"
 import { Link, useNavigate } from "react-router-dom"
-import { setToken } from "../../store/Slice/tokenSlice"
+import { setToken } from "../../../store/Slice/tokenSlice"
 import { motion } from "framer-motion"
-import LeftPanel from "../../components/auth/LeftPanal"
+import LeftPanel from "../../../components/auth/LeftPanal"
 import { useGoogleLogin } from "@react-oauth/google"
-import { Button } from "../../components/ui/button"
+import { Button } from "../../../components/ui/button"
 import { AxiosError } from "axios"
 
 const InvestorLoginPage = () => {
@@ -97,9 +97,9 @@ const InvestorLoginPage = () => {
         <div className="min-h-screen md:h-screen grid grid-cols-1 md:grid-cols-2 items-stretch bg-background text-foreground md:overflow-hidden">
             {/* Left visual panel */}
             <motion.div
-                initial={{ opacity: 0, x: -16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                // initial={{ opacity: 0, x: -16 }}
+                // animate={{ opacity: 1, x: 0 }}
+                // transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 className="relative h-full"
             >
                 {/* Replace previous image-based panel with reusable component */}

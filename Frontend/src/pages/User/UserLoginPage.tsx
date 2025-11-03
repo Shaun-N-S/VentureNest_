@@ -1,7 +1,7 @@
 import LoginForm, { type LoginFormData } from "../../components/auth/LoginForm"
 import { Link, useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
-import { useGoogleLoginMutation, useUserLogin } from "../../hooks/AuthHooks"
+import { useGoogleLoginMutation, useUserLogin } from "../../hooks/Auth/AuthHooks"
 import { useDispatch } from "react-redux"
 import { setData } from "../../store/Slice/authDataSlice"
 import { setToken } from "../../store/Slice/tokenSlice"

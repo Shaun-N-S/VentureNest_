@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import type { LoginPayload, SignupPayload } from "../types/AuthPayloads";
+import type { LoginPayload, SignupPayload } from "../../types/AuthPayloads";
 import {
   getAllInvestors,
   getAllUsers,
@@ -20,8 +20,9 @@ import {
   investorResetPassword,
   userGoogleLogin,
   investorGoogleLogin,
-} from "../services/AuthServices";
-import { profileCompletion } from "../services/Investor/InvestorProfileService";
+} from "../../services/Auth/AuthServices";
+import { profileCompletion } from "../../services/Investor/InvestorProfileService";
+import { getProfileImg } from "../../services/Auth/AuthServices";
 
 //users
 export const useUserSignUp = () => {
@@ -184,12 +185,15 @@ export const useInvestorGoogleLoginMutation = () => {
 
 export const useInvestorProfileCompletion = () => {
   return useMutation({
-    mutationFn: ({
-      formData,
-      investorId,
-    }: {
-      formData: unknown;
-      investorId: string;
-    }) => profileCompletion({ formData, investorId }),
+    mutationFn: (formData: FormData) => profileCompletion(formData),
+  });
+};
+
+export const useGetProfileImg = (id: string) => {
+  return useQuery({
+    queryKey: ["profileImg", id],
+    queryFn: () => getProfileImg(id),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
   });
 };

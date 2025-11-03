@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Bell, MessageCircle, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -6,9 +6,9 @@ import type { UserRole } from "../../types/UserRole";
 import saasFounder from "../../assets/saas-founder-portrait.jpg";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
-import { useLogout } from "../../hooks/AuthHooks";
+import { useGetProfileImg, useLogout } from "../../hooks/Auth/AuthHooks";
 import { useDispatch } from "react-redux";
-import { clearData } from "../../store/Slice/authDataSlice";
+import { clearData, updateUserData } from "../../store/Slice/authDataSlice";
 import { deleteToken } from "../../store/Slice/tokenSlice";
 import toast from "react-hot-toast";
 
@@ -51,8 +51,16 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
   const navigate = useNavigate();
   const userData = useSelector((state: Rootstate) => state.authData);
   const { mutate: logout } = useLogout()
+  const { data: profileData, isLoading, isError, error } = useGetProfileImg(userData.id)
   const dispatch = useDispatch()
   console.log("navbar data from redux", userData)
+
+  useEffect(() => {
+    if (profileData?.data?.profileImg) {
+      dispatch(updateUserData({ profileImg: profileData.data.profileImg }));
+    }
+  }, [profileData, dispatch]);
+
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -119,11 +127,22 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
             onMouseEnter={() => setIsOpen(true)}
             onMouseLeave={() => setIsOpen(false)}
           >
-            <img
-              src={userData.profileImg}
-              alt="profile"
-              className="w-8 h-8 rounded-full object-cover cursor-pointer"
-            />
+            {isLoading ? (
+              <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+            ) : isError ? (
+              <img
+                src="/default-avatar.png"
+                alt="default"
+                className="w-8 h-8 rounded-full object-cover cursor-pointer"
+                title={error?.message || "Could not load image"}
+              />
+            ) : (
+              <img
+                src={userData.profileImg}
+                alt="profile"
+                className="w-8 h-8 rounded-full object-cover cursor-pointer"
+              />
+            )}
 
             {/* Dropdown */}
             <div

@@ -21,6 +21,8 @@ export const API_ROUTES = {
 
     REFRESH: "/auth/refresh",
 
+    GET_PROFILEIMG: "/auth/users/get-profileImg/:id",
+
     USERS_LOGOUT: "/auth/users/logout",
   },
 

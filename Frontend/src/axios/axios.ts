@@ -24,13 +24,13 @@ AxiosInstance.interceptors.response.use(
   (res) => res,
   async (err) => {
     const orignialRequest = err.config;
-    console.log(err.response)
+    console.log(err.response);
     if (
       err.response.status === 401 &&
-      err.response.data.message === "Invalid Token !" &&
+      err.response.data.message === "Token expired" &&
       !orignialRequest.retry
     ) {
-      console.log("retrying")
+      console.log("retrying");
       try {
         orignialRequest.retry = true;
         const response = await AxiosInstance.post(API_ROUTES.AUTH.REFRESH);
@@ -42,15 +42,15 @@ AxiosInstance.interceptors.response.use(
         const userRole = store.getState().authData.role;
         store.dispatch(clearData());
         store.dispatch(deleteToken());
-        // if (userRole === "INVESTOR") {
-        //   window.location.href = `/${userRole}/login`;
-        // } else if (userRole === "ADMIN") {
-        //   window.location.href = `/${userRole}/login`;
-        // } else {
-        //   window.location.href = `/login`;
-        // }
+        if (userRole === "INVESTOR") {
+          window.location.href = `/${userRole}/login`;
+        } else if (userRole === "ADMIN") {
+          window.location.href = `/${userRole}/login`;
+        } else {
+          window.location.href = `/login`;
+        }
       }
-    } 
+    }
     return Promise.reject(err);
   }
 );

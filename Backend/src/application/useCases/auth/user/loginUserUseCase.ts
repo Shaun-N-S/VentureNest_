@@ -1,6 +1,7 @@
 import { UserStatus } from "@domain/enum/userStatus";
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 import { IHashPasswordService } from "@domain/interfaces/services/IHashPasswordService";
+import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IUserLoginUseCase } from "@domain/interfaces/useCases/auth/user/IUserLoginUseCase";
 import { Errors, USER_ERRORS } from "@shared/constants/error";
 import {
@@ -15,10 +16,16 @@ import { UserMapper } from "application/mappers/userMappers";
 export class UserLoginUseCase implements IUserLoginUseCase {
   private _userRepository;
   private _hashService;
+  private _storageService;
 
-  constructor(userRepository: IUserRepository, hashService: IHashPasswordService) {
+  constructor(
+    userRepository: IUserRepository,
+    hashService: IHashPasswordService,
+    storageService: IStorageService
+  ) {
     this._userRepository = userRepository;
     this._hashService = hashService;
+    this._storageService = storageService;
   }
 
   async userLogin(email: string, password: string): Promise<LoginUserResponseDTO> {
@@ -46,6 +53,12 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     }
 
     const response: LoginUserResponseDTO = UserMapper.toLoginUserResponse(user);
+    if (response.profileImg) {
+      response.profileImg = await this._storageService.createSignedUrl(
+        response.profileImg,
+        10 * 60
+      );
+    }
     return response;
   }
 }

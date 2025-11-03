@@ -51,13 +51,20 @@ export class User_Router {
       userAuthController.handleLogout(req, res, next);
     });
 
-    this._route.post(USER_AUTH.REFRESH, (req: Request, res: Response, next: NextFunction) =>
-      userAuthController.handleTokenRefresh(req, res, next)
-    );
+    this._route.post(USER_AUTH.REFRESH, (req: Request, res: Response, next: NextFunction) => {
+      userAuthController.handleTokenRefresh(req, res, next);
+    });
 
     this._route.post(USER_AUTH.GOOGLE_LOGIN, (req: Request, res: Response, next: NextFunction) => {
       userAuthController.googleLogin(req, res, next);
     });
+
+    this._route.get(
+      USER_AUTH.GET_PROFILE_IMG,
+      (req: Request, res: Response, next: NextFunction) => {
+        userAuthController.handleProfileImg(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

@@ -11,13 +11,13 @@ export function loggingMiddleware(app: Express) {
     const accessLogsStream = createRotatingFileStream(
       "1d",
       7,
-      path.join(__dirname, "..", "logs", "accesslogs")
+      path.join(__dirname, "..", "..", "logs", "accesslogs")
     );
 
     const errorLogsStream = createRotatingFileStream(
       "1d",
       7,
-      path.join(__dirname, "..", "logs", "errorLogs")
+      path.join(__dirname, "..", "..", "logs", "errorLogs")
     );
 
     app.use(morgan("combined", { stream: accessLogsStream }));
