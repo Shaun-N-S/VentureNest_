@@ -1,39 +1,53 @@
 import { InvestorEntity } from "@domain/entities/investor/investorEntity";
-import { UserStatus } from "@domain/enum/userStatus";
+import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
+import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IInvestorProfileCompletionUseCase } from "@domain/interfaces/useCases/investor/profile/IInvestorProfileCompletionUseCase";
-import { Errors, INVESTOR_ERRORS } from "@shared/constants/error";
-import { InvestorProfileSchema } from "@shared/validations/investorProfileCompletionValidator";
-import { InvalidDataException } from "application/constants/exceptions";
+import { INVESTOR_ERRORS } from "@shared/constants/error";
+import { NotFoundExecption } from "application/constants/exceptions";
+import { InvestorProfileCompletionReqDTO } from "application/dto/investor/investorProfileCompletionDTO";
 
 export class InvestorProfileCompletionUseCase implements IInvestorProfileCompletionUseCase {
-  constructor(private investorRepository: IInvestorRepository) {}
+  constructor(
+    private _investorRepository: IInvestorRepository,
+    private _storageService: IStorageService
+  ) {}
 
-  async profileCompletion(
-    investorId: string,
-    profileData: Partial<InvestorEntity>
-  ): Promise<InvestorEntity> {
-    const investor = await this.investorRepository.findById(investorId);
+  async profileCompletion(data: InvestorProfileCompletionReqDTO): Promise<InvestorEntity> {
+    const { id, formData, profileImg, portfolioPdf } = data;
+
+    const investor = await this._investorRepository.findById(id);
+
     if (!investor) {
-      throw new Error(INVESTOR_ERRORS.INVESTOR_NOT_FOUND);
+      throw new NotFoundExecption(INVESTOR_ERRORS.NO_INVESTORS_FOUND);
     }
 
-    // const verifiedProfileData = InvestorProfileSchema.safeParse(profileData);
+    let profileImgKey = investor.profileImg;
+    let portfolioPdfKey = investor.portfolioPdf;
 
-    // if (verifiedProfileData.error) {
-    //   throw new InvalidDataException(Errors.INVALID_DATA);
-    // }
+    if (profileImg) {
+      profileImgKey = await this._storageService.upload(
+        profileImg,
+        StorageFolderNames.PROFILE_IMAGE + "/" + id + Date.now()
+      );
+    }
 
-    const updatedInvestor = await this.investorRepository.updateById(investorId, {
-      ...profileData,
+    if (portfolioPdf) {
+      portfolioPdfKey = await this._storageService.upload(
+        portfolioPdf,
+        StorageFolderNames.PORTFOLIO_PDF + "/" + id + Date.now()
+      );
+    }
+
+    const updatedData = {
+      ...formData,
+      profileImg: profileImgKey ?? "",
+      portfolioPdf: portfolioPdfKey ?? "",
       isFirstLogin: false,
-    });
+    };
 
-    console.log("updated investor :  :  :  ", updatedInvestor);
-    if (!updatedInvestor) {
-      throw new Error(INVESTOR_ERRORS.PROFILE_UPDATION_FAILED);
-    }
-
-    return updatedInvestor;
+    const updatedInvestor = await this._investorRepository.updateById(id, updatedData);
+    console.log("updatedInvestor data : return : : :  :", updatedInvestor);
+    return updatedInvestor!;
   }
 }

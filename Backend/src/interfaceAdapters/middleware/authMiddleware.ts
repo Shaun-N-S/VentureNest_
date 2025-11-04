@@ -11,7 +11,6 @@ export class AuthMiddleware {
   ) {}
 
   verify = async (req: Request, res: Response, next: NextFunction) => {
-    console.log("verify reached !!!!");
     const header = req.header("Authorization");
 
     if (!header?.startsWith("Bearer ")) {
@@ -36,5 +35,13 @@ export class AuthMiddleware {
     }
     (req as any).user = { role: decoded.role, userId: decoded.userId };
     next();
+  };
+
+  checkStatus = () => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = res.locals.users;
+
+      let userStatus;
+    };
   };
 }

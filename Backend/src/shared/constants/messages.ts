@@ -12,6 +12,7 @@ export const MESSAGES = {
     STATUS_UPDATED_SUCCESSFULLY: "User status updated successfully ",
     GET_ALL_USERS: "Fetched all users successfully",
     GET_ALL_INVESTORS: "Fetched all investors successfully",
+    PROFILE_IMG_SUCCESS: "Profile img successfully fetched",
   },
 
   ADMIN: {
@@ -27,6 +28,7 @@ export const MESSAGES = {
 
   INVESTOR: {
     REGISTER_SUCCESS: "Investor registered successfully.",
+    LOGIN_SUCCESS: "Investor logged in successfully.",
     PROFILE_COMPLETION_SUCCESS: "Profile completion successful",
   },
 

@@ -8,7 +8,7 @@ import { persistReducer, persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["authData", "token"], // slices to persist
+  whitelist: ["authData", "token"],
 };
 
 // Root reducer

@@ -1,12 +1,13 @@
 import toast from "react-hot-toast"
-import { useInvestorResendOtp, useInvestorSignUp, useInvestorVerifyOtp } from "../../hooks/AuthHooks"
-import type { SignupPayload } from "../../types/AuthPayloads"
+import { useInvestorResendOtp, useInvestorSignUp, useInvestorVerifyOtp } from "../../../hooks/Auth/AuthHooks"
+import type { SignupPayload } from "../../../types/AuthPayloads"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Link, useNavigate } from "react-router-dom"
-import OTPModal from "../../components/modals/OtpModal"
-import SignUpForm from "../../components/auth/SignUpForm"
-import LeftPanel from "../../components/auth/LeftPanal"
+import OTPModal from "../../../components/modals/OtpModal"
+import SignUpForm from "../../../components/auth/SignUpForm"
+import LeftPanel from "../../../components/auth/LeftPanal"
+import { AxiosError } from "axios"
 
 const InvestorSignUpPage = () => {
 
@@ -81,9 +82,9 @@ const InvestorSignUpPage = () => {
             {/* <div className="mx-auto grid min-h-screen w-full max-w-6xl grid-cols-1 md:grid-cols-2"> */}
             {/* Left design panel - hidden on small screens for better mobile UX */}
             <motion.div
-                initial={{ opacity: 0, x: -16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                // initial={{ opacity: 0, x: -16 }}
+                // animate={{ opacity: 1, x: 0 }}
+                // transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 className="relative h-full"
             >
                 {/* Replace previous image-based panel with reusable component */}

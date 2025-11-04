@@ -1,6 +1,7 @@
 import { UserStatus } from "@domain/enum/userStatus";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IHashPasswordService } from "@domain/interfaces/services/IHashPasswordService";
+import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IInvestorLoginUseCase } from "@domain/interfaces/useCases/auth/investor/IInvestorLoginUseCase";
 import { Errors, INVESTOR_ERRORS } from "@shared/constants/error";
 import {
@@ -15,10 +16,16 @@ import { InvestorMapper } from "application/mappers/investorMapper";
 export class InvestorLoginUseCase implements IInvestorLoginUseCase {
   private _investorRepository;
   private _hashService;
+  private _storageService;
 
-  constructor(investorRepository: IInvestorRepository, hashService: IHashPasswordService) {
+  constructor(
+    investorRepository: IInvestorRepository,
+    hashService: IHashPasswordService,
+    storageService: IStorageService
+  ) {
     this._investorRepository = investorRepository;
     this._hashService = hashService;
+    this._storageService = storageService;
   }
 
   async investorLogin(email: string, password: string): Promise<LoginUserResponseDTO> {
@@ -45,6 +52,13 @@ export class InvestorLoginUseCase implements IInvestorLoginUseCase {
     }
 
     const response: LoginUserResponseDTO = InvestorMapper.toLoginInvestorResponse(investor);
+    if (response.profileImg) {
+      response.profileImg = await this._storageService.createSignedUrl(
+        response.profileImg,
+        10 * 60
+      );
+    }
+    console.log(response);
     return response;
   }
 }

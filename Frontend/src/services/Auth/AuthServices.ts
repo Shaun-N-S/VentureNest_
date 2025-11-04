@@ -1,6 +1,6 @@
-import AxiosInstance from "../axios/axios";
-import { API_ROUTES } from "../constants/apiRoutes";
-import type { LoginPayload, SignupPayload } from "../types/AuthPayloads";
+import AxiosInstance from "../../axios/axios";
+import { API_ROUTES } from "../../constants/apiRoutes";
+import type { LoginPayload, SignupPayload } from "../../types/AuthPayloads";
 
 // Users
 export const signupUser = async (data: SignupPayload) => {
@@ -218,7 +218,31 @@ export const logoutUser = async () => {
   return response.data;
 };
 
-export const googleLogin = async (data: { authorizationCode: string; role: string }) => {
-  const response = await AxiosInstance.post(API_ROUTES.AUTH.GOOGLE_LOGIN, data);
+export const userGoogleLogin = async (data: {
+  authorizationCode: string;
+  role: string;
+}) => {
+  const response = await AxiosInstance.post(
+    API_ROUTES.AUTH.USER_GOOGLE_LOGIN,
+    data
+  );
+  return response.data;
+};
+
+export const investorGoogleLogin = async (data: {
+  authorizationCode: string;
+  role: string;
+}) => {
+  const response = await AxiosInstance.post(
+    API_ROUTES.AUTH.INVESTOR_GOOGLE_LOGIN,
+    data
+  );
+  return response.data;
+};
+
+export const getProfileImg = async (id: string) => {
+  const response = await AxiosInstance.get(
+    API_ROUTES.AUTH.GET_PROFILEIMG.replace(":id", id)
+  );
   return response.data;
 };

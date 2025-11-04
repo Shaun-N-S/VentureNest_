@@ -26,6 +26,14 @@ export const Errors = {
   TOKEN_DATA_MISSING: "Token data is missing",
   INVALID_LOGIN_TYPE: "Invalid login type",
   PASSWORD_NOT_MATCHING: "Password not matching",
+  ACCESS_TOKEN_MISSING: "Access Token missing !",
+  REFRESH_TOKEN_MISSING: "Refresh Token missing !",
+  ACCESS_TOKEN_CREATION_FAILED: "Failed to create access token",
+  REFRESH_TOKEN_CREATION_FAILED: "Failed to create refresh token",
+  ACCESS_TOKEN_SECRETKEY_MISSING: "Access token secret key not found",
+  REFRESH_TOKEN_SECRETKEY_MISSING: "Refresh token secret key not found",
+  UPLOAD_ERROR: "Error while uploading",
+  CONVERSTION_ERROR: "Error while converting file",
 };
 
 export const USER_ERRORS = {
@@ -35,6 +43,7 @@ export const USER_ERRORS = {
   USER_NOT_FOUND: "User not found !",
   USER_INVALIDATION: "Error while validating user !",
   NO_USERS_FOUND: "No users found",
+  NO_PROFILE_FOUND: "No profile img found",
 };
 
 export const INVESTOR_ERRORS = {

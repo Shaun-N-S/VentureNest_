@@ -1,7 +1,7 @@
 import LoginForm, { type LoginFormData } from "../../components/auth/LoginForm"
 import { Link, useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
-import { useGoogleLoginMutation, useUserLogin } from "../../hooks/AuthHooks"
+import { useGoogleLoginMutation, useUserLogin } from "../../hooks/Auth/AuthHooks"
 import { useDispatch } from "react-redux"
 import { setData } from "../../store/Slice/authDataSlice"
 import { setToken } from "../../store/Slice/tokenSlice"
@@ -22,8 +22,18 @@ const UserLoginPage = () => {
       onSuccess: (res) => {
         console.log("response", res)
         toast.success("Login successfull")
-        dispatch(setData(res.data.user))
-        dispatch(setToken(res.data.accessToken))
+        dispatch(
+          setData({
+            _id: res.data.user._id,
+            userName: res.data.user.userName,
+            email: res.data.user.email,
+            role: res.data.user.role,
+            status: res.data.user.status,
+            isFirstLogin: res.data.user.isFirstLogin,
+            profileImg: res.data.user.profileImg,
+          })
+        );
+        dispatch(setToken(res.data?.accessToken || ""))
         navigate("/home")
       },
       onError: (err) => {
@@ -55,16 +65,16 @@ const UserLoginPage = () => {
             return;
           }
           toast.success(res.message);
-          console.log(res.data.user)
+          console.log("data from backend during login : ", res.data.user)
           dispatch(
             setData({
+              _id: res.data.user._id,
+              userName: res.data.user.userName,
               email: res.data.user.email,
-              id: res.data.user._id,
-              isFirstLogin: res.data.user.isFirstLogin,
               role: res.data.user.role,
               status: res.data.user.status,
-              updatedAt: res.data.user.updateAt,
-              userName: res.data.user.userName
+              isFirstLogin: res.data.user.isFirstLogin,
+              profileImg: res.data.user.profileImg,
             })
           );
           dispatch(setToken(res.data?.accessToken || ""));
@@ -82,12 +92,7 @@ const UserLoginPage = () => {
   return (
     <div className="min-h-screen md:h-screen grid grid-cols-1 md:grid-cols-2 items-stretch bg-background text-foreground md:overflow-hidden">
       {/* Left visual panel */}
-      <motion.div
-        // initial={{ opacity: 0, x: -16 }}
-        // animate={{ opacity: 1, x: 0 }}
-        // transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="relative h-full"
-      >
+      <motion.div className="relative h-full">
         {/* Replace previous image-based panel with reusable component */}
         <LeftPanel />
       </motion.div>

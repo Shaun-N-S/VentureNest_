@@ -7,4 +7,5 @@ export interface IInvestorRepository extends IBaseRepository<InvestorEntity> {
   findByIdAndUpdatePassword(email: string, password: string): Promise<void>;
   updateStatus(investorId: string, status: UserStatus): Promise<InvestorEntity | null>;
   updateById(id: string, data: Partial<InvestorEntity>): Promise<InvestorEntity | null>;
+  googleSignUp(user: InvestorEntity): Promise<string>;
 }

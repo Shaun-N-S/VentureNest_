@@ -3,7 +3,7 @@ import { IVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IVerifyOtp";
 import { ICreateUserUseCase } from "@domain/interfaces/useCases/auth/user/ICreateUserUseCase";
 import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { Errors } from "@shared/constants/error";
-import { NextFunction, Request, response, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { MESSAGES } from "@shared/constants/messages";
 import { emailSchema } from "@shared/validations/emailValidator";
 import { registerUserSchema } from "@shared/validations/userRegisterValidator";
@@ -33,6 +33,8 @@ import {
 import { googleLoginSchema } from "@shared/validations/googleLoginValidator";
 import { IJWTService } from "@domain/interfaces/services/IJWTService";
 import { IGoogleLoginUseCase } from "@domain/interfaces/useCases/auth/IGoogleLoginUseCase";
+import { IGetProfileImg } from "@domain/interfaces/useCases/auth/IGetProfileImg";
+import { success } from "zod";
 
 export class UserAuthController {
   constructor(
@@ -50,7 +52,8 @@ export class UserAuthController {
     private _tokenRefreshUseCase: IRefreshTokenUseCase,
     private _tokenInvalidationUseCase: ITokenInvalidationUseCase,
     private _jwtService: IJWTService,
-    private _googleLoginUseCase: IGoogleLoginUseCase
+    private _googleLoginUseCase: IGoogleLoginUseCase,
+    private _getProfileImgUseCase: IGetProfileImg
   ) {}
 
   async signUpSendOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -266,6 +269,23 @@ export class UserAuthController {
         { user: responseDTO, accessToken: accessToken },
         HTTPSTATUS.OK
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async handleProfileImg(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      console.log("id : ", id);
+
+      if (!id) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const profileImg = await this._getProfileImgUseCase.getProfile(id);
+      console.log(profileImg);
+      ResponseHelper.success(res, MESSAGES.USERS.PROFILE_IMG_SUCCESS, profileImg, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

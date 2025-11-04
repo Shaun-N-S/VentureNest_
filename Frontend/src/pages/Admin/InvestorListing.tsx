@@ -3,19 +3,12 @@ import AdminLayout from "../../layouts/AdminLayout";
 import Table from "../../components/table/Table";
 import Pagination from "../../components/pagination/Pagination";
 import StatusChangeModal from "../../components/modals/StatusChangeModal";
-import { useGetAllInvestors, useUpdateInvestorStatus } from "../../hooks/AuthHooks";
+import { useGetAllInvestors, useUpdateInvestorStatus } from "../../hooks/Auth/AuthHooks";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { X } from "lucide-react";
-
-interface Investor {
-    _id: string;
-    userName: string;
-    email: string;
-    status: "ACTIVE" | "BLOCKED";
-    companyName?: string;
-    industry?: string;
-}
+import type { IGetAllInvestorsResponse, Investor } from "../../types/AuthPayloads";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface TableInvestor extends Investor {
     id: string;
@@ -38,13 +31,13 @@ const InvestorsListing: React.FC = () => {
         page,
         limit,
         statusFilter,
-        debouncedSearch
+        debouncedSearch,
     );
     const { mutate: updateInvestorStatus, isPending: isUpdating } = useUpdateInvestorStatus();
 
     const investors: Investor[] = useMemo(() => data?.data?.data?.investors || [], [data]);
     const totalPages = useMemo(() => data?.data?.data?.totalPages || 1, [data]);
-
+    const queryClient = useQueryClient();
 
     const formattedInvestors: TableInvestor[] = useMemo(
         () =>
@@ -83,9 +76,23 @@ const InvestorsListing: React.FC = () => {
                 { investorId, currentStatus },
                 {
                     onSuccess: () => {
-                        const newStatus = currentStatus === "ACTIVE" ? "blocked" : "activated";
+                        const newStatus: Investor["status"] = currentStatus === "ACTIVE" ? "BLOCKED" : "ACTIVE";
                         toast.success(`Investor ${newStatus} successfully`);
-                        refetch();
+                        // refetch();'
+                        queryClient.setQueryData(
+                            ["investors", page, limit, statusFilter, debouncedSearch],
+                            (oldData: IGetAllInvestorsResponse) => {
+                                if (!oldData) return oldData;
+
+                                const updatedInvestors = oldData.data.data.investors.map((investor: Investor) =>
+                                    investor._id === investorId ? { ...investor, status: newStatus } : investor
+                                )
+
+                                const newData = structuredClone(oldData);
+                                newData.data.data.investors = updatedInvestors;
+                                return newData;
+                            }
+                        )
                     },
                     onError: (err) => {
                         if (err instanceof AxiosError) {
@@ -98,7 +105,7 @@ const InvestorsListing: React.FC = () => {
                 }
             );
         },
-        [updateInvestorStatus, refetch]
+        [updateInvestorStatus, queryClient, page, limit, statusFilter, debouncedSearch]
     );
 
     // Table headers
@@ -148,39 +155,39 @@ const InvestorsListing: React.FC = () => {
         [isUpdating, page, limit, formattedInvestors]
     );
 
-    // Loading UI
-    if (isLoading) {
-        return (
-            <AdminLayout>
-                <div className="flex items-center justify-center min-h-[400px]">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                        <p className="text-gray-600">Loading investors...</p>
-                    </div>
-                </div>
-            </AdminLayout>
-        );
-    }
+    // // Loading UI
+    // if (isLoading) {
+    //     return (
+    //         <AdminLayout>
+    //             <div className="flex items-center justify-center min-h-[400px]">
+    //                 <div className="text-center">
+    //                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+    //                     <p className="text-gray-600">Loading investors...</p>
+    //                 </div>
+    //             </div>
+    //         </AdminLayout>
+    //     );
+    // }
 
-    // Error UI
-    if (isError) {
-        return (
-            <AdminLayout>
-                <div className="flex items-center justify-center min-h-[400px]">
-                    <div className="text-center">
-                        <div className="text-red-500 text-5xl mb-4">⚠️</div>
-                        <p className="text-red-600 font-medium">Failed to fetch investors</p>
-                        <button
-                            onClick={() => refetch()}
-                            className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                        >
-                            Retry
-                        </button>
-                    </div>
-                </div>
-            </AdminLayout>
-        );
-    }
+    // // Error UI
+    // if (isError) {
+    //     return (
+    //         <AdminLayout>
+    //             <div className="flex items-center justify-center min-h-[400px]">
+    //                 <div className="text-center">
+    //                     <div className="text-red-500 text-5xl mb-4">⚠️</div>
+    //                     <p className="text-red-600 font-medium">Failed to fetch investors</p>
+    //                     <button
+    //                         onClick={() => refetch()}
+    //                         className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+    //                     >
+    //                         Retry
+    //                     </button>
+    //                 </div>
+    //             </div>
+    //         </AdminLayout>
+    //     );
+    // }
 
     return (
         <AdminLayout>

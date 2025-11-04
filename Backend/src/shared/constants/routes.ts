@@ -13,12 +13,14 @@ export const ROUTES = {
         VERIFY_OTP: "/users/forget-password/verify-otp",
         RESET_PASSWORD: "/users/forget-password/reset-password",
       },
+      GET_PROFILE_IMG: "/users/get-profileImg/:id",
     },
     INVESTOR: {
       BASE: "/investors",
       VERIFY_OTP: "/investors/verify-otp",
       RESEND_OTP: "/investors/resend-otp",
       LOGIN: "/investors/login",
+      GOOGLE_LOGIN: "/investors/google-login",
       FORGET_PASSWORD: {
         REQUEST: "/investors/forget-password",
         VERIFY_OTP: "/investors/forget-password/verify-otp",
@@ -38,5 +40,9 @@ export const ROUTES = {
     UPDATE_INVESTOR_STATUS: "/investors/update-status",
   },
   USERS: {},
-  INVESTORS: {},
+  INVESTORS: {
+    PROFILE: {
+      COMPLETION: "/investor/profile-completion",
+    },
+  },
 };

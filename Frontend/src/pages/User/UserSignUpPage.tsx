@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom"
 import SignUpForm, { type SignupFormValues } from "../../components/auth/SignUpForm"
-import { useUserResendOtp, useUserSignUp, useUserVerifyOtp } from "../../hooks/AuthHooks"
+import { useUserResendOtp, useUserSignUp, useUserVerifyOtp } from "../../hooks/Auth/AuthHooks"
 import OTPModal from "../../components/modals/OtpModal"
 import { useState } from "react"
 import LeftPanel from "../../components/auth/LeftPanal"

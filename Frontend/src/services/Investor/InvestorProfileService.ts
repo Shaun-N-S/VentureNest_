@@ -1,21 +1,15 @@
-import AxiosInstance from "../../axios/axios";
-import { API_ROUTES } from "../../constants/apiRoutes";
+import AxiosInstance from "../../axios/axios"
+import { API_ROUTES } from "../../constants/apiRoutes"
 
-
-
-export const profileCompletion = async ({
-  formData,
-  investorId,
-}: {
-  formData: unknown;
-  investorId: string;
-}) => {
+export const profileCompletion = async (formData: FormData) => {
   const response = await AxiosInstance.post(
     API_ROUTES.AUTH.INVESTOR_PROFILE_COMPLETION,
+    formData,
     {
-      formData,
-      investorId,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     }
-  );
-  return response.data;
-};
+  )
+  return response.data
+}

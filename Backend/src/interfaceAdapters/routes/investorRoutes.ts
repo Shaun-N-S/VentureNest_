@@ -1,7 +1,8 @@
-import { investorAuthController } from "@infrastructure/DI/Auth/authContainer";
+import { authMiddleware, investorAuthController } from "@infrastructure/DI/Auth/authContainer";
 import { investorProfileController } from "@infrastructure/DI/Investor/InvestorProfileContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
+import { uploadMulter } from "interfaceAdapters/middleware/multer";
 
 export class Investor_Router {
   private _route: Router;
@@ -12,44 +13,58 @@ export class Investor_Router {
   }
 
   private _setRoute() {
-    const INVESTOR = ROUTES.AUTH.INVESTOR;
+    //investor authentication routes
+    const INVESTOR_AUTH = ROUTES.AUTH.INVESTOR;
 
-    this._route.post(INVESTOR.BASE, (req: Request, res: Response, next: NextFunction) =>
+    this._route.post(INVESTOR_AUTH.BASE, (req: Request, res: Response, next: NextFunction) =>
       investorAuthController.signUpSendOtp(req, res, next)
     );
 
-    this._route.post(INVESTOR.VERIFY_OTP, (req: Request, res: Response, next: NextFunction) =>
+    this._route.post(INVESTOR_AUTH.VERIFY_OTP, (req: Request, res: Response, next: NextFunction) =>
       investorAuthController.registerInvestor(req, res, next)
     );
 
-    this._route.post(INVESTOR.RESEND_OTP, (req: Request, res: Response, next: NextFunction) =>
+    this._route.post(INVESTOR_AUTH.RESEND_OTP, (req: Request, res: Response, next: NextFunction) =>
       investorAuthController.resendOtp(req, res, next)
     );
 
-    this._route.post(INVESTOR.LOGIN, (req: Request, res: Response, next: NextFunction) =>
+    this._route.post(INVESTOR_AUTH.LOGIN, (req: Request, res: Response, next: NextFunction) =>
       investorAuthController.loginInvestor(req, res, next)
     );
 
     this._route.post(
-      INVESTOR.FORGET_PASSWORD.REQUEST,
+      INVESTOR_AUTH.FORGET_PASSWORD.REQUEST,
       (req: Request, res: Response, next: NextFunction) =>
         investorAuthController.forgetPassword(req, res, next)
     );
 
     this._route.post(
-      INVESTOR.FORGET_PASSWORD.VERIFY_OTP,
+      INVESTOR_AUTH.FORGET_PASSWORD.VERIFY_OTP,
       (req: Request, res: Response, next: NextFunction) =>
         investorAuthController.forgetPasswordVerifyOtp(req, res, next)
     );
 
     this._route.post(
-      INVESTOR.FORGET_PASSWORD.RESET_PASSWORD,
+      INVESTOR_AUTH.FORGET_PASSWORD.RESET_PASSWORD,
       (req: Request, res: Response, next: NextFunction) =>
         investorAuthController.forgetPasswordResetPassword(req, res, next)
     );
 
     this._route.post(
-      "/investor/profile-completion",
+      INVESTOR_AUTH.GOOGLE_LOGIN,
+      (req: Request, res: Response, next: NextFunction) => {
+        investorAuthController.googleLogin(req, res, next);
+      }
+    );
+
+    //investor profile setup routes
+
+    this._route.post(
+      ROUTES.INVESTORS.PROFILE.COMPLETION,
+      uploadMulter.fields([
+        { name: "profileImg", maxCount: 1 },
+        { name: "portfolioPdf", maxCount: 1 },
+      ]),
       (req: Request, res: Response, next: NextFunction) => {
         investorProfileController.profileCompletion(req, res, next);
       }

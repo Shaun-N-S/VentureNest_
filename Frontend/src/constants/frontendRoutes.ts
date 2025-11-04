@@ -1,4 +1,3 @@
-// src/shared/constants/frontendRoutes.ts
 export const FRONTEND_ROUTES = {
   LANDING: "/",
 

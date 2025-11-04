@@ -30,8 +30,11 @@ import { RefreshTokenUseCase } from "application/useCases/auth/refreshTokenUseCa
 import { TokenInvalidationUseCase } from "application/useCases/auth/tokenInvalidationUseCase";
 import { ForgetPasswordInvestorResetPasswordUseCase } from "application/useCases/auth/forgetPasswordInvestorResetPassword";
 import { AuthMiddleware } from "interfaceAdapters/middleware/authMiddleware";
-import { UserGoogleLoginUseCase } from "application/useCases/auth/userGoogleLoginUseCase";
+import { UserGoogleLoginUseCase } from "application/useCases/auth/user/userGoogleLoginUseCase";
 import { GoogleAuthService } from "@infrastructure/services/googleAuthService";
+import { InvestorGoogleLoginUseCase } from "application/useCases/auth/investor/investorGoogleLoginUseCase";
+import { GetProfileImgUseCase } from "application/useCases/auth/getProfileImgUseCase";
+import { StorageService } from "@infrastructure/services/storageService";
 
 //Repositories & Services
 const userRepository = new UserRepository(userModel);
@@ -44,6 +47,7 @@ const jwtService = new JWTService();
 const investorRepository = new InvestorRepository(investorModel);
 const tokenSerivce = new TokenSerivce();
 const googleAuthService = new GoogleAuthService();
+const storageService = new StorageService();
 
 //UseCases
 const registerUserUseCase = new RegisterUserUseCase(userRepository, cacheStorage);
@@ -58,10 +62,14 @@ const sendOtpUseCase = new SignUpSendOtpUseCase(
   hashService
 );
 const verifyOtpUseCase = new VerifyOtpUseCase(cacheStorage);
-const userLoginUseCase = new UserLoginUseCase(userRepository, hashService);
+const userLoginUseCase = new UserLoginUseCase(userRepository, hashService, storageService);
 const tokenCreationUseCase = new TokenCreationUseCase(jwtService);
 const cacheUserUseCase = new CacheUserUseCase(cacheStorage);
-const investorLoginUseCase = new InvestorLoginUseCase(investorRepository, hashService);
+const investorLoginUseCase = new InvestorLoginUseCase(
+  investorRepository,
+  hashService,
+  storageService
+);
 const cacheInvestorUseCase = new CacheInvestorUseCase(cacheStorage);
 const resendOtpUseCase = new ResendOtpUseCase(
   otpService,
@@ -97,6 +105,16 @@ const adminLoginUseCase = new AdminLoginUseCase(userRepository, hashService);
 const tokenRefreshUseCase = new RefreshTokenUseCase(jwtService, cacheStorage);
 const tokenValidationUseCase = new TokenInvalidationUseCase(jwtService, cacheStorage);
 const googleLoginUseCase = new UserGoogleLoginUseCase(userRepository, googleAuthService);
+const investorGoogleLoginUseCase = new InvestorGoogleLoginUseCase(
+  investorRepository,
+  googleAuthService,
+  storageService
+);
+const getProfileImgUseCase = new GetProfileImgUseCase(
+  userRepository,
+  investorRepository,
+  storageService
+);
 
 //Controller
 export const userAuthController = new UserAuthController(
@@ -114,7 +132,8 @@ export const userAuthController = new UserAuthController(
   tokenRefreshUseCase,
   tokenValidationUseCase,
   jwtService,
-  googleLoginUseCase
+  googleLoginUseCase,
+  getProfileImgUseCase
 );
 
 export const investorAuthController = new InvestorAuthController(
@@ -127,7 +146,9 @@ export const investorAuthController = new InvestorAuthController(
   resendOtpUseCase,
   forgetPasswordSendOtpUseCase,
   forgetPasswordVerifyOtpUseCase,
-  forgetPasswordInvestorResetPasswordUseCase
+  forgetPasswordInvestorResetPasswordUseCase,
+  investorGoogleLoginUseCase,
+  jwtService
 );
 
 export const adminAuthController = new AdminAuthController(

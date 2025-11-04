@@ -9,11 +9,17 @@ export interface UserAuthData {
   role: UserRole | null;
   status: StatusTypes | null;
   isFirstLogin: boolean;
-  updatedAt: string;
+  profileImg: string;
 }
 
-interface userPayload extends UserAuthData {
+interface UserPayloadFromAPI {
   _id: string;
+  userName: string;
+  email: string;
+  role: UserRole | null;
+  status: StatusTypes | null;
+  isFirstLogin: boolean;
+  profileImg: string;
 }
 
 const initialState: UserAuthData = {
@@ -23,23 +29,29 @@ const initialState: UserAuthData = {
   role: null,
   status: null,
   isFirstLogin: true,
-  updatedAt: new Date().toISOString(),
+  profileImg: "",
 };
 
 const AuthDataSlice = createSlice({
   name: "AuthData",
   initialState,
   reducers: {
-    setData: (state, action: PayloadAction<userPayload>) => {
-      
+    setData: (state, action: PayloadAction<UserPayloadFromAPI>) => {
       return {
-        email: action.payload.email,
         id: action.payload._id,
         userName: action.payload.userName,
-        isFirstLogin: action.payload.isFirstLogin,
+        email: action.payload.email,
         role: action.payload.role,
         status: action.payload.status,
-        updatedAt: action.payload.updatedAt,
+        isFirstLogin: action.payload.isFirstLogin,
+        profileImg: action.payload.profileImg,
+      };
+    },
+
+    updateUserData: (state, action: PayloadAction<Partial<UserAuthData>>) => {
+      return {
+        ...state,
+        ...action.payload,
       };
     },
 
@@ -47,5 +59,5 @@ const AuthDataSlice = createSlice({
   },
 });
 
-export const { setData, clearData } = AuthDataSlice.actions;
+export const { setData, clearData, updateUserData } = AuthDataSlice.actions;
 export default AuthDataSlice.reducer;

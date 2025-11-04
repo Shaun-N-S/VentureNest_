@@ -11,3 +11,7 @@ export interface LoginUserResponseDTO {
   adminVerified: boolean;
   profileImg: string;
 }
+
+export interface ProfileImgDTO {
+  profileImg: string;
+}
