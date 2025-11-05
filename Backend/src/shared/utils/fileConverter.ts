@@ -13,6 +13,7 @@ export async function fileToBuffer(file: File): Promise<Buffer> {
     const buffer = Buffer.from(arrayBuffer);
     return buffer;
   } catch (error) {
+    console.log("", error);
     throw new Error(Errors.CONVERSTION_ERROR);
   }
 }

@@ -7,4 +7,5 @@ export interface IUserRepository extends IBaseRepository<UserEntity> {
   findByIdAndUpdatePassword(email: string, password: string): Promise<void>;
   updateStatus(userId: string, status: UserStatus): Promise<UserEntity | null>;
   googleSignUp(user: UserEntity): Promise<string>;
+  setInterestedTopics(userId: string, interestedTopics: string[]): Promise<void>;
 }

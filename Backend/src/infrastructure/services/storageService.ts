@@ -17,17 +17,20 @@ export class StorageService implements IStorageService {
     });
   }
 
-  async upload(file: File, key: string): Promise<string> {
+  async upload(file: File | Buffer, key: string): Promise<string> {
+    const data =
+      file instanceof Buffer ? file : file instanceof File ? await fileToBuffer(file) : file;
     try {
       const command = new PutObjectCommand({
         Bucket: CONFIG.S3_BUCKET_NAME,
         Key: key,
-        Body: await fileToBuffer(file),
+        Body: data,
       });
 
       await this._client.send(command);
       return key;
-    } catch {
+    } catch (error) {
+      console.log(error);
       throw new Error(Errors.UPLOAD_ERROR);
     }
   }

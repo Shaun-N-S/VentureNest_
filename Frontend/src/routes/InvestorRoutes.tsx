@@ -7,6 +7,7 @@ import InvestorProfileCompletion from "../pages/Investor/Profile/ProfileCompleti
 import InvestorSignUpPage from "../pages/Investor/Auth/InvestorSignUpPage";
 import InvestorLoginPage from "../pages/Investor/Auth/InvestorLoginPage";
 import ForgotPasswordPage from "../pages/Investor/Auth/InvestorFogetPassword";
+import Page, { ProfilePage } from "../pages/Investor/Profile/InvestorProfile/ProfilePage";
 
 const InvestorRoutes = () => {
     return (
@@ -16,6 +17,8 @@ const InvestorRoutes = () => {
             <Route path={FRONTEND_ROUTES.INVESTOR.FORGOT_PASSWORD} element={<ProtectedLogin><ForgotPasswordPage /></ProtectedLogin>} />
             <Route path={FRONTEND_ROUTES.INVESTOR.PROFILE_COMPLETION} element={<InvestorProfileCompletion />} />
             <Route path={FRONTEND_ROUTES.INVESTOR.HOME} element={<ProtectedRoute><Home /></ProtectedRoute>} />
+
+            <Route path="/investor/profile" element={<Page />} />
         </Routes>
     );
 };

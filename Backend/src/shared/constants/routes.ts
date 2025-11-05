@@ -14,6 +14,7 @@ export const ROUTES = {
         RESET_PASSWORD: "/users/forget-password/reset-password",
       },
       GET_PROFILE_IMG: "/users/get-profileImg/:id",
+      SET_INTERESTED_TOPICS: "/users/interested-topics",
     },
     INVESTOR: {
       BASE: "/investors",

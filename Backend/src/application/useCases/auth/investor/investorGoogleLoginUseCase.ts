@@ -1,10 +1,12 @@
 import { PreferredSector } from "@domain/enum/preferredSector";
+import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IGoogleAuthService } from "@domain/interfaces/services/IGoogleAuthService";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IGoogleLoginUseCase } from "@domain/interfaces/useCases/auth/IGoogleLoginUseCase";
+import { fetchImageAsBuffer } from "@shared/utils/fetchImageAsBuffer";
 import {
   IGoogleLoginRequestDTO,
   IGoogleLoginResponseDTO,
@@ -27,7 +29,17 @@ export class InvestorGoogleLoginUseCase implements IGoogleLoginUseCase {
 
     let investor = await this._investorRepository.findByEmail(email);
 
+    let profileImageKey = investor?.profileImg || "";
+
     if (!investor) {
+      if (profileImage) {
+        const imageBuffer = await fetchImageAsBuffer(profileImage);
+        profileImageKey = await this._storageService.upload(
+          imageBuffer,
+          StorageFolderNames.PROFILE_IMAGE + "/" + googleId + Date.now()
+        );
+      }
+
       investor = {
         email,
         userName,
@@ -45,17 +57,13 @@ export class InvestorGoogleLoginUseCase implements IGoogleLoginUseCase {
         investmentMax: 0,
         portfolioPdf: "",
         googleId: googleId,
-        profileImg: profileImage,
+        profileImg: profileImageKey,
       };
 
       const id = await this._investorRepository.googleSignUp(investor);
       investor._id = id;
-      if (investor.profileImg) {
-        investor.profileImg = await this._storageService.createSignedUrl(
-          investor.profileImg,
-          10 * 60
-        );
-      }
+      const profileKey = profileImageKey || investor.profileImg;
+      investor.profileImg = await this._storageService.createSignedUrl(profileKey!, 10 * 60);
     }
     return InvestorMapper.toLoginInvestorResponse(investor);
   }

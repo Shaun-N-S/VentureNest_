@@ -28,7 +28,7 @@ const initialState: UserAuthData = {
   email: "",
   role: null,
   status: null,
-  isFirstLogin: true,
+  isFirstLogin: false,
   profileImg: "",
 };
 

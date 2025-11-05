@@ -65,6 +65,13 @@ export class User_Router {
         userAuthController.handleProfileImg(req, res, next);
       }
     );
+
+    this._route.post(
+      USER_AUTH.SET_INTERESTED_TOPICS,
+      (req: Request, res: Response, next: NextFunction) => {
+        userAuthController.handleInterestedTopics(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

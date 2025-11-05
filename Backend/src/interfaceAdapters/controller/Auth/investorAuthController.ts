@@ -72,7 +72,7 @@ export class InvestorAuthController {
       const verifiedOtp = await this._verifyOtpUseCase.verifyOtp(email, otp!);
 
       if (!verifiedOtp) {
-        throw new InvalidOTPExecption(Errors.OTP_VERIFICATION_FAILED);
+        throw new InvalidOTPExecption(Errors.INVALID_OTP);
       }
 
       await this._registerInvestorUseCase.createInvestor(email);

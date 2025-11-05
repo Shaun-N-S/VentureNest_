@@ -96,13 +96,8 @@ const InvestorLoginPage = () => {
     return (
         <div className="min-h-screen md:h-screen grid grid-cols-1 md:grid-cols-2 items-stretch bg-background text-foreground md:overflow-hidden">
             {/* Left visual panel */}
-            <motion.div
-                // initial={{ opacity: 0, x: -16 }}
-                // animate={{ opacity: 1, x: 0 }}
-                // transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="relative h-full"
-            >
-                {/* Replace previous image-based panel with reusable component */}
+            <motion.div className="relative h-full" >
+                {/* left section  */}
                 <LeftPanel />
             </motion.div>
 
@@ -117,10 +112,6 @@ const InvestorLoginPage = () => {
                     <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-md shadow-xl shadow-black/5">
                         {/* Header */}
                         <div className="px-6 pt-6 pb-3">
-                            <div className="mb-3 flex items-center gap-3">
-                                <img src="/placeholder-logo.svg" alt="VentureNest logo" className="h-6 w-6" />
-                                <span className="text-sm font-medium text-muted-foreground">VentureNest</span>
-                            </div>
                             <h1 className="text-2xl font-semibold tracking-tight text-balance ">Welcome back</h1>
                             <p className="mt-1 text-sm text-muted-foreground">Sign in to continue to your dashboard.</p>
                         </div>

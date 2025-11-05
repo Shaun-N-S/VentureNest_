@@ -1,6 +1,7 @@
 import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
 import type { LoginPayload, SignupPayload } from "../../types/AuthPayloads";
+import type { SECTOR } from "../../types/PreferredSector";
 
 // Users
 export const signupUser = async (data: SignupPayload) => {
@@ -245,4 +246,19 @@ export const getProfileImg = async (id: string) => {
     API_ROUTES.AUTH.GET_PROFILEIMG.replace(":id", id)
   );
   return response.data;
+};
+
+//interested topics
+export const setInterestedTopics = async ({
+  id,
+  interestedTopics,
+}: {
+  id: string;
+  interestedTopics: string[];
+}) => {
+  const response = await AxiosInstance.post("/auth/users/interested-topics", {
+    id,
+    interestedTopics,
+  });
+  return response;
 };

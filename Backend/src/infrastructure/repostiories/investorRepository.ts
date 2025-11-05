@@ -30,7 +30,10 @@ export class InvestorRepository
     return InvestorMapper.fromMongooseDocument(updatedDoc);
   }
 
-  async updateById(id: string, data: Partial<InvestorEntity>): Promise<InvestorEntity | null> {
+  async profileCompletion(
+    id: string,
+    data: Partial<InvestorEntity>
+  ): Promise<InvestorEntity | null> {
     const updatedDoc = await this._model.findByIdAndUpdate(id, data, { new: true });
     if (!updatedDoc) return null;
     return InvestorMapper.fromMongooseDocument(updatedDoc);
@@ -39,5 +42,13 @@ export class InvestorRepository
   async googleSignUp(investor: InvestorEntity): Promise<string> {
     const newInvestor = await this._model.create(investor);
     return newInvestor._id.toString();
+  }
+
+  async setInterestedTopics(investorId: string, interestedTopics: string[]): Promise<void> {
+    await this._model.updateOne(
+      { _id: investorId },
+      { $set: { interestedTopics, isFirstLogin: false } },
+      { upsert: true }
+    );
   }
 }

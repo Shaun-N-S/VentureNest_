@@ -13,6 +13,7 @@ export const FRONTEND_ROUTES = {
     LOGIN: "/login",
     FORGOT_PASSWORD: "/forgot-password",
     PROFILE_COMPLETION: "/profile-completion",
+    INTERESTED_TOPICS: "/interested-topics",
     HOME: "/home",
   },
 

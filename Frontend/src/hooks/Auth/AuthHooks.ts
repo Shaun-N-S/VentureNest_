@@ -20,9 +20,11 @@ import {
   investorResetPassword,
   userGoogleLogin,
   investorGoogleLogin,
+  setInterestedTopics,
 } from "../../services/Auth/AuthServices";
 import { profileCompletion } from "../../services/Investor/InvestorProfileService";
 import { getProfileImg } from "../../services/Auth/AuthServices";
+import { SECTOR } from "../../types/PreferredSector";
 
 //users
 export const useUserSignUp = () => {
@@ -195,5 +197,17 @@ export const useGetProfileImg = (id: string) => {
     queryFn: () => getProfileImg(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useIntrestedTopics = () => {
+  return useMutation({
+    mutationFn: ({
+      id,
+      interestedTopics,
+    }: {
+      id: string;
+      interestedTopics: string[];
+    }) => setInterestedTopics({ id, interestedTopics }),
   });
 };

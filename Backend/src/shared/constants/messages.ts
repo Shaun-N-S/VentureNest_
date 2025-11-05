@@ -13,6 +13,7 @@ export const MESSAGES = {
     GET_ALL_USERS: "Fetched all users successfully",
     GET_ALL_INVESTORS: "Fetched all investors successfully",
     PROFILE_IMG_SUCCESS: "Profile img successfully fetched",
+    INTERESTED_TOPICS_SET_SUCCESSFULL: "Interested topics added successfully !",
   },
 
   ADMIN: {

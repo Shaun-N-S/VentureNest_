@@ -35,6 +35,7 @@ import { GoogleAuthService } from "@infrastructure/services/googleAuthService";
 import { InvestorGoogleLoginUseCase } from "application/useCases/auth/investor/investorGoogleLoginUseCase";
 import { GetProfileImgUseCase } from "application/useCases/auth/getProfileImgUseCase";
 import { StorageService } from "@infrastructure/services/storageService";
+import { InterestedTopicsUseCase } from "application/useCases/auth/interestedTopicsUseCase";
 
 //Repositories & Services
 const userRepository = new UserRepository(userModel);
@@ -104,7 +105,11 @@ const forgetPasswordInvestorResetPasswordUseCase = new ForgetPasswordInvestorRes
 const adminLoginUseCase = new AdminLoginUseCase(userRepository, hashService);
 const tokenRefreshUseCase = new RefreshTokenUseCase(jwtService, cacheStorage);
 const tokenValidationUseCase = new TokenInvalidationUseCase(jwtService, cacheStorage);
-const googleLoginUseCase = new UserGoogleLoginUseCase(userRepository, googleAuthService);
+const googleLoginUseCase = new UserGoogleLoginUseCase(
+  userRepository,
+  googleAuthService,
+  storageService
+);
 const investorGoogleLoginUseCase = new InvestorGoogleLoginUseCase(
   investorRepository,
   googleAuthService,
@@ -115,6 +120,8 @@ const getProfileImgUseCase = new GetProfileImgUseCase(
   investorRepository,
   storageService
 );
+
+const interestedTopicsUseCase = new InterestedTopicsUseCase(userRepository, investorRepository);
 
 //Controller
 export const userAuthController = new UserAuthController(
@@ -133,7 +140,8 @@ export const userAuthController = new UserAuthController(
   tokenValidationUseCase,
   jwtService,
   googleLoginUseCase,
-  getProfileImgUseCase
+  getProfileImgUseCase,
+  interestedTopicsUseCase
 );
 
 export const investorAuthController = new InvestorAuthController(

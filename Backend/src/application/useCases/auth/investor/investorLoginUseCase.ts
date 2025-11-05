@@ -8,6 +8,7 @@ import {
   AlreadyExisitingExecption,
   InvalidDataException,
   IsBlockedExecption,
+  NotFoundExecption,
   PasswordNotMatchingException,
 } from "application/constants/exceptions";
 import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";
@@ -32,7 +33,7 @@ export class InvestorLoginUseCase implements IInvestorLoginUseCase {
     const investor = await this._investorRepository.findByEmail(email);
 
     if (!investor) {
-      throw new AlreadyExisitingExecption(INVESTOR_ERRORS.INVESTOR_ALREADY_EXISTS);
+      throw new NotFoundExecption(INVESTOR_ERRORS.INVESTOR_NOT_FOUND);
     }
 
     if (investor.status === UserStatus.BLOCKED) {

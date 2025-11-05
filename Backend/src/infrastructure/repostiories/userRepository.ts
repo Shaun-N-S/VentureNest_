@@ -43,4 +43,12 @@ export class UserRepository
     const newUser = await this._model.create(user);
     return newUser._id.toString();
   }
+
+  async setInterestedTopics(userId: string, interestedTopics: string[]): Promise<void> {
+    await this._model.updateOne(
+      { _id: userId },
+      { $set: { interestedTopics, isFirstLogin: false } },
+      { upsert: true }
+    );
+  }
 }
