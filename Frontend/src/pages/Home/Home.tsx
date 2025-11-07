@@ -18,6 +18,7 @@ const Home = () => {
 
   useEffect(() => {
     if (userData.isFirstLogin) {
+      console.log(userData.isFirstLogin)
       console.log("is first login", userData.isFirstLogin)
       setOpen(true);
     } else {
@@ -44,8 +45,6 @@ const Home = () => {
 
   return (
     <>
-      <Navbar role={userData?.role ?? "USER"} />
-
       <div className="p-6">
         <TopicSelectionModal
           isOpen={open}

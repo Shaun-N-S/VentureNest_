@@ -190,7 +190,7 @@ const InvestorsListing: React.FC = () => {
     // }
 
     return (
-        <AdminLayout>
+
             <div className="bg-white p-6 rounded-xl shadow-md">
                 <h1 className="text-2xl font-semibold mb-6 text-gray-800">Investors Management</h1>
 
@@ -259,7 +259,6 @@ const InvestorsListing: React.FC = () => {
                     <Pagination totalPages={totalPages} currentPage={page} setPage={setPage} />
                 )}
             </div>
-        </AdminLayout>
     );
 };
 

@@ -6,14 +6,36 @@ import ProtectedRoute from "../components/protectedComponents/ProtectedRoute";
 import Dashboard from "../pages/Admin/Dashboard";
 import UsersListing from "../pages/Admin/UsersListing";
 import InvestorsListing from "../pages/Admin/InvestorListing";
+import AdminLayout from "../layouts/AdminLayout";
 
 const AdminRoutes = () => {
   return (
     <Routes>
-      <Route path={FRONTEND_ROUTES.ADMIN.LOGIN} element={<ProtectedLogin><AdminLoginPage /></ProtectedLogin>} />
-      <Route path={FRONTEND_ROUTES.ADMIN.DASHBOARD} element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path={FRONTEND_ROUTES.ADMIN.USERS} element={<ProtectedRoute><UsersListing /></ProtectedRoute>} />
-      <Route path={FRONTEND_ROUTES.ADMIN.INVESTORS} element={<ProtectedRoute><InvestorsListing /></ProtectedRoute>} />
+      {/* Admin login route */}
+      <Route element={<ProtectedLogin />}>
+        <Route
+          path={FRONTEND_ROUTES.ADMIN.LOGIN}
+          element={<AdminLoginPage />}
+        />
+      </Route>
+
+      {/* Protected Admin routes with layout */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route
+            path={FRONTEND_ROUTES.ADMIN.DASHBOARD}
+            element={<Dashboard />}
+          />
+          <Route
+            path={FRONTEND_ROUTES.ADMIN.USERS}
+            element={<UsersListing />}
+          />
+          <Route
+            path={FRONTEND_ROUTES.ADMIN.INVESTORS}
+            element={<InvestorsListing />}
+          />
+        </Route>
+      </Route>
     </Routes>
   );
 };

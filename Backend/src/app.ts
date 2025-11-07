@@ -47,6 +47,12 @@ class Express_app {
     this._app.use("/auth", new Investor_Router().get_router());
     this._app.use("/auth", new Admin_Routes().get_router());
 
+    //user routes
+
+    //investor routes
+    this._app.use("/investor", new Investor_Router().get_router());
+    this._app.use("/user", new User_Router().get_router());
+
     // Admin routes
     this._app.use("/admin", new Admin_Routes().get_router());
   }

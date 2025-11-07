@@ -1,14 +1,14 @@
-import LoginForm, { type LoginFormData } from "../../components/auth/LoginForm"
+import LoginForm, { type LoginFormData } from "../../../components/auth/LoginForm"
 import { Link, useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
-import { useGoogleLoginMutation, useUserLogin } from "../../hooks/Auth/AuthHooks"
+import { useGoogleLoginMutation, useUserLogin } from "../../../hooks/Auth/AuthHooks"
 import { useDispatch } from "react-redux"
-import { setData } from "../../store/Slice/authDataSlice"
-import { setToken } from "../../store/Slice/tokenSlice"
+import { setData } from "../../../store/Slice/authDataSlice"
+import { setToken } from "../../../store/Slice/tokenSlice"
 import { motion } from "framer-motion"
 import { AxiosError } from "axios"
-import LeftPanel from "../../components/auth/LeftPanal"
-import { Button } from "../../components/ui/button"
+import LeftPanel from "../../../components/auth/LeftPanal"
+import { Button } from "../../../components/ui/button"
 import { useGoogleLogin } from "@react-oauth/google"
 
 const UserLoginPage = () => {
@@ -31,6 +31,11 @@ const UserLoginPage = () => {
             status: res.data.user.status,
             isFirstLogin: res.data.user.isFirstLogin,
             profileImg: res.data.user.profileImg,
+            bio: res.data.user.bio,
+            website: res.data.user.website,
+            linkedInUrl: res.data.user.linkedInUrl,
+            adminVerified: res.data.user.adminVerified,
+            companyName: res.data.user.companyName,
           })
         );
         dispatch(setToken(res.data?.accessToken || ""))
@@ -75,6 +80,11 @@ const UserLoginPage = () => {
               status: res.data.user.status,
               isFirstLogin: res.data.user.isFirstLogin,
               profileImg: res.data.user.profileImg,
+              bio: res.data.user.bio,
+              website: res.data.user.website,
+              linkedInUrl: res.data.user.linkedInUrl,
+              adminVerified: res.data.user.adminVerified,
+              companyName: res.data.user.companyName,
             })
           );
           dispatch(setToken(res.data?.accessToken || ""));

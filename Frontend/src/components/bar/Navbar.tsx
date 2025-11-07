@@ -36,13 +36,13 @@ const menuItems: Record<UserRole, { name: string; path: string }[]> = {
     { name: "My Sessions", path: "/sessions" },
   ],
   INVESTOR: [
-    { name: "Home", path: "/home" },
-    { name: "My Network", path: "/network" },
-    { name: "Projects", path: "/projects" },
-    { name: "Wallet", path: "/wallet" },
-    { name: "Schedule session", path: "/schedule" },
-    { name: "Dashboard", path: "/dashboard" },
-    { name: "My Sessions", path: "/sessions" },
+    { name: "Home", path: "/investor/home" },
+    { name: "My Network", path: "/investor/network" },
+    { name: "Projects", path: "/investor/projects" },
+    { name: "Wallet", path: "/investor/wallet" },
+    { name: "Schedule session", path: "/investor/schedule" },
+    { name: "Dashboard", path: "/investor/dashboard" },
+    { name: "My Sessions", path: "/investor/sessions" },
   ],
 };
 
@@ -57,6 +57,7 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
 
   useEffect(() => {
     if (profileData?.data?.profileImg) {
+      console.log(profileData?.data?.profileImg)
       dispatch(updateUserData({ profileImg: profileData.data.profileImg }));
     }
   }, [profileData, dispatch]);
@@ -91,6 +92,15 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
       },
     });
   };
+
+  const handleProfile = () => {
+    const currentRole = userData.role;
+    if (currentRole === "INVESTOR") {
+      navigate('/investor/profile');
+    } else if (currentRole === "USER") {
+      navigate('/profile');
+    }
+  }
 
   return (
     <nav className="w-full bg-white shadow-md border-b">
@@ -150,12 +160,16 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
                 }`}
             >
               <ul className="py-2 text-sm text-gray-700">
-                <li
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => console.log("Go to Profile")}
-                >
-                  Your Profile
-                </li>
+                {/* Only show for non-admin users */}
+                {userData?.role !== "ADMIN" && (
+                  <li
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={handleProfile}
+                  >
+                    Your Profile
+                  </li>
+                )}
+
                 <li
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   onClick={handleLogout}
@@ -164,6 +178,7 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
                 </li>
               </ul>
             </div>
+
           </div>
         </div>
 

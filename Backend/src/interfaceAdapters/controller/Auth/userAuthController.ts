@@ -111,7 +111,6 @@ export class UserAuthController {
       const { email, password } = loginSchema.parse(req.body);
 
       const user = await this._userLoginUseCase.userLogin(email, password);
-      console.log(`User Data : ${user}`);
 
       if (!user) {
         throw new InvalidDataException(Errors.INVALID_CREDENTIALS);
@@ -125,7 +124,6 @@ export class UserAuthController {
       setRefreshTokenCookie(res, token.refreshToken);
 
       await this._cacheUserUseCase.cacheUser(user);
-
       ResponseHelper.success(
         res,
         MESSAGES.USERS.LOGIN_SUCCESS,

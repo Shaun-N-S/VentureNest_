@@ -10,6 +10,11 @@ export interface UserAuthData {
   status: StatusTypes | null;
   isFirstLogin: boolean;
   profileImg: string;
+  bio: string;
+  website: string;
+  linkedInUrl: string;
+  companyName: string;
+  adminVerified: boolean;
 }
 
 interface UserPayloadFromAPI {
@@ -20,6 +25,11 @@ interface UserPayloadFromAPI {
   status: StatusTypes | null;
   isFirstLogin: boolean;
   profileImg: string;
+  bio: string;
+  website: string;
+  linkedInUrl: string;
+  companyName: string;
+  adminVerified: boolean;
 }
 
 const initialState: UserAuthData = {
@@ -30,6 +40,11 @@ const initialState: UserAuthData = {
   status: null,
   isFirstLogin: false,
   profileImg: "",
+  bio: "",
+  website: "",
+  linkedInUrl: "",
+  companyName: "",
+  adminVerified: false,
 };
 
 const AuthDataSlice = createSlice({
@@ -45,6 +60,11 @@ const AuthDataSlice = createSlice({
         status: action.payload.status,
         isFirstLogin: action.payload.isFirstLogin,
         profileImg: action.payload.profileImg,
+        bio: action.payload.bio,
+        website: action.payload.bio,
+        linkedInUrl: action.payload.linkedInUrl,
+        companyName: action.payload.companyName,
+        adminVerified: action.payload.adminVerified,
       };
     },
 

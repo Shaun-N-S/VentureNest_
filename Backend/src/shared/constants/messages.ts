@@ -14,6 +14,8 @@ export const MESSAGES = {
     GET_ALL_INVESTORS: "Fetched all investors successfully",
     PROFILE_IMG_SUCCESS: "Profile img successfully fetched",
     INTERESTED_TOPICS_SET_SUCCESSFULL: "Interested topics added successfully !",
+    PROFILE_DATA_SUCCESS: "Profile data fetched successfully",
+    PROFILE_UPDATED_SUCCESS: "Profile updated successfully",
   },
 
   ADMIN: {
@@ -31,6 +33,8 @@ export const MESSAGES = {
     REGISTER_SUCCESS: "Investor registered successfully.",
     LOGIN_SUCCESS: "Investor logged in successfully.",
     PROFILE_COMPLETION_SUCCESS: "Profile completion successful",
+    PROFILE_DATA_SUCCESS: "Profile data fetched successfully",
+    PROFILE_UPDATED_SUCCESS: "Profile updated successfully",
   },
 
   EMAIL: {

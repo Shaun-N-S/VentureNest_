@@ -5,6 +5,10 @@ import { IInvestorModel } from "@infrastructure/db/models/investorModel";
 import { CreateUserDTO } from "application/dto/auth/createUserDTO";
 import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";
 import { InvestorDTO } from "application/dto/investor/investorDTO";
+import {
+  InvestorProfileDTO,
+  InvestorProfileUpdateResDTO,
+} from "application/dto/investor/investorProfileDTO";
 import mongoose from "mongoose";
 
 export class InvestorMapper {
@@ -139,6 +143,32 @@ export class InvestorMapper {
       investmentMin: doc.investmentMin || 0,
       investmentMax: doc.investmentMax || 0,
       portfolioPdf: doc.portfolioPdf || "",
+    };
+  }
+
+  static investorProfileDatatoDTO(data: InvestorEntity): InvestorProfileDTO {
+    return {
+      userName: data.userName,
+      profileImg: data.profileImg || "",
+      bio: data.bio || "",
+      website: data.website || "",
+      companyName: data.companyName,
+      experience: data.experience,
+      location: data.location,
+      investmentMin: data.investmentMin,
+      investmentMax: data.investmentMax,
+    };
+  }
+
+  static investorProfileUpdateResDTO(data: InvestorEntity): InvestorProfileUpdateResDTO {
+    return {
+      userName: data.userName,
+      bio: data.bio || "",
+      website: data.website || "",
+      linkedInUrl: data.linkedInUrl || "",
+      companyName: data.companyName,
+      adminVerified: data.adminVerified,
+      profileImg: data.profileImg || "",
     };
   }
 }

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { AxiosError } from "axios";
-import LeftPanel from "../../components/auth/LeftPanal";
+import LeftPanel from "../../../components/auth/LeftPanal";
 import toast from "react-hot-toast";
 import {
   useForgetPasswordResetPassword,
   useForgetPasswordVerifyOtp,
   useUserForgetPassword,
-} from "../../hooks/Auth/AuthHooks";
+} from "../../../hooks/Auth/AuthHooks";
 import z from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";

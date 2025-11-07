@@ -1,6 +1,8 @@
 import { userAuthController } from "@infrastructure/DI/Auth/authContainer";
+import { userProfileController } from "@infrastructure/DI/User/UserProfileContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
+import { uploadMulter } from "interfaceAdapters/middleware/multer";
 
 export class User_Router {
   private _route: Router;
@@ -70,6 +72,21 @@ export class User_Router {
       USER_AUTH.SET_INTERESTED_TOPICS,
       (req: Request, res: Response, next: NextFunction) => {
         userAuthController.handleInterestedTopics(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ROUTES.USERS.PROFILE.FETCH_DATA,
+      (req: Request, res: Response, next: NextFunction) => {
+        userProfileController.getProfileData(req, res, next);
+      }
+    );
+
+    this._route.patch(
+      ROUTES.USERS.PROFILE.UPDATE,
+      uploadMulter.fields([{ name: "profileImg", maxCount: 1 }]),
+      (req: Request, res: Response, next: NextFunction) => {
+        userProfileController.updateProfileData(req, res, next);
       }
     );
   }

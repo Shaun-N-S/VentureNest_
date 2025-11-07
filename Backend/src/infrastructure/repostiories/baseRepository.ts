@@ -1,4 +1,4 @@
-import { Model, Document } from "mongoose";
+import { Model, Document, UpdateQuery } from "mongoose";
 
 export abstract class BaseRepository<TEntity, TModel extends Document> {
   constructor(
@@ -52,5 +52,15 @@ export abstract class BaseRepository<TEntity, TModel extends Document> {
     }
 
     return await this._model.countDocuments(query);
+  }
+
+  async update(id: string, data: Partial<TEntity>): Promise<TEntity | null> {
+    // const updateDoc = this.mapper.toMongooseDocument({ id, ...data });
+
+    const updated = await this._model.findByIdAndUpdate(id, data as UpdateQuery<Document>, {
+      new: true,
+    });
+
+    return updated ? this.mapper.fromMongooseDocument(updated) : null;
   }
 }

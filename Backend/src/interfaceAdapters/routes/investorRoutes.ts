@@ -69,6 +69,32 @@ export class Investor_Router {
         investorProfileController.profileCompletion(req, res, next);
       }
     );
+
+    this._route.get(
+      ROUTES.INVESTORS.PROFILE.FETCH_DATA,
+      (req: Request, res: Response, next: NextFunction) => {
+        investorProfileController.getProfileData(req, res, next);
+      }
+    );
+
+    this._route.patch(
+      ROUTES.INVESTORS.PROFILE.UPDATE,
+      uploadMulter.fields([{ name: "profileImg", maxCount: 1 }]),
+      (req: Request, res: Response, next: NextFunction) => {
+        investorProfileController.updateProfileData(req, res, next);
+      }
+    );
+
+    this._route.post(
+      "",
+      uploadMulter.fields([
+        { name: "aadharImg", maxCount: 1 },
+        { name: "selfieImg", maxCount: 1 },
+      ]),
+      (req: Request, res: Response, next: NextFunction) => {
+        // investorProfileController
+      }
+    );
   }
 
   public get_router(): Router {

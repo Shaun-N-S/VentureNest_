@@ -32,4 +32,18 @@ export const API_ROUTES = {
     INVESTORS: "/admin/investors",
     INVESTORS_UPDATE_STATUS: "/admin/investors/update-status",
   },
+
+  INVESTOR: {
+    PROFILE: {
+      GET_PROFILE: "/investor/profile/:id",
+      UPDATE: "/investor/profile-update",
+    },
+  },
+
+  USER: {
+    PROFILE: {
+      GET_PROFILE: "/user/profile/:id",
+      UPDATE: "/user/profile-update",
+    },
+  },
 };

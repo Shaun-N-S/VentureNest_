@@ -21,7 +21,8 @@ AxiosInstance.interceptors.request.use((config) => {
 });
 
 AxiosInstance.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    return res},
   async (err) => {
     const orignialRequest = err.config;
     console.log(err.response);

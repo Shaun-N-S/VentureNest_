@@ -51,7 +51,6 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     if (!verifyPassword) {
       throw new InvalidDataException(Errors.INVALID_CREDENTIALS);
     }
-
     const response: LoginUserResponseDTO = UserMapper.toLoginUserResponse(user);
     if (response.profileImg) {
       response.profileImg = await this._storageService.createSignedUrl(

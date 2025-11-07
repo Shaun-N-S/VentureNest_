@@ -40,10 +40,19 @@ export const ROUTES = {
     UPDATE_USER_STATUS: "/users/update-status",
     UPDATE_INVESTOR_STATUS: "/investors/update-status",
   },
-  USERS: {},
+
+  USERS: {
+    PROFILE: {
+      FETCH_DATA: "/profile/:id",
+      UPDATE: "/profile-update",
+    },
+  },
+
   INVESTORS: {
     PROFILE: {
       COMPLETION: "/investor/profile-completion",
+      FETCH_DATA: "/profile/:id",
+      UPDATE: "/profile-update",
     },
   },
 };

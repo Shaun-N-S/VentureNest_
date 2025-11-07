@@ -3,6 +3,7 @@ import { CreateUserDTO } from "application/dto/auth/createUserDTO";
 import { LoginAdminResponseDTO } from "application/dto/auth/LoginAdminDTO";
 import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";
 import { UserDTO } from "application/dto/user/userDTO";
+import { UserProfileUpdateResDTO } from "application/dto/user/userProfileUpdateDTO";
 import { UserEntity } from "domain/entities/user/userEntity";
 import { UserRole } from "domain/enum/userRole";
 import { UserStatus } from "domain/enum/userStatus";
@@ -117,12 +118,34 @@ export class UserMapper {
       status: doc.status || UserStatus.ACTIVE,
       interestedTopics: doc.interestedTopics || [],
       adminVerified: doc.adminVerified || false,
-      isFirstLogin: doc.isFirstLogin || true,
+      isFirstLogin: doc.isFirstLogin ?? true,
       website: doc.website || "",
       bio: doc.bio || "",
       verifiedAt: doc.verifiedAt || new Date(0),
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
+    };
+  }
+
+  static userProfileUpdateRes(data: UserEntity): UserProfileUpdateResDTO {
+    return {
+      userName: data.userName,
+      bio: data.bio || "",
+      profileImg: data.profileImg || "",
+      website: data.website || "",
+      linkedInUrl: data.linkedInUrl || "",
+      adminVerified: data.adminVerified,
+    };
+  }
+
+  static userProfileData(data: UserEntity): UserProfileUpdateResDTO {
+    return {
+      userName: data.userName,
+      bio: data.bio || "",
+      profileImg: data.profileImg || "",
+      website: data.website || "",
+      linkedInUrl: data.linkedInUrl || "",
+      adminVerified: data.adminVerified,
     };
   }
 }
