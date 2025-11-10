@@ -102,13 +102,24 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
     }
   }
 
+  const handleHome = () => {
+    const currentRole = userData.role;
+    if (currentRole === "INVESTOR") {
+      navigate("/investor/home");
+    } else if (currentRole === "ADMIN") {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/home");
+    }
+  }
+
   return (
     <nav className="w-full bg-white shadow-md border-b">
       <div className="flex items-center justify-between px-6 py-3">
         {/* Logo */}
         <div
           className="text-xl font-bold cursor-pointer"
-          onClick={() => navigate("/admin/dashboard")}
+          onClick={handleHome}
         >
           VentureNest
         </div>

@@ -1,3 +1,4 @@
+import { KYCStatus } from "@domain/enum/kycStatus";
 import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
 
@@ -9,6 +10,7 @@ export interface LoginUserResponseDTO {
   status: UserStatus;
   isFirstLogin: boolean;
   adminVerified: boolean;
+  kycStatus: KYCStatus;
   profileImg: string;
 }
 

@@ -7,20 +7,18 @@ import {
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
-import { AlertCircle, FileUp, Calendar } from "lucide-react"
-import { useState, useCallback } from "react"
-import Cropper from "react-easy-crop"
-import type { Area, Point } from "react-easy-crop"
+import { AlertCircle, FileUp, X } from "lucide-react"
+import { useState, useEffect } from "react"
 import { toast } from "react-hot-toast"
 import { z } from "zod"
 import { Popover, PopoverTrigger, PopoverContent } from "../../components/ui/popover"
 import { Calendar as CalendarComponent } from "../../components/ui/calendar"
 import { format } from "date-fns"
+import ImageCropper from "../cropper/ImageCropper"
+import { useKycUpdate } from "../../hooks/Investor/Profile/InvestorProfileHooks"
 
 const kycSchema = z.object({
-    dateOfBirth: z
-        .date()
-        .refine((val) => !!val, { message: "Date of birth required" }),
+    dateOfBirth: z.date().refine((val) => !!val, { message: "Date of birth required" }),
     phoneNumber: z.string().min(10, "Enter a valid phone number"),
     address: z.string().min(5, "Enter a valid address"),
     aadharImg: z.instanceof(File, { message: "Aadhar image required" }),
@@ -43,183 +41,391 @@ export default function KYCVerificationModal({
         phoneNumber: "",
         address: "",
     })
+    const [errors, setErrors] = useState<Record<string, string>>({})
+
+    // Image states
     const [aadharImg, setAadharImg] = useState<File | null>(null)
     const [selfieImg, setSelfieImg] = useState<File | null>(null)
+    const [aadharPreview, setAadharPreview] = useState<string | null>(null)
+    const [selfiePreview, setSelfiePreview] = useState<string | null>(null)
 
     // Crop states
     const [cropImage, setCropImage] = useState<string | null>(null)
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
     const [cropType, setCropType] = useState<"aadhar" | "selfie" | null>(null)
-    const [zoom, setZoom] = useState(1)
-    const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
 
-    const onCropComplete = useCallback((_: Area, croppedArea: Area) => {
-        setCroppedAreaPixels(croppedArea)
-    }, [])
+    const { mutate: KYCUpdate } = useKycUpdate()
 
+    // Handle file selection → open cropper
     const handleFileChange = (
         e: React.ChangeEvent<HTMLInputElement>,
         type: "aadhar" | "selfie"
     ) => {
         const file = e.target.files?.[0]
-        if (file) {
+        if (!file) return
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file")
+            return
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image size should be less than 5MB")
+            return
+        }
+
+        const reader = new FileReader()
+        reader.onload = () => {
+            setCropImage(reader.result as string)
             setCropType(type)
-            const reader = new FileReader()
-            reader.onload = () => setCropImage(reader.result as string)
-            reader.readAsDataURL(file)
+        }
+        reader.readAsDataURL(file)
+    }
+
+    // Save cropped image (full resolution)
+    const handleCropSave = (croppedFile: File, previewUrl: string) => {
+        if (!cropType) return
+
+        // Revoke old preview
+        if (cropType === "aadhar" && aadharPreview) URL.revokeObjectURL(aadharPreview)
+        if (cropType === "selfie" && selfiePreview) URL.revokeObjectURL(selfiePreview)
+
+        if (cropType === "aadhar") {
+            setAadharImg(croppedFile)
+            setAadharPreview(previewUrl)
+            setErrors((prev) => {
+                const { aadharImg, ...rest } = prev
+                return rest
+            })
+        } else {
+            setSelfieImg(croppedFile)
+            setSelfiePreview(previewUrl)
+            setErrors((prev) => {
+                const { selfieImg, ...rest } = prev
+                return rest
+            })
+        }
+
+        setCropImage(null)
+        setCropType(null)
+    }
+
+    // Cancel crop
+    const handleCropCancel = () => {
+        setCropImage(null)
+        setCropType(null)
+    }
+
+    // Remove uploaded image
+    const removeImage = (type: "aadhar" | "selfie") => {
+        if (type === "aadhar") {
+            if (aadharPreview) URL.revokeObjectURL(aadharPreview)
+            setAadharImg(null)
+            setAadharPreview(null)
+            setErrors((prev) => {
+                const { aadharImg, ...rest } = prev
+                return rest
+            })
+        } else {
+            if (selfiePreview) URL.revokeObjectURL(selfiePreview)
+            setSelfieImg(null)
+            setSelfiePreview(null)
+            setErrors((prev) => {
+                const { selfieImg, ...rest } = prev
+                return rest
+            })
         }
     }
 
-    const getCroppedImg = async (imageSrc: string, crop: Area): Promise<File> => {
-        const image = document.createElement("img")
-        image.src = imageSrc
-        await new Promise((resolve) => (image.onload = resolve))
+    // Cleanup preview URLs on unmount
+    useEffect(() => {
+        return () => {
+            if (aadharPreview) URL.revokeObjectURL(aadharPreview)
+            if (selfiePreview) URL.revokeObjectURL(selfiePreview)
+        }
+    }, [aadharPreview, selfiePreview])
 
-        const canvas = document.createElement("canvas")
-        const ctx = canvas.getContext("2d") as CanvasRenderingContext2D
-        canvas.width = crop.width
-        canvas.height = crop.height
-        ctx.drawImage(image, crop.x, crop.y, crop.width, crop.height, 0, 0, crop.width, crop.height)
-
-        return new Promise<File>((resolve) => {
-            canvas.toBlob((blob) => {
-                if (blob) {
-                    resolve(new File([blob], "cropped.jpg", { type: "image/jpeg" }))
-                }
-            }, "image/jpeg")
+    // Form input change
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        setFormData((prev) => ({ ...prev, [name]: value }))
+        setErrors((prev) => {
+            const { [name]: _, ...rest } = prev
+            return rest
         })
     }
 
-    const handleCropSave = async () => {
-        if (!cropImage || !croppedAreaPixels || !cropType) return
-        const croppedFile = await getCroppedImg(cropImage, croppedAreaPixels)
-        if (cropType === "aadhar") setAadharImg(croppedFile)
-        else setSelfieImg(croppedFile)
-        setCropImage(null)
-    }
+    // Submit handler
+    const handleSubmit = async () => {
+        setErrors({})
 
-    const handleSubmit = () => {
-        const data: KYCFormData = {
-            dateOfBirth: formData.dateOfBirth!,
-            phoneNumber: formData.phoneNumber,
-            address: formData.address,
-            aadharImg: aadharImg!,
-            selfieImg: selfieImg!,
-        }
-
-        const validation = kycSchema.safeParse(data)
-        if (!validation.success) {
-            toast.error(validation.error.issues[0].message)
+        // Early validation
+        if (!formData.dateOfBirth) {
+            setErrors((prev) => ({ ...prev, dateOfBirth: "Date of birth required" }))
+            toast.error("Date of birth required")
             return
         }
-        console.log(validation.data)
+        if (!aadharImg) {
+            setErrors((prev) => ({ ...prev, aadharImg: "Aadhar image required" }))
+            toast.error("Aadhar image required")
+            return
+        }
+        if (!selfieImg) {
+            setErrors((prev) => ({ ...prev, selfieImg: "Selfie required" }))
+            toast.error("Selfie required")
+            return
+        }
 
-        toast.success("KYC submitted successfully!")
-        onOpenChange(false)
+        try {
+            const dataToValidate: KYCFormData = {
+                dateOfBirth: formData.dateOfBirth,
+                phoneNumber: formData.phoneNumber,
+                address: formData.address,
+                aadharImg,
+                selfieImg,
+            }
+
+            kycSchema.parse(dataToValidate)
+
+            const formDataToSend = new FormData();
+            formDataToSend.append("id", id);
+            formDataToSend.append("aadharImg", aadharImg);
+            formDataToSend.append("selfieImg", selfieImg);
+
+            formDataToSend.append(
+                "formData",
+                JSON.stringify({
+                    dateOfBirth: formData.dateOfBirth.toISOString(),
+                    phoneNumber: formData.phoneNumber,
+                    address: formData.address,
+                })
+            );
+
+            KYCUpdate(
+                formDataToSend, {
+                onSuccess: (res) => {
+                    console.log(res);
+                    toast.success(res.message);
+                },
+                onError: (err) => {
+                    toast.error(err.message)
+                }
+            }
+            )
+            onOpenChange(false)
+        } catch (err) {
+            if (err instanceof z.ZodError) {
+                const newErrors: Record<string, string> = {}
+                err.issues.forEach((issue) => {
+                    if (issue.path[0]) {
+                        newErrors[issue.path[0] as string] = issue.message
+                    }
+                })
+                setErrors(newErrors)
+                toast.error(err.issues[0].message)
+            } else {
+                toast.error("Something went wrong!")
+                console.error(err)
+            }
+        }
     }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-lg bg-sky-50 rounded-2xl p-6">
+            <DialogContent className="sm:max-w-lg max-h-[90vh] bg-sky-50 rounded-2xl p-6 overflow-hidden flex flex-col">
                 <DialogHeader>
                     <DialogTitle className="text-center text-2xl font-semibold">Verify Your Account</DialogTitle>
                 </DialogHeader>
 
                 <div className="flex items-start gap-2 text-sm text-muted-foreground mb-3">
-                    <AlertCircle className="h-5 w-5 text-blue-500" />
+                    <AlertCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
                     <p>We require verification using a government-issued ID and a selfie.</p>
                 </div>
 
                 {/* Form */}
-                <div className="space-y-4">
-                    {/* Date Picker */}
+                <div
+                    className="space-y-4 overflow-y-auto overflow-x-hidden pr-2"
+                    style={{ scrollbarWidth: "thin" }}
+                >
+                    {/* Date of Birth */}
                     <div>
-                        <Label>Date of Birth</Label>
+                        <Label>Date of Birth *</Label>
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button
                                     variant="outline"
-                                    className="w-full justify-start text-left font-normal"
+                                    className={`w-full justify-start text-left font-normal ${!formData.dateOfBirth && "text-muted-foreground"
+                                        } ${errors.dateOfBirth ? "border-red-500" : ""}`}
                                 >
                                     {formData.dateOfBirth ? (
                                         format(formData.dateOfBirth, "dd/MM/yyyy")
                                     ) : (
-                                        <span>Select date</span>
+                                        <span>Select date of birth</span>
                                     )}
-                                    <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                                    <FileUp className="ml-auto h-4 w-4 opacity-50" />
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="p-0">
+                            <PopoverContent className="w-auto p-0" align="start">
                                 <CalendarComponent
                                     mode="single"
                                     selected={formData.dateOfBirth}
-                                    onSelect={(date) => setFormData({ ...formData, dateOfBirth: date })}
+                                    onSelect={(date) => {
+                                        setFormData({ ...formData, dateOfBirth: date ?? undefined })
+                                        setErrors((prev) => {
+                                            const { dateOfBirth, ...rest } = prev
+                                            return rest
+                                        })
+                                    }}
+                                    disabled={(date) =>
+                                        date > new Date() || date < new Date("1900-01-01")
+                                    }
+                                    captionLayout="dropdown"
+                                    fromYear={1900}
+                                    toYear={new Date().getFullYear()}
                                     initialFocus
                                 />
                             </PopoverContent>
                         </Popover>
+                        {errors.dateOfBirth && (
+                            <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>
+                        )}
                     </div>
 
+                    {/* Phone Number */}
                     <div>
-                        <Label>Phone Number</Label>
+                        <Label>Phone Number *</Label>
                         <Input
+                            name="phoneNumber"
                             placeholder="Enter phone number"
                             value={formData.phoneNumber}
-                            onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                            onChange={handleChange}
+                            className={errors.phoneNumber ? "border-red-500" : ""}
                         />
+                        {errors.phoneNumber && (
+                            <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
+                        )}
                     </div>
 
+                    {/* Address */}
                     <div>
-                        <Label>Address</Label>
+                        <Label>Address *</Label>
                         <Input
+                            name="address"
                             placeholder="Enter address"
                             value={formData.address}
-                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                            onChange={handleChange}
+                            className={errors.address ? "border-red-500" : ""}
                         />
+                        {errors.address && (
+                            <p className="text-red-500 text-sm mt-1">{errors.address}</p>
+                        )}
                     </div>
 
+                    {/* Upload Aadhar Image */}
                     <div>
-                        <Label>Upload Aadhar Image</Label>
-                        <div className="flex items-center gap-2">
-                            <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e, "aadhar")} />
-                            <FileUp className="text-gray-500" />
-                        </div>
+                        <Label>Upload Aadhar Image *</Label>
+                        {aadharPreview ? (
+                            <div className="relative mt-2 inline-block">
+                                {/* Small 120x120 Thumbnail */}
+                                <img
+                                    src={aadharPreview}
+                                    alt="Aadhar preview"
+                                    className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300 shadow-sm"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute top-1 right-1 h-6 w-6 rounded-full"
+                                    onClick={() => removeImage("aadhar")}
+                                >
+                                    <X className="h-3 w-3" />
+                                </Button>
+                                <p className="mt-1 text-xs text-gray-500 text-center">
+                                    Full-size image will be uploaded
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 mt-2">
+                                <Input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleFileChange(e, "aadhar")}
+                                    className={errors.aadharImg ? "border-red-500" : ""}
+                                />
+                                <FileUp className="text-gray-500 flex-shrink-0" />
+                            </div>
+                        )}
+                        {errors.aadharImg && (
+                            <p className="text-red-500 text-sm mt-1">{errors.aadharImg}</p>
+                        )}
                     </div>
 
+                    {/* Upload Selfie */}
                     <div>
-                        <Label>Upload Selfie</Label>
-                        <div className="flex items-center gap-2">
-                            <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e, "selfie")} />
-                            <FileUp className="text-gray-500" />
-                        </div>
+                        <Label>Upload Selfie *</Label>
+                        {selfiePreview ? (
+                            <div className="relative mt-2 inline-block">
+                                {/* Small 120x120 Thumbnail */}
+                                <img
+                                    src={selfiePreview}
+                                    alt="Selfie preview"
+                                    className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300 shadow-sm"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute top-1 right-1 h-6 w-6 rounded-full"
+                                    onClick={() => removeImage("selfie")}
+                                >
+                                    <X className="h-3 w-3" />
+                                </Button>
+                                <p className="mt-1 text-xs text-gray-500 text-center">
+                                    Full-size image will be uploaded
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 mt-2">
+                                <Input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleFileChange(e, "selfie")}
+                                    className={errors.selfieImg ? "border-red-500" : ""}
+                                />
+                                <FileUp className="text-gray-500 flex-shrink-0" />
+                            </div>
+                        )}
+                        {errors.selfieImg && (
+                            <p className="text-red-500 text-sm mt-1">{errors.selfieImg}</p>
+                        )}
                     </div>
 
-                    <Button className="w-full mt-3" onClick={handleSubmit}>
-                        Submit
-                    </Button>
+                    {/* Submit Buttons */}
+                    <div className="pt-3 flex justify-end gap-3">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            className="rounded-xl px-6"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            className="rounded-xl px-6 bg-blue-600 hover:bg-blue-700"
+                            onClick={handleSubmit}
+                        >
+                            Submit KYC
+                        </Button>
+                    </div>
                 </div>
 
-                {/* Crop Modal */}
-                {cropImage && (
-                    <div className="fixed inset-0 bg-black/70 flex flex-col items-center justify-center z-50">
-                        <div className="relative w-[90%] sm:w-[400px] h-[400px] bg-black rounded-lg overflow-hidden">
-                            <Cropper
-                                image={cropImage}
-                                crop={crop}
-                                zoom={zoom}
-                                aspect={1}
-                                onCropChange={setCrop}
-                                onZoomChange={setZoom}
-                                onCropComplete={onCropComplete}
-                            />
-                        </div>
-                        <div className="flex gap-3 mt-4">
-                            <Button variant="secondary" onClick={() => setCropImage(null)}>
-                                Cancel
-                            </Button>
-                            <Button onClick={handleCropSave}>Save Crop</Button>
-                        </div>
-                    </div>
+                {/* Reusable Cropper Modal */}
+                {cropImage && cropType && (
+                    <ImageCropper
+                        imageSrc={cropImage}
+                        aspect={cropType === "aadhar" ? 16 / 9 : 1}
+                        onSave={handleCropSave}
+                        onCancel={handleCropCancel}
+                    />
                 )}
             </DialogContent>
         </Dialog>

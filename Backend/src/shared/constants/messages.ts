@@ -44,4 +44,10 @@ export const MESSAGES = {
   REFRESH_TOKEN: {
     REFRESH_SUCCESSFUL: "Successfully got a new accessToken",
   },
+
+  KYC: {
+    UPDATED_SUCCESSFULLY: "KYC Updated successfully !",
+    FETCHED_SUCCESSFULLY: "Kyc fetched successfully ",
+    STATUS_UPDATED_SUCCESSFULLY: "KYC status updated successfully ",
+  },
 };

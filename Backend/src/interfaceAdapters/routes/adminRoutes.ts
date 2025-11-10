@@ -1,4 +1,5 @@
 import { adminInvestorController } from "@infrastructure/DI/Admin/adminInvestorContainer";
+import { adminKycController } from "@infrastructure/DI/Admin/adminKycContainer";
 import { adminUserController } from "@infrastructure/DI/Admin/adminUserContainer";
 import { adminAuthController, authMiddleware } from "@infrastructure/DI/Auth/authContainer";
 import { ROUTES } from "@shared/constants/routes";
@@ -46,6 +47,39 @@ export class Admin_Routes {
       authMiddleware.verify,
       (req: Request, res: Response, next: NextFunction) =>
         adminInvestorController.updateInvestorStatus(req, res, next)
+    );
+
+    //KYC SECTION
+    this._route.get(
+      ADMIN.FETCH_USER_KYC,
+      authMiddleware.verify,
+      (req: Request, res: Response, next: NextFunction) => {
+        adminKycController.getAllUserKyc(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ADMIN.FETCH_INVESTOR_KYC,
+      authMiddleware.verify,
+      (req: Request, res: Response, next: NextFunction) => {
+        adminKycController.getAllInvestorKyc(req, res, next);
+      }
+    );
+
+    this._route.patch(
+      ADMIN.UPDATE_USER_KYC,
+      authMiddleware.verify,
+      (req: Request, res: Response, next: NextFunction) => {
+        adminKycController.updateUserKycStatus(req, res, next);
+      }
+    );
+
+    this._route.patch(
+      ADMIN.UPDATE_INVESTOR_KYC,
+      authMiddleware.verify,
+      (req: Request, res: Response, next: NextFunction) => {
+        adminKycController.udpateInvestorKycStatus(req, res, next);
+      }
     );
   }
 

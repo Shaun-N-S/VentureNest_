@@ -5,6 +5,7 @@ import { Model } from "mongoose";
 import { InvestorMapper } from "application/mappers/investorMapper";
 import { IInvestorModel } from "@infrastructure/db/models/investorModel";
 import { UserStatus } from "@domain/enum/userStatus";
+import { KYCStatus } from "@domain/enum/kycStatus";
 
 export class InvestorRepository
   extends BaseRepository<InvestorEntity, IInvestorModel>
@@ -50,5 +51,11 @@ export class InvestorRepository
       { $set: { interestedTopics, isFirstLogin: false } },
       { upsert: true }
     );
+  }
+
+  async updateKycStatus(userId: string, kycStatus: KYCStatus): Promise<InvestorEntity | null> {
+    const updatedUser = await this._model.findByIdAndUpdate(userId, { kycStatus }, { new: true });
+    if (!updatedUser) return null;
+    return InvestorMapper.fromMongooseDocument(updatedUser);
   }
 }

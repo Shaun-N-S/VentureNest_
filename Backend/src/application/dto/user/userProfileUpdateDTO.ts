@@ -1,3 +1,5 @@
+import { KYCStatus } from "@domain/enum/kycStatus";
+
 export interface UserProfileUpdateDTO {
   userName?: string;
   profileImg?: string;
@@ -26,4 +28,5 @@ export interface UserProfileUpdateResDTO {
   website?: string;
   linkedInUrl?: string;
   adminVerified?: boolean;
+  kycStatus?: KYCStatus;
 }

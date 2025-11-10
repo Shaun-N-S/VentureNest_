@@ -1,3 +1,4 @@
+import { IKYCUpdateUseCase } from "@domain/interfaces/useCases/auth/IKYCUpdateUseCase";
 import { IFetchInvestorProfileUseCase } from "@domain/interfaces/useCases/investor/profile/IFetchInvestorProfileUseCase";
 import { IInvestorProfileCompletionUseCase } from "@domain/interfaces/useCases/investor/profile/IInvestorProfileCompletionUseCase";
 import { IInvestorProfileUpdateUseCase } from "@domain/interfaces/useCases/investor/profile/IInvestorProfileUpdateUseCase";
@@ -20,7 +21,8 @@ export class InvestorProfileController {
   constructor(
     private _fetchInvestorProfileUseCase: IFetchInvestorProfileUseCase,
     private _investorProfileCompletionUseCase: IInvestorProfileCompletionUseCase,
-    private _investorProfileUpdateUseCase: IInvestorProfileUpdateUseCase
+    private _investorProfileUpdateUseCase: IInvestorProfileUpdateUseCase,
+    private _kycUpdateUseCase: IKYCUpdateUseCase
   ) {}
 
   async profileCompletion(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -119,31 +121,49 @@ export class InvestorProfileController {
     }
   }
 
-  // async updateKYC(req: Request, res: Response, next: NextFunction): Promise<void> {
-  //   try {
-  //     const investorId = req.body?.id;
-  //     const formData = req.body?.formData ? JSON.parse(req.body?.formData) : null;
-  //     const files = req.files as MulterFiles<"aadharImg" | "selfieImg">;
+  async updateKYC(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const id = req.body?.id;
+      const formData = req.body?.formData ? JSON.parse(req.body?.formData) : null;
+      const files = req.files as MulterFiles<"aadharImg" | "selfieImg">;
 
-  //     const data: InvestorKYCUpdateDTO = { id: investorId, formData };
+      console.log(id, "formdata ::", formData, "files", files);
 
-  //     if (files["aadharImg"]?.[0]) {
-  //       data.aadharImg = multerFileToFileConverter(files["aadharImg"][0]);
-  //     }
+      const formattedFormData = formData
+        ? {
+            ...formData,
+            dateOfBirth: new Date(formData.dateOfBirth),
+          }
+        : null;
 
-  //     if (files["selfieImg"]?.[0]) {
-  //       data.selfieImg = multerFileToFileConverter(files["selfieImg"][0]);
-  //     }
+      const data: InvestorKYCUpdateDTO = { id, formData: formattedFormData };
 
-  //     const validatedData = InvestorKYCSchema.safeParse(data);
+      if (files["aadharImg"]?.[0]) {
+        data.aadharImg = multerFileToFileConverter(files["aadharImg"][0]);
+      }
 
-  //     if (validatedData.error) {
-  //       throw new InvalidDataException(Errors.INVALID_DATA);
-  //     }
-  //     console.log(data);
-  //     // await
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
+      if (files["selfieImg"]?.[0]) {
+        data.selfieImg = multerFileToFileConverter(files["selfieImg"][0]);
+      }
+
+      const validatedData = InvestorKYCSchema.safeParse({
+        ...data,
+        formData: {
+          ...data.formData,
+          dateOfBirth: data.formData?.dateOfBirth.toISOString(),
+        },
+      });
+
+      if (!validatedData.success) {
+        console.log(validatedData.error);
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const response = await this._kycUpdateUseCase.updateKYC(data);
+
+      ResponseHelper.success(res, MESSAGES.KYC.UPDATED_SUCCESSFULLY, { response }, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

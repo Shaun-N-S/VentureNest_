@@ -39,6 +39,10 @@ export const ROUTES = {
     INVESTORS: "/investors",
     UPDATE_USER_STATUS: "/users/update-status",
     UPDATE_INVESTOR_STATUS: "/investors/update-status",
+    FETCH_USER_KYC: "/users/kyc",
+    FETCH_INVESTOR_KYC: "/investors/kyc",
+    UPDATE_USER_KYC: "/users/update-kyc",
+    UPDATE_INVESTOR_KYC: "/investors/update-kyc",
   },
 
   USERS: {
@@ -54,5 +58,13 @@ export const ROUTES = {
       FETCH_DATA: "/profile/:id",
       UPDATE: "/profile-update",
     },
+  },
+
+  KYC: {
+    UPDATE: "/kyc-update",
+  },
+
+  POST: {
+    ADD: "/post/add",
   },
 };

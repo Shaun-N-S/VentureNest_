@@ -1,4 +1,6 @@
+import { KYCStatus } from "@domain/enum/kycStatus";
 import { IUserModel } from "@infrastructure/db/models/userModel";
+import { KycDTO } from "application/dto/admin/kycDTO";
 import { CreateUserDTO } from "application/dto/auth/createUserDTO";
 import { LoginAdminResponseDTO } from "application/dto/auth/LoginAdminDTO";
 import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";
@@ -24,6 +26,7 @@ export class UserMapper {
       interestedTopics: [],
       role: UserRole.USER,
       status: UserStatus.ACTIVE,
+      kycStatus: KYCStatus.PENDING,
       adminVerified: false,
       dateOfBirth: undefined,
       phoneNumber: "",
@@ -45,6 +48,7 @@ export class UserMapper {
       role: entity.role,
       status: entity.status,
       adminVerified: entity.adminVerified,
+      kycStatus: entity.kycStatus,
       isFirstLogin: entity.isFirstLogin,
       profileImg: entity.profileImg || "",
       createdAt: entity.createdAt || new Date(),
@@ -61,6 +65,7 @@ export class UserMapper {
       status: user.status,
       isFirstLogin: user.isFirstLogin,
       adminVerified: user.adminVerified,
+      kycStatus: user.kycStatus,
       profileImg: user.profileImg || "",
     };
   }
@@ -89,6 +94,7 @@ export class UserMapper {
       role: user.role,
       status: user.status,
       adminVerified: user.adminVerified,
+      kycStatus: user.kycStatus,
       dateOfBirth: user.dateOfBirth,
       phoneNumber: user.phoneNumber,
       address: user.address,
@@ -116,6 +122,7 @@ export class UserMapper {
       dateOfBirth: doc.dateOfBirth || new Date(0),
       role: doc.role || UserRole.USER,
       status: doc.status || UserStatus.ACTIVE,
+      kycStatus: doc.kycStatus || KYCStatus.PENDING,
       interestedTopics: doc.interestedTopics || [],
       adminVerified: doc.adminVerified || false,
       isFirstLogin: doc.isFirstLogin ?? true,
@@ -135,6 +142,7 @@ export class UserMapper {
       website: data.website || "",
       linkedInUrl: data.linkedInUrl || "",
       adminVerified: data.adminVerified,
+      kycStatus: data.kycStatus,
     };
   }
 
@@ -146,6 +154,7 @@ export class UserMapper {
       website: data.website || "",
       linkedInUrl: data.linkedInUrl || "",
       adminVerified: data.adminVerified,
+      kycStatus: data.kycStatus,
     };
   }
 }

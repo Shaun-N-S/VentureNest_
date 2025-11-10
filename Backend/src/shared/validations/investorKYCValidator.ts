@@ -3,19 +3,9 @@ import { z } from "zod";
 export const InvestorKYCSchema = z.object({
   id: z.string().nonempty("Investor ID is required"),
 
-  aadharImg: z
-    .any()
-    .refine(
-      (file) => file && typeof file === "object" && "originalname" in file,
-      "Aadhar image is required and must be a valid file"
-    ),
+  aadharImg: z.instanceof(File, { message: "Aadhar image is required" }),
 
-  selfieImg: z
-    .any()
-    .refine(
-      (file) => file && typeof file === "object" && "originalname" in file,
-      "Selfie image is required and must be a valid file"
-    ),
+  selfieImg: z.instanceof(File, { message: "Selfie image is required" }),
 
   formData: z.object({
     dateOfBirth: z

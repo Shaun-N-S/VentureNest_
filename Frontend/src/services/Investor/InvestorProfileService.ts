@@ -29,3 +29,12 @@ export const investorProfileUpdate = async (formData: FormData) => {
   );
   return response.data;
 };
+
+export const investorKYCUpdate = async (formData: FormData) => {
+  const response = await AxiosInstance.patch(
+    API_ROUTES.INVESTOR.KYC.UPDATE,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return response.data;
+};

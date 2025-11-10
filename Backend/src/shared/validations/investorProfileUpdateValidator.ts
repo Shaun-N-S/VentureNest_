@@ -3,13 +3,7 @@ import { z } from "zod";
 export const investorProfileUpdateSchema = z.object({
   id: z.string().min(1, "Investor ID is required"),
 
-  // profileImg: z
-  //   .any()
-  //   .optional()
-  //   .refine(
-  //     (file) => !file || (file && typeof file === "object" && "originalname" in file),
-  //     "Invalid file format for profile image"
-  //   ),
+  profileImg: z.file().optional(),
 
   formData: z.object({
     userName: z.string().trim().optional(),

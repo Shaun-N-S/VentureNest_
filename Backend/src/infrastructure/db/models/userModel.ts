@@ -3,6 +3,7 @@ import { PreferredSector } from "domain/enum/preferredSector";
 import { UserRole } from "domain/enum/userRole";
 import { UserStatus } from "domain/enum/userStatus";
 import userSchema from "../schema/userSchema";
+import { KYCStatus } from "@domain/enum/kycStatus";
 
 export interface IUserModel extends Document {
   _id: string;
@@ -18,6 +19,7 @@ export interface IUserModel extends Document {
   role: UserRole;
   status: UserStatus;
   adminVerified: boolean;
+  kycStatus: KYCStatus;
   dateOfBirth?: Date;
   phoneNumber?: string;
   address?: string;

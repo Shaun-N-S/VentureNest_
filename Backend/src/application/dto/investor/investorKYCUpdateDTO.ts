@@ -1,7 +1,7 @@
 export interface InvestorKYCUpdateDTO {
   id: string;
-  aadharImg: File;
-  selfieImg: File;
+  aadharImg?: File;
+  selfieImg?: File;
   formData: InvestorKYCUpdateFormData;
 }
 

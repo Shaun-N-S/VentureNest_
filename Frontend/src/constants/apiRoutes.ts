@@ -38,6 +38,9 @@ export const API_ROUTES = {
       GET_PROFILE: "/investor/profile/:id",
       UPDATE: "/investor/profile-update",
     },
+    KYC: {
+      UPDATE: "/investor/kyc-update",
+    },
   },
 
   USER: {

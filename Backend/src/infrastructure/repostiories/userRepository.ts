@@ -6,6 +6,7 @@ import { UserMapper } from "application/mappers/userMappers";
 import { IUserModel } from "@infrastructure/db/models/userModel";
 import { UserStatus } from "@domain/enum/userStatus";
 import { UserRole } from "@domain/enum/userRole";
+import { KYCStatus } from "@domain/enum/kycStatus";
 
 export class UserRepository
   extends BaseRepository<UserEntity, IUserModel>
@@ -50,5 +51,11 @@ export class UserRepository
       { $set: { interestedTopics, isFirstLogin: false } },
       { upsert: true }
     );
+  }
+
+  async updateKycStatus(userId: string, kycStatus: KYCStatus): Promise<UserEntity | null> {
+    const updatedUser = await this._model.findByIdAndUpdate(userId, { kycStatus }, { new: true });
+    if (!updatedUser) return null;
+    return UserMapper.fromMongooseDocument(updatedUser);
   }
 }

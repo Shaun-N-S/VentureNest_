@@ -193,7 +193,7 @@ export const useInvestorProfileCompletion = () => {
 
 export const useGetProfileImg = (id: string) => {
   return useQuery({
-    queryKey: ["profileImg", id],
+    queryKey: ["profileImg"],
     queryFn: () => getProfileImg(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,

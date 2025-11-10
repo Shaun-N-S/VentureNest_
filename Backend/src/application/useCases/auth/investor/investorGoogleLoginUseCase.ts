@@ -1,3 +1,4 @@
+import { KYCStatus } from "@domain/enum/kycStatus";
 import { PreferredSector } from "@domain/enum/preferredSector";
 import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { UserRole } from "@domain/enum/userRole";
@@ -48,6 +49,7 @@ export class InvestorGoogleLoginUseCase implements IGoogleLoginUseCase {
         role: UserRole.INVESTOR,
         interestedTopics: [],
         status: UserStatus.ACTIVE,
+        kycStatus: KYCStatus.PENDING,
         location: "",
         companyName: "",
         experience: 0,

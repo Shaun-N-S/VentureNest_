@@ -1,3 +1,4 @@
+import { KYCStatus } from "@domain/enum/kycStatus";
 import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
@@ -43,6 +44,7 @@ export class UserGoogleLoginUseCase implements IGoogleLoginUseCase {
         userName,
         isFirstLogin: true,
         adminVerified: false,
+        kycStatus: KYCStatus.PENDING,
         role: UserRole.USER,
         interestedTopics: [],
         status: UserStatus.ACTIVE,

@@ -18,4 +18,5 @@ export enum PreferredSector {
   IOT = "IoT/Hardware",
   AR_VR = "AR/VR",
   SERVICES = "Services",
+  OTHERS = "Others",
 }

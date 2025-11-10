@@ -1,4 +1,3 @@
-import { InvestorEntity } from "@domain/entities/investor/investorEntity";
 import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
@@ -6,7 +5,6 @@ import { IInvestorProfileUpdateUseCase } from "@domain/interfaces/useCases/inves
 import { INVESTOR_ERRORS } from "@shared/constants/error";
 import { NotFoundExecption } from "application/constants/exceptions";
 import {
-  InvestorProfileDTO,
   InvestorProfileUpdateDTO,
   InvestorProfileUpdateResDTO,
 } from "application/dto/investor/investorProfileDTO";
@@ -37,7 +35,9 @@ export class InvestorProfileUpdateUseCase implements IInvestorProfileUpdateUseCa
         profileImg,
         StorageFolderNames.PROFILE_IMAGE + "/" + id + Date.now()
       );
+      console.log("if", profileImgKey);
     }
+    console.log("out", profileImgKey);
 
     const updatedData = {
       ...formData,

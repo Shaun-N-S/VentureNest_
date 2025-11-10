@@ -14,6 +14,7 @@ import { z } from "zod"
 import { useUserProfileUpdate } from "../../hooks/User/Profile/UserProfileHooks"
 import { useDispatch } from "react-redux"
 import { updateUserData } from "../../store/Slice/authDataSlice"
+import { queryClient } from "../../main"
 
 const userSchema = z.object({
     profileImg: z.instanceof(File).optional(),
@@ -129,8 +130,11 @@ export default function UserEditProfileModal({
 
             updateUserProfile(formDataToSend, {
                 onSuccess: (res) => {
+                    console.log(res)
                     dispatch(updateUserData(res.data.response))
                     toast.success(res.message)
+                    queryClient.invalidateQueries({ queryKey: ["userProfile"] })
+                    queryClient.invalidateQueries({ queryKey: ["profileImg"] })
                     onOpenChange(false)
                 },
                 onError: (err) => {

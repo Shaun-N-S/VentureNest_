@@ -8,7 +8,7 @@ import { Provider } from 'react-redux'
 import { persistor, store } from './store/store.ts'
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
-const queryClient = new QueryClient()
+export const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

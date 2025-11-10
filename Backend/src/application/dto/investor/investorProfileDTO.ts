@@ -1,3 +1,5 @@
+import { KYCStatus } from "@domain/enum/kycStatus";
+
 export interface InvestorProfileDTO {
   userName?: string;
   profileImg?: string;
@@ -9,6 +11,7 @@ export interface InvestorProfileDTO {
   investmentMin?: number;
   investmentMax?: number;
   adminVerified?: boolean;
+  kycStatus?: KYCStatus;
 }
 
 export interface InvestorProfileUpdateFormDataDTO {

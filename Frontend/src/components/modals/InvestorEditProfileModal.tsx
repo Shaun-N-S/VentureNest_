@@ -14,6 +14,7 @@ import { z } from "zod"
 import { useInvestorProfileUpdate } from "../../hooks/Investor/Profile/InvestorProfileHooks"
 import { useDispatch } from "react-redux"
 import { updateUserData } from "../../store/Slice/authDataSlice"
+import { queryClient } from "../../main"
 
 const investorSchema = z.object({
     profileImg: z.instanceof(File).optional(),
@@ -149,32 +150,6 @@ export default function InvestorEditProfileModal({
             const formDataToSend = new FormData()
 
             formDataToSend.append("id", investorId)
-            // console.log(investorId)
-
-            // if (validatedData.userName)
-            //     formDataToSend.append("userName", validatedData.userName)
-
-            // if (validatedData.bio)
-            //     formDataToSend.append("bio", validatedData.bio)
-
-            // if (validatedData.website)
-            //     formDataToSend.append("website", validatedData.website)
-
-            // if (validatedData.companyName)
-            //     formDataToSend.append("companyName", validatedData.companyName)
-
-            // if (validatedData.location)
-            //     formDataToSend.append("location", validatedData.location)
-
-            // if (validatedData.experience !== undefined)
-            //     formDataToSend.append("experience", String(validatedData.experience))
-
-            // if (validatedData.investmentMin !== undefined)
-            //     formDataToSend.append("investmentMin", String(validatedData.investmentMin))
-
-            // if (validatedData.investmentMax !== undefined)
-            //     formDataToSend.append("investmentMax", String(validatedData.investmentMax))
-
             formDataToSend.append("formData", JSON.stringify(formData))
             if (hasImageChanged && selectedImage)
                 formDataToSend.append("profileImg", selectedImage)
@@ -187,6 +162,8 @@ export default function InvestorEditProfileModal({
                         console.log(res)
                         dispatch(updateUserData(res.data.response))
                         toast.success(res.message)
+                        queryClient.invalidateQueries({ queryKey: ["investorProfile"] })
+                        queryClient.invalidateQueries({ queryKey: ["profileImg"] })
                     },
                     onError: (err) => {
                         toast.error(err.message)
@@ -195,7 +172,6 @@ export default function InvestorEditProfileModal({
             )
 
             console.log("Validated Data:", validatedData)
-            toast.success("Profile updated successfully!")
             onOpenChange(false)
         } catch (err) {
             if (err instanceof z.ZodError) {

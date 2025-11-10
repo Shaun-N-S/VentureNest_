@@ -1,3 +1,4 @@
+import { KYCStatus } from "@domain/enum/kycStatus";
 import { PreferredSector } from "@domain/enum/preferredSector";
 import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
@@ -11,6 +12,7 @@ export interface UserEntity {
   interestedTopics: PreferredSector[];
   role: UserRole;
   status: UserStatus;
+  kycStatus: KYCStatus;
   adminVerified: boolean;
 
   linkedInUrl?: string;

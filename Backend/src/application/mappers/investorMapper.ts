@@ -1,4 +1,5 @@
 import { InvestorEntity } from "@domain/entities/investor/investorEntity";
+import { KYCStatus } from "@domain/enum/kycStatus";
 import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
 import { IInvestorModel } from "@infrastructure/db/models/investorModel";
@@ -27,6 +28,7 @@ export class InvestorMapper {
       interestedTopics: [],
       role: UserRole.INVESTOR,
       status: UserStatus.ACTIVE,
+      kycStatus: KYCStatus.PENDING,
       adminVerified: false,
       dateOfBirth: undefined,
       phoneNumber: "",
@@ -57,6 +59,7 @@ export class InvestorMapper {
       status: investor.status,
       isFirstLogin: investor.isFirstLogin,
       adminVerified: investor.adminVerified,
+      kycStatus: investor.kycStatus,
       profileImg: investor.profileImg || "",
     };
   }
@@ -69,6 +72,7 @@ export class InvestorMapper {
       role: entity.role,
       status: entity.status,
       adminVerified: entity.adminVerified,
+      kycStatus: entity.kycStatus,
       isFirstLogin: entity.isFirstLogin,
       profileImg: entity.profileImg || "",
       createdAt: entity.createdAt || new Date(),
@@ -89,6 +93,7 @@ export class InvestorMapper {
       interestedTopics: investor.interestedTopics,
       role: investor.role,
       status: investor.status,
+      kycStatus: investor.kycStatus,
       adminVerified: investor.adminVerified,
       dateOfBirth: investor.dateOfBirth,
       phoneNumber: investor.phoneNumber,
@@ -126,6 +131,7 @@ export class InvestorMapper {
       dateOfBirth: doc.dateOfBirth || undefined,
       role: doc.role || UserRole.INVESTOR,
       status: doc.status || UserStatus.ACTIVE,
+      kycStatus: doc.kycStatus || KYCStatus.PENDING,
       interestedTopics: doc.interestedTopics || [],
       adminVerified: doc.adminVerified || false,
       isFirstLogin: doc.isFirstLogin ?? true,
