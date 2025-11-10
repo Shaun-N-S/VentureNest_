@@ -1,0 +1,6 @@
+export enum TeamSize {
+  SOLO_FOUNDER = "SOLO FOUNDER",
+  DUO = "DUO",
+  SMALL_TEAM = "SMALL TEAM",
+  GROWING_TEAM = "GROWING TEAM",
+}
