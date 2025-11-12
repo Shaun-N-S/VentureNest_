@@ -31,6 +31,10 @@ export const API_ROUTES = {
     USERS_UPDATE_STATUS: "/admin/users/update-status",
     INVESTORS: "/admin/investors",
     INVESTORS_UPDATE_STATUS: "/admin/investors/update-status",
+    FETCH_USERS_KYC: "/admin/users/kyc",
+    FETCH_INVESTORS_KYC: "/admin/investors/kyc",
+    UPDATE_USERS_KYC: "/admin/users/update-kyc",
+    UPDATE_INVESTORS_KYC: "/admin/investors/update-kyc",
   },
 
   INVESTOR: {
@@ -48,5 +52,9 @@ export const API_ROUTES = {
       GET_PROFILE: "/user/profile/:id",
       UPDATE: "/user/profile-update",
     },
+  },
+
+  POST: {
+    ADD: "/post/add",
   },
 };

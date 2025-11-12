@@ -31,9 +31,9 @@ export class AdminKYCController {
       const result = await this._getAllUserKycUseCase.getAllUsersKyc(page, limit, status, search);
       console.log(result);
 
-      if (!result || result.usersKyc?.length === 0) {
-        throw new InvalidDataException(Errors.NO_KYC_FOUND);
-      }
+      // if (!result || result.usersKyc?.length === 0) {
+      //   throw new InvalidDataException(Errors.NO_KYC_FOUND);
+      // }
 
       ResponseHelper.success(
         res,
@@ -65,9 +65,9 @@ export class AdminKYCController {
       );
       console.log(result);
 
-      if (!result || result.investorsKyc?.length === 0) {
-        throw new InvalidDataException(Errors.NO_KYC_FOUND);
-      }
+      // if (!result || result.investorsKyc?.length === 0) {
+      //   throw new InvalidDataException(Errors.NO_KYC_FOUND);
+      // }
 
       ResponseHelper.success(
         res,

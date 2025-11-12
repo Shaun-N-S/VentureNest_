@@ -114,7 +114,7 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
   }
 
   return (
-    <nav className="w-full bg-white shadow-md border-b">
+    <nav className="fixed top-0 left-0 w-full bg-white shadow-md border-b z-50">
       <div className="flex items-center justify-between px-6 py-3">
         {/* Logo */}
         <div

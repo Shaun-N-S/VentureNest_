@@ -19,5 +19,12 @@ export interface CreatePostDTO {
   authorId: string;
   authorRole: UserRole;
   content?: string;
+  mediaUrls?: File[];
+}
+
+export interface CreatePostEntityDTO {
+  authorId: string;
+  authorRole: UserRole;
+  content?: string;
   mediaUrls?: string[];
 }

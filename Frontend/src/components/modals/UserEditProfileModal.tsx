@@ -18,11 +18,12 @@ import { queryClient } from "../../main"
 
 const userSchema = z.object({
     profileImg: z.instanceof(File).optional(),
-    userName: z.string().min(2, "Full name is required").trim(),
+    userName: z.string().trim().min(2, "Full name is required"),
     bio: z.string().trim().optional(),
-    website: z.string().trim().url("Invalid URL").optional().or(z.literal("")),
-    linkedInUrl: z.string().trim().url("Invalid LinkedIn URL").optional().or(z.literal("")),
+    website: z.string().trim().url("Invalid URL").optional(),
+    linkedInUrl: z.string().trim().url("Invalid LinkedIn URL").optional(),
 })
+
 
 export type UserProfileEditData = z.infer<typeof userSchema>
 
@@ -113,16 +114,24 @@ export default function UserEditProfileModal({
         e.preventDefault()
 
         try {
+            // 🧹 Clean empty strings to undefined
+            const cleanedFormData = Object.fromEntries(
+                Object.entries(formData).map(([key, value]) => [
+                    key,
+                    value === "" ? undefined : value,
+                ])
+            )
+
             const dataToValidate = {
-                ...formData,
+                ...cleanedFormData,
                 profileImg: selectedImage || undefined,
             }
 
-            // const validatedData = userSchema.parse(dataToValidate)
+            const validatedData = userSchema.parse(dataToValidate)
 
             const formDataToSend = new FormData()
             formDataToSend.append("id", userId)
-            formDataToSend.append("formData", JSON.stringify(formData))
+            formDataToSend.append("formData", JSON.stringify(cleanedFormData))
 
             if (hasImageChanged && selectedImage) {
                 formDataToSend.append("profileImg", selectedImage)
@@ -130,24 +139,19 @@ export default function UserEditProfileModal({
 
             updateUserProfile(formDataToSend, {
                 onSuccess: (res) => {
-                    console.log(res)
-                    dispatch(updateUserData(res.data.response))
                     toast.success(res.message)
+                    dispatch(updateUserData(res.data.response))
                     queryClient.invalidateQueries({ queryKey: ["userProfile"] })
                     queryClient.invalidateQueries({ queryKey: ["profileImg"] })
                     onOpenChange(false)
                 },
-                onError: (err) => {
-                    toast.error(err.message)
-                },
+                onError: (err) => toast.error(err.message),
             })
         } catch (err) {
             if (err instanceof z.ZodError) {
                 const newErrors: Record<string, string> = {}
                 err.issues.forEach((error) => {
-                    if (error.path[0]) {
-                        newErrors[error.path[0] as string] = error.message
-                    }
+                    if (error.path[0]) newErrors[error.path[0] as string] = error.message
                 })
                 setErrors(newErrors)
                 toast.error("Please correct the errors before saving.")
@@ -156,6 +160,7 @@ export default function UserEditProfileModal({
             }
         }
     }
+
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>

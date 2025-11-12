@@ -50,4 +50,8 @@ export const MESSAGES = {
     FETCHED_SUCCESSFULLY: "Kyc fetched successfully ",
     STATUS_UPDATED_SUCCESSFULLY: "KYC status updated successfully ",
   },
+
+  POST: {
+    POST_ADD_SUCCESSFULLY: "Post added successfully",
+  },
 };

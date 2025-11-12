@@ -26,8 +26,14 @@ export class UserRepository
     await this._model.updateOne({ email }, { $set: { password } });
   }
 
-  async findAll(skip = 0, limit = 10, status?: string, search?: string): Promise<UserEntity[]> {
-    return super.findAll(skip, limit, status, search, { role: UserRole.USER });
+  async findAll(
+    skip = 0,
+    limit = 10,
+    status?: string,
+    search?: string,
+    extraQuery: any = {}
+  ): Promise<UserEntity[]> {
+    return super.findAll(skip, limit, status, search, { ...extraQuery, role: UserRole.USER });
   }
 
   async count(status?: string, search?: string): Promise<number> {

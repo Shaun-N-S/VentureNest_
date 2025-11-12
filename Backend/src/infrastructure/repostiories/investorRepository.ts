@@ -6,6 +6,7 @@ import { InvestorMapper } from "application/mappers/investorMapper";
 import { IInvestorModel } from "@infrastructure/db/models/investorModel";
 import { UserStatus } from "@domain/enum/userStatus";
 import { KYCStatus } from "@domain/enum/kycStatus";
+import { UserRole } from "@domain/enum/userRole";
 
 export class InvestorRepository
   extends BaseRepository<InvestorEntity, IInvestorModel>
@@ -31,6 +32,16 @@ export class InvestorRepository
     return InvestorMapper.fromMongooseDocument(updatedDoc);
   }
 
+  async findAll(
+    skip = 0,
+    limit = 10,
+    status?: string,
+    search?: string,
+    extraQuery: any = {}
+  ): Promise<InvestorEntity[]> {
+    return super.findAll(skip, limit, status, search, { ...extraQuery, role: UserRole.INVESTOR });
+  }
+
   async profileCompletion(
     id: string,
     data: Partial<InvestorEntity>
@@ -54,7 +65,18 @@ export class InvestorRepository
   }
 
   async updateKycStatus(userId: string, kycStatus: KYCStatus): Promise<InvestorEntity | null> {
-    const updatedUser = await this._model.findByIdAndUpdate(userId, { kycStatus }, { new: true });
+    const updateData: any = { kycStatus };
+
+    if (kycStatus === KYCStatus.APPROVED) {
+      updateData.adminVerified = true;
+    }
+
+    const updatedUser = await this._model.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true }
+    );
+
     if (!updatedUser) return null;
     return InvestorMapper.fromMongooseDocument(updatedUser);
   }

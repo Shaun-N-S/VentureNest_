@@ -65,6 +65,6 @@ export const ROUTES = {
   },
 
   POST: {
-    ADD: "/post/add",
+    ADD: "/add",
   },
 };

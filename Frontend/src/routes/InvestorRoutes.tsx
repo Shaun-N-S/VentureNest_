@@ -32,20 +32,11 @@ const InvestorRoutes = () => {
             {/*Protected investor routes */}
             <Route element={<ProtectedRoute />}>
                 <Route element={<InvestorLayout />}>
-                    <Route
-                        path={FRONTEND_ROUTES.INVESTOR.HOME}
-                        element={<Home />}
-                    />
-                    <Route
-                        path={FRONTEND_ROUTES.INVESTOR.PROFILE}
-                        element={<ProfilePage />}
-                    />
+                    <Route path={FRONTEND_ROUTES.INVESTOR.HOME} element={<Home />} />
+                    <Route path={FRONTEND_ROUTES.INVESTOR.PROFILE} element={<ProfilePage />} />
+                    <Route path={FRONTEND_ROUTES.INVESTOR.PROFILE_COMPLETION} element={<InvestorProfileCompletion />} />
                 </Route>
 
-                <Route
-                    path={FRONTEND_ROUTES.INVESTOR.PROFILE_COMPLETION}
-                    element={<InvestorProfileCompletion />}
-                />
             </Route>
         </Routes>
     );

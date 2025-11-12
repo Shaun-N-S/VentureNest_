@@ -19,7 +19,7 @@ import { useKycUpdate } from "../../hooks/Investor/Profile/InvestorProfileHooks"
 
 const kycSchema = z.object({
     dateOfBirth: z.date().refine((val) => !!val, { message: "Date of birth required" }),
-    phoneNumber: z.string().min(10, "Enter a valid phone number"),
+    phoneNumber: z.string().min(10, "Enter a valid phone number").max(10, "Enter a valid phone number"),
     address: z.string().min(5, "Enter a valid address"),
     aadharImg: z.instanceof(File, { message: "Aadhar image required" }),
     selfieImg: z.instanceof(File, { message: "Selfie required" }),

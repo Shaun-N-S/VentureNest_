@@ -24,5 +24,6 @@ export const FRONTEND_ROUTES = {
     DASHBOARD: "/dashboard",
     USERS: "/users",
     INVESTORS: "/investors",
+    VERIFICATIONS: "/verifications"
   },
 };

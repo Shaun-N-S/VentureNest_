@@ -20,6 +20,7 @@ export interface ProfileCardProps {
     website?: string;
     profileImg?: string;
     adminVerified?: boolean;
+    linkedInUrl?: string;
   };
   isFollowing: boolean;
   onFollow: () => void;

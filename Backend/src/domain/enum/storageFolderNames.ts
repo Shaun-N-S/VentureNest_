@@ -3,4 +3,5 @@ export enum StorageFolderNames {
   PORTFOLIO_PDF = "PortfolioPdf",
   AADHAR_IMAGE = "aadharImg",
   SELFIE_IMAGE = "selfieImg",
+  POST_MEDIA = "postMedia",
 }

@@ -11,6 +11,7 @@ export interface InvestorProfileDTO {
   investmentMin?: number;
   investmentMax?: number;
   adminVerified?: boolean;
+  linkedInUrl?: string;
   kycStatus?: KYCStatus;
 }
 

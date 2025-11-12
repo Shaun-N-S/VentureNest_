@@ -163,6 +163,8 @@ export class InvestorMapper {
       location: data.location,
       investmentMin: data.investmentMin,
       investmentMax: data.investmentMax,
+      adminVerified: data.adminVerified,
+      linkedInUrl: data.linkedInUrl || "",
     };
   }
 

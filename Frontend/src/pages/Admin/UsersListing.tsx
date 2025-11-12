@@ -1,14 +1,13 @@
 import React, { useState, useCallback, useMemo } from "react";
-import AdminLayout from "../../layouts/AdminLayout";
 import Table from "../../components/table/Table";
 import Pagination from "../../components/pagination/Pagination";
-import { useGetAllUsers, useUpdateUserStatus } from "../../hooks/Auth/AuthHooks";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { X } from "lucide-react";
 import StatusChangeModal from "../../components/modals/StatusChangeModal";
 import { useQueryClient } from "@tanstack/react-query";
 import type { IGetAllUsersResponse, User } from "../../types/AuthPayloads";
+import { useGetAllUsers, useUpdateUserStatus } from "../../hooks/Auth/User/AdminUsersHooks";
 
 interface TableUser extends User {
     id: string;
@@ -21,7 +20,7 @@ const UsersListing: React.FC = () => {
     const [searchInput, setSearchInput] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    const { data, isLoading, isError, refetch } = useGetAllUsers(
+    const { data, refetch } = useGetAllUsers(
         page,
         limit,
         statusFilter,
