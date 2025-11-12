@@ -1,25 +1,22 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { LoginPayload, SignupPayload } from "../../types/AuthPayloads";
 import {
-  getAllInvestors,
-  getAllUsers,
   investorResendOtp,
   investorVerifyOtp,
   loginInvestor,
   loginUser,
   signupInvestor,
   signupUser,
-  updateUserStatus,
   userForgetPassword,
   userForgetPasswordVerifyOtp,
   userResendOtp,
   userResetPassword,
   userVerifyOtp,
-  updateInvestorStatus,
   logoutUser,
   investorResetPassword,
   userGoogleLogin,
   investorGoogleLogin,
+  setInterestedTopics,
 } from "../../services/Auth/AuthServices";
 import { profileCompletion } from "../../services/Investor/InvestorProfileService";
 import { getProfileImg } from "../../services/Auth/AuthServices";
@@ -117,54 +114,6 @@ export const useInvestorLogin = () => {
   });
 };
 
-export const useGetAllUsers = (
-  page: number,
-  limit: number,
-  status?: string,
-  search?: string
-) => {
-  return useQuery({
-    queryKey: ["users", page, limit, status, search],
-    queryFn: () => getAllUsers(page, limit, status, search),
-  });
-};
-
-export const useGetAllInvestors = (
-  page: number,
-  limit: number,
-  status?: string,
-  search?: string
-) => {
-  return useQuery({
-    queryKey: ["investors", page, limit, status, search],
-    queryFn: () => getAllInvestors(page, limit, status, search),
-  });
-};
-
-export const useUpdateUserStatus = () => {
-  return useMutation({
-    mutationFn: ({
-      userId,
-      currentStatus,
-    }: {
-      userId: string;
-      currentStatus: string;
-    }) => updateUserStatus({ userId, currentStatus }),
-  });
-};
-
-export const useUpdateInvestorStatus = () => {
-  return useMutation({
-    mutationFn: ({
-      investorId,
-      currentStatus,
-    }: {
-      investorId: string;
-      currentStatus: string;
-    }) => updateInvestorStatus({ investorId, currentStatus }),
-  });
-};
-
 export const useLogout = () => {
   return useMutation({
     mutationFn: logoutUser,
@@ -191,9 +140,21 @@ export const useInvestorProfileCompletion = () => {
 
 export const useGetProfileImg = (id: string) => {
   return useQuery({
-    queryKey: ["profileImg", id],
+    queryKey: ["profileImg"],
     queryFn: () => getProfileImg(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useIntrestedTopics = () => {
+  return useMutation({
+    mutationFn: ({
+      id,
+      interestedTopics,
+    }: {
+      id: string;
+      interestedTopics: string[];
+    }) => setInterestedTopics({ id, interestedTopics }),
   });
 };

@@ -1,14 +1,13 @@
 import React, { useState, useCallback, useMemo } from "react";
-import AdminLayout from "../../layouts/AdminLayout";
 import Table from "../../components/table/Table";
 import Pagination from "../../components/pagination/Pagination";
 import StatusChangeModal from "../../components/modals/StatusChangeModal";
-import { useGetAllInvestors, useUpdateInvestorStatus } from "../../hooks/Auth/AuthHooks";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { X } from "lucide-react";
 import type { IGetAllInvestorsResponse, Investor } from "../../types/AuthPayloads";
 import { useQueryClient } from "@tanstack/react-query";
+import { useGetAllInvestors, useUpdateInvestorStatus } from "../../hooks/Auth/Investor/AdminInvestorsHook";
 
 interface TableInvestor extends Investor {
     id: string;
@@ -27,7 +26,7 @@ const InvestorsListing: React.FC = () => {
         status: "ACTIVE" | "BLOCKED";
     } | null>(null);
 
-    const { data, isLoading, isError, refetch } = useGetAllInvestors(
+    const { data, refetch } = useGetAllInvestors(
         page,
         limit,
         statusFilter,
@@ -155,42 +154,8 @@ const InvestorsListing: React.FC = () => {
         [isUpdating, page, limit, formattedInvestors]
     );
 
-    // // Loading UI
-    // if (isLoading) {
-    //     return (
-    //         <AdminLayout>
-    //             <div className="flex items-center justify-center min-h-[400px]">
-    //                 <div className="text-center">
-    //                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-    //                     <p className="text-gray-600">Loading investors...</p>
-    //                 </div>
-    //             </div>
-    //         </AdminLayout>
-    //     );
-    // }
-
-    // // Error UI
-    // if (isError) {
-    //     return (
-    //         <AdminLayout>
-    //             <div className="flex items-center justify-center min-h-[400px]">
-    //                 <div className="text-center">
-    //                     <div className="text-red-500 text-5xl mb-4">⚠️</div>
-    //                     <p className="text-red-600 font-medium">Failed to fetch investors</p>
-    //                     <button
-    //                         onClick={() => refetch()}
-    //                         className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-    //                     >
-    //                         Retry
-    //                     </button>
-    //                 </div>
-    //             </div>
-    //         </AdminLayout>
-    //     );
-    // }
-
     return (
-        <AdminLayout>
+
             <div className="bg-white p-6 rounded-xl shadow-md">
                 <h1 className="text-2xl font-semibold mb-6 text-gray-800">Investors Management</h1>
 
@@ -259,7 +224,6 @@ const InvestorsListing: React.FC = () => {
                     <Pagination totalPages={totalPages} currentPage={page} setPage={setPage} />
                 )}
             </div>
-        </AdminLayout>
     );
 };
 

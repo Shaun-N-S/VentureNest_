@@ -8,6 +8,7 @@ import { Investor_Router } from "interfaceAdapters/routes/investorRoutes";
 import { Admin_Routes } from "interfaceAdapters/routes/adminRoutes";
 import { errorHandlingMiddleware } from "interfaceAdapters/middleware/errorHandlingMiddleware";
 import { loggingMiddleware } from "interfaceAdapters/middleware/loggingMiddleware";
+import { Post_Router } from "interfaceAdapters/routes/postRoute";
 
 class Express_app {
   private _app: Express;
@@ -47,8 +48,16 @@ class Express_app {
     this._app.use("/auth", new Investor_Router().get_router());
     this._app.use("/auth", new Admin_Routes().get_router());
 
+    //user routes
+
+    //investor routes
+    this._app.use("/investor", new Investor_Router().get_router());
+    this._app.use("/user", new User_Router().get_router());
+
     // Admin routes
     this._app.use("/admin", new Admin_Routes().get_router());
+
+    this._app.use("/post", new Post_Router().get_router());
   }
 
   listen() {

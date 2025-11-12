@@ -5,6 +5,8 @@ import { Model } from "mongoose";
 import { InvestorMapper } from "application/mappers/investorMapper";
 import { IInvestorModel } from "@infrastructure/db/models/investorModel";
 import { UserStatus } from "@domain/enum/userStatus";
+import { KYCStatus } from "@domain/enum/kycStatus";
+import { UserRole } from "@domain/enum/userRole";
 
 export class InvestorRepository
   extends BaseRepository<InvestorEntity, IInvestorModel>
@@ -30,7 +32,20 @@ export class InvestorRepository
     return InvestorMapper.fromMongooseDocument(updatedDoc);
   }
 
-  async updateById(id: string, data: Partial<InvestorEntity>): Promise<InvestorEntity | null> {
+  async findAll(
+    skip = 0,
+    limit = 10,
+    status?: string,
+    search?: string,
+    extraQuery: any = {}
+  ): Promise<InvestorEntity[]> {
+    return super.findAll(skip, limit, status, search, { ...extraQuery, role: UserRole.INVESTOR });
+  }
+
+  async profileCompletion(
+    id: string,
+    data: Partial<InvestorEntity>
+  ): Promise<InvestorEntity | null> {
     const updatedDoc = await this._model.findByIdAndUpdate(id, data, { new: true });
     if (!updatedDoc) return null;
     return InvestorMapper.fromMongooseDocument(updatedDoc);
@@ -39,5 +54,30 @@ export class InvestorRepository
   async googleSignUp(investor: InvestorEntity): Promise<string> {
     const newInvestor = await this._model.create(investor);
     return newInvestor._id.toString();
+  }
+
+  async setInterestedTopics(investorId: string, interestedTopics: string[]): Promise<void> {
+    await this._model.updateOne(
+      { _id: investorId },
+      { $set: { interestedTopics, isFirstLogin: false } },
+      { upsert: true }
+    );
+  }
+
+  async updateKycStatus(userId: string, kycStatus: KYCStatus): Promise<InvestorEntity | null> {
+    const updateData: any = { kycStatus };
+
+    if (kycStatus === KYCStatus.APPROVED) {
+      updateData.adminVerified = true;
+    }
+
+    const updatedUser = await this._model.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true }
+    );
+
+    if (!updatedUser) return null;
+    return InvestorMapper.fromMongooseDocument(updatedUser);
   }
 }

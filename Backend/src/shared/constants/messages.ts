@@ -13,6 +13,9 @@ export const MESSAGES = {
     GET_ALL_USERS: "Fetched all users successfully",
     GET_ALL_INVESTORS: "Fetched all investors successfully",
     PROFILE_IMG_SUCCESS: "Profile img successfully fetched",
+    INTERESTED_TOPICS_SET_SUCCESSFULL: "Interested topics added successfully !",
+    PROFILE_DATA_SUCCESS: "Profile data fetched successfully",
+    PROFILE_UPDATED_SUCCESS: "Profile updated successfully",
   },
 
   ADMIN: {
@@ -30,6 +33,8 @@ export const MESSAGES = {
     REGISTER_SUCCESS: "Investor registered successfully.",
     LOGIN_SUCCESS: "Investor logged in successfully.",
     PROFILE_COMPLETION_SUCCESS: "Profile completion successful",
+    PROFILE_DATA_SUCCESS: "Profile data fetched successfully",
+    PROFILE_UPDATED_SUCCESS: "Profile updated successfully",
   },
 
   EMAIL: {
@@ -38,5 +43,15 @@ export const MESSAGES = {
 
   REFRESH_TOKEN: {
     REFRESH_SUCCESSFUL: "Successfully got a new accessToken",
+  },
+
+  KYC: {
+    UPDATED_SUCCESSFULLY: "KYC Updated successfully !",
+    FETCHED_SUCCESSFULLY: "Kyc fetched successfully ",
+    STATUS_UPDATED_SUCCESSFULLY: "KYC status updated successfully ",
+  },
+
+  POST: {
+    POST_ADD_SUCCESSFULLY: "Post added successfully",
   },
 };

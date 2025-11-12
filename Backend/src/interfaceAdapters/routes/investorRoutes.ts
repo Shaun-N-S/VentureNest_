@@ -1,4 +1,4 @@
-import { authMiddleware, investorAuthController } from "@infrastructure/DI/Auth/authContainer";
+import { investorAuthController } from "@infrastructure/DI/Auth/authContainer";
 import { investorProfileController } from "@infrastructure/DI/Investor/InvestorProfileContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
@@ -67,6 +67,32 @@ export class Investor_Router {
       ]),
       (req: Request, res: Response, next: NextFunction) => {
         investorProfileController.profileCompletion(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ROUTES.INVESTORS.PROFILE.FETCH_DATA,
+      (req: Request, res: Response, next: NextFunction) => {
+        investorProfileController.getProfileData(req, res, next);
+      }
+    );
+
+    this._route.patch(
+      ROUTES.INVESTORS.PROFILE.UPDATE,
+      uploadMulter.fields([{ name: "profileImg", maxCount: 1 }]),
+      (req: Request, res: Response, next: NextFunction) => {
+        investorProfileController.updateProfileData(req, res, next);
+      }
+    );
+
+    this._route.patch(
+      ROUTES.KYC.UPDATE,
+      uploadMulter.fields([
+        { name: "aadharImg", maxCount: 1 },
+        { name: "selfieImg", maxCount: 1 },
+      ]),
+      (req: Request, res: Response, next: NextFunction) => {
+        investorProfileController.updateKYC(req, res, next);
       }
     );
   }

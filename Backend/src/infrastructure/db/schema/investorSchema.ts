@@ -1,3 +1,4 @@
+import { KYCStatus } from "@domain/enum/kycStatus";
 import { PreferredSector } from "@domain/enum/preferredSector";
 import { StartupStage } from "@domain/enum/startupStages";
 import { UserRole } from "@domain/enum/userRole";
@@ -35,6 +36,7 @@ const investorSchema = new mongoose.Schema(
     portfolioPdf: { type: String },
 
     adminVerified: { type: Boolean, default: false },
+    kycStatus: { type: String, enum: Object.values(KYCStatus), default: KYCStatus.PENDING },
     aadharImg: { type: String },
     address: { type: String },
     dateOfBirth: { type: Date },

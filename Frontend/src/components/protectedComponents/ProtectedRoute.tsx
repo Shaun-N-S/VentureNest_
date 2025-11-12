@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import type { Rootstate } from "../../store/store";
-import type { ReactNode } from "react";
 
-interface ProtectedRouteProps {
-  children: ReactNode;
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC = () => {
   const navigate = useNavigate();
   const accessToken = useSelector((state: Rootstate) => state.token.token);
   const userRole = useSelector((state: Rootstate) => state.authData.role);
@@ -37,7 +32,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (isChecking) return null;
 
-  return accessToken ? <>{children}</> : null;
+  return accessToken ? <Outlet /> : null;
 };
 
 export default ProtectedRoute;

@@ -1,0 +1,6 @@
+export enum KYCStatus {
+  SUBMITTED = "SUBMITTED",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  PENDING = "PENDING",
+}

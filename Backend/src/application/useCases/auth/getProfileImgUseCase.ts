@@ -14,23 +14,20 @@ export class GetProfileImgUseCase implements IGetProfileImg {
   ) {}
 
   async getProfile(id: string): Promise<ProfileImgDTO> {
-    // Fetch both in parallel (faster)
-    console.log("id in usecase", id);
     const [userData, investorData] = await Promise.all([
       this._userRepository.findById(id),
       this._investorRepository.findById(id),
     ]);
 
-    // If neither user nor investor found
     if (!userData && !investorData) {
       throw new NotFoundExecption(USER_ERRORS.NO_USERS_FOUND);
     }
-    console.log(userData, investorData);
 
-    const profileKey = userData?.profileImg || investorData?.profileImg;
+    const profileKey = userData?.profileImg || investorData?.profileImg || "";
 
     if (!profileKey) {
-      throw new NotFoundExecption(USER_ERRORS.NO_PROFILE_FOUND);
+      return { profileImg: "https://example.com/default-profile.png" };
+      // throw new NotFoundExecption(USER_ERRORS.NO_PROFILE_FOUND);
     }
 
     const signedUrl = await this._storageService.createSignedUrl(profileKey, 10 * 60);

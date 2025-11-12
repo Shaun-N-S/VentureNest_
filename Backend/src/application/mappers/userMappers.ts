@@ -1,8 +1,11 @@
+import { KYCStatus } from "@domain/enum/kycStatus";
 import { IUserModel } from "@infrastructure/db/models/userModel";
+import { KycDTO } from "application/dto/admin/kycDTO";
 import { CreateUserDTO } from "application/dto/auth/createUserDTO";
 import { LoginAdminResponseDTO } from "application/dto/auth/LoginAdminDTO";
 import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";
 import { UserDTO } from "application/dto/user/userDTO";
+import { UserProfileUpdateResDTO } from "application/dto/user/userProfileUpdateDTO";
 import { UserEntity } from "domain/entities/user/userEntity";
 import { UserRole } from "domain/enum/userRole";
 import { UserStatus } from "domain/enum/userStatus";
@@ -23,6 +26,7 @@ export class UserMapper {
       interestedTopics: [],
       role: UserRole.USER,
       status: UserStatus.ACTIVE,
+      kycStatus: KYCStatus.PENDING,
       adminVerified: false,
       dateOfBirth: undefined,
       phoneNumber: "",
@@ -44,6 +48,7 @@ export class UserMapper {
       role: entity.role,
       status: entity.status,
       adminVerified: entity.adminVerified,
+      kycStatus: entity.kycStatus,
       isFirstLogin: entity.isFirstLogin,
       profileImg: entity.profileImg || "",
       createdAt: entity.createdAt || new Date(),
@@ -60,6 +65,7 @@ export class UserMapper {
       status: user.status,
       isFirstLogin: user.isFirstLogin,
       adminVerified: user.adminVerified,
+      kycStatus: user.kycStatus,
       profileImg: user.profileImg || "",
     };
   }
@@ -88,6 +94,7 @@ export class UserMapper {
       role: user.role,
       status: user.status,
       adminVerified: user.adminVerified,
+      kycStatus: user.kycStatus,
       dateOfBirth: user.dateOfBirth,
       phoneNumber: user.phoneNumber,
       address: user.address,
@@ -115,14 +122,39 @@ export class UserMapper {
       dateOfBirth: doc.dateOfBirth || new Date(0),
       role: doc.role || UserRole.USER,
       status: doc.status || UserStatus.ACTIVE,
+      kycStatus: doc.kycStatus || KYCStatus.PENDING,
       interestedTopics: doc.interestedTopics || [],
       adminVerified: doc.adminVerified || false,
-      isFirstLogin: doc.isFirstLogin || true,
+      isFirstLogin: doc.isFirstLogin ?? true,
       website: doc.website || "",
       bio: doc.bio || "",
       verifiedAt: doc.verifiedAt || new Date(0),
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
+    };
+  }
+
+  static userProfileUpdateRes(data: UserEntity): UserProfileUpdateResDTO {
+    return {
+      userName: data.userName,
+      bio: data.bio || "",
+      profileImg: data.profileImg || "",
+      website: data.website || "",
+      linkedInUrl: data.linkedInUrl || "",
+      adminVerified: data.adminVerified,
+      kycStatus: data.kycStatus,
+    };
+  }
+
+  static userProfileData(data: UserEntity): UserProfileUpdateResDTO {
+    return {
+      userName: data.userName,
+      bio: data.bio || "",
+      profileImg: data.profileImg || "",
+      website: data.website || "",
+      linkedInUrl: data.linkedInUrl || "",
+      adminVerified: data.adminVerified,
+      kycStatus: data.kycStatus,
     };
   }
 }

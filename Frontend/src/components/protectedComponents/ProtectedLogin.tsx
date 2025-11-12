@@ -1,13 +1,9 @@
-import React, { useEffect, useState, type ReactNode } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import type { Rootstate } from "../../store/store";
 
-interface ProtectedLoginProps {
-  children: ReactNode;
-}
-
-const ProtectedLogin: React.FC<ProtectedLoginProps> = ({ children }) => {
+const ProtectedLogin: React.FC = () => {
   const navigate = useNavigate();
   const accessToken = useSelector((state: Rootstate) => state.token.token);
   const userData = useSelector((state: Rootstate) => state.authData);
@@ -19,7 +15,7 @@ const ProtectedLogin: React.FC<ProtectedLoginProps> = ({ children }) => {
       if (accessToken) {
         switch (userData.role) {
           case "INVESTOR":
-            handleInvestor()
+            handleInvestor();
             break;
           case "ADMIN":
             navigate("/admin/dashboard");
@@ -33,18 +29,18 @@ const ProtectedLogin: React.FC<ProtectedLoginProps> = ({ children }) => {
 
     const handleInvestor = () => {
       if (userData.isFirstLogin) {
-        navigate('/investor/profile-completion');
+        navigate("/investor/profile-completion");
       } else {
-        navigate("/investor/home")
+        navigate("/investor/home");
       }
-    }
+    };
 
     return () => clearTimeout(timeout);
   }, [accessToken, navigate, userData.role]);
 
   if (isChecking) return null;
 
-  return !accessToken ? <>{children}</> : null;
+  return !accessToken ? <Outlet /> : null;
 };
 
 export default ProtectedLogin;

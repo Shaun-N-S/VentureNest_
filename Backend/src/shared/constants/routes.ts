@@ -14,6 +14,7 @@ export const ROUTES = {
         RESET_PASSWORD: "/users/forget-password/reset-password",
       },
       GET_PROFILE_IMG: "/users/get-profileImg/:id",
+      SET_INTERESTED_TOPICS: "/users/interested-topics",
     },
     INVESTOR: {
       BASE: "/investors",
@@ -38,11 +39,32 @@ export const ROUTES = {
     INVESTORS: "/investors",
     UPDATE_USER_STATUS: "/users/update-status",
     UPDATE_INVESTOR_STATUS: "/investors/update-status",
+    FETCH_USER_KYC: "/users/kyc",
+    FETCH_INVESTOR_KYC: "/investors/kyc",
+    UPDATE_USER_KYC: "/users/update-kyc",
+    UPDATE_INVESTOR_KYC: "/investors/update-kyc",
   },
-  USERS: {},
+
+  USERS: {
+    PROFILE: {
+      FETCH_DATA: "/profile/:id",
+      UPDATE: "/profile-update",
+    },
+  },
+
   INVESTORS: {
     PROFILE: {
       COMPLETION: "/investor/profile-completion",
+      FETCH_DATA: "/profile/:id",
+      UPDATE: "/profile-update",
     },
+  },
+
+  KYC: {
+    UPDATE: "/kyc-update",
+  },
+
+  POST: {
+    ADD: "/add",
   },
 };

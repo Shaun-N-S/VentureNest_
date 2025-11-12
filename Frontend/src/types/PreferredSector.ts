@@ -19,3 +19,5 @@ export const SECTOR = [
   "AR/VR",
   "Services",
 ] as const;
+
+export type SECTOR = (typeof SECTOR)[number];

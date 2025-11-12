@@ -46,7 +46,7 @@ export class InvestorProfileCompletionUseCase implements IInvestorProfileComplet
       isFirstLogin: false,
     };
 
-    const updatedInvestor = await this._investorRepository.updateById(id, updatedData);
+    const updatedInvestor = await this._investorRepository.profileCompletion(id, updatedData);
     console.log("updatedInvestor data : return : : :  :", updatedInvestor);
     return updatedInvestor!;
   }

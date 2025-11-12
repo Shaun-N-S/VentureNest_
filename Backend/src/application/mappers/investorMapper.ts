@@ -1,10 +1,15 @@
 import { InvestorEntity } from "@domain/entities/investor/investorEntity";
+import { KYCStatus } from "@domain/enum/kycStatus";
 import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
 import { IInvestorModel } from "@infrastructure/db/models/investorModel";
 import { CreateUserDTO } from "application/dto/auth/createUserDTO";
 import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";
 import { InvestorDTO } from "application/dto/investor/investorDTO";
+import {
+  InvestorProfileDTO,
+  InvestorProfileUpdateResDTO,
+} from "application/dto/investor/investorProfileDTO";
 import mongoose from "mongoose";
 
 export class InvestorMapper {
@@ -23,6 +28,7 @@ export class InvestorMapper {
       interestedTopics: [],
       role: UserRole.INVESTOR,
       status: UserStatus.ACTIVE,
+      kycStatus: KYCStatus.PENDING,
       adminVerified: false,
       dateOfBirth: undefined,
       phoneNumber: "",
@@ -53,6 +59,7 @@ export class InvestorMapper {
       status: investor.status,
       isFirstLogin: investor.isFirstLogin,
       adminVerified: investor.adminVerified,
+      kycStatus: investor.kycStatus,
       profileImg: investor.profileImg || "",
     };
   }
@@ -65,6 +72,7 @@ export class InvestorMapper {
       role: entity.role,
       status: entity.status,
       adminVerified: entity.adminVerified,
+      kycStatus: entity.kycStatus,
       isFirstLogin: entity.isFirstLogin,
       profileImg: entity.profileImg || "",
       createdAt: entity.createdAt || new Date(),
@@ -85,6 +93,7 @@ export class InvestorMapper {
       interestedTopics: investor.interestedTopics,
       role: investor.role,
       status: investor.status,
+      kycStatus: investor.kycStatus,
       adminVerified: investor.adminVerified,
       dateOfBirth: investor.dateOfBirth,
       phoneNumber: investor.phoneNumber,
@@ -122,6 +131,7 @@ export class InvestorMapper {
       dateOfBirth: doc.dateOfBirth || undefined,
       role: doc.role || UserRole.INVESTOR,
       status: doc.status || UserStatus.ACTIVE,
+      kycStatus: doc.kycStatus || KYCStatus.PENDING,
       interestedTopics: doc.interestedTopics || [],
       adminVerified: doc.adminVerified || false,
       isFirstLogin: doc.isFirstLogin ?? true,
@@ -139,6 +149,34 @@ export class InvestorMapper {
       investmentMin: doc.investmentMin || 0,
       investmentMax: doc.investmentMax || 0,
       portfolioPdf: doc.portfolioPdf || "",
+    };
+  }
+
+  static investorProfileDatatoDTO(data: InvestorEntity): InvestorProfileDTO {
+    return {
+      userName: data.userName,
+      profileImg: data.profileImg || "",
+      bio: data.bio || "",
+      website: data.website || "",
+      companyName: data.companyName,
+      experience: data.experience,
+      location: data.location,
+      investmentMin: data.investmentMin,
+      investmentMax: data.investmentMax,
+      adminVerified: data.adminVerified,
+      linkedInUrl: data.linkedInUrl || "",
+    };
+  }
+
+  static investorProfileUpdateResDTO(data: InvestorEntity): InvestorProfileUpdateResDTO {
+    return {
+      userName: data.userName,
+      bio: data.bio || "",
+      website: data.website || "",
+      linkedInUrl: data.linkedInUrl || "",
+      companyName: data.companyName,
+      adminVerified: data.adminVerified,
+      profileImg: data.profileImg || "",
     };
   }
 }

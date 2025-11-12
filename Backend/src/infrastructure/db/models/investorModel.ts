@@ -4,6 +4,7 @@ import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
 import { Document, model } from "mongoose";
 import investorSchema from "../schema/investorSchema";
+import { KYCStatus } from "@domain/enum/kycStatus";
 
 export interface IInvestorModel extends Document {
   _id: string;
@@ -17,6 +18,7 @@ export interface IInvestorModel extends Document {
   interestedTopics: PreferredSector[];
   role: UserRole;
   status: UserStatus;
+  kycStatus: KYCStatus;
   adminVerified: boolean;
   dateOfBirth: Date;
   phoneNumber?: string;

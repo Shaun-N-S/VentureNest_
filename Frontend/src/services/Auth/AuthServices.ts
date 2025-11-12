@@ -1,6 +1,7 @@
 import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
 import type { LoginPayload, SignupPayload } from "../../types/AuthPayloads";
+import type { SECTOR } from "../../types/PreferredSector";
 
 // Users
 export const signupUser = async (data: SignupPayload) => {
@@ -139,80 +140,6 @@ export const loginInvestor = async (data: LoginPayload) => {
   return response.data;
 };
 
-// Admin — Users
-export const getAllUsers = async (
-  page = 1,
-  limit = 10,
-  status?: string,
-  search?: string
-) => {
-  const params = new URLSearchParams({
-    page: String(page),
-    limit: String(limit),
-  });
-  if (status) params.append("status", status);
-  if (search) params.append("search", search);
-
-  const response = await AxiosInstance.get(
-    `${API_ROUTES.ADMIN.USERS}?${params.toString()}`
-  );
-  return response.data;
-};
-
-export const updateUserStatus = async ({
-  userId,
-  currentStatus,
-}: {
-  userId: string;
-  currentStatus: string;
-}) => {
-  const response = await AxiosInstance.post(
-    API_ROUTES.ADMIN.USERS_UPDATE_STATUS,
-    {
-      userId,
-      currentStatus,
-    }
-  );
-  return response.data;
-};
-
-//Admin — Investors
-export const getAllInvestors = async (
-  page = 1,
-  limit = 10,
-  status?: string,
-  search?: string
-) => {
-  const params = new URLSearchParams({
-    page: String(page),
-    limit: String(limit),
-  });
-  if (status) params.append("status", status);
-  if (search) params.append("search", search);
-
-  const response = await AxiosInstance.get(
-    `${API_ROUTES.ADMIN.INVESTORS}?${params.toString()}`
-  );
-  return response.data;
-};
-
-export const updateInvestorStatus = async ({
-  investorId,
-  currentStatus,
-}: {
-  investorId: string;
-  currentStatus: string;
-}) => {
-  const response = await AxiosInstance.post(
-    API_ROUTES.ADMIN.INVESTORS_UPDATE_STATUS,
-    {
-      investorId,
-      currentStatus,
-    }
-  );
-  return response.data;
-};
-
 export const logoutUser = async () => {
   const response = await AxiosInstance.post(API_ROUTES.AUTH.USERS_LOGOUT);
   return response.data;
@@ -245,4 +172,19 @@ export const getProfileImg = async (id: string) => {
     API_ROUTES.AUTH.GET_PROFILEIMG.replace(":id", id)
   );
   return response.data;
+};
+
+//interested topics
+export const setInterestedTopics = async ({
+  id,
+  interestedTopics,
+}: {
+  id: string;
+  interestedTopics: string[];
+}) => {
+  const response = await AxiosInstance.post("/auth/users/interested-topics", {
+    id,
+    interestedTopics,
+  });
+  return response;
 };

@@ -6,6 +6,7 @@ import { UserMapper } from "application/mappers/userMappers";
 import { IUserModel } from "@infrastructure/db/models/userModel";
 import { UserStatus } from "@domain/enum/userStatus";
 import { UserRole } from "@domain/enum/userRole";
+import { KYCStatus } from "@domain/enum/kycStatus";
 
 export class UserRepository
   extends BaseRepository<UserEntity, IUserModel>
@@ -25,8 +26,14 @@ export class UserRepository
     await this._model.updateOne({ email }, { $set: { password } });
   }
 
-  async findAll(skip = 0, limit = 10, status?: string, search?: string): Promise<UserEntity[]> {
-    return super.findAll(skip, limit, status, search, { role: UserRole.USER });
+  async findAll(
+    skip = 0,
+    limit = 10,
+    status?: string,
+    search?: string,
+    extraQuery: any = {}
+  ): Promise<UserEntity[]> {
+    return super.findAll(skip, limit, status, search, { ...extraQuery, role: UserRole.USER });
   }
 
   async count(status?: string, search?: string): Promise<number> {
@@ -42,5 +49,19 @@ export class UserRepository
   async googleSignUp(user: UserEntity): Promise<string> {
     const newUser = await this._model.create(user);
     return newUser._id.toString();
+  }
+
+  async setInterestedTopics(userId: string, interestedTopics: string[]): Promise<void> {
+    await this._model.updateOne(
+      { _id: userId },
+      { $set: { interestedTopics, isFirstLogin: false } },
+      { upsert: true }
+    );
+  }
+
+  async updateKycStatus(userId: string, kycStatus: KYCStatus): Promise<UserEntity | null> {
+    const updatedUser = await this._model.findByIdAndUpdate(userId, { kycStatus }, { new: true });
+    if (!updatedUser) return null;
+    return UserMapper.fromMongooseDocument(updatedUser);
   }
 }

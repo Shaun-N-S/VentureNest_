@@ -34,6 +34,7 @@ export const Errors = {
   REFRESH_TOKEN_SECRETKEY_MISSING: "Refresh token secret key not found",
   UPLOAD_ERROR: "Error while uploading",
   CONVERSTION_ERROR: "Error while converting file",
+  NO_KYC_FOUND: "No kyc application found",
 };
 
 export const USER_ERRORS = {

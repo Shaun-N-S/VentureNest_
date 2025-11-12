@@ -7,7 +7,6 @@ import { Link, useNavigate } from "react-router-dom"
 import OTPModal from "../../../components/modals/OtpModal"
 import SignUpForm from "../../../components/auth/SignUpForm"
 import LeftPanel from "../../../components/auth/LeftPanal"
-import { AxiosError } from "axios"
 
 const InvestorSignUpPage = () => {
 
@@ -56,7 +55,6 @@ const InvestorSignUpPage = () => {
                 onError: (err) => {
                     console.log("Error while verifying otp", err);
                     if (err instanceof Error) {
-                        // console.log("Error while verifying otp ", err.response.data.message);
                         toast.error(err.response.data.message)
                     }
                 }
@@ -79,21 +77,17 @@ const InvestorSignUpPage = () => {
 
     return (
         <div className=" md:h-screen grid grid-cols-1 md:grid-cols-2 items-stretch bg-background text-foreground md:overflow-hidden">
-            {/* <div className="mx-auto grid min-h-screen w-full max-w-6xl grid-cols-1 md:grid-cols-2"> */}
-            {/* Left design panel - hidden on small screens for better mobile UX */}
-            <motion.div
-                // initial={{ opacity: 0, x: -16 }}
-                // animate={{ opacity: 1, x: 0 }}
-                // transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="relative h-full"
-            >
-                {/* Replace previous image-based panel with reusable component */}
+            <motion.div className="relative h-full" >
+                {/* left side section */}
                 <LeftPanel />
             </motion.div>
 
             {/* Right content: form card */}
             <div className="flex items-center justify-center p-4 md:p-8">
-                <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-lg md:p-8">
+                <motion.div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-lg md:p-8"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
                     <div className="mb-6 text-center">
                         <h1 className="text-balance text-2xl font-semibold text-foreground md:text-3xl">
                             Create your VentureNest account
@@ -116,7 +110,7 @@ const InvestorSignUpPage = () => {
                             Log in
                         </Link>
                     </p>
-                </div>
+                </motion.div>
             </div>
             {/* </div> */}
         </div>

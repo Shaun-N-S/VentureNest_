@@ -7,15 +7,37 @@ import InvestorProfileCompletion from "../pages/Investor/Profile/ProfileCompleti
 import InvestorSignUpPage from "../pages/Investor/Auth/InvestorSignUpPage";
 import InvestorLoginPage from "../pages/Investor/Auth/InvestorLoginPage";
 import ForgotPasswordPage from "../pages/Investor/Auth/InvestorFogetPassword";
+import ProfilePage from "../pages/Investor/Profile/InvestorProfile/ProfilePage";
+import InvestorLayout from "../layouts/InvestorLayout";
 
 const InvestorRoutes = () => {
     return (
         <Routes>
-            <Route path={FRONTEND_ROUTES.INVESTOR.SIGNUP} element={<ProtectedLogin><InvestorSignUpPage /></ProtectedLogin>} />
-            <Route path={FRONTEND_ROUTES.INVESTOR.LOGIN} element={<ProtectedLogin><InvestorLoginPage /></ProtectedLogin>} />
-            <Route path={FRONTEND_ROUTES.INVESTOR.FORGOT_PASSWORD} element={<ProtectedLogin><ForgotPasswordPage /></ProtectedLogin>} />
-            <Route path={FRONTEND_ROUTES.INVESTOR.PROFILE_COMPLETION} element={<InvestorProfileCompletion />} />
-            <Route path={FRONTEND_ROUTES.INVESTOR.HOME} element={<ProtectedRoute><Home /></ProtectedRoute>} />
+            {/*Public (login-related) routes */}
+            <Route element={<ProtectedLogin />}>
+                <Route
+                    path={FRONTEND_ROUTES.INVESTOR.SIGNUP}
+                    element={<InvestorSignUpPage />}
+                />
+                <Route
+                    path={FRONTEND_ROUTES.INVESTOR.LOGIN}
+                    element={<InvestorLoginPage />}
+                />
+                <Route
+                    path={FRONTEND_ROUTES.INVESTOR.FORGOT_PASSWORD}
+                    element={<ForgotPasswordPage />}
+                />
+            </Route>
+
+            {/*Protected investor routes */}
+            <Route element={<ProtectedRoute />}>
+                <Route element={<InvestorLayout />}>
+                    <Route path={FRONTEND_ROUTES.INVESTOR.HOME} element={<Home />} />
+                    <Route path={FRONTEND_ROUTES.INVESTOR.PROFILE} element={<ProfilePage />} />
+                    <Route path={FRONTEND_ROUTES.INVESTOR.PROFILE_COMPLETION} element={<InvestorProfileCompletion />} />
+                </Route>
+
+            </Route>
         </Routes>
     );
 };

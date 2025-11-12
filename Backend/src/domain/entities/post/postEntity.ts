@@ -1,0 +1,16 @@
+import { UserRole } from "@domain/enum/userRole";
+
+export interface PostEntity {
+  _id?: string;
+  authorId: string;
+  authorRole: UserRole;
+  content?: string;
+  mediaUrls?: string[];
+  likes: { likerId: string; likerRole: UserRole }[];
+  likeCount: number;
+  commentsCount: number;
+  isActive: boolean;
+  isDeleted: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

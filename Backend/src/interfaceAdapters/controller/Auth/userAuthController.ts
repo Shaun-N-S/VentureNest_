@@ -35,6 +35,7 @@ import { IJWTService } from "@domain/interfaces/services/IJWTService";
 import { IGoogleLoginUseCase } from "@domain/interfaces/useCases/auth/IGoogleLoginUseCase";
 import { IGetProfileImg } from "@domain/interfaces/useCases/auth/IGetProfileImg";
 import { success } from "zod";
+import { IInterestedTopicsUseCase } from "@domain/interfaces/useCases/auth/IInterestedTopicsUseCase";
 
 export class UserAuthController {
   constructor(
@@ -53,7 +54,8 @@ export class UserAuthController {
     private _tokenInvalidationUseCase: ITokenInvalidationUseCase,
     private _jwtService: IJWTService,
     private _googleLoginUseCase: IGoogleLoginUseCase,
-    private _getProfileImgUseCase: IGetProfileImg
+    private _getProfileImgUseCase: IGetProfileImg,
+    private _interestedTopics: IInterestedTopicsUseCase
   ) {}
 
   async signUpSendOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -109,7 +111,6 @@ export class UserAuthController {
       const { email, password } = loginSchema.parse(req.body);
 
       const user = await this._userLoginUseCase.userLogin(email, password);
-      console.log(`User Data : ${user}`);
 
       if (!user) {
         throw new InvalidDataException(Errors.INVALID_CREDENTIALS);
@@ -123,7 +124,6 @@ export class UserAuthController {
       setRefreshTokenCookie(res, token.refreshToken);
 
       await this._cacheUserUseCase.cacheUser(user);
-
       ResponseHelper.success(
         res,
         MESSAGES.USERS.LOGIN_SUCCESS,
@@ -277,7 +277,6 @@ export class UserAuthController {
   async handleProfileImg(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      console.log("id : ", id);
 
       if (!id) {
         throw new InvalidDataException(Errors.INVALID_DATA);
@@ -286,6 +285,19 @@ export class UserAuthController {
       const profileImg = await this._getProfileImgUseCase.getProfile(id);
       console.log(profileImg);
       ResponseHelper.success(res, MESSAGES.USERS.PROFILE_IMG_SUCCESS, profileImg, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async handleInterestedTopics(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id, interestedTopics } = req.body;
+      console.log("data from frontend : : : ,", id, interestedTopics);
+
+      await this._interestedTopics.setTopics(id, interestedTopics);
+
+      ResponseHelper.success(res, MESSAGES.USERS.INTERESTED_TOPICS_SET_SUCCESSFULL, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

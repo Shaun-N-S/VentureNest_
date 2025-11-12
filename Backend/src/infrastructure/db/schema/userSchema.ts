@@ -1,3 +1,4 @@
+import { KYCStatus } from "@domain/enum/kycStatus";
 import { PreferredSector } from "domain/enum/preferredSector";
 import { UserRole } from "domain/enum/userRole";
 import { UserStatus } from "domain/enum/userStatus";
@@ -31,6 +32,11 @@ const userSchema = new mongoose.Schema(
 
     aadharImg: { type: String },
     selfieImg: { type: String },
+    kycStatus: {
+      type: String,
+      enum: Object.values(KYCStatus),
+      default: KYCStatus.PENDING,
+    },
     adminVerified: { type: Boolean, default: false },
     verifiedAt: { type: Date },
 

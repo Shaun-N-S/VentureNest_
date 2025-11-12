@@ -19,7 +19,7 @@ const rowVariants = {
         height: "auto",
         transition: { delay: i * 0.1, duration: 0.35 },
     }),
-    exit: { opacity: 0, height: 0, transition: { duration: 0.25 } },
+    // exit: { opacity: 0, height: 0, transition: { duration: 0.25 } },
 };
 
 function Table<T extends { id?: string | number }>({ headers, data }: propType<T>) {

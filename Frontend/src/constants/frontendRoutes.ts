@@ -6,6 +6,7 @@ export const FRONTEND_ROUTES = {
     LOGIN: "/login",
     FORGOT_PASSWORD: "/forgot-password",
     HOME: "/home",
+    PROFILE: "/profile"
   },
 
   INVESTOR: {
@@ -13,7 +14,9 @@ export const FRONTEND_ROUTES = {
     LOGIN: "/login",
     FORGOT_PASSWORD: "/forgot-password",
     PROFILE_COMPLETION: "/profile-completion",
+    INTERESTED_TOPICS: "/interested-topics",
     HOME: "/home",
+    PROFILE:"/profile"
   },
 
   ADMIN: {
@@ -21,5 +24,6 @@ export const FRONTEND_ROUTES = {
     DASHBOARD: "/dashboard",
     USERS: "/users",
     INVESTORS: "/investors",
+    VERIFICATIONS: "/verifications"
   },
 };

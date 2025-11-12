@@ -1,4 +1,4 @@
-import { Model, Document } from "mongoose";
+import { Model, Document, UpdateQuery } from "mongoose";
 
 export abstract class BaseRepository<TEntity, TModel extends Document> {
   constructor(
@@ -26,15 +26,15 @@ export abstract class BaseRepository<TEntity, TModel extends Document> {
     extraQuery: any = {}
   ): Promise<TEntity[]> {
     const query: any = { ...extraQuery };
-
+    console.log(query);
     if (status) query.status = status;
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: "i" } },
+        { userName: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
       ];
     }
-
+    console.log(JSON.stringify(query));
     const docs = await this._model.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });
 
     return docs.map((doc) => this.mapper.fromMongooseDocument(doc));
@@ -52,5 +52,15 @@ export abstract class BaseRepository<TEntity, TModel extends Document> {
     }
 
     return await this._model.countDocuments(query);
+  }
+
+  async update(id: string, data: Partial<TEntity>): Promise<TEntity | null> {
+    // const updateDoc = this.mapper.toMongooseDocument({ id, ...data });
+
+    const updated = await this._model.findByIdAndUpdate(id, data as UpdateQuery<Document>, {
+      new: true,
+    });
+
+    return updated ? this.mapper.fromMongooseDocument(updated) : null;
   }
 }
