@@ -57,7 +57,7 @@ class Express_app {
     // Admin routes
     this._app.use("/admin", new Admin_Routes().get_router());
 
-    this._app.use("/post", new Post_Router().get_router());
+    this._app.use("/posts", new Post_Router().get_router());
   }
 
   listen() {

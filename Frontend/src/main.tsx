@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PersistGate } from 'redux-persist/integration/react'
 import { Provider } from 'react-redux'
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')!).render(
         <PersistGate loading={null} persistor={persistor}>
           <QueryClientProvider client={queryClient}>
             < App />
+            <ReactQueryDevtools/>
           </QueryClientProvider>
         </PersistGate>
       </Provider>

@@ -53,5 +53,11 @@ export const MESSAGES = {
 
   POST: {
     POST_ADD_SUCCESSFULLY: "Post added successfully",
+    POST_FETCHED_SUCCESSFULLY: "Post fetched successfully",
+    POST_REMOVED_SUCCESSFULLY: "Post removed successfully",
+  },
+
+  RELATIONSHIP: {
+    CONNECTION_SEND_SUCCESSFULLY: "Connection request send successfully",
   },
 };

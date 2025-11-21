@@ -9,3 +9,30 @@ export const addPost = async (formData: FormData) => {
   });
   return response.data;
 };
+
+export const fetchPersonalPosts = async (page: number, limit: number) => {
+  const response = await AxiosInstance.get(
+    API_ROUTES.POST.FETCH_PERSONAL_POST,
+    {
+      params: { page, limit },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+
+export const fetchAllPosts = async (page: number, limit: number) => {
+  const response = await AxiosInstance.get(API_ROUTES.POST.FEED, {
+    params: { page, limit },
+    withCredentials: true,
+  });
+  return response.data.data;
+};
+
+export const removePost = async (postId: string) => {
+  console.log("in service : : :  ",postId);
+  const response = await AxiosInstance.patch(
+    API_ROUTES.POST.REMOVE.replace(":id", postId)
+  );
+  return response.data;
+};

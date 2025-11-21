@@ -8,9 +8,19 @@ export interface PostCardProps {
   timestamp: string;
   content: string;
   link?: string;
-  image?: string;
+
+  // OLD (single image)
+  // image?: string;
+
+  // NEW (multiple images/videos)
+  mediaUrls: string[];
+
   likes?: number;
   comments?: number;
+  commentList?: Comment[]; // actual comments array
   liked?: boolean;
   onLike?: () => void;
+  onRemove?: (id: string) => void;
+  onReport?: (id: string) => void;
+  context?: "home" | "profile";
 }

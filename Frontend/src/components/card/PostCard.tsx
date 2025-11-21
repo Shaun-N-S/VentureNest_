@@ -3,6 +3,9 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
 import { Button } from "../ui/button"
 import { motion } from "framer-motion"
 import type { PostCardProps } from "../../types/PostCardPropsType"
+import { MediaCarousel } from "../Carousel/MediaCarousel"
+import { useEffect, useRef, useState } from "react"
+import { CommentSection, type Comment } from "../Comments/CommentSection"
 
 export function PostCard({
     id,
@@ -10,12 +13,99 @@ export function PostCard({
     timestamp,
     content,
     link,
-    image,
+    mediaUrls,
     likes = 0,
-    comments = 0,
+    comments: initialCommentsCount = 0,
     liked = false,
     onLike,
+    context,
+    onRemove,
+    onReport,
 }: PostCardProps) {
+    const [open, setOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement | null>(null);
+
+    // Local state for likes
+    const [isLiked, setIsLiked] = useState(liked);
+    const [likeCount, setLikeCount] = useState(likes);
+    const [commentsCount, setCommentsCount] = useState(initialCommentsCount);
+
+    // Mock comments with replies
+    const [comments, setComments] = useState<Comment[]>([
+        {
+            id: 'c1',
+            user: { name: 'Alice', avatar: '/avatar-alice.jpg' },
+            text: 'This is amazing! Keep it up!',
+            liked: true,
+            likes: 8,
+            replies: [
+                {
+                    id: 'r1',
+                    user: { name: 'Bob', avatar: '/avatar-bob.jpg' },
+                    text: 'Totally agree!',
+                    liked: false,
+                    likes: 3,
+                }
+            ]
+        },
+        {
+            id: 'c2',
+            user: { name: 'Sarah', avatar: '/avatar-sarah.jpg' },
+            text: 'When is the launch?',
+            liked: false,
+            likes: 5,
+        },
+    ]);
+
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, []);
+
+    const handleLike = () => {
+        if (isLiked) {
+            setLikeCount(prev => prev - 1);
+        } else {
+            setLikeCount(prev => prev + 1);
+        }
+        setIsLiked(!isLiked);
+        onLike?.();
+        console.log("Post liked/unliked:", id, "New count:", likeCount + (isLiked ? -1 : 1));
+    };
+
+    // Add new comment or reply
+    const handleAddComment = (postId: string, text: string, parentId?: string) => {
+        const newComment: Comment = {
+            id: Date.now().toString(),
+            user: { name: "You", avatar: "/your-avatar.jpg" },
+            text,
+            liked: false,
+            likes: 0,
+            replies: parentId ? undefined : [],
+        };
+
+        if (parentId) {
+            setComments(prev => addReply(prev, parentId, newComment));
+            console.log("Reply added to comment:", parentId, newComment);
+        } else {
+            setComments(prev => [...prev, newComment]);
+            console.log("New comment added:", newComment);
+        }
+
+        setCommentsCount(prev => prev + 1);
+    };
+
+    // Toggle like on comment/reply
+    const handleToggleCommentLike = (commentId: string) => {
+        setComments(prev => toggleLike(prev, commentId));
+        console.log("Comment like toggled:", commentId);
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -24,72 +114,132 @@ export function PostCard({
             className="w-full bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200"
         >
             {/* Header */}
-            <div className="p-3 sm:p-4 md:p-5 flex items-start justify-between gap-3">
-                <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
-                    <Avatar className="h-10 w-10 sm:h-11 sm:w-11 md:h-12 md:w-12 flex-shrink-0">
-                        <AvatarImage src={author.avatar || "/placeholder.svg"} alt={author.name} />
-                        <AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
+            <div className="p-4 flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <Avatar className="h-12 w-12">
+                        <AvatarImage src={author.avatar || "/placeholder.svg"} />
+                        <AvatarFallback>{author.name[0]}</AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-sm sm:text-base text-gray-900 truncate">{author.name}</h4>
-                        <p className="text-xs sm:text-sm text-gray-500 line-clamp-1">
-                            {author.followers.toLocaleString()} followers • {timestamp}
-                        </p>
+                    <div>
+                        <h4 className="font-semibold text-base">{author.name}</h4>
+                        <p className="text-sm text-gray-500">{timestamp}</p>
                     </div>
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 hover:bg-gray-100">
-                    <MoreVertical className="h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
+
+                <div className="relative" ref={menuRef}>
+                    <Button variant="ghost" size="icon" onClick={() => setOpen(!open)}>
+                        <MoreVertical className="h-5 w-5" />
+                    </Button>
+                    {open && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="absolute right-0 top-10 bg-white border shadow-lg rounded-md w-40 z-50"
+                        >
+                            {context === "home" && (
+                                <button
+                                    onClick={() => {
+                                        onReport?.(id);
+                                        console.log("Reported post:", id);
+                                        setOpen(false);
+                                    }}
+                                    className="w-full text-left px-4 py-2.5 hover:bg-gray-100 text-red-600"
+                                >
+                                    Report
+                                </button>
+                            )}
+                            {context === "profile" && (
+                                <button
+                                    onClick={() => {
+                                        onRemove?.(id);
+                                        setOpen(false);
+                                    }}
+                                    className="w-full text-left px-4 py-2.5 hover:bg-gray-100 text-red-600"
+                                >
+                                    Remove Post
+                                </button>
+                            )}
+                        </motion.div>
+                    )}
+                </div>
             </div>
 
             {/* Content */}
-            <div className="px-3 sm:px-4 md:px-5 pb-2 sm:pb-3 md:pb-4">
-                <p className="text-sm sm:text-base text-gray-900 mb-2 break-words">{content}</p>
+            <div className="px-4 pb-3">
+                <p className="text-base whitespace-pre-wrap">{content}</p>
                 {link && (
-                    <a
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 text-xs sm:text-sm hover:underline break-all"
-                    >
+                    <a href={link} target="_blank" className="text-blue-500 text-sm hover:underline block mt-2">
                         {link}
                     </a>
                 )}
             </div>
 
-            {/* Image */}
-            {image && (
-                <div className="relative w-full aspect-video bg-gray-100">
-                    {/* <Image src={image || "/placeholder.svg"} alt="Post content" fill className="object-cover" /> */}
-                    <img
-                        src={image || "/placeholder.svg"}
-                        alt="Post content"
-                        className="object-cover w-full h-full"
-                        loading="lazy" // enables lazy loading
-                    />
-                </div>
-            )}
+            {/* Media */}
+            {mediaUrls && mediaUrls.length > 0 && <MediaCarousel mediaUrls={mediaUrls} />}
 
-            {/* Engagement */}
-            <div className="px-3 sm:px-4 md:px-5 py-3 md:py-4 border-t border-gray-200 flex items-center gap-4 sm:gap-6">
+            {/* Engagement Bar */}
+            <div className="px-4 py-3 border-t flex items-center gap-6">
                 <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={onLike}
-                    className={`flex items-center gap-2 transition-colors ${liked ? "text-red-500" : "text-gray-600 hover:text-red-500"}`}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={handleLike}
+                    className={`flex items-center gap-2 font-medium ${isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"}`}
                 >
-                    <Heart className={`h-5 w-5 sm:h-6 sm:w-6 ${liked ? "fill-current" : ""}`} />
-                    <span className="text-xs sm:text-sm font-medium">{likes}</span>
+                    <Heart className={`h-6 w-6 ${isLiked ? "fill-red-500" : ""}`} />
+                    <span>{likeCount}</span>
                 </motion.button>
-                <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 text-gray-600 hover:text-blue-500 transition-colors"
-                >
-                    <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
-                    <span className="text-xs sm:text-sm font-medium">{comments}</span>
-                </motion.button>
+
+                <div className="flex items-center gap-2 text-gray-600 font-medium">
+                    <MessageCircle className="h-6 w-6" />
+                    <span>{commentsCount}</span>
+                </div>
             </div>
+
+            {/* Comment Section – Fully Working with Mock */}
+            <CommentSection
+                postId={id}
+                comments={comments}
+                onAddComment={handleAddComment}
+                onToggleLike={handleToggleCommentLike}
+            />
         </motion.div>
-    )
+    );
+}
+
+// Helper: Add reply to nested structure
+function addReply(comments: Comment[], parentId: string, reply: Comment): Comment[] {
+    return comments.map(c => {
+        if (c.id === parentId) {
+            return {
+                ...c,
+                replies: [...(c.replies || []), reply]
+            };
+        }
+        if (c.replies) {
+            return {
+                ...c,
+                replies: addReply(c.replies, parentId, reply)
+            };
+        }
+        return c;
+    });
+}
+
+// Helper: Toggle like on comment or reply
+function toggleLike(comments: Comment[], commentId: string): Comment[] {
+    return comments.map(c => {
+        if (c.id === commentId) {
+            return {
+                ...c,
+                liked: !c.liked,
+                likes: c.liked ? c.likes - 1 : c.likes + 1
+            };
+        }
+        if (c.replies) {
+            return {
+                ...c,
+                replies: toggleLike(c.replies, commentId)
+            };
+        }
+        return c;
+    });
 }

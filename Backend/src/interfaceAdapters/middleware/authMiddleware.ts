@@ -33,7 +33,7 @@ export class AuthMiddleware {
       res.status(HTTPSTATUS.UNAUTHORIZED).json({ success: false, message: Errors.INVALID_TOKEN });
       return;
     }
-    (req as any).user = { role: decoded.role, userId: decoded.userId };
+    res.locals.user = { role: decoded.role, userId: decoded.userId };
     next();
   };
 

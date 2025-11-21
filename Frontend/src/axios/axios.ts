@@ -44,9 +44,9 @@ AxiosInstance.interceptors.response.use(
         store.dispatch(clearData());
         store.dispatch(deleteToken());
         if (userRole === "INVESTOR") {
-          window.location.href = `/${userRole}/login`;
+          window.location.href = `/investor/login`;
         } else if (userRole === "ADMIN") {
-          window.location.href = `/${userRole}/login`;
+          window.location.href = `/admin/login`;
         } else {
           window.location.href = `/login`;
         }

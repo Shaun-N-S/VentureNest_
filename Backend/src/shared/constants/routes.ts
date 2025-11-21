@@ -33,6 +33,7 @@ export const ROUTES = {
       LOGIN: "/admin/login",
     },
   },
+
   ADMIN: {
     BASE: "",
     USERS: "/users",
@@ -66,5 +67,12 @@ export const ROUTES = {
 
   POST: {
     ADD: "/add",
+    PERSONAL_POST: "/personal",
+    FEED: "/feed",
+    REMOVE: "/remove/:id",
+  },
+
+  PROJECT: {
+    CREATE: "/create",
   },
 };

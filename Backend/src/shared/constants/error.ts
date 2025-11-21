@@ -35,6 +35,7 @@ export const Errors = {
   UPLOAD_ERROR: "Error while uploading",
   CONVERSTION_ERROR: "Error while converting file",
   NO_KYC_FOUND: "No kyc application found",
+  NOT_AUTHORIZED: "Your are not authorized !",
 };
 
 export const USER_ERRORS = {
@@ -54,4 +55,8 @@ export const INVESTOR_ERRORS = {
   INVESTOR_INVALIDATION: "Error while validating investor !",
   NO_INVESTORS_FOUND: "No investors found",
   PROFILE_UPDATION_FAILED: "Failed to update investor profile",
+};
+
+export const POST_ERRORS = {
+  NO_POST_FOUND: "No posts found",
 };
