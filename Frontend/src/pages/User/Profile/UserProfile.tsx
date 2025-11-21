@@ -6,8 +6,11 @@ import { PostCard } from "../../../components/card/PostCard"
 import { ProjectCard } from "../../../components/card/ProjectCard"
 import { useSelector } from "react-redux"
 import type { Rootstate } from "../../../store/store"
-import { useFetchInvestorProfile } from "../../../hooks/Investor/Profile/InvestorProfileHooks"
 import { useFetchUserProfile } from "../../../hooks/User/Profile/UserProfileHooks"
+import { useFetchPersonalPost, useRemovePost } from "../../../hooks/Post/PostHooks"
+import type { PersonalPost } from "../../Investor/Profile/InvestorProfile/ProfilePage"
+import toast from "react-hot-toast"
+import { queryClient } from "../../../main"
 
 export default function ProfilePage() {
     const [likedProjects, setLikedProjects] = useState<Set<string>>(new Set())
@@ -15,22 +18,10 @@ export default function ProfilePage() {
     const [isFollowing, setIsFollowing] = useState(false)
     const userData = useSelector((state: Rootstate) => state.authData)
     const userId = userData.id;
-    const { data, isLoading, error } = useFetchUserProfile(userId)
-
-
-    // Dummy Data
-    const investor = {
-        name: "Jackson",
-        bio: "Founder of StartupNest | Ex-Entrepreneur at XYZ | Angel Investor | Building something awesome",
-        // bio: "Verify your account?",
-        profileImg: "/investor-avatar.jpg",
-        verified: true,
-        stats: {
-            posts: 23,
-            followers: 43796,
-            following: 1234,
-        },
-    }
+    const { data: profileData, isLoading, error } = useFetchUserProfile(userId)
+    const { data: postData, isLoading: postIsLoading } = useFetchPersonalPost(1, 10);
+    const { mutate: removePost } = useRemovePost()
+    console.log("Post data fetched    : ", postData, postIsLoading)
 
     const projects = [
         {
@@ -48,68 +39,6 @@ export default function ProfilePage() {
             stage: "Seed",
             logo: "/techflow-logo.jpg",
             likes: 567,
-        },
-    ]
-
-    const posts = [
-        {
-            id: "post-1",
-            author: {
-                name: "Jackson",
-                avatar: "/investor-avatar.jpg",
-                followers: 43796,
-            },
-            timestamp: "15min ago",
-            content: "We just hit 1,000 active users within 2 months! 🚀 Huge thanks to everyone supporting us on this journey",
-            link: "https://buff.ly/3e3QaL7",
-            image: "/greencart-project.jpg",
-            likes: 234,
-            comments: 45,
-        },
-        {
-            id: "post-2",
-            author: {
-                name: "Jackson",
-                avatar: "/investor-avatar.jpg",
-                followers: 43796,
-            },
-            timestamp: "2 hours ago",
-            content:
-                "Big milestone unlocked! 🎉 We've officially closed our Pre-Seed round at $150K, backed by amazing angel investors who align with our vision.",
-            link: "https://buff.ly/startup-funding",
-            image: "/techflow-project.jpg",
-            likes: 567,
-            comments: 89,
-        },
-        {
-            id: "post-3",
-            author: {
-                name: "Jackson",
-                avatar: "/investor-avatar.jpg",
-                followers: 43796,
-            },
-            timestamp: "1 day ago",
-            content:
-                "Excited to announce our partnership with leading sustainability organizations! Together, we're building a greener future for e-commerce. 🌱",
-            link: "https://buff.ly/sustainability-partnership",
-            image: "/greencart-project.jpg",
-            likes: 189,
-            comments: 32,
-        },
-        {
-            id: "post-4",
-            author: {
-                name: "Jackson",
-                avatar: "/investor-avatar.jpg",
-                followers: 43796,
-            },
-            timestamp: "3 days ago",
-            content:
-                "Thrilled to share that we've been selected as one of the top 10 startups in the AgriTech category! 🏆 This recognition motivates us to keep innovating.",
-            link: "https://buff.ly/agritech-awards",
-            image: "/greencart-project.jpg",
-            likes: 412,
-            comments: 67,
         },
     ]
 
@@ -137,38 +66,75 @@ export default function ProfilePage() {
         })
     }
 
+    const handleRemove = (postId: string) => {
+        console.log('PostId to remove this post : ', postId)
+
+        removePost(
+            postId, {
+            onSuccess: (res) => {
+                toast.success("Post removed successfully ", res.message)
+                queryClient.invalidateQueries({ queryKey: ["personal-post"] })
+            },
+            onError: (err) => {
+                toast.error(err.message)
+            }
+        }
+        )
+
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
                 {/* Profile Card */}
                 <div className="max-w-2xl mx-auto">
                     <div className="mb-8 md:mb-12">
-                        {data?.data?.profileData && <ProfileCard userData={data.data.profileData} isFollowing={isFollowing} onFollow={() => setIsFollowing(!isFollowing)} />}
+                        {profileData?.data?.profileData && <ProfileCard userData={profileData.data.profileData} isFollowing={isFollowing} onFollow={() => setIsFollowing(!isFollowing)} />}
                     </div>
 
                     {/* Tabs */}
-                    <Tabs defaultValue="projects" className="w-full">
+                    <Tabs defaultValue="posts" className="w-full">
                         <TabsList className="grid w-full grid-cols-2 mb-8">
                             <TabsTrigger value="posts">Posts</TabsTrigger>
                             <TabsTrigger value="projects">Projects</TabsTrigger>
                         </TabsList>
 
-                        {/* <TabsContent value="posts" className="space-y-6">
+                        <TabsContent value="posts" className="space-y-6">
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ duration: 0.3 }}
                                 className="grid gap-6"
                             >
-                                {posts && posts.length > 0 ? (
-                                    posts.map((post) => (
-                                        <PostCard key={post.id} {...post} liked={likedPosts.has(post.id)} onLike={() => togglePostLike(post.id)} />
+                                {postData?.data?.data?.posts && postData.data.data.posts.length > 0 ? (
+                                    postData.data.data.posts.map((post: PersonalPost) => (
+                                        <PostCard
+                                            key={post._id}
+                                            id={post._id}
+                                            author={{
+                                                name: userData.userName,
+                                                avatar: userData.profileImg,
+                                                followers: 0,
+                                            }}
+                                            timestamp={new Date(post.createdAt).toLocaleString()}
+                                            content={post.content}
+                                            mediaUrls={post.mediaUrls || []}
+                                            likes={post.likeCount}
+                                            comments={post.commentsCount}
+                                            liked={likedPosts.has(post._id)}
+                                            onLike={() => togglePostLike(post._id)}
+                                            context="profile"
+                                            onRemove={handleRemove}
+                                        />
                                     ))
                                 ) : (
-                                    <div className="text-center py-12 text-gray-500">No posts yet</div>
+                                    <div className="text-center py-12 text-gray-500">
+                                        No posts yet
+                                    </div>
                                 )}
                             </motion.div>
-                        </TabsContent> */}
+                        </TabsContent>
+
 
                         {/* <TabsContent value="projects" className="space-y-6">
                             <motion.div

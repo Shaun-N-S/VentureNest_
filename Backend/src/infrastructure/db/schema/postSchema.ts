@@ -1,5 +1,6 @@
 import { Schema, Types } from "mongoose";
 import { UserRole } from "@domain/enum/userRole";
+import { IPostModel } from "../models/postModel";
 
 const postSchema = new Schema(
   {
@@ -28,5 +29,12 @@ const postSchema = new Schema(
   },
   { timestamps: true }
 );
+
+postSchema.virtual("author", {
+  ref: (doc: IPostModel) => (doc.authorRole === UserRole.USER ? "User" : "Investor"),
+  localField: "authorId",
+  foreignField: "_id",
+  justOne: true,
+});
 
 export default postSchema;

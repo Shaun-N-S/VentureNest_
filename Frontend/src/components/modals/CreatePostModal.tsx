@@ -5,6 +5,8 @@ import { AxiosError } from "axios";
 import { type ChangeEvent, useRef, useState } from "react";
 import { useCreatePost } from "../../hooks/Post/PostHooks";
 import toast from "react-hot-toast";
+import { queryClient } from "../../main";
+import type { PersonalPost } from "../../pages/Investor/Profile/InvestorProfile/ProfilePage";
 
 interface MediaPreview {
     url: string;
@@ -15,7 +17,6 @@ interface MediaPreview {
 interface CreatePostModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (formData: FormData) => Promise<void>;
     authorId: string;
     authorRole: string;
 }
@@ -184,7 +185,25 @@ export default function CreatePostModal({
             createPost(
                 formData, {
                 onSuccess: (res) => {
-                    console.log(res);
+                    // console.log("res llllllll         ", res);
+                    // queryClient.setQueryData(
+                    //     ["personal-post", 1, 10],
+                    //     (oldData: { data: { posts: PersonalPost[]; totalPosts: number } } | undefined) => {
+                    //         if (!oldData) return oldData;
+
+                    //         // Clone old data safely
+                    //         const newData = structuredClone(oldData);
+
+                    //         // New post should be added at top (like Instagram)
+                    //         newData.data.posts = [res.data.post, ...oldData.data.posts];
+
+                    //         // Update total count
+                    //         newData.data.totalPosts += 1;
+
+                    //         return newData;
+                    //     }
+                    // );
+                    queryClient.invalidateQueries({ queryKey: ["personal-post", 1, 10] })
                     toast.success(res.message)
                     handleClose();
                 },

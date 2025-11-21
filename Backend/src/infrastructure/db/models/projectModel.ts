@@ -3,28 +3,29 @@ import projectSchema from "../schema/projectSchema";
 import { PreferredSector } from "@domain/enum/preferredSector";
 import { StartupStage } from "@domain/enum/startupStages";
 import { TeamSize } from "@domain/enum/teamSize";
+import { ProjectRole } from "@domain/enum/projectRole";
 
 export interface IProjectModel extends Document {
-  user_id: Types.ObjectId;
-  startup_name: string;
-  short_description: string;
-  pitch_deck_url?: string;
-  project_website?: string;
-  user_role: string;
-  team_size: TeamSize;
+  userId: Types.ObjectId;
+  startupName: string;
+  shortDescription: string;
+  pitchDeckUrl?: string;
+  projectWebsite?: string;
+  userRole: ProjectRole;
+  teamSize: TeamSize;
   category: PreferredSector;
   stage: StartupStage;
-  logo_url?: string;
-  cover_image_url?: string;
+  logoUrl?: string;
+  coverImageUrl?: string;
   location?: string;
   likes: Types.ObjectId[];
-  like_count: number;
-  is_active: boolean;
-  wallet_id?: Types.ObjectId;
-  donation_enabled: boolean;
-  donation_target: number;
-  donation_received: number;
-  project_register: boolean;
+  likeCount: number;
+  isActive: boolean;
+  walletId?: Types.ObjectId;
+  donationEnabled: boolean;
+  donationTarget: number;
+  donationReceived: number;
+  projectRegister: boolean;
 }
 
 export const projectModel = model<IProjectModel>("Project", projectSchema);

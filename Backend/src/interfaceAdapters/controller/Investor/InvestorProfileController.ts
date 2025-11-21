@@ -65,7 +65,6 @@ export class InvestorProfileController {
 
   async getProfileData(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      console.log("reached controller ");
       const { id } = req.params;
 
       if (!id) {
@@ -87,11 +86,9 @@ export class InvestorProfileController {
 
   async updateProfileData(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      console.log("data from the frontend reached the backend : : : ,", req.body);
       const investorId = req.body?.id;
       const formData = req.body?.formData ? JSON.parse(req.body.formData) : null;
       const files = req.files as MulterFiles<"profileImg">;
-      console.log("investor ID :", investorId, "formdata : : ", formData, "files : : : ", files);
 
       const data: InvestorProfileUpdateDTO = { id: investorId, formData };
 

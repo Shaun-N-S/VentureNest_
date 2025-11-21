@@ -1,4 +1,4 @@
-import { Model, Document, UpdateQuery } from "mongoose";
+import mongoose, { Model, Document, UpdateQuery } from "mongoose";
 
 export abstract class BaseRepository<TEntity, TModel extends Document> {
   constructor(
@@ -52,6 +52,16 @@ export abstract class BaseRepository<TEntity, TModel extends Document> {
     }
 
     return await this._model.countDocuments(query);
+  }
+
+  async findByIds(ids: string[]): Promise<TEntity[]> {
+    if (!ids.length) return [];
+
+    const docs = await this._model.find({
+      _id: { $in: ids.map((id) => new mongoose.Types.ObjectId(id)) },
+    });
+
+    return docs.map((doc) => this.mapper.fromMongooseDocument(doc as TModel));
   }
 
   async update(id: string, data: Partial<TEntity>): Promise<TEntity | null> {

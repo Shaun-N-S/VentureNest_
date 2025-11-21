@@ -1,95 +1,98 @@
 import { ProjectEntity } from "@domain/entities/project/projectEntity";
-import { ProjectResDTO, CreateProjectDTO } from "application/dto/project/projectDTO";
+import {
+  ProjectResDTO,
+  CreateProjectDTO,
+  CreateProjectEntityDTO,
+} from "application/dto/project/projectDTO";
 
 export class ProjectMapper {
-  // Entity → DTO (for responses)
+  // Entity → Response DTO
   static toDTO(entity: ProjectEntity): ProjectResDTO {
-    if (!entity._id) throw new Error("Project _id is required for DTO");
+    if (!entity._id) throw new Error("Project _id is required");
     if (!entity.createdAt || !entity.updatedAt) {
       throw new Error("Timestamps are required");
     }
 
     return {
-      _id: entity._id!,
-      user_id: entity.user_id,
-      startup_name: entity.startup_name,
-      short_description: entity.short_description,
-      pitch_deck_url: entity.pitch_deck_url,
-      project_website: entity.project_website,
-      user_role: entity.user_role,
-      team_size: entity.team_size,
+      _id: entity._id,
+      userId: entity.userId,
+      startupName: entity.startupName,
+      shortDescription: entity.shortDescription,
+      pitchDeckUrl: entity.pitchDeckUrl,
+      projectWebsite: entity.projectWebsite,
+      userRole: entity.userRole,
+      teamSize: entity.teamSize,
       category: entity.category,
       stage: entity.stage,
-      logo_url: entity.logo_url,
-      cover_image_url: entity.cover_image_url,
+      logoUrl: entity.logoUrl,
+      coverImageUrl: entity.coverImageUrl,
       location: entity.location,
       likes: entity.likes ?? [],
-      like_count: entity.like_count ?? 0,
-      is_active: entity.is_active ?? true,
-      donation_enabled: entity.donation_enabled ?? false,
-      donation_target: entity.donation_target ?? 0,
-      donation_received: entity.donation_received ?? 0,
-      project_register: entity.project_register ?? false,
+      likeCount: entity.likeCount ?? 0,
+      isActive: entity.isActive ?? true,
+      donationEnabled: entity.donationEnabled ?? false,
+      donationTarget: entity.donationTarget ?? 0,
+      donationReceived: entity.donationReceived ?? 0,
+      projectRegister: entity.projectRegister ?? false,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      // Conditionally include wallet_id only if defined (omits if undefined for exactOptionalPropertyTypes)
-      ...(entity.wallet_id !== undefined && { wallet_id: entity.wallet_id }),
+      ...(entity.walletId !== undefined && { walletId: entity.walletId }),
     };
   }
 
-  // DTO → Entity (for reading/updating)
+  // Response DTO → Entity
   static toEntity(dto: ProjectResDTO): ProjectEntity {
     return {
       _id: dto._id,
-      user_id: dto.user_id,
-      startup_name: dto.startup_name,
-      short_description: dto.short_description,
-      pitch_deck_url: dto.pitch_deck_url ?? "",
-      project_website: dto.project_website ?? "",
-      user_role: dto.user_role,
-      team_size: dto.team_size,
+      userId: dto.userId,
+      startupName: dto.startupName,
+      shortDescription: dto.shortDescription,
+      pitchDeckUrl: dto.pitchDeckUrl ?? "",
+      projectWebsite: dto.projectWebsite ?? "",
+      userRole: dto.userRole,
+      teamSize: dto.teamSize,
       category: dto.category,
       stage: dto.stage,
-      logo_url: dto.logo_url ?? "",
-      cover_image_url: dto.cover_image_url ?? "",
+      logoUrl: dto.logoUrl ?? "",
+      coverImageUrl: dto.coverImageUrl ?? "",
       location: dto.location ?? "",
       likes: dto.likes ?? [],
-      like_count: dto.like_count ?? 0,
-      is_active: dto.is_active ?? true,
-      donation_enabled: dto.donation_enabled ?? false,
-      donation_target: dto.donation_target ?? 0,
-      donation_received: dto.donation_received ?? 0,
-      project_register: dto.project_register ?? false,
+      likeCount: dto.likeCount ?? 0,
+      isActive: dto.isActive ?? true,
+      donationEnabled: dto.donationEnabled ?? false,
+      donationTarget: dto.donationTarget ?? 0,
+      donationReceived: dto.donationReceived ?? 0,
+      projectRegister: dto.projectRegister ?? false,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
-      // Conditionally include wallet_id only if defined (omits if undefined for exactOptionalPropertyTypes)
-      ...(dto.wallet_id !== undefined && { wallet_id: dto.wallet_id }),
+      ...(dto.walletId !== undefined && { walletId: dto.walletId }),
     };
   }
 
-  // Create DTO → Entity (for new records)
-  static createToEntity(dto: CreateProjectDTO): ProjectEntity {
+  // CreateProjectDTO → Entity for Create Use Case
+  static createToEntity(dto: CreateProjectEntityDTO): ProjectEntity {
     const now = new Date();
+
     return {
-      user_id: dto.user_id,
-      startup_name: dto.startup_name,
-      short_description: dto.short_description,
-      pitch_deck_url: dto.pitch_deck_url ?? "",
-      project_website: dto.project_website ?? "",
-      user_role: dto.user_role,
-      team_size: dto.team_size,
+      userId: dto.userId,
+      startupName: dto.startupName,
+      shortDescription: dto.shortDescription,
+      pitchDeckUrl: dto.pitchDeckUrl ?? "",
+      projectWebsite: dto.projectWebsite ?? "",
+      userRole: dto.userRole,
+      teamSize: dto.teamSize,
       category: dto.category,
       stage: dto.stage,
-      logo_url: dto.logo_url ?? "",
-      cover_image_url: dto.cover_image_url ?? "",
+      logoUrl: dto.logoUrl ?? "",
+      coverImageUrl: dto.coverImageUrl ?? "",
       location: dto.location ?? "",
       likes: [],
-      like_count: 0,
-      is_active: true,
-      donation_enabled: dto.donation_enabled ?? false,
-      donation_target: dto.donation_target ?? 0,
-      donation_received: 0,
-      project_register: dto.project_register ?? false,
+      likeCount: 0,
+      isActive: true,
+      donationEnabled: dto.donationEnabled ?? false,
+      donationTarget: dto.donationTarget ?? 0,
+      donationReceived: 0,
+      projectRegister: dto.projectRegister ?? false,
       createdAt: now,
       updatedAt: now,
     };

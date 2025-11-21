@@ -1,4 +1,9 @@
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { CONFIG } from "@config/config";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
@@ -46,5 +51,14 @@ export class StorageService implements IStorageService {
     });
 
     return signedUrl;
+  }
+
+  async delete(key: string): Promise<void> {
+    const command = new DeleteObjectCommand({
+      Bucket: CONFIG.S3_BUCKET_NAME,
+      Key: key,
+    });
+
+    await this._client.send(command);
   }
 }

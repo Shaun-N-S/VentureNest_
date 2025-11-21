@@ -1,29 +1,30 @@
 import { PreferredSector } from "@domain/enum/preferredSector";
+import { ProjectRole } from "@domain/enum/projectRole";
 import { StartupStage } from "@domain/enum/startupStages";
 import { TeamSize } from "@domain/enum/teamSize";
 
 export interface ProjectEntity {
   _id?: string;
-  user_id: string;
-  startup_name: string;
-  short_description: string;
-  pitch_deck_url: string;
-  project_website: string;
-  user_role: string;
-  team_size: TeamSize;
+  userId: string;
+  startupName: string;
+  shortDescription: string;
+  pitchDeckUrl: string;
+  projectWebsite: string;
+  userRole: ProjectRole;
+  teamSize: TeamSize;
   category: PreferredSector;
   stage: StartupStage;
-  logo_url: string;
-  cover_image_url: string;
+  logoUrl: string;
+  coverImageUrl: string;
   location: string;
   likes: string[];
-  like_count: number;
-  is_active: boolean;
-  wallet_id?: string;
-  donation_enabled: boolean;
-  donation_target: number;
-  donation_received: number;
-  project_register: boolean;
+  likeCount: number;
+  isActive: boolean;
+  walletId?: string;
+  donationEnabled: boolean;
+  donationTarget: number;
+  donationReceived: number;
+  projectRegister: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

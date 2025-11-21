@@ -55,6 +55,9 @@ export const API_ROUTES = {
   },
 
   POST: {
-    ADD: "/post/add",
+    ADD: "/posts/add",
+    FETCH_PERSONAL_POST: "/posts/personal",
+    FEED: "/posts/feed",
+    REMOVE: "/posts/remove/:id",
   },
 };

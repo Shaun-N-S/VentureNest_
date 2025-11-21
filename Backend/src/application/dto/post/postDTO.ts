@@ -15,6 +15,11 @@ export interface PostResDTO {
   updatedAt: Date;
 }
 
+export interface PostFeedResDTO extends PostResDTO {
+  authorName: string;
+  authorProfileImg?: string | undefined;
+}
+
 export interface CreatePostDTO {
   authorId: string;
   authorRole: UserRole;

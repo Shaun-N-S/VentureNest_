@@ -77,7 +77,6 @@ const InvestorsListing: React.FC = () => {
                     onSuccess: () => {
                         const newStatus: Investor["status"] = currentStatus === "ACTIVE" ? "BLOCKED" : "ACTIVE";
                         toast.success(`Investor ${newStatus} successfully`);
-                        // refetch();'
                         queryClient.setQueryData(
                             ["investors", page, limit, statusFilter, debouncedSearch],
                             (oldData: IGetAllInvestorsResponse) => {
