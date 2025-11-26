@@ -11,6 +11,8 @@ import { useFetchPersonalPost, useRemovePost } from "../../../hooks/Post/PostHoo
 import type { PersonalPost } from "../../Investor/Profile/InvestorProfile/ProfilePage"
 import toast from "react-hot-toast"
 import { queryClient } from "../../../main"
+import { useFetchPersonalProjects } from "../../../hooks/Project/projectHooks"
+import type { ProjectType } from "../../../types/projectType"
 
 export default function ProfilePage() {
     const [likedProjects, setLikedProjects] = useState<Set<string>>(new Set())
@@ -20,27 +22,10 @@ export default function ProfilePage() {
     const userId = userData.id;
     const { data: profileData, isLoading, error } = useFetchUserProfile(userId)
     const { data: postData, isLoading: postIsLoading } = useFetchPersonalPost(1, 10);
+    const { data: projectData, isLoading: projectIsLoading } = useFetchPersonalProjects(1, 10)
     const { mutate: removePost } = useRemovePost()
     console.log("Post data fetched    : ", postData, postIsLoading)
-
-    const projects = [
-        {
-            id: "1",
-            title: "GreenCart",
-            description: "A hyperlocal grocery delivery app focused on sustainable packaging and farm-to-home delivery.",
-            stage: "Idea",
-            logo: "/greencart-logo.jpg",
-            likes: 234,
-        },
-        {
-            id: "2",
-            title: "TechFlow",
-            description: "AI-powered workflow automation platform for enterprises.",
-            stage: "Seed",
-            logo: "/techflow-logo.jpg",
-            likes: 567,
-        },
-    ]
+    console.log("Project data fetched    : ", projectData, projectIsLoading)
 
     const toggleProjectLike = (projectId: string) => {
         setLikedProjects((prev) => {
@@ -136,23 +121,36 @@ export default function ProfilePage() {
                         </TabsContent>
 
 
-                        {/* <TabsContent value="projects" className="space-y-6">
+                        <TabsContent value="projects" className="space-y-6">
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ duration: 0.3 }}
                                 className="grid gap-4"
                             >
-                                {projects.map((project) => (
-                                    <ProjectCard
-                                        key={project.id}
-                                        {...project}
-                                        liked={likedProjects.has(project.id)}
-                                        onLike={() => toggleProjectLike(project.id)}
-                                    />
-                                ))}
+                                {projectData?.data?.data?.projects &&
+                                    projectData.data.data.projects.length > 0 ? (
+                                    projectData.data.data.projects.map((project: any) => (
+                                        <ProjectCard
+                                            key={project._id}
+                                            id={project._id}
+                                            title={project.startupName}
+                                            description={project.shortDescription}
+                                            stage={project.stage}
+                                            logo={project.logoUrl}
+                                            likes={project.likeCount}
+                                            liked={likedProjects.has(project._id)}
+                                            onLike={() => toggleProjectLike(project._id)}
+                                        />
+                                    ))
+                                ) : (
+                                    <div className="text-center py-12 text-gray-500">
+                                        No projects yet
+                                    </div>
+                                )}
                             </motion.div>
-                        </TabsContent> */}
+                        </TabsContent>
+
                     </Tabs>
                 </div>
             </div>

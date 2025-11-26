@@ -64,4 +64,26 @@ export class RelationshipRepository
 
     return docs.map((doc) => RelationshipMapper.fromMongooseDocument(doc));
   }
+
+  async findPendingRequests(userId: string): Promise<RelationshipEntity[]> {
+    const docs = await this._model.find({
+      toUserId: userId,
+      status: ConnectionStatus.PENDING,
+      type: RelationshipType.CONNECTION,
+    });
+
+    return docs.map((doc) => RelationshipMapper.fromMongooseDocument(doc));
+  }
+
+  async updateConnectionStatus(
+    fromUserId: string,
+    toUserId: string,
+    status: ConnectionStatus
+  ): Promise<boolean | null> {
+    const updated = await this._model.updateOne(
+      { fromUserId, toUserId, type: RelationshipType.CONNECTION },
+      { $set: { status, updatedAt: new Date() } }
+    );
+    return updated.modifiedCount > 0;
+  }
 }

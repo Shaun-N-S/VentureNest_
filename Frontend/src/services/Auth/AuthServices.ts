@@ -1,7 +1,6 @@
 import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
 import type { LoginPayload, SignupPayload } from "../../types/AuthPayloads";
-import type { SECTOR } from "../../types/PreferredSector";
 
 // Users
 export const signupUser = async (data: SignupPayload) => {

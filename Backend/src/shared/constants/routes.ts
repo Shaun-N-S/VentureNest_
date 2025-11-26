@@ -70,9 +70,35 @@ export const ROUTES = {
     PERSONAL_POST: "/personal",
     FEED: "/feed",
     REMOVE: "/remove/:id",
+    LIKE: "/likes/:postId",
   },
 
   PROJECT: {
-    CREATE: "/create",
+    CREATE: "/",
+    FETCH_PROJECTS: "/",
+    PERSONAL_PROJECTS: "/personal",
+    REMOVE: "/remove/:projectId",
+    SINGLE_PROJECT: "/:projectId",
+  },
+
+  RELATIONSHIP: {
+    GET_USERS: "/relationship",
+    CONNECTION_REQ: "/connection-req/:toUserId",
+    GET_PERSONAL_CONNECTION_REQ: "/personal/connection-req",
+    UPDATE_CONNECTION_REQ: "/update/connection-req/:fromUserId/:status",
+  },
+
+  COMMENT: {
+    ADD_COMMENT: "/add/:postId",
+    FETCH_COMMENTS: "/fetch/:postId",
+    REMOVE_COMMENT: "/remove",
+    LIKE_COMMENT: "/likes/:commentId",
+  },
+
+  REPLIES: {
+    ADD_REPLIES: "/:commentId",
+    FETCH_REPLIES: "/:commentId",
+    REMOVE_REPLIES: "/remove",
+    LIKE_REPLIES: "/like",
   },
 };

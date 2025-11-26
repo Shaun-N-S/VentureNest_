@@ -18,6 +18,7 @@ export interface PostResDTO {
 export interface PostFeedResDTO extends PostResDTO {
   authorName: string;
   authorProfileImg?: string | undefined;
+  liked: boolean;
 }
 
 export interface CreatePostDTO {

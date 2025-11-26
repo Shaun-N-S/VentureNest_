@@ -8,6 +8,7 @@ import { StorageService } from "@infrastructure/services/storageService";
 import { CreatePostUseCase } from "application/useCases/Post/createPostUseCase";
 import { FetchAllPostsUseCase } from "application/useCases/Post/fetchAllPostsUseCase";
 import { FetchPersonalPostUseCase } from "application/useCases/Post/fetchPersonalPostUseCase";
+import { LikePostUseCase } from "application/useCases/Post/likePostUseCase";
 import { RemovePostUseCase } from "application/useCases/Post/removePostUseCase";
 import { PostController } from "interfaceAdapters/controller/Post/postController";
 
@@ -25,10 +26,12 @@ const fetchAllPostsUseCase = new FetchAllPostsUseCase(
   storageService
 );
 const removePostUseCase = new RemovePostUseCase(postRespository, storageService);
+const likePostUseCase = new LikePostUseCase(postRespository);
 
 export const postController = new PostController(
   createPostUseCase,
   fetchPersonalPostUseCase,
   fetchAllPostsUseCase,
-  removePostUseCase
+  removePostUseCase,
+  likePostUseCase
 );

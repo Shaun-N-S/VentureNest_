@@ -8,6 +8,12 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { Provider } from 'react-redux'
 import { persistor, store } from './store/store.ts'
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { pdfjs } from 'react-pdf';
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
 
 export const queryClient = new QueryClient()
 
@@ -18,7 +24,7 @@ createRoot(document.getElementById('root')!).render(
         <PersistGate loading={null} persistor={persistor}>
           <QueryClientProvider client={queryClient}>
             < App />
-            <ReactQueryDevtools/>
+            <ReactQueryDevtools />
           </QueryClientProvider>
         </PersistGate>
       </Provider>

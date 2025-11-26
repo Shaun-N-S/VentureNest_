@@ -29,7 +29,7 @@ const menuItems: Record<UserRole, { name: string; path: string }[]> = {
   ],
   USER: [
     { name: "Home", path: "/home" },
-    { name: "My Network", path: "/network" },
+    { name: "My Network", path: "/mynetwork" },
     { name: "Projects", path: "/projects" },
     { name: "Wallet", path: "/wallet" },
     { name: "Book a Session", path: "/book-session" },
@@ -38,7 +38,7 @@ const menuItems: Record<UserRole, { name: string; path: string }[]> = {
   ],
   INVESTOR: [
     { name: "Home", path: "/investor/home" },
-    { name: "My Network", path: "/investor/network" },
+    { name: "My Network", path: "/investor/mynetwork" },
     { name: "Projects", path: "/investor/projects" },
     { name: "Wallet", path: "/investor/wallet" },
     { name: "Schedule session", path: "/investor/schedule" },
@@ -115,6 +115,17 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
     }
   }
 
+  const handleNotificationBell = () => {
+    const currentRole = userData.role;
+    if (currentRole === "INVESTOR") {
+      navigate("/investor/notifications");
+    } else if (currentRole === "USER") {
+      navigate("/notifications");
+    } else {
+      navigate("/home");
+    }
+  }
+
   return (
     <nav className="fixed top-0 left-0 w-full bg-white shadow-sm border-b z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-10 h-14">
@@ -148,7 +159,7 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
             {role !== "ADMIN" && (
               <MessageCircle className="w-6 h-6 text-gray-700 hover:text-black cursor-pointer" />
             )}
-            <Bell className="w-6 h-6 text-gray-700 hover:text-black cursor-pointer" />
+            <Bell className="w-6 h-6 text-gray-700 hover:text-black cursor-pointer" onClick={handleNotificationBell} />
 
             {/* Avatar with menu */}
             <div className="relative">

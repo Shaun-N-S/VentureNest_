@@ -21,6 +21,8 @@ import CreatePostModal from "../modals/CreatePostModal"
 import { useCreatePost } from "../../hooks/Post/PostHooks"
 import toast from "react-hot-toast"
 import { queryClient } from "../../main"
+import ProjectFormModal from "../modals/AddProjectModal"
+import { useCreateProject } from "../../hooks/Project/projectHooks"
 
 
 
@@ -28,6 +30,7 @@ export function ProfileCard(props: ProfileCardProps) {
     console.log(props);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isAddProject, setIsAddProject] = useState(false);
     const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
     const [isCreatePostModal, setIsCreatePostModal] = useState(false);
     const role = useSelector((state: Rootstate) => state.authData.role)
@@ -37,10 +40,30 @@ export function ProfileCard(props: ProfileCardProps) {
 
     const handleEditProfile = () => setIsEditModalOpen(true);
     const handleKYCVerification = () => setIsKYCModalOpen(true);
+    const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
+    const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
+    const [editingProject, setEditingProject] = useState(null);
+    const { mutate: addProject } = useCreateProject()
+
+    const handleAddProject = () => setIsAddProjectOpen(true);
     const handleCreatePost = () => {
         setIsCreatePostModal(true);
         setIsDropdownOpen(false);
     }
+
+    const handleSubmitProject = async (formData: FormData) => {
+        console.log("add project  : ", formData)
+        addProject(formData, {
+            onSuccess: (res) => {
+                console.log("Project created successfully   :", res);
+                toast.success("Project created successfully")
+            },
+            onError: (err) => {
+                console.log("error while adding project  :", err);
+                toast.error("Creating projecting failed");
+            }
+        })
+    };
 
     return (
         <motion.div
@@ -155,12 +178,14 @@ export function ProfileCard(props: ProfileCardProps) {
                                     >
                                         Edit Profile
                                     </button>
-                                    <button
-                                        // onClick={() => handleMenuClick("Add Project")}
-                                        className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors mb-2"
-                                    >
-                                        Add Project
-                                    </button>
+                                    {role === "USER" && (
+                                        <button
+                                            onClick={handleAddProject}
+                                            className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors mb-2"
+                                        >
+                                            Add Project
+                                        </button>
+                                    )}
                                     <button
                                         onClick={handleCreatePost}
                                         className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors"
@@ -173,6 +198,7 @@ export function ProfileCard(props: ProfileCardProps) {
                     </AnimatePresence>
 
                 </div>
+
             </div>
 
             {/* Action buttons */}
@@ -210,6 +236,13 @@ export function ProfileCard(props: ProfileCardProps) {
                 onClose={() => setIsCreatePostModal(false)}
                 authorId={userId}
                 authorRole={role || "USER"}
+            />
+
+            <ProjectFormModal
+                open={isAddProjectOpen}
+                onOpenChange={setIsAddProjectOpen}
+                onSubmit={handleSubmitProject}
+                isEditing={false}
             />
 
         </motion.div >

@@ -4,6 +4,7 @@ import { IPostModel } from "@infrastructure/db/models/postModel";
 import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository";
 import { Model } from "mongoose";
 import { PostMapper } from "application/mappers/postMapper";
+import { UserRole } from "@domain/enum/userRole";
 
 export class PostRepository
   extends BaseRepository<PostEntity, IPostModel>
@@ -41,5 +42,25 @@ export class PostRepository
     const hasNextPage = skip + docs.length < total;
 
     return { posts, total, hasNextPage };
+  }
+
+  async addLike(postId: string, likerId: string, likerRole: UserRole): Promise<void> {
+    await this._model.updateOne(
+      { _id: postId },
+      {
+        $push: { likes: { likerId, likerRole } },
+        $inc: { likeCount: 1 },
+      }
+    );
+  }
+
+  async removeLike(postId: string, likerId: string): Promise<void> {
+    await this._model.updateOne(
+      { _id: postId },
+      {
+        $pull: { likes: { likerId } },
+        $inc: { likeCount: -1 },
+      }
+    );
   }
 }

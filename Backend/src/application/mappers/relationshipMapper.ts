@@ -1,7 +1,9 @@
 import { RelationshipEntity } from "@domain/entities/follows/RelationshipEntity";
+import { UserEntity } from "@domain/entities/user/userEntity";
 import { ConnectionStatus, RelationshipType } from "@domain/enum/connectionStatus";
+import { UserRole } from "@domain/enum/userRole";
 import { IRelationshipModel } from "@infrastructure/db/models/relationshipModel";
-import { RelationshipResDTO } from "application/dto/relationship/relationshipDTO";
+import { NetworkUsersDTO, RelationshipResDTO } from "application/dto/relationship/relationshipDTO";
 import mongoose from "mongoose";
 
 export class RelationshipMapper {
@@ -59,6 +61,23 @@ export class RelationshipMapper {
         dto.type === RelationshipType.FOLLOW ? ConnectionStatus.NONE : ConnectionStatus.PENDING,
       createdAt: now,
       updatedAt: now,
+    };
+  }
+
+  static NetworkUsers(
+    user: UserEntity,
+    type: UserRole,
+    connectionStatus: ConnectionStatus
+  ): NetworkUsersDTO {
+    return {
+      id: user._id!,
+      userName: user.userName,
+      role: user.role,
+      bio: user.bio || "",
+      profileImg: user.profileImg || "",
+      createdAt: user.createdAt || new Date(),
+      type,
+      connectionStatus,
     };
   }
 }

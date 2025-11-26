@@ -20,4 +20,4 @@ export const SECTOR = [
   "Services",
 ] as const;
 
-export type SECTOR = (typeof SECTOR)[number];
+export type SectorType = (typeof SECTOR)[number];

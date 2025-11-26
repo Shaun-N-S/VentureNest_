@@ -55,9 +55,30 @@ export const MESSAGES = {
     POST_ADD_SUCCESSFULLY: "Post added successfully",
     POST_FETCHED_SUCCESSFULLY: "Post fetched successfully",
     POST_REMOVED_SUCCESSFULLY: "Post removed successfully",
+    POST_LIKED_SUCCESSFULY: "Post liked successfully",
+  },
+
+  PROJECT: {
+    PROJECT_CREATED_SUCCESSFULLY: "Project created successfully",
+    PROJECT_FETCH_SUCCESS: "Project fetched successfully",
+    PROJECT_REMOVED_SUCCESSFULLY: "Project removed successfully",
   },
 
   RELATIONSHIP: {
+    FETCHED_USERS_SUCCESSFULLY: "Fetched users successfully",
+    FETCHED_PERSONAL_REQ_SUCCESSFULLY: "Fetched personal requests successfull",
     CONNECTION_SEND_SUCCESSFULLY: "Connection request send successfully",
+    STATUS_UPDATTED_SUCCESSFULLY: "Status updated successfully",
+  },
+
+  COMMENT: {
+    COMMENT_ADD_SUCCESSFULLY: "Comment added successfully",
+    COMMENT_FETCHED_SUCCESSFULLY: "Comment fetched successfully",
+    COMMENT_LIKED_SUCCESSFULLY: "Comment liked successfully",
+  },
+
+  REPLY: {
+    REPLY_ADDED_SUCCESSFULLY: "Reply added successfully",
+    REPLY_FETCHED_SUCCESSFULLY: "Replies fetched successfully",
   },
 };

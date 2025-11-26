@@ -8,6 +8,7 @@ export interface CommentEntity {
   userRole: UserRole;
 
   commentText: string;
+  repliesCount: number;
 
   likes: { likerId: string; likerRole: UserRole }[];
   likeCount: number;

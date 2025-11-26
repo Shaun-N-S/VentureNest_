@@ -9,6 +9,8 @@ import InvestorLoginPage from "../pages/Investor/Auth/InvestorLoginPage";
 import ForgotPasswordPage from "../pages/Investor/Auth/InvestorFogetPassword";
 import ProfilePage from "../pages/Investor/Profile/InvestorProfile/ProfilePage";
 import InvestorLayout from "../layouts/InvestorLayout";
+import MyNetworkPage from "../pages/Common/MyNetworkPage";
+import NotificationPage from "../pages/Common/NotificationPage";
 
 const InvestorRoutes = () => {
     return (
@@ -35,6 +37,8 @@ const InvestorRoutes = () => {
                     <Route path={FRONTEND_ROUTES.INVESTOR.HOME} element={<Home />} />
                     <Route path={FRONTEND_ROUTES.INVESTOR.PROFILE} element={<ProfilePage />} />
                     <Route path={FRONTEND_ROUTES.INVESTOR.PROFILE_COMPLETION} element={<InvestorProfileCompletion />} />
+                    <Route path={FRONTEND_ROUTES.INVESTOR.MYNETWORK} element={<MyNetworkPage />} />
+                    <Route path={FRONTEND_ROUTES.INVESTOR.NOTIFICATIONS} element={<NotificationPage />} />
                 </Route>
 
             </Route>

@@ -1,6 +1,7 @@
 import { ICreatePostUseCase } from "@domain/interfaces/useCases/post/ICreatePostUseCase";
 import { IFetchAllPostsUseCase } from "@domain/interfaces/useCases/post/IFetchAllPosts";
 import { IFetchPersonalPostUseCase } from "@domain/interfaces/useCases/post/IFetchPersonalPostUseCase";
+import { ILikePostUseCase } from "@domain/interfaces/useCases/post/ILikePostUseCase";
 import { IRemovePostUseCase } from "@domain/interfaces/useCases/post/IRemovePostUseCase";
 import { MulterFiles } from "@domain/types/multerFilesType";
 import { Errors } from "@shared/constants/error";
@@ -18,7 +19,8 @@ export class PostController {
     private _createPostUseCase: ICreatePostUseCase,
     private _fetchPersonalPost: IFetchPersonalPostUseCase,
     private _fetchAllPosts: IFetchAllPostsUseCase,
-    private _removePosts: IRemovePostUseCase
+    private _removePosts: IRemovePostUseCase,
+    private _likePost: ILikePostUseCase
   ) {}
 
   async addPost(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -69,10 +71,11 @@ export class PostController {
 
   async fetchAllPosts(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const currentUserId = res.locals?.user?.userId;
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
 
-      const data = await this._fetchAllPosts.fetchAllPosts(page, limit);
+      const data = await this._fetchAllPosts.fetchAllPosts(currentUserId, page, limit);
       console.log(data);
 
       ResponseHelper.success(res, MESSAGES.POST.POST_FETCHED_SUCCESSFULLY, { data }, HTTPSTATUS.OK);
@@ -89,6 +92,22 @@ export class PostController {
       await this._removePosts.removePost(postId, authorId);
 
       ResponseHelper.success(res, MESSAGES.POST.POST_REMOVED_SUCCESSFULLY, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async likePost(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { postId } = req.params;
+      const likerId = res.locals?.user?.userId;
+      const likerRole = res.locals?.user?.role;
+
+      if (!postId) throw new InvalidDataException(Errors.INVALID_DATA);
+
+      const result = await this._likePost.execute(postId, likerId, likerRole);
+
+      ResponseHelper.success(res, MESSAGES.POST.POST_LIKED_SUCCESSFULY, result, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

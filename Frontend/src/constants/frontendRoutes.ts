@@ -6,7 +6,10 @@ export const FRONTEND_ROUTES = {
     LOGIN: "/login",
     FORGOT_PASSWORD: "/forgot-password",
     HOME: "/home",
-    PROFILE: "/profile"
+    MYNETWORK: "/mynetwork",
+    PROFILE: "/profile",
+    NOTIFICATIONS: "/notifications",
+    PROJECT: "/projects",
   },
 
   INVESTOR: {
@@ -16,7 +19,10 @@ export const FRONTEND_ROUTES = {
     PROFILE_COMPLETION: "/profile-completion",
     INTERESTED_TOPICS: "/interested-topics",
     HOME: "/home",
-    PROFILE:"/profile"
+    MYNETWORK: "/mynetwork",
+    PROFILE: "/profile",
+    NOTIFICATIONS: "/notifications",
+    PROJECT: "/projects",
   },
 
   ADMIN: {
@@ -24,6 +30,6 @@ export const FRONTEND_ROUTES = {
     DASHBOARD: "/dashboard",
     USERS: "/users",
     INVESTORS: "/investors",
-    VERIFICATIONS: "/verifications"
+    VERIFICATIONS: "/verifications",
   },
 };

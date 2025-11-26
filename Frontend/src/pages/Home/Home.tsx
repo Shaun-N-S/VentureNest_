@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import TopicSelectionModal from '../../components/modals/InterestedTopics';
 import { useEffect, useState } from 'react';
 import { updateUserData } from '../../store/Slice/authDataSlice';
-import { useFetchAllPosts } from '../../hooks/Post/PostHooks';
+import { useFetchAllPosts, useLikePost } from '../../hooks/Post/PostHooks';
 import { PostCard } from '../../components/card/PostCard';
 import { Loader2, Smile } from 'lucide-react';
 
@@ -29,6 +29,7 @@ const Home = () => {
   const [topics, setTopics] = useState<string[]>([]);
   const { mutate: setInterestedTopics } = useIntrestedTopics();
   const { data: postData, isLoading, refetch } = useFetchAllPosts(1, 10);
+  const { mutate: likePost } = useLikePost()
   const dispatch = useDispatch();
   console.log("data : : ", postData?.data)
 
@@ -58,16 +59,18 @@ const Home = () => {
     console.log("post id for reporting ", postId)
   }
 
-  // Optional: handle likes
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
-  const togglePostLike = (postId: string) => {
-    setLikedPosts(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) newSet.delete(postId);
-      else newSet.add(postId);
-      return newSet;
+  const handleLike = (postId: string, updateUI: (liked: boolean, count: number) => void) => {
+    likePost(postId, {
+      onSuccess: (res) => {
+        updateUI(res.data.liked, res.data.likeCount);
+      },
+      onError: () => {
+        toast.error("Failed to like post");
+      }
     });
   };
+
+
 
   return (
     <div className="w-full min-h-screen bg-gray-50 px-4 sm:px-6 md:px-12 lg:px-32 xl:px-56 py-6">
@@ -89,7 +92,6 @@ const Home = () => {
 
       ) : (postData?.data?.posts ?? []).length > 0 ? (
 
-        /* Center content area like Instagram / LinkedIn */
         <div className="max-w-2xl mx-auto space-y-6">
           {postData.data.posts.map((post: AllPost) => (
             <PostCard
@@ -105,11 +107,12 @@ const Home = () => {
               mediaUrls={post.mediaUrls || []}
               likes={post.likeCount}
               comments={post.commentsCount}
-              liked={likedPosts.has(post._id)}
-              onLike={() => togglePostLike(post._id)}
+              liked={post.liked}
+              onLike={(updateUI) => handleLike(post._id, updateUI)}
               onReport={handleReport}
               context='home'
             />
+
           ))}
         </div>
 
