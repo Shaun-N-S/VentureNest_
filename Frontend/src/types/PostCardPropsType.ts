@@ -19,7 +19,7 @@ export interface PostCardProps {
   comments?: number;
   commentList?: Comment[]; // actual comments array
   liked?: boolean;
-  onLike?: () => void;
+  onLike?: (updateUI: (liked: boolean, count: number) => void) => void;
   onRemove?: (id: string) => void;
   onReport?: (id: string) => void;
   context?: "home" | "profile";

@@ -45,6 +45,14 @@ export class Post_Router {
         postController.removePost(req, res, next);
       }
     );
+
+    this._route.post(
+      ROUTES.POST.LIKE,
+      authMiddleware.verify,
+      (req: Request, res: Response, next: NextFunction) => {
+        postController.likePost(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

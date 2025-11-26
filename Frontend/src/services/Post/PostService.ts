@@ -30,9 +30,16 @@ export const fetchAllPosts = async (page: number, limit: number) => {
 };
 
 export const removePost = async (postId: string) => {
-  console.log("in service : : :  ",postId);
+  console.log("in service : : :  ", postId);
   const response = await AxiosInstance.patch(
     API_ROUTES.POST.REMOVE.replace(":id", postId)
+  );
+  return response.data;
+};
+
+export const likePost = async (postId: string) => {
+  const response = await AxiosInstance.post(
+    API_ROUTES.POST.LIKES.replace(":postId", postId)
   );
   return response.data;
 };

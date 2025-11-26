@@ -1,10 +1,10 @@
-import { z } from "zod";
+import { object, z } from "zod";
 import { ProjectRole } from "@domain/enum/projectRole";
 import { TeamSize } from "@domain/enum/teamSize";
 import { PreferredSector } from "@domain/enum/preferredSector";
 import { StartupStage } from "@domain/enum/startupStages";
 
-export const createProjectSchema = z.object({
+export const CreateProjectReqSchema = z.object({
   userId: z.string().min(1, "User ID is required"),
 
   startupName: z.string().min(1, "Startup name is required"),
@@ -16,13 +16,13 @@ export const createProjectSchema = z.object({
 
   projectWebsite: z.string().url("Enter a valid website URL").optional(),
 
-  userRole: z.nativeEnum(ProjectRole),
+  userRole: z.enum(Object.values(ProjectRole)),
 
-  teamSize: z.nativeEnum(TeamSize),
+  teamSize: z.enum(Object.values(TeamSize)),
 
-  category: z.nativeEnum(PreferredSector),
+  category: z.enum(Object.values(PreferredSector)),
 
-  stage: z.nativeEnum(StartupStage),
+  stage: z.enum(Object.values(StartupStage)),
 
   location: z.string().min(1, "Location is required"),
 
@@ -37,14 +37,8 @@ export const createProjectSchema = z.object({
 
   projectRegister: z.boolean().optional(),
 
-  // Files — z.any() is safest for Multer
+  // Files
   pitchDeckUrl: z.any().optional(),
   logoUrl: z.any().optional(),
   coverImageUrl: z.any().optional(),
 });
-
-export const CreateProjectReqSchema = z.object({
-  formData: createProjectSchema,
-});
-
-export type CreateProjectReqType = z.infer<typeof CreateProjectReqSchema>;

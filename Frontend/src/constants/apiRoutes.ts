@@ -59,5 +59,32 @@ export const API_ROUTES = {
     FETCH_PERSONAL_POST: "/posts/personal",
     FEED: "/posts/feed",
     REMOVE: "/posts/remove/:id",
+    LIKES: "/posts/likes/:postId",
+  },
+
+  PROJECT: {
+    ADD: "/projects",
+    FETCH_ALL_PROJECTS: "/projects",
+    FETCH_PERSONAL_PROJECT: "/projects/personal",
+    REMOVE_PROJECT: "/projects/remove/:projectId",
+    FETCH_SINGLE_PROJECT: "/projects/:projectId",
+  },
+
+  RELATIONSHIP: {
+    GET_NETWORK_USERS: "/relations/relationship",
+    CONNECTION_REQ: "/relations/connection-req/:toUserId",
+    GET_PERSONAL_CONNECTION_REQ: "/relations/personal/connection-req",
+    CONNECTION_STATUS_UPDATE: "/relations/update/connection-req",
+  },
+
+  COMMENT: {
+    ADD_COMMENT: "/comment/add",
+    FETCH_COMMENT: "/comment/fetch/:postId",
+    LIKE_COMMENT: "/comment/likes/:commentId",
+  },
+
+  REPLY: {
+    ADD_REPLY: "/replies",
+    FETCH_REPLY: "/replies/:commentId",
   },
 };

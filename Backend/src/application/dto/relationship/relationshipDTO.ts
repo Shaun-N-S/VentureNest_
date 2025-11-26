@@ -1,4 +1,5 @@
 import { ConnectionStatus, RelationshipType } from "@domain/enum/connectionStatus";
+import { UserRole } from "@domain/enum/userRole";
 
 export interface RelationshipResDTO {
   _id: string;
@@ -19,4 +20,15 @@ export interface CreateRelationshipDTO {
 export interface UpdateRelationshipStatusDTO {
   relationshipId: string;
   status: ConnectionStatus;
+}
+
+export interface NetworkUsersDTO {
+  id: string;
+  userName: string;
+  role: UserRole;
+  bio?: string;
+  profileImg?: string;
+  createdAt?: Date;
+  type: UserRole;
+  connectionStatus: ConnectionStatus;
 }

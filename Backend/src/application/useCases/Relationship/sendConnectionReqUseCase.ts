@@ -13,6 +13,7 @@ export class SendConnectionReqUseCase implements ISendConnectionReqUseCase {
       toUserId,
       RelationshipType.CONNECTION
     );
+    console.log("existing     : ", existing);
 
     if (existing) return RelationshipMapper.toDTO(existing);
 
@@ -21,8 +22,10 @@ export class SendConnectionReqUseCase implements ISendConnectionReqUseCase {
       toUserId,
       type: RelationshipType.CONNECTION,
     });
+    console.log("entity : : :   ", entity);
 
     const saved = await this._relationshipRepo.save(entity);
+    console.log("saved    :  ", saved);
     return RelationshipMapper.toDTO(saved);
   }
 }

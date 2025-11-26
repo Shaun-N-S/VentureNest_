@@ -36,6 +36,7 @@ export const Errors = {
   CONVERSTION_ERROR: "Error while converting file",
   NO_KYC_FOUND: "No kyc application found",
   NOT_AUTHORIZED: "Your are not authorized !",
+  NO_STATUS_FOUND: "No status found",
 };
 
 export const USER_ERRORS = {
@@ -59,4 +60,21 @@ export const INVESTOR_ERRORS = {
 
 export const POST_ERRORS = {
   NO_POST_FOUND: "No posts found",
+};
+
+export const RELATIONSHIP_ERRORS = {
+  NO_RELATIONSHIP_EXIST: "No relationship existing !",
+};
+
+export const COMMENT_ERRORS = {
+  NO_COMMENT_FOUND: "No Comment Found !",
+};
+
+export const REPLY_ERRORS = {
+  INVALID_REPLY_DATA: "Invalid reply data !",
+  NO_REPLY_FOUND: "No Replies found !",
+};
+
+export const PROJECT_ERRORS = {
+  NO_PROJECTS_FOUND: "No projects found!",
 };

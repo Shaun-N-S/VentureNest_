@@ -9,6 +9,10 @@ import ProtectedLogin from "../components/protectedComponents/ProtectedLogin";
 import ForgotPasswordPage from "../pages/User/Auth/UserForgetPassword";
 import UserLayout from "../layouts/UserLayout";
 import ProfilePage from "../pages/User/Profile/UserProfile";
+import MyNetworkPage from "../pages/Common/MyNetworkPage";
+import NotificationPage from "../pages/Common/NotificationPage";
+import ProjectPage from "../pages/Common/ProjectPage";
+import ProjectDetailedPage from "../pages/Common/ProjectDetailedPage";
 
 const UserRoutes = () => {
     return (
@@ -35,12 +39,12 @@ const UserRoutes = () => {
             {/*Protected routes (visible only when logged in) */}
             <Route element={<ProtectedRoute />}>
                 <Route element={<UserLayout />}>
-                    <Route
-                        path={FRONTEND_ROUTES.USER.HOME}
-                        element={<Home />}
-                    />
+                    <Route path={FRONTEND_ROUTES.USER.HOME} element={<Home />} />
                     <Route path={FRONTEND_ROUTES.USER.PROFILE} element={<ProfilePage />} />
-
+                    <Route path={FRONTEND_ROUTES.USER.MYNETWORK} element={<MyNetworkPage />} />
+                    <Route path={FRONTEND_ROUTES.USER.NOTIFICATIONS} element={<NotificationPage />} />
+                    <Route path={FRONTEND_ROUTES.USER.PROJECT} element={<ProjectPage />} />
+                    <Route path={`${FRONTEND_ROUTES.USER.PROJECT}/:id`} element={<ProjectDetailedPage />} />
                 </Route>
             </Route>
         </Routes>

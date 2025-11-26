@@ -6,6 +6,10 @@ import type { PostCardProps } from "../../types/PostCardPropsType"
 import { MediaCarousel } from "../Carousel/MediaCarousel"
 import { useEffect, useRef, useState } from "react"
 import { CommentSection, type Comment } from "../Comments/CommentSection"
+import { useAddComment, useGetAllComments, useLikeComment } from "../../hooks/Comment/commentHooks"
+import type { CommentApiResponse } from "../../types/commentApiResponse"
+import { useAddReply } from "../../hooks/Reply/replyHooks"
+import { queryClient } from "../../main"
 
 export function PostCard({
     id,
@@ -29,81 +33,132 @@ export function PostCard({
     const [isLiked, setIsLiked] = useState(liked);
     const [likeCount, setLikeCount] = useState(likes);
     const [commentsCount, setCommentsCount] = useState(initialCommentsCount);
+    const { mutate: addComment } = useAddComment()
+    const { mutate: addReply } = useAddReply()
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [showComments, setShowComments] = useState(false);
+    const [page, setPage] = useState(1);
+    const limit = 10;
 
-    // Mock comments with replies
-    const [comments, setComments] = useState<Comment[]>([
-        {
-            id: 'c1',
-            user: { name: 'Alice', avatar: '/avatar-alice.jpg' },
-            text: 'This is amazing! Keep it up!',
-            liked: true,
-            likes: 8,
-            replies: [
-                {
-                    id: 'r1',
-                    user: { name: 'Bob', avatar: '/avatar-bob.jpg' },
-                    text: 'Totally agree!',
-                    liked: false,
-                    likes: 3,
-                }
-            ]
-        },
-        {
-            id: 'c2',
-            user: { name: 'Sarah', avatar: '/avatar-sarah.jpg' },
-            text: 'When is the launch?',
-            liked: false,
-            likes: 5,
-        },
-    ]);
+    const { data: commentData, isLoading, refetch } = useGetAllComments(id, page, limit, {
+        enabled: false
+    });
+
+    const { mutate: likeCommentMutation } = useLikeComment();
 
     useEffect(() => {
-        const handleClick = (e: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                setOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClick);
-        return () => document.removeEventListener("mousedown", handleClick);
-    }, []);
+        if (showComments && commentData?.data?.data?.comments) {
+            const formatted = commentData.data.data.comments.map((item: CommentApiResponse) => ({
+                id: item._id,
+                user: { name: item.userName, avatar: item.userProfileImg },
+                text: item.commentText,
+                liked: false,
+                likes: item.likes,
+                repliesCount: item.repliesCount || 0,
+                replies: [],
+            }));
+
+            setComments(formatted);
+            setCommentsCount(commentData.data.data.total || commentData.total);
+        }
+    }, [showComments, commentData]);
 
     const handleLike = () => {
-        if (isLiked) {
-            setLikeCount(prev => prev - 1);
-        } else {
-            setLikeCount(prev => prev + 1);
-        }
-        setIsLiked(!isLiked);
-        onLike?.();
-        console.log("Post liked/unliked:", id, "New count:", likeCount + (isLiked ? -1 : 1));
+        // Optimistic UI
+        setIsLiked(prev => !prev);
+        setLikeCount(prev => (isLiked ? prev - 1 : prev + 1));
+
+        // Ask parent to update with backend result
+        onLike?.((liked: boolean, count: number) => {
+            setIsLiked(liked);
+            setLikeCount(count);
+        });
     };
 
-    // Add new comment or reply
-    const handleAddComment = (postId: string, text: string, parentId?: string) => {
+
+    const handleAddComment = (postId: string, text: string) => {
+        if (!text.trim()) return;
+
+        const tempId = Date.now().toString();
+
         const newComment: Comment = {
-            id: Date.now().toString(),
+            id: tempId,
             user: { name: "You", avatar: "/your-avatar.jpg" },
             text,
             liked: false,
             likes: 0,
-            replies: parentId ? undefined : [],
+            replies: [],
         };
 
-        if (parentId) {
-            setComments(prev => addReply(prev, parentId, newComment));
-            console.log("Reply added to comment:", parentId, newComment);
-        } else {
-            setComments(prev => [...prev, newComment]);
-            console.log("New comment added:", newComment);
-        }
-
+        setComments(prev => [...prev, newComment]);
         setCommentsCount(prev => prev + 1);
+
+        addComment(
+            { postId, commentText: text },
+            {
+                onSuccess: (res) => {
+                    setComments(prev =>
+                        prev.map(comment =>
+                            comment.id === tempId ? { ...comment, id: res._id } : comment
+                        )
+                    );
+                },
+                onError: (err) => {
+                    console.error("Failed to post comment", err);
+                    setComments(prev => prev.filter(c => c.id !== tempId));
+                    setCommentsCount(prev => prev - 1);
+                },
+            }
+        );
     };
 
-    // Toggle like on comment/reply
+    const handleAddReply = (commentId: string, replyText: string) => {
+        if (!replyText.trim()) return;
+
+        addReply(
+            { commentId, replyText },
+            {
+                onSuccess: (res) => {
+                    console.log("Reply successfully stored:", res);
+                    queryClient.invalidateQueries({ queryKey: ["comments", id, page] })
+                    queryClient.invalidateQueries({ queryKey: ["replies", commentId, page, limit] })
+                },
+                onError: (err) => {
+                    console.error("Error while adding reply:", err);
+                },
+            }
+        );
+    };
+
+    const toggleComments = () => {
+        setShowComments(prev => {
+            const next = !prev;
+            if (next) refetch();
+            return next;
+        });
+    };
+
     const handleToggleCommentLike = (commentId: string) => {
+
         setComments(prev => toggleLike(prev, commentId));
-        console.log("Comment like toggled:", commentId);
+
+        likeCommentMutation(commentId, {
+            onSuccess: (res) => {
+                const { liked, likeCount } = res.data;
+
+                setComments(prev =>
+                    prev.map(comment =>
+                        comment.id === commentId
+                            ? { ...comment, liked, likes: likeCount }
+                            : comment
+                    )
+                );
+            },
+
+            onError: () => {
+                setComments(prev => toggleLike(prev, commentId));
+            }
+        });
     };
 
     return (
@@ -140,7 +195,6 @@ export function PostCard({
                                 <button
                                     onClick={() => {
                                         onReport?.(id);
-                                        console.log("Reported post:", id);
                                         setOpen(false);
                                     }}
                                     className="w-full text-left px-4 py-2.5 hover:bg-gray-100 text-red-600"
@@ -194,34 +248,17 @@ export function PostCard({
                 </div>
             </div>
 
-            {/* Comment Section – Fully Working with Mock */}
             <CommentSection
                 postId={id}
                 comments={comments}
+                showComments={showComments}
                 onAddComment={handleAddComment}
                 onToggleLike={handleToggleCommentLike}
+                toggleComments={toggleComments}
+                onAddReply={handleAddReply}
             />
         </motion.div>
     );
-}
-
-// Helper: Add reply to nested structure
-function addReply(comments: Comment[], parentId: string, reply: Comment): Comment[] {
-    return comments.map(c => {
-        if (c.id === parentId) {
-            return {
-                ...c,
-                replies: [...(c.replies || []), reply]
-            };
-        }
-        if (c.replies) {
-            return {
-                ...c,
-                replies: addReply(c.replies, parentId, reply)
-            };
-        }
-        return c;
-    });
 }
 
 // Helper: Toggle like on comment or reply

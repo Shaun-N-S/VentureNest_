@@ -38,7 +38,6 @@ export class AdminInvestorController {
         HTTPSTATUS.OK
       );
     } catch (error) {
-      console.log("Error in getAllInvestor: ", error);
       next(error);
     }
   }

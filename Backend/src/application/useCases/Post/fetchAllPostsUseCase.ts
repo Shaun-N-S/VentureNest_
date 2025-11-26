@@ -23,6 +23,7 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
   ) {}
 
   async fetchAllPosts(
+    currentUserId: string,
     page: number,
     limit: number
   ): Promise<{ posts: PostFeedResDTO[]; totalPosts: number; hasNextPage: boolean }> {
@@ -48,9 +49,9 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
       }
     });
 
-    console.log("📊 Total posts:", posts.length);
-    console.log("👤 User IDs to fetch:", userIds);
-    console.log("💼 Investor IDs to fetch:", investorIds);
+    console.log("Total posts:", posts.length);
+    console.log("User IDs to fetch:", userIds);
+    console.log("Investor IDs to fetch:", investorIds);
 
     // Fetch users and investors in parallel
     const [users, investors] = await Promise.all([
@@ -60,8 +61,8 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
         : Promise.resolve([]),
     ]);
 
-    console.log("✅ Users fetched:", users.length, users);
-    console.log("✅ Investors fetched:", investors.length, investors);
+    console.log("Users fetched:", users.length, users);
+    console.log(" Investors fetched:", investors.length, investors);
 
     const userMap = new Map<string, AuthorData>();
     users.forEach((u: UserEntity) => {
@@ -73,7 +74,7 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
           authorData.profileImg = u.profileImg;
         }
         userMap.set(u._id.toString(), authorData);
-        console.log(`👤 Added user to map: ${u._id} -> ${u.userName}`);
+        console.log(`Added user to map: ${u._id} -> ${u.userName}`);
       }
     });
 
@@ -87,12 +88,12 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
           authorData.profileImg = i.profileImg;
         }
         investorMap.set(i._id.toString(), authorData);
-        console.log(`💼 Added investor to map: ${i._id} -> ${authorData.name}`);
+        console.log(` Added investor to map: ${i._id} -> ${authorData.name}`);
       }
     });
 
-    console.log("🗺️ UserMap size:", userMap.size);
-    console.log("🗺️ InvestorMap size:", investorMap.size);
+    console.log(" UserMap size:", userMap.size);
+    console.log(" InvestorMap size:", investorMap.size);
 
     const urlsToSign = new Set<string>();
 
@@ -105,7 +106,7 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
           : investorMap.get(post.authorId);
 
       console.log(
-        `🔍 Post ${post._id}: authorId=${post.authorId}, role=${post.authorRole}, found=${!!authorData}`
+        ` Post ${post._id}: authorId=${post.authorId}, role=${post.authorRole}, found=${!!authorData}`
       );
 
       if (authorData?.profileImg) {
@@ -135,7 +136,9 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
         authorName: authorData?.name || "Unknown User",
       };
 
-      // Only add authorProfileImg if it exists
+      // Add liked flag
+      feedItem.liked = post.likes.some((l) => l.likerId === currentUserId);
+
       if (authorData?.profileImg && signedUrlMap.get(authorData.profileImg)) {
         feedItem.authorProfileImg = signedUrlMap.get(authorData.profileImg);
       }
@@ -143,7 +146,7 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
       return feedItem;
     });
 
-    console.log("📦 Sample feed item:", JSON.stringify(feed[0], null, 2));
+    console.log("Sample feed item:", JSON.stringify(feed[0], null, 2));
 
     return { posts: feed, totalPosts: total, hasNextPage };
   }

@@ -33,34 +33,38 @@ export interface CreateProjectDTO {
   userId: string;
   startupName: string;
   shortDescription: string;
-  pitchDeckUrl?: File;
-  projectWebsite?: string;
+  pitchDeckUrl?: File | undefined;
+  projectWebsite?: string | undefined;
   userRole: ProjectRole;
   teamSize: TeamSize;
   category: PreferredSector;
   stage: StartupStage;
-  logoUrl?: File;
-  coverImageUrl?: File;
-  location?: string;
-  donationEnabled?: boolean;
-  donationTarget?: number;
-  projectRegister?: boolean;
+  logoUrl?: File | undefined;
+  coverImageUrl?: File | undefined;
+  location?: string | undefined;
+  donationEnabled?: boolean | undefined;
+  donationTarget?: number | undefined;
+  projectRegister?: boolean | undefined;
 }
 
 export interface CreateProjectEntityDTO {
   userId: string;
   startupName: string;
   shortDescription: string;
-  pitchDeckUrl?: string;
-  projectWebsite?: string;
+
+  pitchDeckUrl?: string | undefined;
+  projectWebsite?: string | undefined;
+
   userRole: ProjectRole;
   teamSize: TeamSize;
   category: PreferredSector;
   stage: StartupStage;
-  logoUrl?: string;
-  coverImageUrl?: string;
-  location?: string;
-  donationEnabled?: boolean;
-  donationTarget?: number;
-  projectRegister?: boolean;
+
+  logoUrl?: string | undefined;
+  coverImageUrl?: string | undefined;
+  location?: string | undefined;
+
+  donationEnabled?: boolean | undefined;
+  donationTarget?: number | undefined;
+  projectRegister?: boolean | undefined;
 }

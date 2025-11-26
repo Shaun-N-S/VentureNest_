@@ -1,13 +1,9 @@
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import {
   addPost,
   fetchAllPosts,
   fetchPersonalPosts,
+  likePost,
   removePost,
 } from "../../services/Post/PostService";
 import type { AllPost } from "../../pages/Home/Home";
@@ -56,5 +52,11 @@ export const useInfinitePosts = (limit = 3) => {
 export const useRemovePost = () => {
   return useMutation({
     mutationFn: (postId: string) => removePost(postId),
+  });
+};
+
+export const useLikePost = () => {
+  return useMutation({
+    mutationFn: (postId: string) => likePost(postId),
   });
 };
