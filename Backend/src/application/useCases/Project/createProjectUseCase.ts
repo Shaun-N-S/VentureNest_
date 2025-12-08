@@ -12,7 +12,7 @@ export class CreateProjectUseCase implements ICreateProjectUseCase {
     private _storageService: IStorageService
   ) {}
 
-  async createProject(data: CreateProjectDTO): Promise<void> {
+  async createProject(data: CreateProjectDTO): Promise<{ projectId: string; logoUrl?: string }> {
     const { userId } = data;
 
     const uploadedPitchDeckUrl = data.pitchDeckUrl
@@ -43,6 +43,15 @@ export class CreateProjectUseCase implements ICreateProjectUseCase {
       coverImageUrl: uploadedCoverImageUrl,
     });
 
-    await this._projectRepository.save(projectEntity);
+    const savedProject = await this._projectRepository.save(projectEntity);
+
+    const signedLogoUrl = uploadedLogoUrl
+      ? await this._storageService.createSignedUrl(uploadedLogoUrl, 600)
+      : undefined;
+
+    return {
+      projectId: savedProject._id!,
+      logoUrl: signedLogoUrl ?? "",
+    };
   }
 }

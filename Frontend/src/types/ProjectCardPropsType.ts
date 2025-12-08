@@ -3,8 +3,12 @@ export interface ProjectCardProps {
   title: string;
   description: string;
   stage: string;
-  logo: string;
+  logoUrl?: string;
   likes?: number;
   liked?: boolean;
   onLike?: () => void;
+
+  onEdit?: () => void;
+  onAddReport?: (id: string) => void;
+  onVerify?: (id: string) => void;
 }

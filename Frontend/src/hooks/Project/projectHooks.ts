@@ -4,11 +4,18 @@ import {
   fetchAllProjects,
   fetchPersonalProjects,
   fetchProjectById,
+  updateProject,
 } from "../../services/Project/projectService";
 
 export const useCreateProject = () => {
   return useMutation({
     mutationFn: (formDta: FormData) => addProject(formDta),
+  });
+};
+
+export const useUpdateProject = () => {
+  return useMutation({
+    mutationFn: (formData: FormData) => updateProject(formData),
   });
 };
 

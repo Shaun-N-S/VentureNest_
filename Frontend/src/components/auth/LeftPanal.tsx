@@ -18,11 +18,6 @@ export function LeftPanel() {
         {/* Brand */}
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
             <h2 className="text-2xl font-bold">VentureNest</h2>
           </div>
           <h1 className="text-4xl lg:text-5xl font-bold leading-tight mb-4 text-pretty">

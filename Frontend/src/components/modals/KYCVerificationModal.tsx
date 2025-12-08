@@ -8,7 +8,7 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { AlertCircle, FileUp, X } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { toast } from "react-hot-toast"
 import { z } from "zod"
 import { Popover, PopoverTrigger, PopoverContent } from "../../components/ui/popover"
@@ -42,6 +42,9 @@ export default function KYCVerificationModal({
         address: "",
     })
     const [errors, setErrors] = useState<Record<string, string>>({})
+    const aadharInputRef = useRef<HTMLInputElement | null>(null);
+    const selfieInputRef = useRef<HTMLInputElement | null>(null);
+
 
     // Image states
     const [aadharImg, setAadharImg] = useState<File | null>(null)
@@ -112,6 +115,13 @@ export default function KYCVerificationModal({
     const handleCropCancel = () => {
         setCropImage(null)
         setCropType(null)
+
+        if (cropType === "aadhar" && aadharInputRef.current) {
+            aadharInputRef.current.value = "";
+        }
+        if (cropType === "selfie" && selfieInputRef.current) {
+            selfieInputRef.current.value = "";
+        }
     }
 
     // Remove uploaded image
@@ -346,6 +356,7 @@ export default function KYCVerificationModal({
                         ) : (
                             <div className="flex items-center gap-2 mt-2">
                                 <Input
+                                    ref={aadharInputRef}
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => handleFileChange(e, "aadhar")}
@@ -386,6 +397,7 @@ export default function KYCVerificationModal({
                         ) : (
                             <div className="flex items-center gap-2 mt-2">
                                 <Input
+                                    ref={selfieInputRef}
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => handleFileChange(e, "selfie")}

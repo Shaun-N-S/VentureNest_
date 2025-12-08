@@ -68,3 +68,50 @@ export interface CreateProjectEntityDTO {
   donationTarget?: number | undefined;
   projectRegister?: boolean | undefined;
 }
+
+export interface UpdateProjectDTO {
+  projectId: string;
+  userId: string;
+
+  startupName?: string | undefined;
+  shortDescription?: string | undefined;
+  projectWebsite?: string | undefined;
+
+  userRole?: ProjectRole | undefined;
+  teamSize?: TeamSize | undefined;
+  category?: PreferredSector | undefined;
+  stage?: StartupStage | undefined;
+
+  location?: string | undefined;
+
+  pitchDeckUrl?: File | undefined;
+  logoUrl?: File | undefined;
+  coverImageUrl?: File | undefined;
+
+  donationEnabled?: boolean | undefined;
+  donationTarget?: number | undefined;
+  projectRegister?: boolean | undefined;
+}
+
+export interface UpdateProjectEntityDTO {
+  projectId: string;
+
+  startupName?: string | undefined;
+  shortDescription?: string | undefined;
+  projectWebsite?: string | undefined;
+
+  userRole?: ProjectRole | undefined;
+  teamSize?: TeamSize | undefined;
+  category?: PreferredSector | undefined;
+  stage?: StartupStage | undefined;
+
+  location?: string | undefined;
+
+  pitchDeckUrl?: string | undefined;
+  logoUrl?: string | undefined;
+  coverImageUrl?: string | undefined;
+
+  donationEnabled?: boolean | undefined;
+  donationTarget?: number | undefined;
+  projectRegister?: boolean | undefined;
+}

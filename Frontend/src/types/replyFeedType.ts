@@ -11,3 +11,11 @@ export interface ReplyFeedDTO {
   likes: number;
   createdAt: string | Date;
 }
+
+export interface ReplyApiResponse {
+  _id: string;
+  replierName: string;
+  replierProfileImg?: string;
+  replyText: string;
+  likes: number;
+}

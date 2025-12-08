@@ -6,6 +6,7 @@ import { Send, Heart, MessageCircle } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
 import { useGetAllReplies } from "../../hooks/Reply/replyHooks";
+import type { ReplyApiResponse } from "../../types/replyFeedType";
 
 export interface Comment {
     id: string;
@@ -134,17 +135,17 @@ function SingleComment({
         { enabled: false }
     );
 
-    /** 🔥 Load replies when showReplies toggles ON */
+    /** Load replies when showReplies toggles ON */
     useEffect(() => {
         if (showReplies) {
             refetch();
         }
     }, [showReplies]);
 
-    /** 🔥 Map backend replies into UI format */
+    /** Map backend replies into UI format */
     useEffect(() => {
         if (replyData?.replies) {
-            const formatted = replyData.replies.map((reply: any) => ({
+            const formatted = replyData.replies.map((reply: ReplyApiResponse) => ({
                 id: reply._id,
                 user: {
                     name: reply.replierName,
@@ -158,6 +159,7 @@ function SingleComment({
             setReplies(formatted);
         }
     }, [replyData]);
+
 
     const handleSubmitReply = () => {
         if (!replyText.trim()) return;
@@ -228,7 +230,7 @@ function SingleComment({
                             }}
                         />
                         <Button size="sm" onClick={handleSubmitReply} disabled={!replyText.trim()}>
-                            Send
+                            Comment
                         </Button>
                     </div>
                 )}

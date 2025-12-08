@@ -6,6 +6,7 @@ import { FetchAllProjectsUseCase } from "application/useCases/Project/fetchAllPr
 import { FetchPersonalProjectsUseCase } from "application/useCases/Project/fetchPersonalProjectsUseCase";
 import { FetchProjectByIdUseCase } from "application/useCases/Project/fetchProjectByIdUseCase";
 import { RemoveProjectUseCase } from "application/useCases/Project/removeProjectsUseCase";
+import { UpdateProjectUseCase } from "application/useCases/Project/updateProjectUseCase";
 import { ProjectController } from "interfaceAdapters/controller/Project/projectController";
 
 const projectRepo = new ProjectRepository(projectModel);
@@ -16,11 +17,13 @@ const fetchAllProjectsUseCase = new FetchAllProjectsUseCase(projectRepo, storage
 const fetchPersonalProjectsUseCase = new FetchPersonalProjectsUseCase(projectRepo, storageService);
 const removeProjectUseCase = new RemoveProjectUseCase(projectRepo, storageService);
 const fetchProjectByIdUseCase = new FetchProjectByIdUseCase(projectRepo, storageService);
+const updateProjectUseCase = new UpdateProjectUseCase(projectRepo, storageService);
 
 export const projectController = new ProjectController(
   createProjectUseCase,
   fetchPersonalProjectsUseCase,
   fetchAllProjectsUseCase,
   removeProjectUseCase,
-  fetchProjectByIdUseCase
+  fetchProjectByIdUseCase,
+  updateProjectUseCase
 );

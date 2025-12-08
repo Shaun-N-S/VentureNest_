@@ -9,13 +9,13 @@ interface ProjectCardProps {
     name: string
     description: string
     stage: string
-    minFunding: number
-    maxFunding: number
+    // minFunding: number
+    // maxFunding: number
     image: string
     likes: number
     isLiked?: boolean
     onLike?: (id: string) => void
-    onOpen?: (id: string) => void     // <-- NEW
+    onOpen?: (id: string) => void
 }
 
 
@@ -24,8 +24,8 @@ export function ProjectPageCard({
     name,
     description,
     stage,
-    minFunding,
-    maxFunding,
+    // minFunding,
+    // maxFunding,
     image,
     likes,
     isLiked = false,

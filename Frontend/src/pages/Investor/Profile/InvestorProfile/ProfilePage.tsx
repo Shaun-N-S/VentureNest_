@@ -106,7 +106,7 @@ export default function ProfilePage() {
                     <Tabs defaultValue="posts" className="w-full">
                         <TabsList className="grid w-full grid-cols-2 mb-8">
                             <TabsTrigger value="posts">Posts</TabsTrigger>
-                            <TabsTrigger value="projects">Projects</TabsTrigger>
+                            <TabsTrigger value="projects">Investments</TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="posts" className="space-y-6">

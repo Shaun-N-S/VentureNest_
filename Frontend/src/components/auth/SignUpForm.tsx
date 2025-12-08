@@ -1,9 +1,8 @@
-"use client"
-
 import { useState } from "react"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import { Eye, EyeOff } from "lucide-react"
 
 const SignupSchema = z
   .object({
@@ -104,10 +103,14 @@ export default function SignUpForm({ onSubmit }: SignupFormProps) {
           <button
             type="button"
             onClick={() => setShowPassword((s) => !s)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground/70"
+            className="absolute inset-y-0 right-3 my-auto flex h-6 w-6 items-center justify-center text-foreground/50 hover:text-foreground transition-colors"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? "Hide" : "Show"}
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
           </button>
         </div>
         {errors.password && (
@@ -135,10 +138,14 @@ export default function SignUpForm({ onSubmit }: SignupFormProps) {
           <button
             type="button"
             onClick={() => setShowConfirm((s) => !s)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground/70"
+            className="absolute inset-y-0 right-3 my-auto flex h-6 w-6 items-center justify-center text-foreground/50 hover:text-foreground transition-colors"
             aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
           >
-            {showConfirm ? "Hide" : "Show"}
+            {showConfirm ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
           </button>
         </div>
         {errors.confirmPassword && (

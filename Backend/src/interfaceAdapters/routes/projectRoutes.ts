@@ -26,6 +26,19 @@ export class Project_Router {
       }
     );
 
+    this._route.patch(
+      ROUTES.PROJECT.UPDATE,
+      authMiddleware.verify,
+      uploadMulter.fields([
+        { name: "pitchDeckUrl", maxCount: 1 },
+        { name: "logoUrl", maxCount: 1 },
+        { name: "coverImageUrl", maxCount: 1 },
+      ]),
+      (req: Request, res: Response, next: NextFunction) => {
+        projectController.updateProject(req, res, next);
+      }
+    );
+
     this._route.get(
       ROUTES.PROJECT.FETCH_PROJECTS,
       authMiddleware.verify,

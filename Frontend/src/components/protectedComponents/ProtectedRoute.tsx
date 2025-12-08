@@ -21,7 +21,7 @@ const ProtectedRoute: React.FC = () => {
             navigate("/admin/login");
             break;
           default:
-            navigate("/login");
+            navigate("/");
         }
       }
       setIsChecking(false);
