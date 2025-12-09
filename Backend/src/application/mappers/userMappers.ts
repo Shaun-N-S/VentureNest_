@@ -1,6 +1,5 @@
 import { KYCStatus } from "@domain/enum/kycStatus";
 import { IUserModel } from "@infrastructure/db/models/userModel";
-import { KycDTO } from "application/dto/admin/kycDTO";
 import { CreateUserDTO } from "application/dto/auth/createUserDTO";
 import { LoginAdminResponseDTO } from "application/dto/auth/LoginAdminDTO";
 import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";

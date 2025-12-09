@@ -80,6 +80,7 @@ export const ROUTES = {
     PERSONAL_PROJECTS: "/personal",
     REMOVE: "/remove/:projectId",
     SINGLE_PROJECT: "/:projectId",
+    ADD_MONTHLY_REPORT: "/monthly-report/:projectId",
   },
 
   RELATIONSHIP: {

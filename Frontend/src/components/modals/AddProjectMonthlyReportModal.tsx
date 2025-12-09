@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { monthlyReportSchema, type MonthlyReportFormData } from "../../lib/validations/projectMontlyReportValidation"
 import { MONTHS } from "../../types/months"
+import { useAddMonthlyReport } from "../../hooks/Project/projectHooks"
+import toast from "react-hot-toast"
 
 
 interface MonthlyReportModalProps {
@@ -23,22 +25,25 @@ const appendToFormData = (data: MonthlyReportFormData) => {
     const formData = new FormData()
 
     formData.append("month", data.month)
+    formData.append("year", data.year)
+
     formData.append("revenue", data.revenue)
     formData.append("expenditure", data.expenditure)
-    formData.append("profitLossAmount", data.profitLossAmount)
-    formData.append("profitLossType", data.profitLossType)
-    formData.append("achievements", data.achievements)
-    formData.append("challenges", data.challenges)
-    formData.append("confirmation", String(data.confirmation))
 
-    console.log("[v0] Monthly Report FormData:")
-    console.log("[v0] Form entries:", Object.fromEntries(formData))
+    formData.append("netProfitLossAmount", data.profitLossAmount)
+    formData.append("netProfitLossType", data.profitLossType)
+
+    formData.append("keyAchievement", data.achievements)
+    formData.append("challenges", data.challenges)
+
+    formData.append("isConfirmed", String(data.confirmation))
 
     return formData
 }
 
-export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalProps) {
-    const [isSubmitting, setIsSubmitting] = useState(false)
+
+export function MonthlyReportModal({ open, onOpenChange, projectId }: MonthlyReportModalProps) {
+    const { mutate: submitMonthlyReport, isPending } = useAddMonthlyReport()
 
     const {
         control,
@@ -49,6 +54,7 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
         resolver: zodResolver(monthlyReportSchema),
         defaultValues: {
             month: "",
+            year: "",
             revenue: "",
             expenditure: "",
             profitLossAmount: "",
@@ -60,24 +66,36 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
     })
 
     const onSubmit = async (data: MonthlyReportFormData) => {
-        setIsSubmitting(true)
         try {
+            console.log(data);
             const formData = appendToFormData(data)
-            // Send formData to your backend
-            // const response = await submitMonthlyReport(formData)
-            console.log(" Ready to submit to backend with FormData", formData)
-            reset()
-            onOpenChange(false)
+            if (projectId) {
+                formData.append("projectId", projectId)
+            }
+
+            submitMonthlyReport(formData, {
+                onSuccess: () => {
+                    toast.success("Report added successfully!")
+                    reset()
+                    onOpenChange(false)
+                },
+                onError: (err) => {
+                    toast.error(err.message || "Failed to submit report. Please try again.")
+                    onOpenChange(false);
+                },
+            })
         } catch (error) {
-            console.error("[v0] Error submitting form:", error)
-        } finally {
-            setIsSubmitting(false)
+            console.log(error);
+            toast.error("An unexpected error occurred. Please try again.")
         }
     }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[90vh] w-full max-w-2xl rounded-2xl p-0 overflow-y-scroll scrollbar-hide" >
+            <DialogContent
+                className="max-h-[90vh] w-full max-w-2xl rounded-2xl p-0 overflow-y-auto"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -92,7 +110,11 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
                                     Share your startup's key metrics and achievements
                                 </DialogDescription>
                             </div>
-                            <button onClick={() => onOpenChange(false)} className="text-muted-foreground hover:text-foreground">
+                            <button
+                                onClick={() => onOpenChange(false)}
+                                className="text-muted-foreground hover:text-foreground transition-colors"
+                                disabled={isPending}
+                            >
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
@@ -110,7 +132,7 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
                                         name="month"
                                         control={control}
                                         render={({ field }) => (
-                                            <Select value={field.value} onValueChange={field.onChange}>
+                                            <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Choose month" />
                                                 </SelectTrigger>
@@ -125,6 +147,32 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
                                         )}
                                     />
                                     {errors.month && <p className="text-xs text-destructive">{errors.month.message}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Year</label>
+                                    <Controller
+                                        name="year"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                                                <SelectTrigger className="bg-background">
+                                                    <SelectValue placeholder="Select year" />
+                                                </SelectTrigger>
+                                                <SelectContent className="max-h-[200px]">
+                                                    {Array.from({ length: new Date().getFullYear() - 2000 + 1 }, (_, i) => {
+                                                        const year = new Date().getFullYear() - i
+                                                        return (
+                                                            <SelectItem key={year} value={year.toString()}>
+                                                                {year}
+                                                            </SelectItem>
+                                                        )
+                                                    })}
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+                                    />
+                                    {errors.year && <p className="text-xs text-destructive">{errors.year.message}</p>}
                                 </div>
                             </div>
 
@@ -143,6 +191,7 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
                                             type="number"
                                             step="0.01"
                                             className="bg-background"
+                                            disabled={isPending}
                                         />
                                     )}
                                 />
@@ -164,6 +213,7 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
                                             type="number"
                                             step="0.01"
                                             className="bg-background"
+                                            disabled={isPending}
                                         />
                                     )}
                                 />
@@ -176,13 +226,21 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
                                     <Controller
                                         name="profitLossAmount"
                                         control={control}
-                                        render={({ field }) => <Input {...field} placeholder="Enter amount" type="number" step="0.01" />}
+                                        render={({ field }) => (
+                                            <Input
+                                                {...field}
+                                                placeholder="Enter amount"
+                                                type="number"
+                                                step="0.01"
+                                                disabled={isPending}
+                                            />
+                                        )}
                                     />
                                     <Controller
                                         name="profitLossType"
                                         control={control}
                                         render={({ field }) => (
-                                            <Select value={field.value} onValueChange={field.onChange}>
+                                            <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
                                                 <SelectTrigger>
                                                     <SelectValue />
                                                 </SelectTrigger>
@@ -216,6 +274,7 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
                                             placeholder="Highlight your wins, milestones, and progress..."
                                             rows={3}
                                             className="resize-none"
+                                            disabled={isPending}
                                         />
                                     )}
                                 />
@@ -236,6 +295,7 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
                                             placeholder="Share obstacles you're facing and the support you need..."
                                             rows={3}
                                             className="resize-none"
+                                            disabled={isPending}
                                         />
                                     )}
                                 />
@@ -249,11 +309,17 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
                                 name="confirmation"
                                 control={control}
                                 render={({ field }) => (
-                                    <Checkbox id="confirmation" checked={field.value} onCheckedChange={field.onChange} className="mt-1" />
+                                    <Checkbox
+                                        id="confirmation"
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        className="mt-1"
+                                        disabled={isPending}
+                                    />
                                 )}
                             />
                             <div className="flex-1">
-                                <label htmlFor="confirmation" className="text-sm font-medium leading-relaxed">
+                                <label htmlFor="confirmation" className="text-sm font-medium leading-relaxed cursor-pointer">
                                     I confirm that the above details are accurate to the best of my knowledge.
                                 </label>
                                 {errors.confirmation && (
@@ -267,8 +333,22 @@ export function MonthlyReportModal({ open, onOpenChange }: MonthlyReportModalPro
 
                         {/* Submit Button */}
                         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                            <Button type="submit" disabled={isSubmitting} className="h-11 w-full bg-green-500 hover:bg-green-600">
-                                {isSubmitting ? "Submitting..." : "Submit Performance Report"}
+                            <Button
+                                type="submit"
+                                disabled={isPending}
+                                className="h-11 w-full bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            >
+                                {isPending ? (
+                                    <span className="flex items-center gap-2">
+                                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        Submitting...
+                                    </span>
+                                ) : (
+                                    "Submit Performance Report"
+                                )}
                             </Button>
                         </motion.div>
                     </form>

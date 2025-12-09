@@ -60,3 +60,18 @@ export const fetchProjectById = async (projectId: string) => {
   );
   return response.data;
 };
+
+export const addMontlyProjectReport = async (formData: FormData) => {
+  const projectId = formData.get("projectId") as string;
+  const response = await AxiosInstance.post(
+    API_ROUTES.PROJECT.ADD_MONTHLY_REPORT.replace(":projectId", projectId),
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};

@@ -65,6 +65,10 @@ export const MESSAGES = {
     PROJECT_UPDATED_SUCCESSFULLY: "Project updated successfully",
   },
 
+  PROJECT_MONTHLY_REPORT: {
+    REPORT_ADDED_SUCCESSFULLY: "Monthly report added successfully",
+  },
+
   RELATIONSHIP: {
     FETCHED_USERS_SUCCESSFULLY: "Fetched users successfully",
     FETCHED_PERSONAL_REQ_SUCCESSFULLY: "Fetched personal requests successfull",

@@ -1,11 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  addMontlyProjectReport,
   addProject,
   fetchAllProjects,
   fetchPersonalProjects,
   fetchProjectById,
   updateProject,
 } from "../../services/Project/projectService";
+import { string } from "zod";
 
 export const useCreateProject = () => {
   return useMutation({
@@ -37,5 +39,11 @@ export const useFetchProjectById = (projectId: string) => {
   return useQuery({
     queryKey: ["single-project", projectId],
     queryFn: () => fetchProjectById(projectId),
+  });
+};
+
+export const useAddMonthlyReport = () => {
+  return useMutation({
+    mutationFn: (formData: FormData) => addMontlyProjectReport(formData),
   });
 };

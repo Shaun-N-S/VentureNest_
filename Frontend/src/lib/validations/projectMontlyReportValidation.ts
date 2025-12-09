@@ -2,6 +2,10 @@ import { z } from "zod";
 
 export const monthlyReportSchema = z.object({
   month: z.string().min(1, "Please select a month"),
+  year: z
+    .string()
+    .min(4, "Year is required")
+    .refine((val) => /^\d{4}$/.test(val), "Enter a valid year"),
   revenue: z
     .string()
     .min(1, "Revenue is required")
