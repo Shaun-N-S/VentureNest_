@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Heart, Download, Flag, MapPin, FileText } from "lucide-react"

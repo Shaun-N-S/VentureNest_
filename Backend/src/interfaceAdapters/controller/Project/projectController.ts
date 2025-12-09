@@ -10,9 +10,11 @@ import { multerFileToFileConverter } from "@shared/utils/fileConverter";
 import { ResponseHelper } from "@shared/utils/responseHelper";
 import { CreateProjectReqSchema } from "@shared/validations/createProjectValidator";
 import { InvalidDataException } from "application/constants/exceptions";
-import { CreateProjectDTO } from "application/dto/project/projectDTO";
+import { CreateProjectDTO, UpdateProjectDTO } from "application/dto/project/projectDTO";
 import { Request, Response, NextFunction } from "express";
 import { IFetchProjectByIdUseCase } from "@domain/interfaces/useCases/project/IFetchProjectByIdUseCase";
+import { IUpdateProjectUseCase } from "@domain/interfaces/useCases/project/IUpdateProjectUseCase";
+import { UpdateProjectReqSchema } from "@shared/validations/updateProjectValidator";
 
 export class ProjectController {
   constructor(
@@ -20,7 +22,8 @@ export class ProjectController {
     private _fetchPersonalProjects: IFetchPersonalProjectsUseCase,
     private _fetchAllProjects: IFetchAllProjectsUseCase,
     private _removeProject: IRemoveProjectUseCase,
-    private _fetchProjectById: IFetchProjectByIdUseCase
+    private _fetchProjectById: IFetchProjectByIdUseCase,
+    private _updateProjectUseCase: IUpdateProjectUseCase
   ) {}
 
   async addProject(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -53,9 +56,14 @@ export class ProjectController {
 
       const dto: CreateProjectDTO = validated.data;
 
-      await this._createProject.createProject(dto);
+      const data = await this._createProject.createProject(dto);
 
-      ResponseHelper.success(res, MESSAGES.PROJECT.PROJECT_CREATED_SUCCESSFULLY, HTTPSTATUS.OK);
+      ResponseHelper.success(
+        res,
+        MESSAGES.PROJECT.PROJECT_CREATED_SUCCESSFULLY,
+        data,
+        HTTPSTATUS.OK
+      );
     } catch (error) {
       next(error);
     }
@@ -117,6 +125,54 @@ export class ProjectController {
         res,
         MESSAGES.PROJECT.PROJECT_FETCH_SUCCESS,
         { project },
+        HTTPSTATUS.OK
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateProject(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = res.locals?.user?.userId;
+
+      if (!userId) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const formData = req.body;
+      const files = req.files as MulterFiles<"pitchDeckUrl" | "logoUrl" | "coverImageUrl">;
+
+      const rawData = {
+        ...formData,
+        userId,
+
+        pitchDeckUrl: files?.pitchDeckUrl?.[0]
+          ? multerFileToFileConverter(files.pitchDeckUrl[0])
+          : undefined,
+
+        logoUrl: files?.logoUrl?.[0] ? multerFileToFileConverter(files.logoUrl[0]) : undefined,
+
+        coverImageUrl: files?.coverImageUrl?.[0]
+          ? multerFileToFileConverter(files.coverImageUrl[0])
+          : undefined,
+      };
+
+      const validated = UpdateProjectReqSchema.safeParse(rawData);
+
+      if (!validated.success) {
+        console.log(validated.error);
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const dto: UpdateProjectDTO = validated.data;
+
+      const updated = await this._updateProjectUseCase.updateProject(dto);
+
+      ResponseHelper.success(
+        res,
+        MESSAGES.PROJECT.PROJECT_UPDATED_SUCCESSFULLY,
+        updated,
         HTTPSTATUS.OK
       );
     } catch (error) {

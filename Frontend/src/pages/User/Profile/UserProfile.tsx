@@ -11,8 +11,10 @@ import { useFetchPersonalPost, useRemovePost } from "../../../hooks/Post/PostHoo
 import type { PersonalPost } from "../../Investor/Profile/InvestorProfile/ProfilePage"
 import toast from "react-hot-toast"
 import { queryClient } from "../../../main"
-import { useFetchPersonalProjects } from "../../../hooks/Project/projectHooks"
-import type { ProjectType } from "../../../types/projectType"
+import { useFetchPersonalProjects, useUpdateProject } from "../../../hooks/Project/projectHooks"
+import type { PersonalProjectApiResponse, ProjectType } from "../../../types/projectType"
+import AddProjectModal from "../../../components/modals/AddProjectModal"
+import { MonthlyReportModal } from "../../../components/modals/AddProjectMonthlyReportModal"
 
 export default function ProfilePage() {
     const [likedProjects, setLikedProjects] = useState<Set<string>>(new Set())
@@ -20,10 +22,15 @@ export default function ProfilePage() {
     const [isFollowing, setIsFollowing] = useState(false)
     const userData = useSelector((state: Rootstate) => state.authData)
     const userId = userData.id;
-    const { data: profileData, isLoading, error } = useFetchUserProfile(userId)
+    const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
+    const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null);
+    const [isMonthlyReportOpen, setIsMonthlyReportOpen] = useState(false);
+    const [reportProjectId, setReportProjectId] = useState<string | null>(null);
+    const { data: profileData, isLoading } = useFetchUserProfile(userId)
     const { data: postData, isLoading: postIsLoading } = useFetchPersonalPost(1, 10);
     const { data: projectData, isLoading: projectIsLoading } = useFetchPersonalProjects(1, 10)
-    const { mutate: removePost } = useRemovePost()
+    const { mutate: removePost } = useRemovePost();
+    const { mutate: updateProject } = useUpdateProject();
     console.log("Post data fetched    : ", postData, postIsLoading)
     console.log("Project data fetched    : ", projectData, projectIsLoading)
 
@@ -65,8 +72,79 @@ export default function ProfilePage() {
             }
         }
         )
-
     }
+
+    const handleAddMonthlyReport = (projectId: string) => {
+        setReportProjectId(projectId);
+        setIsMonthlyReportOpen(true);
+    };
+
+
+    const handleEditProject = (project: ProjectType) => {
+        setSelectedProject(project);
+        setIsEditProjectOpen(true);
+    };
+
+    const extractUpdatedFields = (formData: FormData): Partial<ProjectType> => {
+        const obj: Partial<ProjectType> = {};
+
+        formData.forEach((value, key) => {
+            if (typeof value === "string") {
+                (obj as any)[key] = value;
+            }
+        });
+
+        return obj;
+    };
+
+
+    const handleUpdateProject = async (formData: FormData): Promise<void> => {
+        updateProject(formData, {
+            onSuccess: (res) => {
+                // toast.success("Project updated successfully!");
+
+                const updatedProjectId = res?.data?.projectId;
+                const updatedLogoUrl = res?.data?.logoUrl;
+
+                const updatedFields = extractUpdatedFields(formData);
+
+                queryClient.setQueryData<PersonalProjectApiResponse>(
+                    ["personal-project", 1, 10],
+                    (oldData) => {
+                        if (!oldData?.data?.data?.projects) return oldData;
+
+                        return {
+                            ...oldData,
+                            data: {
+                                ...oldData.data,
+                                data: {
+                                    ...oldData.data.data,
+                                    projects: oldData.data.data.projects.map((project: ProjectType) =>
+                                        project._id === updatedProjectId
+                                            ? {
+                                                ...project,
+                                                ...updatedFields,
+                                                logoUrl: updatedLogoUrl ?? project.logoUrl,
+                                            }
+                                            : project
+                                    ),
+                                },
+                            },
+                        };
+                    }
+                );
+
+                setIsEditProjectOpen(false);
+            },
+            onError: (err) => {
+                toast.error(err.message);
+            },
+        });
+    };
+
+
+
+
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -130,17 +208,19 @@ export default function ProfilePage() {
                             >
                                 {projectData?.data?.data?.projects &&
                                     projectData.data.data.projects.length > 0 ? (
-                                    projectData.data.data.projects.map((project: any) => (
+                                    projectData.data.data.projects.map((project: ProjectType) => (
                                         <ProjectCard
                                             key={project._id}
                                             id={project._id}
                                             title={project.startupName}
                                             description={project.shortDescription}
-                                            stage={project.stage}
-                                            logo={project.logoUrl}
-                                            likes={project.likeCount}
+                                            stage={project.stage!}
+                                            logoUrl={project.logoUrl}
+                                            likes={project.likes}
                                             liked={likedProjects.has(project._id)}
                                             onLike={() => toggleProjectLike(project._id)}
+                                            onEdit={() => handleEditProject(project)}
+                                            onAddReport={handleAddMonthlyReport}
                                         />
                                     ))
                                 ) : (
@@ -150,10 +230,22 @@ export default function ProfilePage() {
                                 )}
                             </motion.div>
                         </TabsContent>
-
                     </Tabs>
                 </div>
             </div>
+            <AddProjectModal
+                open={isEditProjectOpen}
+                onOpenChange={setIsEditProjectOpen}
+                onSubmit={handleUpdateProject}
+                isEditing={true}
+                initialData={selectedProject}
+            />
+            <MonthlyReportModal
+                open={isMonthlyReportOpen}
+                onOpenChange={setIsMonthlyReportOpen}
+                projectId={reportProjectId}
+            />
+
         </div>
     )
 }

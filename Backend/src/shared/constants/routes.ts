@@ -75,10 +75,12 @@ export const ROUTES = {
 
   PROJECT: {
     CREATE: "/",
+    UPDATE: "/update/:projectId",
     FETCH_PROJECTS: "/",
     PERSONAL_PROJECTS: "/personal",
     REMOVE: "/remove/:projectId",
     SINGLE_PROJECT: "/:projectId",
+    ADD_MONTHLY_REPORT: "/monthly-report/:projectId",
   },
 
   RELATIONSHIP: {

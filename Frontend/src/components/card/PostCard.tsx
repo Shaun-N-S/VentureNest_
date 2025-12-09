@@ -47,8 +47,8 @@ export function PostCard({
     const { mutate: likeCommentMutation } = useLikeComment();
 
     useEffect(() => {
-        if (showComments && commentData?.data?.data?.comments) {
-            const formatted = commentData.data.data.comments.map((item: CommentApiResponse) => ({
+        if (showComments && commentData?.comments) {
+            const formatted = commentData.comments.map((item: CommentApiResponse) => ({
                 id: item._id,
                 user: { name: item.userName, avatar: item.userProfileImg },
                 text: item.commentText,
@@ -59,9 +59,10 @@ export function PostCard({
             }));
 
             setComments(formatted);
-            setCommentsCount(commentData.data.data.total || commentData.total);
+            setCommentsCount(commentData.total);
         }
     }, [showComments, commentData]);
+
 
     const handleLike = () => {
         // Optimistic UI

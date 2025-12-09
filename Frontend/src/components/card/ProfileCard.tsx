@@ -18,31 +18,25 @@ import UserEditProfileModal from "../modals/UserEditProfileModal"
 import KYCVerificationModal from "../modals/KYCVerificationModal"
 import { InfoItem } from "../modals/ProfileVerificationModal"
 import CreatePostModal from "../modals/CreatePostModal"
-import { useCreatePost } from "../../hooks/Post/PostHooks"
 import toast from "react-hot-toast"
 import { queryClient } from "../../main"
 import ProjectFormModal from "../modals/AddProjectModal"
 import { useCreateProject } from "../../hooks/Project/projectHooks"
-
-
+import type { PersonalProjectApiResponse } from "../../types/PersonalProjectApiResponse"
 
 export function ProfileCard(props: ProfileCardProps) {
     console.log(props);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isAddProject, setIsAddProject] = useState(false);
     const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
     const [isCreatePostModal, setIsCreatePostModal] = useState(false);
     const role = useSelector((state: Rootstate) => state.authData.role)
     const userId = useSelector((state: Rootstate) => state.authData.id)
-    const { mutate: createPost } = useCreatePost()
     const { userData } = props;
 
     const handleEditProfile = () => setIsEditModalOpen(true);
     const handleKYCVerification = () => setIsKYCModalOpen(true);
     const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
-    const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
-    const [editingProject, setEditingProject] = useState(null);
     const { mutate: addProject } = useCreateProject()
 
     const handleAddProject = () => setIsAddProjectOpen(true);
@@ -52,18 +46,43 @@ export function ProfileCard(props: ProfileCardProps) {
     }
 
     const handleSubmitProject = async (formData: FormData) => {
-        console.log("add project  : ", formData)
         addProject(formData, {
             onSuccess: (res) => {
-                console.log("Project created successfully   :", res);
-                toast.success("Project created successfully")
+                const newProjectId = res?.data?.projectId;
+                const signedLogoUrl = res?.data?.logoUrl;
+
+                toast.success("Project created successfully");
+
+                queryClient.setQueryData(["personal-project", 1, 10], (oldData: PersonalProjectApiResponse) => {
+                    if (!oldData?.data?.data?.projects) return oldData;
+
+                    const formFields = Object.fromEntries(formData.entries());
+
+                    const newProject = {
+                        _id: newProjectId,
+                        ...formFields,
+                        logoUrl: signedLogoUrl ?? null,
+                    };
+
+                    return {
+                        ...oldData,
+                        data: {
+                            ...oldData.data,
+                            data: {
+                                ...oldData.data.data,
+                                projects: [newProject, ...oldData.data.data.projects],
+                            },
+                        },
+                    };
+                });
+
+                setIsAddProjectOpen(false);
             },
-            onError: (err) => {
-                console.log("error while adding project  :", err);
-                toast.error("Creating projecting failed");
-            }
-        })
+            onError: () => toast.error("Creating project failed"),
+        });
     };
+
+
 
     return (
         <motion.div

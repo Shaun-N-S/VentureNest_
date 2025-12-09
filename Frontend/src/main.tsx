@@ -9,6 +9,7 @@ import { Provider } from 'react-redux'
 import { persistor, store } from './store/store.ts'
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { pdfjs } from 'react-pdf';
+import 'react-advanced-cropper/dist/style.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',

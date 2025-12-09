@@ -14,7 +14,7 @@ export const CreateProjectReqSchema = z.object({
     .min(1, "Short description is required")
     .max(200, "Description must not exceed 200 characters"),
 
-  projectWebsite: z.string().url("Enter a valid website URL").optional(),
+  projectWebsite: z.string().optional(),
 
   userRole: z.enum(Object.values(ProjectRole)),
 

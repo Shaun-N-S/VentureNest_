@@ -1,5 +1,8 @@
 import { authMiddleware } from "@infrastructure/DI/Auth/authContainer";
-import { projectController } from "@infrastructure/DI/Project/projectContainer";
+import {
+  projectController,
+  projectMonthlyReportController,
+} from "@infrastructure/DI/Project/projectContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
 import { uploadMulter } from "interfaceAdapters/middleware/multer";
@@ -23,6 +26,19 @@ export class Project_Router {
       ]),
       (req: Request, res: Response, next: NextFunction) => {
         projectController.addProject(req, res, next);
+      }
+    );
+
+    this._route.patch(
+      ROUTES.PROJECT.UPDATE,
+      authMiddleware.verify,
+      uploadMulter.fields([
+        { name: "pitchDeckUrl", maxCount: 1 },
+        { name: "logoUrl", maxCount: 1 },
+        { name: "coverImageUrl", maxCount: 1 },
+      ]),
+      (req: Request, res: Response, next: NextFunction) => {
+        projectController.updateProject(req, res, next);
       }
     );
 
@@ -55,6 +71,15 @@ export class Project_Router {
       authMiddleware.verify,
       (req: Request, res: Response, next: NextFunction) => {
         projectController.removeProject(req, res, next);
+      }
+    );
+
+    this._route.post(
+      ROUTES.PROJECT.ADD_MONTHLY_REPORT,
+      authMiddleware.verify,
+      uploadMulter.none(),
+      (req: Request, res: Response, next: NextFunction) => {
+        projectMonthlyReportController.addMonthlyReport(req, res, next);
       }
     );
   }

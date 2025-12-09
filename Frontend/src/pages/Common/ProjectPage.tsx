@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { useFetchAllProjects } from "../../hooks/Project/projectHooks"
@@ -61,8 +59,8 @@ const ProjectPage = () => {
                             name={project.startupName}
                             description={project.shortDescription}
                             stage={project.stage}
-                            minFunding={project.donationReceived || 0}
-                            maxFunding={project.donationTarget || 0}
+                            // minFunding={project.donationReceived || 0}
+                            // maxFunding={project.donationTarget || 0}
                             image={project.coverImageUrl || "/placeholder.svg"}
                             likes={project.likeCount || 0}
                             isLiked={likedProjects.has(project._id)}

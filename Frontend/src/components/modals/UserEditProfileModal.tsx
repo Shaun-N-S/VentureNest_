@@ -15,6 +15,7 @@ import { useUserProfileUpdate } from "../../hooks/User/Profile/UserProfileHooks"
 import { useDispatch } from "react-redux"
 import { updateUserData } from "../../store/Slice/authDataSlice"
 import { queryClient } from "../../main"
+import ImageCropper from "../cropper/ImageCropper"
 
 const userSchema = z.object({
     profileImg: z.instanceof(File).optional(),
@@ -57,6 +58,9 @@ export default function UserEditProfileModal({
     const [preview, setPreview] = useState<string | null>(data?.profileImg || null)
     const [selectedImage, setSelectedImage] = useState<File | null>(null)
     const [hasImageChanged, setHasImageChanged] = useState(false)
+    const [showCropper, setShowCropper] = useState(false);
+    const [tempImage, setTempImage] = useState<string | null>(null);
+
     const { mutate: updateUserProfile } = useUserProfileUpdate()
     const dispatch = useDispatch()
 
@@ -88,33 +92,31 @@ export default function UserEditProfileModal({
     }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) {
-            if (!file.type.startsWith("image/")) {
-                toast.error("Please select an image file")
-                return
-            }
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-            if (file.size > 5 * 1024 * 1024) {
-                toast.error("Image size should be less than 5MB")
-                return
-            }
-
-            if (preview && preview.startsWith("blob:")) {
-                URL.revokeObjectURL(preview)
-            }
-
-            setSelectedImage(file)
-            setPreview(URL.createObjectURL(file))
-            setHasImageChanged(true)
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
         }
-    }
+
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image must be less than 5MB");
+            return;
+        }
+
+        // Convert file to temporary blob URL
+        const url = URL.createObjectURL(file);
+        setTempImage(url);
+
+        // Open cropper
+        setShowCropper(true);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
         try {
-            // 🧹 Clean empty strings to undefined
             const cleanedFormData = Object.fromEntries(
                 Object.entries(formData).map(([key, value]) => [
                     key,
@@ -268,6 +270,24 @@ export default function UserEditProfileModal({
                         </Button>
                     </div>
                 </form>
+                {showCropper && tempImage && (
+                    <ImageCropper
+                        imageSrc={tempImage}
+                        aspect={1}
+                        onCancel={() => {
+                            setShowCropper(false);
+                            URL.revokeObjectURL(tempImage);
+                        }}
+                        onSave={(croppedFile, previewUrl) => {
+                            setSelectedImage(croppedFile);
+                            setPreview(previewUrl);
+                            setHasImageChanged(true);
+                            setShowCropper(false);
+                            URL.revokeObjectURL(tempImage);
+                        }}
+                    />
+                )}
+
             </DialogContent>
         </Dialog>
     )

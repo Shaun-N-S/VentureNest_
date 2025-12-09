@@ -64,10 +64,12 @@ export const API_ROUTES = {
 
   PROJECT: {
     ADD: "/projects",
+    UPDATE_PROJECT: "/projects/update/:projectId",
     FETCH_ALL_PROJECTS: "/projects",
     FETCH_PERSONAL_PROJECT: "/projects/personal",
     REMOVE_PROJECT: "/projects/remove/:projectId",
     FETCH_SINGLE_PROJECT: "/projects/:projectId",
+    ADD_MONTHLY_REPORT: "/projects/monthly-report/:projectId",
   },
 
   RELATIONSHIP: {

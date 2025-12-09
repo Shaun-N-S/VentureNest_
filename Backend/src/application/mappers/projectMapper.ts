@@ -1,5 +1,9 @@
 import { ProjectEntity } from "@domain/entities/project/projectEntity";
-import { ProjectResDTO, CreateProjectEntityDTO } from "application/dto/project/projectDTO";
+import {
+  ProjectResDTO,
+  CreateProjectEntityDTO,
+  UpdateProjectEntityDTO,
+} from "application/dto/project/projectDTO";
 import mongoose from "mongoose";
 
 export class ProjectMapper {
@@ -153,5 +157,43 @@ export class ProjectMapper {
 
       ...(project.walletId && { walletId: project.walletId }),
     };
+  }
+
+  static updateToEntity(existing: ProjectEntity, dto: UpdateProjectEntityDTO): ProjectEntity {
+    const updated: ProjectEntity = {
+      _id: existing._id!,
+      userId: existing.userId,
+
+      startupName: dto.startupName ?? existing.startupName,
+      shortDescription: dto.shortDescription ?? existing.shortDescription,
+      projectWebsite: dto.projectWebsite ?? existing.projectWebsite,
+
+      userRole: dto.userRole ?? existing.userRole,
+      teamSize: dto.teamSize ?? existing.teamSize,
+      category: dto.category ?? existing.category,
+      stage: dto.stage ?? existing.stage,
+
+      location: dto.location ?? existing.location,
+
+      pitchDeckUrl: dto.pitchDeckUrl ?? existing.pitchDeckUrl,
+      logoUrl: dto.logoUrl ?? existing.logoUrl,
+      coverImageUrl: dto.coverImageUrl ?? existing.coverImageUrl,
+
+      donationEnabled: dto.donationEnabled ?? existing.donationEnabled,
+      donationTarget: dto.donationTarget ?? existing.donationTarget,
+      projectRegister: dto.projectRegister ?? existing.projectRegister,
+      donationReceived: existing.donationReceived,
+
+      likes: existing.likes,
+      likeCount: existing.likeCount,
+      isActive: existing.isActive,
+
+      createdAt: existing.createdAt!,
+      updatedAt: new Date(),
+    };
+
+    if (existing.walletId) updated.walletId = existing.walletId;
+
+    return updated;
   }
 }

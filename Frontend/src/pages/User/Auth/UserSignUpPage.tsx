@@ -6,6 +6,7 @@ import { useState } from "react"
 import LeftPanel from "../../../components/auth/LeftPanal"
 import toast from "react-hot-toast"
 import { motion } from "framer-motion"
+import { AxiosError } from "axios"
 
 
 type SignupPayload = { userName: string; email: string; password: string }
@@ -55,8 +56,9 @@ export default function UserSignUpPage() {
           navigate('/login')
 
         }, onError: (err) => {
-          if (err instanceof Error) {
-            toast.error(err.response.data.message)
+          if (err) {
+            console.log("otp verification failed  : ", err);
+            toast.error("Otp verification failed")
           }
         }
       }
@@ -80,15 +82,9 @@ export default function UserSignUpPage() {
 
   return (
     <div className=" md:h-screen grid grid-cols-1 md:grid-cols-2 items-stretch bg-background text-foreground md:overflow-hidden">
-      {/* <div className="mx-auto grid min-h-screen w-full max-w-6xl grid-cols-1 md:grid-cols-2"> */}
-      {/* Left design panel - hidden on small screens for better mobile UX */}
       <motion.div
-        // initial={{ opacity: 0, x: -16 }}
-        // animate={{ opacity: 1, x: 0 }}
-        // transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative h-full"
       >
-        {/* Replace previous image-based panel with reusable component */}
         <LeftPanel />
       </motion.div>
 
