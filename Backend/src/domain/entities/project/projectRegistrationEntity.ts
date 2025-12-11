@@ -2,11 +2,11 @@ import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatu
 
 export interface ProjectRegistrationEntity {
   _id?: string;
-  project_id: string;
-  founder_id: string;
+  projectId: string;
+  founderId: string;
   gstCertificateUrl?: string;
   companyRegistrationCertificateUrl?: string;
-  cin_number?: string;
+  cinNumber?: string;
   country: string;
   verifyProfile: boolean;
   declarationAccepted: boolean;

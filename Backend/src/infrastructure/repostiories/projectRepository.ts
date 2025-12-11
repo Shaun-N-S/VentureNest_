@@ -1,10 +1,10 @@
-// ProjectRepository.ts
 import { ProjectEntity } from "@domain/entities/project/projectEntity";
 import { BaseRepository } from "./baseRepository";
 import { IProjectModel } from "@infrastructure/db/models/projectModel";
 import { IProjectRepository } from "@domain/interfaces/repositories/IProjectRepository";
 import { Model } from "mongoose";
 import { ProjectMapper } from "application/mappers/projectMapper";
+import { PopulatedProjectRepoDTO } from "application/dto/project/projectDTO";
 
 export class ProjectRepository
   extends BaseRepository<ProjectEntity, IProjectModel>
@@ -13,6 +13,14 @@ export class ProjectRepository
   constructor(protected _model: Model<IProjectModel>) {
     super(_model, ProjectMapper);
   }
+
+  // async findById(id: string) {
+  //   const doc = await this._model.findById(id).populate("userId", "userName profileImg");
+
+  //   if (!doc) return null;
+
+  //   return ProjectMapper.fromMongooseDocument(doc);
+  // }
 
   async findPersonalProjects(userId: string, skip: number, limit: number) {
     const [docs, total] = await Promise.all([
@@ -39,5 +47,13 @@ export class ProjectRepository
       total,
       hasNextPage: skip + docs.length < total,
     };
+  }
+
+  async fetchPopulatedProjectById(id: string): Promise<PopulatedProjectRepoDTO | null> {
+    const doc = await this._model.findById(id).populate("userId", "userName profileImg");
+
+    if (!doc) return null;
+
+    return ProjectMapper.fromMongooseDocumentPopulated(doc);
   }
 }

@@ -6,6 +6,10 @@ import { TeamSize } from "@domain/enum/teamSize";
 export interface ProjectResDTO {
   _id: string;
   userId: string;
+  user?: {
+    userName: string;
+    profileImg: string | null;
+  };
   startupName: string;
   shortDescription: string;
   pitchDeckUrl?: string;
@@ -114,4 +118,37 @@ export interface UpdateProjectEntityDTO {
   donationEnabled?: boolean | undefined;
   donationTarget?: number | undefined;
   projectRegister?: boolean | undefined;
+}
+
+export interface PopulatedUserStub {
+  _id: string;
+  userName: string;
+  profileImg: string | null;
+}
+
+export interface PopulatedProjectRepoDTO {
+  _id: string;
+  userId: string;
+  populatedUser?: PopulatedUserStub;
+  startupName: string;
+  shortDescription: string;
+  pitchDeckUrl?: string;
+  projectWebsite?: string;
+  userRole: ProjectRole;
+  teamSize: TeamSize;
+  category: PreferredSector;
+  stage: StartupStage;
+  logoUrl?: string;
+  coverImageUrl?: string;
+  location?: string;
+  likes: string[];
+  likeCount: number;
+  isActive: boolean;
+  walletId?: string;
+  donationEnabled: boolean;
+  donationTarget: number;
+  donationReceived: number;
+  projectRegister: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }

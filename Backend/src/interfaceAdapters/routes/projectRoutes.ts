@@ -2,6 +2,7 @@ import { authMiddleware } from "@infrastructure/DI/Auth/authContainer";
 import {
   projectController,
   projectMonthlyReportController,
+  projectRegistrationController,
 } from "@infrastructure/DI/Project/projectContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
@@ -80,6 +81,18 @@ export class Project_Router {
       uploadMulter.none(),
       (req: Request, res: Response, next: NextFunction) => {
         projectMonthlyReportController.addMonthlyReport(req, res, next);
+      }
+    );
+
+    this._route.post(
+      ROUTES.PROJECT.VERIFY_PROJECT,
+      authMiddleware.verify,
+      uploadMulter.fields([
+        { name: "gstCertificate", maxCount: 1 },
+        { name: "companyRegistrationCertificate", maxCount: 1 },
+      ]),
+      (req: Request, res: Response, next: NextFunction) => {
+        projectRegistrationController.registerProject(req, res, next);
       }
     );
   }

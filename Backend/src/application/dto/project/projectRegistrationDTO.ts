@@ -2,12 +2,13 @@ import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatu
 
 export interface ProjectRegistrationResDTO {
   _id: string;
-  project_id: string;
-  founder_id: string;
+
+  projectId: string;
+  founderId: string;
 
   gstCertificateUrl?: string;
   companyRegistrationCertificateUrl?: string;
-  cin_number?: string;
+  cinNumber?: string;
 
   country: string;
   verifyProfile: boolean;
@@ -20,26 +21,26 @@ export interface ProjectRegistrationResDTO {
 }
 
 export interface CreateProjectRegistrationDTO {
-  project_id: string;
-  founder_id: string;
+  projectId: string;
+  founderId: string;
 
   gstCertificate?: File | undefined;
   companyRegistrationCertificate?: File | undefined;
 
-  cin_number?: string | undefined;
+  cinNumber?: string | undefined;
   country: string;
 
   declarationAccepted: boolean;
 }
 
 export interface CreateProjectRegistrationEntityDTO {
-  project_id: string;
-  founder_id: string;
+  projectId: string;
+  founderId: string;
 
   gstCertificateUrl?: string | undefined;
   companyRegistrationCertificateUrl?: string | undefined;
 
-  cin_number?: string | undefined;
+  cinNumber?: string | undefined;
   country: string;
 
   declarationAccepted: boolean;

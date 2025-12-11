@@ -1,6 +1,8 @@
 import { projectModel } from "@infrastructure/db/models/projectModel";
 import { projectMonthlyReportModel } from "@infrastructure/db/models/projectMonthlyReportModel";
+import { projectRegistrationModel } from "@infrastructure/db/models/projectRegistrationModel";
 import { ProjectMonthlyReportRepository } from "@infrastructure/repostiories/projectMontlyReportRepository";
+import { ProjectRegistrationRepository } from "@infrastructure/repostiories/projectRegistrationRepository";
 import { ProjectRepository } from "@infrastructure/repostiories/projectRepository";
 import { StorageService } from "@infrastructure/services/storageService";
 import { CreateProjectMonthlyReportUseCase } from "application/useCases/Project/createProjectMonthlyReportUseCase";
@@ -8,13 +10,16 @@ import { CreateProjectUseCase } from "application/useCases/Project/createProject
 import { FetchAllProjectsUseCase } from "application/useCases/Project/fetchAllProjectsUseCase";
 import { FetchPersonalProjectsUseCase } from "application/useCases/Project/fetchPersonalProjectsUseCase";
 import { FetchProjectByIdUseCase } from "application/useCases/Project/fetchProjectByIdUseCase";
+import { RegisterProjectUseCase } from "application/useCases/Project/registerProjectUseCase";
 import { RemoveProjectUseCase } from "application/useCases/Project/removeProjectsUseCase";
 import { UpdateProjectUseCase } from "application/useCases/Project/updateProjectUseCase";
 import { ProjectController } from "interfaceAdapters/controller/Project/projectController";
 import { MonthlyReportController } from "interfaceAdapters/controller/Project/projectMonthlyReportController";
+import { ProjectRegistrationController } from "interfaceAdapters/controller/Project/projectRegistrationController";
 
 const projectRepo = new ProjectRepository(projectModel);
 const projectMontlyReportRepo = new ProjectMonthlyReportRepository(projectMonthlyReportModel);
+const projectRegisterRepo = new ProjectRegistrationRepository(projectRegistrationModel);
 const storageService = new StorageService();
 
 const createProjectUseCase = new CreateProjectUseCase(projectRepo, storageService);
@@ -24,6 +29,7 @@ const removeProjectUseCase = new RemoveProjectUseCase(projectRepo, storageServic
 const fetchProjectByIdUseCase = new FetchProjectByIdUseCase(projectRepo, storageService);
 const updateProjectUseCase = new UpdateProjectUseCase(projectRepo, storageService);
 const createMonthlyReportUseCase = new CreateProjectMonthlyReportUseCase(projectMontlyReportRepo);
+const verifyProjectUseCase = new RegisterProjectUseCase(projectRegisterRepo, storageService);
 
 export const projectController = new ProjectController(
   createProjectUseCase,
@@ -36,4 +42,8 @@ export const projectController = new ProjectController(
 
 export const projectMonthlyReportController = new MonthlyReportController(
   createMonthlyReportUseCase
+);
+
+export const projectRegistrationController = new ProjectRegistrationController(
+  verifyProjectUseCase
 );

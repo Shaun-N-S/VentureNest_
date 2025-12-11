@@ -7,4 +7,6 @@ export enum StorageFolderNames {
   PROJECT_PITCH_DECK = "pitchDeckUrl",
   PROJECT_LOGO = "logoUrl",
   PROJECT_COVER_IMAGE = "coverImageUrl",
+  PROJECT_REGISTRATION_COMPANY_CERT = "companyRegistrationCertificateUrl",
+  PROJECT_REGISTRATION_GST = "gstCertificateUrl",
 }

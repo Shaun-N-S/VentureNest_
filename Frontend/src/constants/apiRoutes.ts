@@ -70,6 +70,7 @@ export const API_ROUTES = {
     REMOVE_PROJECT: "/projects/remove/:projectId",
     FETCH_SINGLE_PROJECT: "/projects/:projectId",
     ADD_MONTHLY_REPORT: "/projects/monthly-report/:projectId",
+    VERIFY_STARTUP: "/projects/verify/:projectId",
   },
 
   RELATIONSHIP: {

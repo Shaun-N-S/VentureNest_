@@ -15,6 +15,7 @@ import { useFetchPersonalProjects, useUpdateProject } from "../../../hooks/Proje
 import type { PersonalProjectApiResponse, ProjectType } from "../../../types/projectType"
 import AddProjectModal from "../../../components/modals/AddProjectModal"
 import { MonthlyReportModal } from "../../../components/modals/AddProjectMonthlyReportModal"
+import { VerifyStartupModal } from "../../../components/modals/ProjectRegistrationModal"
 
 export default function ProfilePage() {
     const [likedProjects, setLikedProjects] = useState<Set<string>>(new Set())
@@ -22,10 +23,13 @@ export default function ProfilePage() {
     const [isFollowing, setIsFollowing] = useState(false)
     const userData = useSelector((state: Rootstate) => state.authData)
     const userId = userData.id;
+    const isAdminVerified = userData.adminVerified === true;
     const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null);
     const [isMonthlyReportOpen, setIsMonthlyReportOpen] = useState(false);
     const [reportProjectId, setReportProjectId] = useState<string | null>(null);
+    const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false)
+    const [verifyProjectId, setVerifyProjectId] = useState<string | null>(null)
     const { data: profileData, isLoading } = useFetchUserProfile(userId)
     const { data: postData, isLoading: postIsLoading } = useFetchPersonalPost(1, 10);
     const { data: projectData, isLoading: projectIsLoading } = useFetchPersonalProjects(1, 10)
@@ -143,7 +147,15 @@ export default function ProfilePage() {
     };
 
 
+    const handleVerifyProject = (projectId: string) => {
+        // if (!isAdminVerified) {
+        //     toast.error("Your profile must be verified by admin before verifying a startup.");
+        //     return;
+        // }
 
+        setVerifyProjectId(projectId);
+        setIsVerifyModalOpen(true);
+    }
 
 
     return (
@@ -221,6 +233,7 @@ export default function ProfilePage() {
                                             onLike={() => toggleProjectLike(project._id)}
                                             onEdit={() => handleEditProject(project)}
                                             onAddReport={handleAddMonthlyReport}
+                                            onVerify={handleVerifyProject}
                                         />
                                     ))
                                 ) : (
@@ -244,6 +257,12 @@ export default function ProfilePage() {
                 open={isMonthlyReportOpen}
                 onOpenChange={setIsMonthlyReportOpen}
                 projectId={reportProjectId}
+            />
+            <VerifyStartupModal
+                open={isVerifyModalOpen}
+                onOpenChange={setIsVerifyModalOpen}
+                projectId={verifyProjectId}
+                founderId={userId}
             />
 
         </div>

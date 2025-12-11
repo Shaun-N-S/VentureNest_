@@ -12,12 +12,18 @@ export class FetchProjectByIdUseCase implements IFetchProjectByIdUseCase {
     private _storageService: IStorageService
   ) {}
 
-  async fetchProjectById(id: string): Promise<ProjectResDTO> {
-    const entity = await this._projectRepo.findById(id);
+  async fetchProjectById(projectId: string): Promise<ProjectResDTO> {
+    const populatedProject = await this._projectRepo.fetchPopulatedProjectById(projectId);
 
-    if (!entity) throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);
+    if (!populatedProject) throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);
 
-    const dto = ProjectMapper.toDTO(entity);
+    const dto = ProjectMapper.toDTOFromPopulatedRepo(populatedProject);
+
+    if (dto.user) {
+      dto.user.profileImg = dto.user.profileImg
+        ? await this._storageService.createSignedUrl(dto.user.profileImg, 10 * 60) // <-- Sign the URL
+        : null;
+    }
 
     if (dto.logoUrl) {
       dto.logoUrl = await this._storageService.createSignedUrl(dto.logoUrl, 10 * 60);

@@ -1,4 +1,3 @@
-// ProjectMonthlyReportRepository.ts
 import { ProjectMonthlyReportEntity } from "@domain/entities/project/projectMonthlyReportEntity";
 import { BaseRepository } from "./baseRepository";
 import { IProjectMonthlyReportModel } from "@infrastructure/db/models/projectMonthlyReportModel";

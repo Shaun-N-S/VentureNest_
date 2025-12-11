@@ -67,7 +67,7 @@ const VerificationPage = () => {
         debouncedSearch
     );
 
-    console.log("Search params:", { page, limit, statusFilter, debouncedSearch, activeTab });
+    console.log("Search params:", { page, limit, statusFilter, debouncedSearch, activeTab }, "userData :", userData, "investorData :", investorData);
 
     // Get data from API based on active tab
     const allData = useMemo(() => {
@@ -173,12 +173,12 @@ const VerificationPage = () => {
                 render: (row: UserRow) => (
                     <span
                         className={`px-4 py-1.5 rounded-full text-xs font-semibold ${row.kycStatus === "APPROVED"
-                                ? "bg-green-100 text-green-700"
-                                : row.kycStatus === "REJECTED"
-                                    ? "bg-red-100 text-red-700"
-                                    : row.kycStatus === "SUBMITTED"
-                                        ? "bg-blue-100 text-blue-700"
-                                        : "bg-yellow-100 text-yellow-700"
+                            ? "bg-green-100 text-green-700"
+                            : row.kycStatus === "REJECTED"
+                                ? "bg-red-100 text-red-700"
+                                : row.kycStatus === "SUBMITTED"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : "bg-yellow-100 text-yellow-700"
                             }`}
                     >
                         {row.kycStatus.charAt(0) + row.kycStatus.slice(1).toLowerCase()}
@@ -247,12 +247,12 @@ const VerificationPage = () => {
                 render: (row: InvestorRow) => (
                     <span
                         className={`px-4 py-1.5 rounded-full text-xs font-semibold ${row.kycStatus === "APPROVED"
-                                ? "bg-green-100 text-green-700"
-                                : row.kycStatus === "REJECTED"
-                                    ? "bg-red-100 text-red-700"
-                                    : row.kycStatus === "SUBMITTED"
-                                        ? "bg-blue-100 text-blue-700"
-                                        : "bg-yellow-100 text-yellow-700"
+                            ? "bg-green-100 text-green-700"
+                            : row.kycStatus === "REJECTED"
+                                ? "bg-red-100 text-red-700"
+                                : row.kycStatus === "SUBMITTED"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : "bg-yellow-100 text-yellow-700"
                             }`}
                     >
                         {row.kycStatus.charAt(0) + row.kycStatus.slice(1).toLowerCase()}
