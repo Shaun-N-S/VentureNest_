@@ -10,5 +10,5 @@ export interface ProjectCardProps {
 
   onEdit?: () => void;
   onAddReport?: (id: string) => void;
-  onVerify?: (id: string) => void;
+  onVerify?: (projectId: string) => void;
 }

@@ -8,17 +8,18 @@ import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatu
 import { IProjectRegistrationModel } from "@infrastructure/db/models/projectRegistrationModel";
 
 export class ProjectRegistrationMapper {
-  // ------------------ 1. Create DTO → Entity ------------------
   static toEntity(dto: CreateProjectRegistrationEntityDTO): ProjectRegistrationEntity {
+    const now = new Date();
+
     return {
       _id: new mongoose.Types.ObjectId().toString(),
 
-      project_id: dto.project_id,
-      founder_id: dto.founder_id,
+      projectId: dto.projectId,
+      founderId: dto.founderId,
 
       gstCertificateUrl: dto.gstCertificateUrl || "",
       companyRegistrationCertificateUrl: dto.companyRegistrationCertificateUrl || "",
-      cin_number: dto.cin_number || "",
+      cinNumber: dto.cinNumber || "",
 
       country: dto.country,
       declarationAccepted: dto.declarationAccepted,
@@ -26,21 +27,21 @@ export class ProjectRegistrationMapper {
       verifyProfile: false,
       status: dto.status ?? ProjectRegistrationStatus.PENDING,
 
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     };
   }
 
-  // ------------------ 2. Entity → DTO ------------------
   static toDTO(entity: ProjectRegistrationEntity): ProjectRegistrationResDTO {
     return {
       _id: entity._id!,
-      project_id: entity.project_id,
-      founder_id: entity.founder_id,
+
+      projectId: entity.projectId,
+      founderId: entity.founderId,
 
       gstCertificateUrl: entity.gstCertificateUrl || "",
       companyRegistrationCertificateUrl: entity.companyRegistrationCertificateUrl || "",
-      cin_number: entity.cin_number || "",
+      cinNumber: entity.cinNumber || "",
 
       country: entity.country,
       verifyProfile: entity.verifyProfile,
@@ -48,22 +49,21 @@ export class ProjectRegistrationMapper {
 
       status: entity.status,
 
-      createdAt: entity.createdAt || new Date(),
-      updatedAt: entity.updatedAt || new Date(),
+      createdAt: entity.createdAt!,
+      updatedAt: entity.updatedAt!,
     };
   }
 
-  // ------------------ 3. Entity → Mongoose Document ------------------
   static toMongooseDocument(entity: ProjectRegistrationEntity) {
     return {
       _id: new mongoose.Types.ObjectId(entity._id),
 
-      project_id: new mongoose.Types.ObjectId(entity.project_id),
-      founder_id: new mongoose.Types.ObjectId(entity.founder_id),
+      projectId: new mongoose.Types.ObjectId(entity.projectId),
+      founderId: new mongoose.Types.ObjectId(entity.founderId),
 
       gstCertificateUrl: entity.gstCertificateUrl,
       companyRegistrationCertificateUrl: entity.companyRegistrationCertificateUrl,
-      cin_number: entity.cin_number,
+      cinNumber: entity.cinNumber,
 
       country: entity.country,
       verifyProfile: entity.verifyProfile,
@@ -76,16 +76,16 @@ export class ProjectRegistrationMapper {
     };
   }
 
-  // ------------------ 4. Mongoose Document → Entity ------------------
   static fromMongooseDocument(doc: IProjectRegistrationModel): ProjectRegistrationEntity {
     return {
       _id: doc._id.toString(),
-      project_id: doc.project_id?.toString(),
-      founder_id: doc.founder_id?.toString(),
+
+      projectId: doc.projectId.toString(),
+      founderId: doc.founderId.toString(),
 
       gstCertificateUrl: doc.gstCertificateUrl || "",
       companyRegistrationCertificateUrl: doc.companyRegistrationCertificateUrl || "",
-      cin_number: doc.cin_number || "",
+      cinNumber: doc.cinNumber || "",
 
       country: doc.country,
       verifyProfile: doc.verifyProfile,
@@ -93,8 +93,8 @@ export class ProjectRegistrationMapper {
 
       status: doc.status,
 
-      createdAt: doc.createdAt || new Date(),
-      updatedAt: doc.updatedAt || new Date(),
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     };
   }
 }

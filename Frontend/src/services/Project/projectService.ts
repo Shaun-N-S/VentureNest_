@@ -75,3 +75,19 @@ export const addMontlyProjectReport = async (formData: FormData) => {
   );
   return response.data;
 };
+
+export const verifyStartup = async (formData: FormData) => {
+  const projectId = formData.get("projectId") as string;
+
+  const response = await AxiosInstance.post(
+    API_ROUTES.PROJECT.VERIFY_STARTUP.replace(":projectId", projectId),
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};

@@ -6,6 +6,7 @@ import {
   fetchPersonalProjects,
   fetchProjectById,
   updateProject,
+  verifyStartup,
 } from "../../services/Project/projectService";
 import { string } from "zod";
 
@@ -45,5 +46,11 @@ export const useFetchProjectById = (projectId: string) => {
 export const useAddMonthlyReport = () => {
   return useMutation({
     mutationFn: (formData: FormData) => addMontlyProjectReport(formData),
+  });
+};
+
+export const useVerifyProject = () => {
+  return useMutation({
+    mutationFn: (formData: FormData) => verifyStartup(formData),
   });
 };

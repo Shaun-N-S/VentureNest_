@@ -81,6 +81,7 @@ export const ROUTES = {
     REMOVE: "/remove/:projectId",
     SINGLE_PROJECT: "/:projectId",
     ADD_MONTHLY_REPORT: "/monthly-report/:projectId",
+    VERIFY_PROJECT: "/verify/:projectId",
   },
 
   RELATIONSHIP: {

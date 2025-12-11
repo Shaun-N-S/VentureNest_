@@ -1,16 +1,15 @@
 import { useState } from "react"
-import { motion } from "framer-motion"
-import { Heart, Download, Flag, MapPin, FileText } from "lucide-react"
-import { Badge } from "../../components/ui/badge"
-import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar"
-
+import { motion, AnimatePresence } from "framer-motion"
+import { Heart, Download, Flag, MapPin, FileText, ExternalLink, Users, Target, Sparkles } from "lucide-react"
+import { Badge } from "../ui/badge"
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
+import { Button } from "../ui/button"
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from "../../components/ui/dialog"
-
+} from "../ui/dialog"
 import { Document, Page } from "react-pdf"
 
 interface Founder {
@@ -39,6 +38,14 @@ interface ProjectDetailCardProps {
     onReport?: (id: string) => void
 }
 
+const stageColors: Record<string, string> = {
+    "Idea": "bg-accent/10 text-accent border-accent/20",
+    "MVP": "bg-primary/10 text-primary border-primary/20",
+    "Seed": "bg-success/10 text-success border-success/20",
+    "Series A": "bg-primary/10 text-primary border-primary/20",
+    "Growth": "bg-success/10 text-success border-success/20",
+}
+
 export function ProjectDetailCard({
     id,
     name,
@@ -57,205 +64,280 @@ export function ProjectDetailCard({
     onLike,
     onReport,
 }: ProjectDetailCardProps) {
-
     const [isPdfOpen, setIsPdfOpen] = useState(false)
     const [numPages, setNumPages] = useState<number | null>(null)
+    const [liked, setLiked] = useState(isLiked)
+    const [likeCount, setLikeCount] = useState(likes)
 
     const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-        setNumPages(numPages);
-    };
+        setNumPages(numPages)
+    }
+
+    const handleLike = () => {
+        setLiked(!liked)
+        setLikeCount(prev => liked ? prev - 1 : prev + 1)
+        onLike?.(id)
+    }
+
+    const stageClass = stageColors[stage] || "bg-muted text-muted-foreground border-border"
 
     return (
         <>
-            {/* Main Card */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
+            <motion.article
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-3xl overflow-hidden shadow-lg border border-sky-100"
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="bg-card rounded-2xl overflow-hidden shadow-lg border border-border/50"
             >
-                {/* Hero Section */}
-                <div className="relative w-full h-60 md:h-80 overflow-hidden bg-gray-100">
-                    <img
-                        src={image || "/placeholder.svg"}
+                {/* Hero Image Section */}
+                <div className="relative h-72 md:h-96 overflow-hidden group">
+                    <motion.img
+                        src={image}
                         alt={name}
-                        className="w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
 
-                    <div className="absolute top-4 right-4">
-                        <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => onLike?.(id)}
-                            className={`p-2 rounded-full ${isLiked ? "bg-red-100" : "bg-white bg-opacity-90"
-                                } shadow-md`}
+                    {/* Floating Like Button */}
+                    <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={handleLike}
+                        className="absolute top-6 right-6 p-3 rounded-full bg-card/90 backdrop-blur-sm shadow-lg border border-border/50 transition-colors"
+                    >
+                        <Heart
+                            className={`w-6 h-6 transition-colors ${liked ? "fill-destructive text-destructive" : "text-muted-foreground"
+                                }`}
+                        />
+                    </motion.button>
+
+                    {/* Logo Overlay */}
+                    <div className="absolute -bottom-12 left-8 z-10">
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.2, duration: 0.4 }}
+                            className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-card shadow-lg border-4 border-card overflow-hidden"
                         >
-                            <Heart
-                                className={`w-6 h-6 ${isLiked ? "fill-red-500 text-red-500" : "text-gray-400"
-                                    }`}
+                            <img
+                                src={logo || "/placeholder.svg"}
+                                alt={logoAlt || name}
+                                className="w-full h-full object-cover"
                             />
-                        </motion.button>
+                        </motion.div>
                     </div>
                 </div>
 
-                <div className="p-6 md:p-8">
-                    {/* Logo + Title */}
-                    <div className="flex flex-col md:flex-row md:items-start gap-6 mb-8">
-                        <div className="flex-shrink-0">
-                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shadow-md">
-                                <img
-                                    src={logo || "/placeholder.svg"}
-                                    alt={logoAlt || name}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex-1">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-3">
-                                <div>
-                                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                                        {name}
-                                    </h1>
-                                    <Badge className="mt-2 bg-green-100 text-green-800 border-0">
-                                        {stage}
-                                    </Badge>
-                                </div>
-
-                                <div className="flex items-center gap-2 text-gray-600">
-                                    <Heart className="w-5 h-5" />
-                                    <span className="text-lg font-semibold">{likes}</span>
-                                </div>
+                {/* Content Section */}
+                <div className="pt-16 px-6 pb-8 md:px-8">
+                    {/* Header */}
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-3 flex-wrap">
+                                <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
+                                    {name}
+                                </h1>
+                                <Badge variant="outline" className={`${stageClass} font-medium`}>
+                                    <Sparkles className="w-3 h-3 mr-1" />
+                                    {stage}
+                                </Badge>
                             </div>
 
-                            <p className="text-gray-600 text-sm md:text-base">{description}</p>
+                            {location && (
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <MapPin className="w-4 h-4" />
+                                    <span className="text-sm font-medium">{location}</span>
+                                </div>
+                            )}
                         </div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-xl"
+                        >
+                            <Heart className="w-5 h-5 text-destructive" />
+                            <span className="text-lg font-bold text-foreground">{likeCount}</span>
+                            <span className="text-sm text-muted-foreground">likes</span>
+                        </motion.div>
                     </div>
 
-                    {/* Location */}
-                    {location && (
-                        <div className="flex items-center gap-2 mb-8 pb-8 border-b border-gray-100">
-                            <MapPin className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-600">{location}</span>
+                    {/* Description */}
+                    <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-8">
+                        {description}
+                    </p>
+
+                    {/* Founders Section */}
+                    <motion.section
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="section-divider"
+                    >
+                        <div className="flex items-center gap-2 mb-5">
+                            <Users className="w-5 h-5 text-primary" />
+                            <h2 className="text-xl font-display font-semibold text-foreground">
+                                Founders
+                            </h2>
                         </div>
-                    )}
 
-                    {/* Founders */}
-                    <div className="mb-8">
-                        <h2 className="text-lg font-bold text-gray-900 mb-4 underline">
-                            Founders
-                        </h2>
-
-                        <div className="space-y-4">
-                            {founders.map((founder) => (
+                        <div className="grid gap-3">
+                            {founders.map((founder, index) => (
                                 <motion.div
                                     key={founder.id}
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl"
+                                    transition={{ delay: 0.5 + index * 0.1 }}
+                                    className="flex items-center gap-4 p-4 bg-secondary/50 rounded-xl hover:bg-secondary transition-colors cursor-pointer group"
                                 >
-                                    <Avatar className="w-12 h-12">
+                                    <Avatar className="w-14 h-14 ring-2 ring-primary/10 ring-offset-2 ring-offset-card">
                                         <AvatarImage
                                             src={founder.image || "/placeholder.svg"}
                                             alt={founder.name}
                                         />
-                                        <AvatarFallback>{founder.initials}</AvatarFallback>
+                                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                                            {founder.initials}
+                                        </AvatarFallback>
                                     </Avatar>
 
-                                    <div>
-                                        <p className="font-semibold text-gray-900">{founder.name}</p>
-                                        <p className="text-sm text-gray-500">Founder</p>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                                            {founder.name}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">Co-Founder</p>
                                     </div>
+
+                                    <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </motion.div>
                             ))}
                         </div>
-                    </div>
+                    </motion.section>
 
-                    {/* Aim */}
-                    <div className="mb-8 pb-8 border-b border-gray-100">
-                        <h2 className="text-lg font-bold text-gray-900 mb-4 underline">Aim</h2>
-                        <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl">
-                            {aim}
-                        </p>
-                    </div>
+                    {/* Aim Section */}
+                    <motion.section
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                        className="section-divider"
+                    >
+                        <div className="flex items-center gap-2 mb-5">
+                            <Target className="w-5 h-5 text-accent" />
+                            <h2 className="text-xl font-display font-semibold text-foreground">
+                                Our Vision
+                            </h2>
+                        </div>
+                        <div className="relative p-6 bg-gradient-to-br from-secondary/80 to-muted/50 rounded-2xl border border-border/50">
+                            <p className="text-foreground/90 leading-relaxed text-base md:text-lg italic font-display">
+                                "{aim}"
+                            </p>
+                        </div>
+                    </motion.section>
 
                     {/* Pitch Deck Section */}
                     {pitchDeckUrl && (
-                        <div className="mb-8 pb-8 border-b border-gray-100">
-                            <h2 className="text-lg font-bold text-gray-900 mb-4 underline">
-                                Pitch Deck
-                            </h2>
+                        <motion.section
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.7 }}
+                            className="section-divider"
+                        >
+                            <div className="flex items-center gap-2 mb-5">
+                                <FileText className="w-5 h-5 text-primary" />
+                                <h2 className="text-xl font-display font-semibold text-foreground">
+                                    Pitch Deck
+                                </h2>
+                            </div>
 
-                            {/* OPEN PDF MODAL */}
-                            <motion.button
-                                onClick={() => setIsPdfOpen(true)}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="w-full flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
-                            >
-                                <FileText className="w-5 h-5 text-blue-500" />
-                                <span className="text-gray-700 font-medium">
-                                    View Pitch Deck
-                                </span>
-                            </motion.button>
+                            <div className="grid sm:grid-cols-2 gap-3">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsPdfOpen(true)}
+                                    className="h-auto py-4 px-5 justify-start gap-3 bg-secondary/30 hover:bg-secondary border-border/50"
+                                >
+                                    <div className="p-2 bg-primary/10 rounded-lg">
+                                        <FileText className="w-5 h-5 text-primary" />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="font-semibold text-foreground">View Deck</p>
+                                        <p className="text-xs text-muted-foreground">Preview in browser</p>
+                                    </div>
+                                </Button>
 
-                            {/* DOWNLOAD PITCH DECK */}
-                            <motion.a
-                                href={pitchDeckUrl}
-                                download
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="mt-3 flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer"
-                            >
-                                <Download className="w-5 h-5 text-green-600" />
-                                <span className="text-gray-700 font-medium">
-                                    {pitchDeckName || "Download PDF"}
-                                </span>
-                            </motion.a>
-                        </div>
+                                <Button
+                                    variant="outline"
+                                    asChild
+                                    className="h-auto py-4 px-5 justify-start gap-3 bg-secondary/30 hover:bg-secondary border-border/50"
+                                >
+                                    <a href={pitchDeckUrl} download>
+                                        <div className="p-2 bg-success/10 rounded-lg">
+                                            <Download className="w-5 h-5 text-success" />
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="font-semibold text-foreground">Download</p>
+                                            <p className="text-xs text-muted-foreground">{pitchDeckName || "PDF File"}</p>
+                                        </div>
+                                    </a>
+                                </Button>
+                            </div>
+                        </motion.section>
                     )}
 
                     {/* Report Button */}
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => onReport?.(id)}
-                        className="w-full bg-red-100 hover:bg-red-200 text-red-600 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.8 }}
                     >
-                        <Flag className="w-5 h-5" />
-                        Report
-                    </motion.button>
+                        <Button
+                            variant="ghost"
+                            onClick={() => onReport?.(id)}
+                            className="w-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
+                        >
+                            <Flag className="w-4 h-4" />
+                            Report this project
+                        </Button>
+                    </motion.div>
                 </div>
-            </motion.div>
+            </motion.article>
 
-            {/* PDF VIEWER MODAL */}
-            <Dialog open={isPdfOpen} onOpenChange={setIsPdfOpen}>
-                <DialogContent className="max-w-3xl h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle className="text-lg font-bold">Pitch Deck Preview</DialogTitle>
-                    </DialogHeader>
+            {/* PDF Viewer Modal */}
+            <AnimatePresence>
+                <Dialog open={isPdfOpen} onOpenChange={setIsPdfOpen}>
+                    <DialogContent className="max-w-4xl h-[90vh] overflow-hidden flex flex-col">
+                        <DialogHeader className="flex-shrink-0">
+                            <DialogTitle className="font-display text-xl">
+                                {pitchDeckName || "Pitch Deck"} Preview
+                            </DialogTitle>
+                        </DialogHeader>
 
-                    <div className="flex justify-center bg-gray-100 rounded-lg p-4 overflow-x-auto">
-                        {pitchDeckUrl ? (
-                            <Document file={pitchDeckUrl} onLoadSuccess={onDocumentLoadSuccess}>
-
-                                {Array.from(new Array(numPages || 0), (_, idx) => (
-                                    <Page
-                                        key={idx + 1}
-                                        pageNumber={idx + 1}
-                                        scale={1.2}
-                                        renderTextLayer={false}
-                                        renderAnnotationLayer={false}
-                                    />
-                                ))}
-                            </Document>
-                        ) : (
-                            <p>No PDF available</p>
-                        )}
-                    </div>
-                </DialogContent>
-            </Dialog>
-
+                        <div className="flex-1 overflow-y-auto bg-muted/50 rounded-xl p-4">
+                            {pitchDeckUrl ? (
+                                <Document
+                                    file={pitchDeckUrl}
+                                    onLoadSuccess={onDocumentLoadSuccess}
+                                    className="flex flex-col items-center gap-4"
+                                >
+                                    {Array.from(new Array(numPages || 0), (_, idx) => (
+                                        <Page
+                                            key={idx + 1}
+                                            pageNumber={idx + 1}
+                                            scale={1.2}
+                                            renderTextLayer={false}
+                                            renderAnnotationLayer={false}
+                                            className="shadow-md rounded-lg overflow-hidden"
+                                        />
+                                    ))}
+                                </Document>
+                            ) : (
+                                <div className="flex items-center justify-center h-full text-muted-foreground">
+                                    No PDF available
+                                </div>
+                            )}
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            </AnimatePresence>
         </>
     )
 }

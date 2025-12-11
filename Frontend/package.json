@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.27.16",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.11",
@@ -37,7 +38,8 @@
     "input-otp": "^1.4.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.544.0",
-    "pdfjs-dist": "^5.4.394",
+    "motion": "^12.23.25",
+    "pdfjs-dist": "^5.4.449",
     "react": "^19.1.1",
     "react-advanced-cropper": "^0.20.1",
     "react-cropper": "^2.3.3",

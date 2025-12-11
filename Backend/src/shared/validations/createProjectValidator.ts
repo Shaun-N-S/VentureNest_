@@ -1,4 +1,4 @@
-import { object, z } from "zod";
+import { z } from "zod";
 import { ProjectRole } from "@domain/enum/projectRole";
 import { TeamSize } from "@domain/enum/teamSize";
 import { PreferredSector } from "@domain/enum/preferredSector";
