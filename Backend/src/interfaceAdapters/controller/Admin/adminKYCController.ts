@@ -82,13 +82,17 @@ export class AdminKYCController {
 
   async updateUserKycStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { userId, newStatus } = req.body;
+      const { userId, newStatus, reason } = req.body;
 
       if (!userId || !newStatus) {
         throw new InvalidDataException(Errors.INVALID_CREDENTIALS);
       }
 
-      const result = await this._updateUserKycStatusUseCase.updateUserKycStatus(userId, newStatus);
+      const result = await this._updateUserKycStatusUseCase.updateUserKycStatus(
+        userId,
+        newStatus,
+        reason
+      );
 
       ResponseHelper.success(
         res,
@@ -103,7 +107,7 @@ export class AdminKYCController {
 
   async udpateInvestorKycStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { investorId, newStatus } = req.body;
+      const { investorId, newStatus, reason } = req.body;
 
       if (!investorId || !newStatus) {
         throw new InvalidDataException(Errors.INVALID_CREDENTIALS);
@@ -111,7 +115,8 @@ export class AdminKYCController {
 
       const result = await this._updateInvestorKycStatusUseCase.updateInvestorKycStatus(
         investorId,
-        newStatus
+        newStatus,
+        reason
       );
 
       ResponseHelper.success(

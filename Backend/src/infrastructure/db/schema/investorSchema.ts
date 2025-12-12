@@ -37,6 +37,14 @@ const investorSchema = new mongoose.Schema(
 
     adminVerified: { type: Boolean, default: false },
     kycStatus: { type: String, enum: Object.values(KYCStatus), default: KYCStatus.PENDING },
+    kycHistory: [
+      {
+        status: { type: String, enum: Object.values(KYCStatus) },
+        reason: { type: String },
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    kycRejectReason: { type: String },
     aadharImg: { type: String },
     address: { type: String },
     dateOfBirth: { type: Date },

@@ -11,9 +11,14 @@ export class UpdateInvestorKycStatusUseCase implements IUpdateInvestorKycStatusU
 
   async updateInvestorKycStatus(
     investorId: string,
-    newStatus: KYCStatus
+    newStatus: KYCStatus,
+    reason?: string
   ): Promise<{ investor: KycDTO }> {
-    const updatedInvestor = await this._investorRepository.updateKycStatus(investorId, newStatus);
+    const updatedInvestor = await this._investorRepository.updateKycStatus(
+      investorId,
+      newStatus,
+      reason
+    );
 
     if (!updatedInvestor) throw new NotFoundExecption(INVESTOR_ERRORS.NO_INVESTORS_FOUND);
 

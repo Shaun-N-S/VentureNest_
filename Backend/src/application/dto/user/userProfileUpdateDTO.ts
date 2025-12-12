@@ -27,6 +27,7 @@ export interface UserProfileUpdateResDTO {
   profileImg?: string;
   website?: string;
   linkedInUrl?: string;
+  kycRejectReason?: string;
   adminVerified?: boolean;
   kycStatus?: KYCStatus;
 }

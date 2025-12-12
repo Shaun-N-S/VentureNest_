@@ -2,12 +2,11 @@ import { X } from "lucide-react";
 import Pagination from "../../components/pagination/Pagination";
 import Table from "../../components/table/Table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useFetchAllInvestorsKyc, useFetchAllUsersKyc } from "../../hooks/Admin/KYCHooks";
 import type { KYCStatus } from "../../types/KycStatusType";
 import VerificationModal from "../../components/modals/ProfileVerificationModal";
 
-// Define base interface for common properties
 interface BaseRow {
     _id: string;
     userName: string;
@@ -54,13 +53,15 @@ const VerificationPage = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserRow | InvestorRow | null>(null);
 
-    const { data: userData, refetch: refetchUsers } = useFetchAllUsersKyc(
+
+
+    const { data: userData } = useFetchAllUsersKyc(
         page,
         limit,
         statusFilter,
         debouncedSearch
     );
-    const { data: investorData, refetch: refetchInvestors } = useFetchAllInvestorsKyc(
+    const { data: investorData } = useFetchAllInvestorsKyc(
         page,
         limit,
         statusFilter,

@@ -15,6 +15,7 @@ export interface IInvestorModel extends Document {
   profileImg?: string;
   website?: string;
   bio?: string;
+  kycRejectReason?: string;
   interestedTopics: PreferredSector[];
   role: UserRole;
   status: UserStatus;
@@ -29,6 +30,11 @@ export interface IInvestorModel extends Document {
   verifiedAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  kycHistory: {
+    status: KYCStatus;
+    reason?: string;
+    date: Date;
+  }[];
 
   // Investor-specific
   location?: string;

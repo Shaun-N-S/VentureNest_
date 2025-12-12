@@ -9,8 +9,12 @@ import { KycMapper } from "application/mappers/kycMapper";
 export class UpdateUserKycUseCase implements IUpdateUserKycStatusUseCase {
   constructor(private _userRepository: IUserRepository) {}
 
-  async updateUserKycStatus(userId: string, newStatus: KYCStatus): Promise<{ user: KycDTO }> {
-    const updatedUser = await this._userRepository.updateKycStatus(userId, newStatus);
+  async updateUserKycStatus(
+    userId: string,
+    newStatus: KYCStatus,
+    reason?: string
+  ): Promise<{ user: KycDTO }> {
+    const updatedUser = await this._userRepository.updateKycStatus(userId, newStatus, reason);
 
     if (!updatedUser) throw new NotFoundExecption(USER_ERRORS.NO_USERS_FOUND);
 

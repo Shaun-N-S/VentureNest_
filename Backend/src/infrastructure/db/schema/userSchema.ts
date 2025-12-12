@@ -37,6 +37,14 @@ const userSchema = new mongoose.Schema(
       enum: Object.values(KYCStatus),
       default: KYCStatus.PENDING,
     },
+    kycHistory: [
+      {
+        status: { type: String, enum: Object.values(KYCStatus) },
+        reason: { type: String },
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    kycRejectReason: { type: String },
     adminVerified: { type: Boolean, default: false },
     verifiedAt: { type: Date },
 

@@ -26,18 +26,12 @@ export class UserRepository
     await this._model.updateOne({ email }, { $set: { password } });
   }
 
-  async findAll(
-    skip = 0,
-    limit = 10,
-    status?: string,
-    search?: string,
-    extraQuery: any = {}
-  ): Promise<UserEntity[]> {
+  async findAll(skip = 0, limit = 10, status?: string, search?: string, extraQuery: any = {}) {
     return super.findAll(skip, limit, status, search, { ...extraQuery, role: UserRole.USER });
   }
 
-  async count(status?: string, search?: string): Promise<number> {
-    return super.count(status, search, { role: UserRole.USER });
+  async count(status?: string, search?: string, extraQuery: any = {}) {
+    return super.count(status, search, { role: UserRole.USER, ...extraQuery });
   }
 
   async updateStatus(userId: string, status: UserStatus): Promise<UserEntity | null> {
@@ -59,8 +53,41 @@ export class UserRepository
     );
   }
 
-  async updateKycStatus(userId: string, kycStatus: KYCStatus): Promise<UserEntity | null> {
-    const updatedUser = await this._model.findByIdAndUpdate(userId, { kycStatus }, { new: true });
+  async updateKycStatus(
+    userId: string,
+    kycStatus: KYCStatus,
+    reason?: string
+  ): Promise<UserEntity | null> {
+    const updateData: any = { kycStatus };
+
+    if (kycStatus === KYCStatus.REJECTED && reason) {
+      updateData.kycRejectReason = reason;
+    }
+
+    if (kycStatus === KYCStatus.APPROVED) {
+      updateData.adminVerified = true;
+      updateData.kycRejectReason = null;
+    }
+
+    const updatedUser = await this._model.findByIdAndUpdate(
+      userId,
+      {
+        $set: updateData,
+        ...(reason && kycStatus === KYCStatus.REJECTED
+          ? {
+              $push: {
+                kycHistory: {
+                  status: kycStatus,
+                  reason,
+                  date: new Date(),
+                },
+              },
+            }
+          : {}),
+      },
+      { new: true }
+    );
+
     if (!updatedUser) return null;
     return UserMapper.fromMongooseDocument(updatedUser);
   }

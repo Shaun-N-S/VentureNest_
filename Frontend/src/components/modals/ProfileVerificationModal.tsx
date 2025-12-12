@@ -6,6 +6,7 @@ import KYCStatusChangeModal from "./KYCStatusChangeModal";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import RejectReasonModal from "./RejectReasonModal";
 
 interface BaseVerificationData {
     _id: string;
@@ -57,6 +58,8 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
     const { mutate: updateInvestorKyc, isPending: isUpdatingInvestor } = useUpdateInvestorKyc();
     const [isKycModalOpen, setIsKycModalOpen] = useState(false);
     const [selectedAction, setSelectedAction] = useState<"APPROVE" | "REJECT" | null>(null);
+    const [rejectReasonModalOpen, setRejectReasonModalOpen] = useState(false);
+
 
     const isUpdating = isUpdatingUser || isUpdatingInvestor;
 
@@ -117,6 +120,52 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
             );
         }
     };
+
+    const handleRejectWithReason = (reason: string) => {
+        if (!data) return;
+
+        const payload = {
+            reason,
+            newStatus: "REJECTED",
+        };
+
+        if (data.role === "INVESTOR") {
+            updateInvestorKyc(
+                { investorId: data._id, ...payload },
+                {
+                    onSuccess: () => {
+                        toast.success("Investor KYC rejected successfully");
+                        // queryClient.invalidateQueries({ queryKey: ["investors-kyc"] });
+                        setRejectReasonModalOpen(false);
+                        onClose();
+                    },
+                    onError: (error) => {
+                        if (error instanceof AxiosError) {
+                            toast.error(error?.response?.data?.message || "Failed to reject");
+                        }
+                    },
+                }
+            );
+        } else {
+            updateUserKyc(
+                { userId: data._id, ...payload },
+                {
+                    onSuccess: () => {
+                        toast.success("User KYC rejected successfully");
+                        // queryClient.invalidateQueries({ queryKey: ["users-kyc"] });
+                        setRejectReasonModalOpen(false);
+                        onClose();
+                    },
+                    onError: (error) => {
+                        if (error instanceof AxiosError) {
+                            toast.error(error?.response?.data?.message || "Failed to reject");
+                        }
+                    },
+                }
+            );
+        }
+    };
+
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return "N/A";
@@ -347,9 +396,9 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
                         <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 flex flex-col sm:flex-row gap-3 justify-end rounded-b-2xl">
                             <button
                                 onClick={() => {
-                                    setSelectedAction("REJECT");
-                                    setIsKycModalOpen(true);
+                                    setRejectReasonModalOpen(true);
                                 }}
+
                                 disabled={isUpdating}
                                 className="px-8 py-2.5 bg-red-500 text-white rounded-full font-semibold hover:bg-red-600 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                             >
@@ -384,10 +433,17 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
                     name={data.userName}
                     actionType={selectedAction}
                     onConfirm={() => {
-                        handleKycUpdate(selectedAction === "APPROVE" ? "APPROVED" : "REJECTED");
+                        if (selectedAction === "APPROVE") handleKycUpdate("APPROVED");
                     }}
                 />
             )}
+
+            <RejectReasonModal
+                isOpen={rejectReasonModalOpen}
+                onClose={() => setRejectReasonModalOpen(false)}
+                onSubmit={handleRejectWithReason}
+            />
+
         </>
     );
 };

@@ -148,10 +148,10 @@ export default function ProfilePage() {
 
 
     const handleVerifyProject = (projectId: string) => {
-        // if (!isAdminVerified) {
-        //     toast.error("Your profile must be verified by admin before verifying a startup.");
-        //     return;
-        // }
+        if (!isAdminVerified) {
+            toast.error("Your profile must be verified by admin before verifying a startup.");
+            return;
+        }
 
         setVerifyProjectId(projectId);
         setIsVerifyModalOpen(true);
@@ -264,7 +264,6 @@ export default function ProfilePage() {
                 projectId={verifyProjectId}
                 founderId={userId}
             />
-
         </div>
     )
 }

@@ -35,10 +35,12 @@ export const useUpdateUsersKyc = () => {
     mutationFn: ({
       userId,
       newStatus,
+      reason,
     }: {
       userId: string;
       newStatus: string;
-    }) => updateUserKycStatus({ userId, newStatus }),
+      reason?: string;
+    }) => updateUserKycStatus({ userId, newStatus, reason }),
   });
 };
 
@@ -47,9 +49,11 @@ export const useUpdateInvestorKyc = () => {
     mutationFn: ({
       investorId,
       newStatus,
+      reason,
     }: {
       investorId: string;
       newStatus: string;
-    }) => updateInvestorKycStatus({ investorId, newStatus }),
+      reason?: string;
+    }) => updateInvestorKycStatus({ investorId, newStatus, reason }),
   });
 };

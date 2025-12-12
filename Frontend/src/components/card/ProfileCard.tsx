@@ -32,7 +32,7 @@ export function ProfileCard(props: ProfileCardProps) {
     const [isCreatePostModal, setIsCreatePostModal] = useState(false);
     const role = useSelector((state: Rootstate) => state.authData.role)
     const userId = useSelector((state: Rootstate) => state.authData.id)
-    const { userData } = props;
+    const userData = useSelector((state: Rootstate) => state.authData);
 
     const handleEditProfile = () => setIsEditModalOpen(true);
     const handleKYCVerification = () => setIsKYCModalOpen(true);
