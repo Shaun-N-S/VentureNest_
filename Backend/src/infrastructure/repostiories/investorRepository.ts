@@ -32,14 +32,15 @@ export class InvestorRepository
     return InvestorMapper.fromMongooseDocument(updatedDoc);
   }
 
-  async findAll(
-    skip = 0,
-    limit = 10,
-    status?: string,
-    search?: string,
-    extraQuery: any = {}
-  ): Promise<InvestorEntity[]> {
-    return super.findAll(skip, limit, status, search, { ...extraQuery, role: UserRole.INVESTOR });
+  async findAll(skip = 0, limit = 10, status?: string, search?: string, extraQuery: any = {}) {
+    return super.findAll(skip, limit, status, search, {
+      ...extraQuery,
+      role: UserRole.INVESTOR,
+    });
+  }
+
+  async count(status?: string, search?: string, extraQuery: any = {}) {
+    return super.count(status, search, { role: UserRole.INVESTOR, ...extraQuery });
   }
 
   async profileCompletion(
@@ -64,20 +65,34 @@ export class InvestorRepository
     );
   }
 
-  async updateKycStatus(userId: string, kycStatus: KYCStatus): Promise<InvestorEntity | null> {
+  async updateKycStatus(
+    investorId: string,
+    kycStatus: KYCStatus,
+    reason?: string
+  ): Promise<InvestorEntity | null> {
     const updateData: any = { kycStatus };
+
+    if (kycStatus === KYCStatus.REJECTED && reason) {
+      updateData.kycRejectReason = reason;
+    }
 
     if (kycStatus === KYCStatus.APPROVED) {
       updateData.adminVerified = true;
+      updateData.kycRejectReason = reason;
     }
 
-    const updatedUser = await this._model.findByIdAndUpdate(
-      userId,
-      { $set: updateData },
+    const udpatedInvestor = await this._model.findByIdAndUpdate(
+      investorId,
+      {
+        $set: updateData,
+        ...(reason && kycStatus === KYCStatus.REJECTED
+          ? { $push: { kycHistory: { status: kycStatus, reason, date: new Date() } } }
+          : {}),
+      },
       { new: true }
     );
 
-    if (!updatedUser) return null;
-    return InvestorMapper.fromMongooseDocument(updatedUser);
+    if (!udpatedInvestor) return null;
+    return InvestorMapper.fromMongooseDocument(udpatedInvestor);
   }
 }

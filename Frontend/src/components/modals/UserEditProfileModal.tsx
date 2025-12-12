@@ -16,6 +16,7 @@ import { useDispatch } from "react-redux"
 import { updateUserData } from "../../store/Slice/authDataSlice"
 import { queryClient } from "../../main"
 import ImageCropper from "../cropper/ImageCropper"
+import type { UserProfileApiResponse } from "../../types/userProfileApiResponse"
 
 const userSchema = z.object({
     profileImg: z.instanceof(File).optional(),
@@ -72,6 +73,22 @@ export default function UserEditProfileModal({
     }, [data?.profileImg])
 
     useEffect(() => {
+        if (open && data) {
+            setFormData({
+                userName: data.userName || "",
+                bio: data.bio || "",
+                website: data.website || "",
+                linkedInUrl: data.linkedInUrl || "",
+            });
+
+            setPreview(data.profileImg || null);
+            setSelectedImage(null);
+            setHasImageChanged(false);
+        }
+    }, [data, open]);
+
+
+    useEffect(() => {
         return () => {
             if (preview && preview.startsWith("blob:")) {
                 URL.revokeObjectURL(preview)
@@ -105,7 +122,6 @@ export default function UserEditProfileModal({
             return;
         }
 
-        // Convert file to temporary blob URL
         const url = URL.createObjectURL(file);
         setTempImage(url);
 
@@ -113,8 +129,27 @@ export default function UserEditProfileModal({
         setShowCropper(true);
     };
 
+    const hasFormChanged = () => {
+        const isTextChanged =
+            formData.userName !== (data.userName || "") ||
+            (formData.bio || "") !== (data.bio || "") ||
+            (formData.website || "") !== (data.website || "") ||
+            (formData.linkedInUrl || "") !== (data.linkedInUrl || "");
+
+        const isImageChanged = hasImageChanged;
+
+        return isTextChanged || isImageChanged;
+    };
+
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!hasFormChanged()) {
+            toast("No changes to update.");
+            onOpenChange(false);
+            return;
+        }
 
         try {
             const cleanedFormData = Object.fromEntries(
@@ -129,11 +164,12 @@ export default function UserEditProfileModal({
                 profileImg: selectedImage || undefined,
             }
 
-            const validatedData = userSchema.parse(dataToValidate)
+            userSchema.parse(dataToValidate);
 
             const formDataToSend = new FormData()
             formDataToSend.append("id", userId)
-            formDataToSend.append("formData", JSON.stringify(cleanedFormData))
+            formDataToSend.append("formData", JSON.stringify(cleanedFormData));
+
 
             if (hasImageChanged && selectedImage) {
                 formDataToSend.append("profileImg", selectedImage)
@@ -141,11 +177,29 @@ export default function UserEditProfileModal({
 
             updateUserProfile(formDataToSend, {
                 onSuccess: (res) => {
-                    toast.success(res.message)
-                    dispatch(updateUserData(res.data.response))
-                    queryClient.invalidateQueries({ queryKey: ["userProfile"] })
-                    queryClient.invalidateQueries({ queryKey: ["profileImg"] })
-                    onOpenChange(false)
+                    toast.success(res.message);
+
+                    dispatch(updateUserData(res.data));
+
+                    queryClient.setQueryData<UserProfileApiResponse>(
+                        ["userProfile"],
+                        (oldData) => {
+                            if (!oldData) return oldData;
+
+                            return {
+                                ...oldData,
+                                data: {
+                                    ...oldData.data,
+                                    ...cleanedFormData,
+                                    profileImg: hasImageChanged && selectedImage
+                                        ? res.data.profileImg
+                                        : oldData.data.profileImg,
+                                }
+                            };
+                        }
+                    );
+
+                    onOpenChange(false);
                 },
                 onError: (err) => toast.error(err.message),
             })

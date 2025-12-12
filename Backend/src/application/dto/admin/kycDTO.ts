@@ -10,7 +10,7 @@ export interface KycDTO {
   status: UserStatus;
   adminVerified: boolean;
   kycStatus: KYCStatus;
-
+  kycRejectReason?: string;
   profileImg?: string | undefined;
   selfieImg?: string | undefined;
   aadharImg?: string | undefined;

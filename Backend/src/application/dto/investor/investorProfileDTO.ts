@@ -13,6 +13,7 @@ export interface InvestorProfileDTO {
   adminVerified?: boolean;
   linkedInUrl?: string;
   kycStatus?: KYCStatus;
+  kycRejectReason?: string;
 }
 
 export interface InvestorProfileUpdateFormDataDTO {
@@ -40,4 +41,5 @@ export interface InvestorProfileUpdateResDTO {
   companyName?: string;
   adminVerified?: boolean;
   profileImg?: string;
+  kycRejectReason?: string;
 }

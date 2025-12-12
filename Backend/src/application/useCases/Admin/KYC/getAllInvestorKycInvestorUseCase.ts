@@ -23,8 +23,9 @@ export class GetAllInvestorKycUseCase implements IGetAllInvestorKycUseCase {
     currentPage: number;
   }> {
     const skip = (page - 1) * limit;
-    const query: Record<string, string> = {};
-    if (status) query.kycStatus = status;
+    const query: Record<string, unknown> = {};
+    query.kycStatus = status ? status : { $ne: KYCStatus.PENDING };
+
     const [investorsKyc, totalUsersKyc] = await Promise.all([
       this._investorRepository.findAll(skip, limit, undefined, search, query),
       this._investorRepository.count(status, search, query),

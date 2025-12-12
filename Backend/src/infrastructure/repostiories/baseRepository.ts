@@ -43,10 +43,11 @@ export abstract class BaseRepository<TEntity, TModel extends Document> {
   async count(status?: string, search?: string, extraQuery: any = {}): Promise<number> {
     const query: any = { ...extraQuery };
 
-    if (status) query.status = status;
+    if (status) query.kycStatus = status;
+
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: "i" } },
+        { userName: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
       ];
     }

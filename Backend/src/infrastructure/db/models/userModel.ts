@@ -15,6 +15,7 @@ export interface IUserModel extends Document {
   profileImg?: string;
   website?: string;
   bio?: string;
+  kycRejectReason?: string;
   interestedTopics: PreferredSector[];
   role: UserRole;
   status: UserStatus;
@@ -28,6 +29,11 @@ export interface IUserModel extends Document {
   verifiedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+  kycHistory: {
+    status: KYCStatus;
+    reason?: string;
+    date: Date;
+  }[];
 }
 
 export const userModel = model<IUserModel>("User", userSchema);

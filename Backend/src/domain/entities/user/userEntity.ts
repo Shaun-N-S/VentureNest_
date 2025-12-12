@@ -15,6 +15,13 @@ export interface UserEntity {
   kycStatus: KYCStatus;
   adminVerified: boolean;
 
+  kycHistory?: {
+    status: KYCStatus;
+    reason?: string;
+    date: Date;
+  }[];
+  kycRejectReason?: string;
+
   linkedInUrl?: string;
   profileImg?: string;
   website?: string;

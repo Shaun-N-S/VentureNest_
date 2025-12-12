@@ -44,13 +44,15 @@ export const getAllInvestorsKyc = async (
 export const updateUserKycStatus = async ({
   userId,
   newStatus,
+  reason,
 }: {
   userId: string;
   newStatus: string;
+  reason?: string;
 }) => {
   const response = await AxiosInstance.patch(
     API_ROUTES.ADMIN.UPDATE_USERS_KYC,
-    { userId, newStatus }
+    { userId, newStatus, reason }
   );
   return response.data;
 };
@@ -58,13 +60,15 @@ export const updateUserKycStatus = async ({
 export const updateInvestorKycStatus = async ({
   investorId,
   newStatus,
+  reason,
 }: {
   investorId: string;
   newStatus: string;
+  reason?: string;
 }) => {
   const response = await AxiosInstance.patch(
     API_ROUTES.ADMIN.UPDATE_INVESTORS_KYC,
-    { investorId, newStatus }
+    { investorId, newStatus, reason }
   );
   return response.data;
 };
