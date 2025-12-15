@@ -89,5 +89,6 @@ export const API_ROUTES = {
   REPLY: {
     ADD_REPLY: "/replies",
     FETCH_REPLY: "/replies/:commentId",
+    LIKE_REPLY: "/replies/likes/:replyId",
   },
 };

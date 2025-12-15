@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { Send, Heart, MessageCircle } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
-import { useGetAllReplies } from "../../hooks/Reply/replyHooks";
+import { useGetAllReplies, useLikeReply } from "../../hooks/Reply/replyHooks";
 import type { ReplyApiResponse } from "../../types/replyFeedType";
 
 export interface Comment {
@@ -42,12 +42,14 @@ export function CommentSection({
 }: CommentSectionProps) {
     const [input, setInput] = useState("");
     const userProfileImg = useSelector((state: Rootstate) => state.authData?.profileImg);
-
+    const userData = useSelector((state: Rootstate) => state.authData)
     const handleSubmit = () => {
         if (!input.trim()) return;
         onAddComment?.(postId, input);
         setInput("");
     };
+
+    console.log("comments in commentsection component    :::  ", comments);
 
     return (
         <div className="px-4 py-3 border-t border-gray-200">
@@ -118,7 +120,7 @@ function SingleComment({
 }: {
     comment: Comment;
     onToggleLike?: (commentId: string) => void;
-    onAddReply?: (commentId: string, replyText: string) => void;
+    onAddReply?: (commentId: string, replyText: string, updateId?: (realId: string) => void) => void;
 }) {
     const [replying, setReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
@@ -126,6 +128,7 @@ function SingleComment({
     const [replies, setReplies] = useState<Comment[]>([]);
     const [page, setPage] = useState(1);
     const limit = 10;
+    const userData = useSelector((state: Rootstate) => state.authData);
 
     // Fetch replies only when showReplies is true
     const { data: replyData, isLoading, refetch } = useGetAllReplies(
@@ -134,6 +137,9 @@ function SingleComment({
         limit,
         { enabled: false }
     );
+    console.log("reply data from backend :", replyData);
+
+    const { mutate: likeReplyMutation } = useLikeReply();
 
     /** Load replies when showReplies toggles ON */
     useEffect(() => {
@@ -142,7 +148,6 @@ function SingleComment({
         }
     }, [showReplies]);
 
-    /** Map backend replies into UI format */
     useEffect(() => {
         if (replyData?.replies) {
             const formatted = replyData.replies.map((reply: ReplyApiResponse) => ({
@@ -152,10 +157,11 @@ function SingleComment({
                     avatar: reply.replierProfileImg,
                 },
                 text: reply.replyText,
-                liked: false,
-                likes: reply.likes || 0,
+                liked: reply.liked,
+                likes: reply.likes,
                 replies: [],
             }));
+
             setReplies(formatted);
         }
     }, [replyData]);
@@ -164,10 +170,11 @@ function SingleComment({
     const handleSubmitReply = () => {
         if (!replyText.trim()) return;
 
-        // Optimistic UI
+        const tempId = "temp-" + Date.now();
+
         const tempReply: Comment = {
-            id: `temp-${Date.now()}`,
-            user: { name: "You", avatar: "" },
+            id: tempId,
+            user: { name: userData.userName, avatar: userData.profileImg },
             text: replyText,
             liked: false,
             likes: 0,
@@ -176,11 +183,63 @@ function SingleComment({
 
         setReplies(prev => [...prev, tempReply]);
 
-        // Call backend
-        onAddReply?.(comment.id, replyText);
+        onAddReply?.(
+            comment.id,
+            replyText,
+            (realId) => {
+                setReplies(prev =>
+                    prev.map(r => (r.id === tempId ? { ...r, id: realId } : r))
+                );
+            }
+        );
 
         setReplyText("");
         setReplying(false);
+    };
+
+
+
+    const handleToggleReplyLike = (replyId: string) => {
+        setReplies(prev =>
+            prev.map(reply =>
+                reply.id === replyId
+                    ? {
+                        ...reply,
+                        liked: !reply.liked,
+                        likes: reply.liked ? reply.likes - 1 : reply.likes + 1,
+                    }
+                    : reply
+            )
+        );
+
+        likeReplyMutation(replyId, {
+            onSuccess: (res) => {
+                const { liked, likeCount } = res.data;
+
+                setReplies(prev =>
+                    prev.map(reply =>
+                        reply.id === replyId
+                            ? { ...reply, liked, likes: likeCount }
+                            : reply
+                    )
+                );
+            },
+
+            onError: () => {
+                // revert optimistic update
+                setReplies(prev =>
+                    prev.map(reply =>
+                        reply.id === replyId
+                            ? {
+                                ...reply,
+                                liked: !reply.liked,
+                                likes: reply.liked ? reply.likes + 1 : reply.likes - 1,
+                            }
+                            : reply
+                    )
+                );
+            }
+        });
     };
 
     const totalReplies = comment.repliesCount || replyData?.total || replies.length;
@@ -255,7 +314,7 @@ function SingleComment({
                                         <SingleReply
                                             key={reply.id}
                                             reply={reply}
-                                            onToggleLike={onToggleLike}
+                                            onToggleReplyLike={handleToggleReplyLike}
                                         />
                                     ))
                                 )}
@@ -274,10 +333,10 @@ function SingleComment({
 ---------------------------------------------- */
 function SingleReply({
     reply,
-    onToggleLike,
+    onToggleReplyLike,
 }: {
     reply: Comment;
-    onToggleLike?: (commentId: string) => void;
+    onToggleReplyLike?: (replyId: string) => void;
 }) {
     return (
         <div className="flex gap-3">
@@ -294,7 +353,7 @@ function SingleReply({
 
                 <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
                     <button
-                        onClick={() => onToggleLike?.(reply.id)}
+                        onClick={() => onToggleReplyLike?.(reply.id)}
                         className={`flex items-center gap-1 ${reply.liked ? "text-red-500" : ""
                             }`}
                     >

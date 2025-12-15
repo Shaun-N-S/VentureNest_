@@ -86,5 +86,6 @@ export const MESSAGES = {
   REPLY: {
     REPLY_ADDED_SUCCESSFULLY: "Reply added successfully",
     REPLY_FETCHED_SUCCESSFULLY: "Replies fetched successfully",
+    REPLY_LIKED_SUCCESSFULLY: "Reply liked successfully",
   },
 };

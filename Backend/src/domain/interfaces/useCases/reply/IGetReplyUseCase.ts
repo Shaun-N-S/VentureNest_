@@ -4,7 +4,8 @@ export interface IGetReplyUseCase {
   execute(
     commentId: string,
     limit: number,
-    page: number
+    page: number,
+    currentUserId: string
   ): Promise<{
     replies: ReplyFeedDTO[];
     total: number;

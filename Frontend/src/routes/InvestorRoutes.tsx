@@ -11,6 +11,7 @@ import ProfilePage from "../pages/Investor/Profile/InvestorProfile/ProfilePage";
 import InvestorLayout from "../layouts/InvestorLayout";
 import MyNetworkPage from "../pages/Common/MyNetworkPage";
 import NotificationPage from "../pages/Common/NotificationPage";
+import ProjectPage from "../pages/Common/ProjectPage";
 
 const InvestorRoutes = () => {
     return (
@@ -39,6 +40,7 @@ const InvestorRoutes = () => {
                     <Route path={FRONTEND_ROUTES.INVESTOR.PROFILE_COMPLETION} element={<InvestorProfileCompletion />} />
                     <Route path={FRONTEND_ROUTES.INVESTOR.MYNETWORK} element={<MyNetworkPage />} />
                     <Route path={FRONTEND_ROUTES.INVESTOR.NOTIFICATIONS} element={<NotificationPage />} />
+                    <Route path={FRONTEND_ROUTES.INVESTOR.PROJECT} element={<ProjectPage />} />
                 </Route>
 
             </Route>

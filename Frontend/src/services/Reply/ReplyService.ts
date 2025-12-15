@@ -30,3 +30,10 @@ export const getAllReplies = async (
   );
   return response.data.data;
 };
+
+export const likeReply = async (replyId: string) => {
+  const response = await AxiosInstance.post(
+    API_ROUTES.REPLY.LIKE_REPLY.replace(":replyId", replyId)
+  );
+  return response.data;
+};

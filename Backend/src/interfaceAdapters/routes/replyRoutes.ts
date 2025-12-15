@@ -27,6 +27,14 @@ export class Reply_Router {
         replyController.getReplies(req, res, next);
       }
     );
+
+    this._route.post(
+      ROUTES.REPLIES.LIKE_REPLIES,
+      authMiddleware.verify,
+      (req: Request, res: Response, next: NextFunction) => {
+        replyController.likeReply(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

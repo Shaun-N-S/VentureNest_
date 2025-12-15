@@ -18,7 +18,7 @@ export interface ProjectType {
   pitchDeckUrl?: string;
 
   likes?: number;
-  isLiked?: boolean;
+  liked?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

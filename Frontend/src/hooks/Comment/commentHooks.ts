@@ -4,7 +4,7 @@ import {
   getAllComments,
   likeComment,
 } from "../../services/Comment/CommentService";
-import type { CommentApiResponse } from "../../types/commentApiResponse";
+import type { CommentApiResponse, CommentResponse } from "../../types/commentApiResponse";
 
 export const useAddComment = () => {
   return useMutation({
@@ -26,7 +26,7 @@ export const useGetAllComments = (
   limit: number,
   config?: { enabled?: boolean }
 ) => {
-  return useQuery<{ comments: CommentApiResponse[]; total: number }>({
+  return useQuery<CommentResponse>({
     queryKey: ["comments", postId, page],
     queryFn: () => getAllComments(postId, page, limit),
     enabled: config?.enabled ?? true,

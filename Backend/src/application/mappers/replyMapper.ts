@@ -58,7 +58,8 @@ export class ReplyMapper {
   }
 
   /** ---------- Entity → Feed DTO ---------- **/
-  static toFeedDTO(entity: PopulatedReply): ReplyFeedDTO {
+  static toFeedDTO(entity: PopulatedReply, currentUserId?: string): ReplyFeedDTO {
+    const liked = entity.likes.some((like) => like.likerId.toString() === currentUserId);
     return {
       _id: entity._id.toString(),
       commentId: entity.commentId.toString(),
@@ -68,6 +69,7 @@ export class ReplyMapper {
       replierProfileImg: entity.user?.profileImg || "",
       replyText: entity.replyText,
       likes: entity.likeCount,
+      liked,
       createdAt: entity.createdAt!,
     };
   }

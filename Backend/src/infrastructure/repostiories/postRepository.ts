@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { PostEntity } from "@domain/entities/post/postEntity";
 import { BaseRepository } from "./baseRepository";
 import { IPostModel } from "@infrastructure/db/models/postModel";
@@ -24,24 +25,98 @@ export class PostRepository
       this._model.countDocuments({ authorId }),
     ]);
 
-    const posts = docs.map((doc) => PostMapper.fromMongooseDocument(doc));
+    const posts = docs.map(PostMapper.fromMongooseDocument);
     return { posts, total };
   }
 
-  async findAllPosts(
-    skip: number,
-    limit: number
-  ): Promise<{ posts: PostEntity[]; total: number; hasNextPage: boolean }> {
+  async findAllPosts(skip: number, limit: number) {
     const filter = { isDeleted: false };
     const [docs, total] = await Promise.all([
       this._model.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).populate("author"),
-      this._model.countDocuments(),
+      this._model.countDocuments(filter),
     ]);
-    console.log("docuements", docs);
-    const posts = docs.map((doc) => PostMapper.fromMongooseDocument(doc));
+
+    const posts = docs.map(PostMapper.fromMongooseDocument);
     const hasNextPage = skip + docs.length < total;
 
     return { posts, total, hasNextPage };
+  }
+
+  async findPostsMatchingInterests(interests: string[]): Promise<PostEntity[]> {
+    if (!interests.length) return [];
+
+    const docs = await this._model
+      .find({
+        content: { $regex: interests.join("|"), $options: "i" },
+        isDeleted: false,
+      })
+      .sort({ createdAt: -1 })
+      .populate("author");
+
+    return docs.map(PostMapper.fromMongooseDocument);
+  }
+
+  async findPostsBySimilarAuthors(interests: string[]): Promise<PostEntity[]> {
+    if (!interests.length) return [];
+
+    const users = await mongoose
+      .model("User")
+      .find({
+        interestedTopics: { $in: interests },
+      })
+      .select("_id");
+
+    const investors = await mongoose
+      .model("Investor")
+      .find({
+        interestedTopics: { $in: interests },
+      })
+      .select("_id");
+
+    const authorIds = [...users.map((u) => u._id), ...investors.map((i) => i._id)];
+
+    const docs = await this._model
+      .find({
+        authorId: { $in: authorIds },
+        isDeleted: false,
+      })
+      .sort({ createdAt: -1 })
+      .populate("author");
+
+    return docs.map(PostMapper.fromMongooseDocument);
+  }
+
+  async findPostsByAuthorsWithCommonInterests(interests: string[]): Promise<PostEntity[]> {
+    if (!interests.length) return [];
+
+    //Find users who share interests
+    const users = await mongoose
+      .model("User")
+      .find({ interestedTopics: { $in: interests } })
+      .select("_id");
+
+    const investors = await mongoose
+      .model("Investor")
+      .find({ interestedTopics: { $in: interests } })
+      .select("_id");
+
+    const authorIds = [
+      ...users.map((u) => u._id.toString()),
+      ...investors.map((i) => i._id.toString()),
+    ];
+
+    if (!authorIds.length) return [];
+
+    // Fetch posts from those authors
+    const docs = await this._model
+      .find({
+        authorId: { $in: authorIds },
+        isDeleted: false,
+      })
+      .sort({ createdAt: -1 })
+      .populate("author");
+
+    return docs.map(PostMapper.fromMongooseDocument);
   }
 
   async addLike(postId: string, likerId: string, likerRole: UserRole): Promise<void> {

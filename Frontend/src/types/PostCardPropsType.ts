@@ -9,15 +9,11 @@ export interface PostCardProps {
   content: string;
   link?: string;
 
-  // OLD (single image)
-  // image?: string;
-
-  // NEW (multiple images/videos)
   mediaUrls: string[];
 
   likes?: number;
   comments?: number;
-  commentList?: Comment[]; // actual comments array
+  commentList?: Comment[];
   liked?: boolean;
   onLike?: (updateUI: (liked: boolean, count: number) => void) => void;
   onRemove?: (id: string) => void;

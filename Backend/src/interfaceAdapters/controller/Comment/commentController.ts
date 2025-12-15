@@ -42,6 +42,7 @@ export class CommentController {
   async getComments(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const postId = req.params.postId;
+      const userId = res.locals?.user?.userId;
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
 
@@ -50,13 +51,13 @@ export class CommentController {
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
 
-      const data = await this._getCommentsUseCase.execute(postId, limit, page);
+      const data = await this._getCommentsUseCase.execute(postId, limit, page, userId);
       console.log(data);
 
       ResponseHelper.success(
         res,
         MESSAGES.COMMENT.COMMENT_FETCHED_SUCCESSFULLY,
-        { data },
+        data,
         HTTPSTATUS.OK
       );
     } catch (error) {

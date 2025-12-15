@@ -67,7 +67,7 @@ export class CommentMapper {
       userId: dto.userId,
       userRole: dto.userRole,
       commentText: dto.commentText,
-      repliesCount: 0, // default
+      repliesCount: 0,
       likes: [],
       likeCount: 0,
       isDeleted: false,
@@ -76,7 +76,9 @@ export class CommentMapper {
     };
   }
 
-  static toFeedDTO(entity: PopulatedComment): CommentFeedDTO {
+  static toFeedDTO(entity: PopulatedComment, currentUserId?: string): CommentFeedDTO {
+    const liked = entity.likes.some((like) => like.likerId.toString() === currentUserId);
+
     return {
       _id: entity._id.toString(),
       postId: entity.postId.toString(),
@@ -86,7 +88,8 @@ export class CommentMapper {
       userProfileImg: entity.user?.profileImg || "",
       commentText: entity.commentText,
       likes: entity.likeCount,
-      repliesCount: entity.repliesCount || 0, // NEW
+      repliesCount: entity.repliesCount || 0,
+      liked,
       createdAt: entity.createdAt!,
     };
   }

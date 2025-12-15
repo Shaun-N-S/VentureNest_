@@ -13,6 +13,8 @@ import { Relationship_Router } from "interfaceAdapters/routes/relationshipRoutes
 import { Comment_Router } from "interfaceAdapters/routes/commentRoutes";
 import { Reply_Router } from "interfaceAdapters/routes/replyRoutes";
 import { Project_Router } from "interfaceAdapters/routes/projectRoutes";
+import http from "http";
+import { initSocket } from "@infrastructure/realtime/socketGateway";
 
 class Express_app {
   private _app: Express;
@@ -69,7 +71,10 @@ class Express_app {
   }
 
   listen() {
-    this._app.listen(CONFIG.PORT, (err) => {
+    const server = http.createServer(this._app);
+    initSocket(server);
+
+    server.listen(CONFIG.PORT, (err?: any) => {
       if (err) {
         console.log("Error while starting server");
         throw err;

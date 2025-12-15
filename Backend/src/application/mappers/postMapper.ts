@@ -56,6 +56,7 @@ export class PostMapper {
       content: data.content ?? "",
       mediaUrls: data.mediaUrls ?? [],
       likes: data.likes ?? [],
+      liked: false,
       likeCount: data.likeCount ?? 0,
       commentsCount: data.commentsCount ?? 0,
       isActive: data.isActive ?? true,

@@ -7,7 +7,7 @@ import { ProjectCard } from "../../../components/card/ProjectCard"
 import { useSelector } from "react-redux"
 import type { Rootstate } from "../../../store/store"
 import { useFetchUserProfile } from "../../../hooks/User/Profile/UserProfileHooks"
-import { useFetchPersonalPost, useRemovePost } from "../../../hooks/Post/PostHooks"
+import { useFetchPersonalPost, useLikePost, useRemovePost } from "../../../hooks/Post/PostHooks"
 import type { PersonalPost } from "../../Investor/Profile/InvestorProfile/ProfilePage"
 import toast from "react-hot-toast"
 import { queryClient } from "../../../main"
@@ -35,6 +35,7 @@ export default function ProfilePage() {
     const { data: projectData, isLoading: projectIsLoading } = useFetchPersonalProjects(1, 10)
     const { mutate: removePost } = useRemovePost();
     const { mutate: updateProject } = useUpdateProject();
+    const { mutate: likePost } = useLikePost()
     console.log("Post data fetched    : ", postData, postIsLoading)
     console.log("Project data fetched    : ", projectData, projectIsLoading)
 
@@ -101,12 +102,9 @@ export default function ProfilePage() {
         return obj;
     };
 
-
     const handleUpdateProject = async (formData: FormData): Promise<void> => {
         updateProject(formData, {
             onSuccess: (res) => {
-                // toast.success("Project updated successfully!");
-
                 const updatedProjectId = res?.data?.projectId;
                 const updatedLogoUrl = res?.data?.logoUrl;
 
@@ -146,7 +144,6 @@ export default function ProfilePage() {
         });
     };
 
-
     const handleVerifyProject = (projectId: string) => {
         if (!isAdminVerified) {
             toast.error("Your profile must be verified by admin before verifying a startup.");
@@ -156,6 +153,17 @@ export default function ProfilePage() {
         setVerifyProjectId(projectId);
         setIsVerifyModalOpen(true);
     }
+
+    const handleProfileLike = (
+        postId: string,
+        updateUI: (liked: boolean, count: number) => void
+    ) => {
+        togglePostLike(postId);
+        likePost(postId, {
+            onSuccess: (res) => updateUI(res.data.liked, res.data.likeCount),
+            onError: () => toast.error("Failed to like post"),
+        });
+    };
 
 
     return (
@@ -196,8 +204,8 @@ export default function ProfilePage() {
                                             mediaUrls={post.mediaUrls || []}
                                             likes={post.likeCount}
                                             comments={post.commentsCount}
-                                            liked={likedPosts.has(post._id)}
-                                            onLike={() => togglePostLike(post._id)}
+                                            liked={post.liked}
+                                            onLike={(updateUI) => handleProfileLike(post._id, updateUI)}
                                             context="profile"
                                             onRemove={handleRemove}
                                         />
@@ -229,7 +237,7 @@ export default function ProfilePage() {
                                             stage={project.stage!}
                                             logoUrl={project.logoUrl}
                                             likes={project.likes}
-                                            liked={likedProjects.has(project._id)}
+                                            liked={project.liked}
                                             onLike={() => toggleProjectLike(project._id)}
                                             onEdit={() => handleEditProject(project)}
                                             onAddReport={handleAddMonthlyReport}

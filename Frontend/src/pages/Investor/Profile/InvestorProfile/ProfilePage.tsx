@@ -7,9 +7,8 @@ import { ProjectCard } from "../../../../components/card/ProjectCard"
 import { useSelector } from "react-redux"
 import type { Rootstate } from "../../../../store/store"
 import { useFetchInvestorProfile } from "../../../../hooks/Investor/Profile/InvestorProfileHooks"
-import { useFetchPersonalPost, useRemovePost } from "../../../../hooks/Post/PostHooks"
+import { useFetchPersonalPost, useLikePost, useRemovePost } from "../../../../hooks/Post/PostHooks"
 import toast from "react-hot-toast"
-import { queryClient } from "../../../../main"
 
 export interface PersonalPost {
     _id: string;
@@ -17,12 +16,11 @@ export interface PersonalPost {
     content: string;
     mediaUrls: string[];
     likeCount: number;
+    liked: boolean;
     commentsCount: number;
     createdAt: string;
     updatedAt: string;
 }
-
-
 
 export default function ProfilePage() {
     const [likedProjects, setLikedProjects] = useState<Set<string>>(new Set())
@@ -32,27 +30,9 @@ export default function ProfilePage() {
     const userId = userData.id;
     const { data, isLoading, error } = useFetchInvestorProfile(userId)
     const { data: postData, isLoading: postIsLoading } = useFetchPersonalPost(1, 10);
+    const { mutate: likePost } = useLikePost();
     console.log("Post data fetched    : ", postData, postIsLoading)
     const { mutate: removePost } = useRemovePost()
-
-    const projects = [
-        {
-            id: "1",
-            title: "GreenCart",
-            description: "A hyperlocal grocery delivery app focused on sustainable packaging and farm-to-home delivery.",
-            stage: "Idea",
-            logo: "/greencart-logo.jpg",
-            likes: 234,
-        },
-        {
-            id: "2",
-            title: "TechFlow",
-            description: "AI-powered workflow automation platform for enterprises.",
-            stage: "Seed",
-            logo: "/techflow-logo.jpg",
-            likes: 567,
-        },
-    ]
 
 
     const toggleProjectLike = (projectId: string) => {
@@ -67,17 +47,17 @@ export default function ProfilePage() {
         })
     }
 
-    const togglePostLike = (postId: string) => {
-        setLikedPosts((prev) => {
-            const newSet = new Set(prev)
-            if (newSet.has(postId)) {
-                newSet.delete(postId)
-            } else {
-                newSet.add(postId)
+    const handleLike = (postId: string, updateUI: (liked: boolean, count: number) => void) => {
+        likePost(postId, {
+            onSuccess: (res) => {
+                updateUI(res.data.liked, res.data.likeCount);
+            },
+            onError: () => {
+                toast.error("Failed to like post");
             }
-            return newSet
-        })
-    }
+        });
+    };
+
 
     const handleRemove = (postId: string) => {
         console.log("Deleting post:", postId);
@@ -131,8 +111,8 @@ export default function ProfilePage() {
                                             mediaUrls={post.mediaUrls || []}
                                             likes={post.likeCount}
                                             comments={post.commentsCount}
-                                            liked={likedPosts.has(post._id)}
-                                            onLike={() => togglePostLike(post._id)}
+                                            liked={post.liked}
+                                            onLike={(updateUI) => handleLike(post._id, updateUI)}
                                             context="profile"
                                             onRemove={handleRemove}
                                         />

@@ -27,8 +27,9 @@ export class PostController {
     try {
       const formData = req.body;
       const files = (req.files as MulterFiles<"mediaUrls">)?.mediaUrls;
+      console.log("RAW MULTER FILES:", files);
 
-      const data: CreatePostDTO = { ...formData };
+      const data: any = { ...formData };
       console.log(data);
 
       if (files && Array.isArray(files) && files.length > 0) {
@@ -38,12 +39,14 @@ export class PostController {
       const validatedData = createPostSchema.safeParse(data);
 
       if (!validatedData.success) {
+        console.log(validatedData.error);
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
 
-      await this._createPostUseCase.createPost(validatedData.data);
+      const cleanData = validatedData.data as CreatePostDTO;
+      const createdPost = await this._createPostUseCase.createPost(cleanData);
 
-      ResponseHelper.success(res, MESSAGES.POST.POST_ADD_SUCCESSFULLY, HTTPSTATUS.OK);
+      ResponseHelper.success(res, MESSAGES.POST.POST_ADD_SUCCESSFULLY, createdPost, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }
