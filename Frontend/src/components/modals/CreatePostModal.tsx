@@ -191,6 +191,7 @@ export default function CreatePostModal({
                         content,
                         mediaUrls,
                         likeCount: 0,
+                        liked: false,
                         commentsCount: 0,
                         createdAt: new Date().toISOString(),
                         updatedAt: new Date().toISOString(),
