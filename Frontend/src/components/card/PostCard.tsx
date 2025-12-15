@@ -7,9 +7,14 @@ import { MediaCarousel } from "../Carousel/MediaCarousel"
 import { useEffect, useRef, useState } from "react"
 import { CommentSection, type Comment } from "../Comments/CommentSection"
 import { useAddComment, useGetAllComments, useLikeComment } from "../../hooks/Comment/commentHooks"
-import type { CommentApiResponse } from "../../types/commentApiResponse"
+import type { CommentApiResponse, CommentResponse } from "../../types/commentApiResponse"
 import { useAddReply } from "../../hooks/Reply/replyHooks"
 import { queryClient } from "../../main"
+import { getSocket } from "../../lib/socket"
+import type { PostLikeToggledEvent } from "../../types/postLikeToggledEvent"
+import { useSelector } from "react-redux"
+import type { Rootstate } from "../../store/store"
+import toast from "react-hot-toast"
 
 export function PostCard({
     id,
@@ -29,7 +34,6 @@ export function PostCard({
     const [open, setOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement | null>(null);
 
-    // Local state for likes
     const [isLiked, setIsLiked] = useState(liked);
     const [likeCount, setLikeCount] = useState(likes);
     const [commentsCount, setCommentsCount] = useState(initialCommentsCount);
@@ -39,40 +43,54 @@ export function PostCard({
     const [showComments, setShowComments] = useState(false);
     const [page, setPage] = useState(1);
     const limit = 10;
-
-    const { data: commentData, isLoading, refetch } = useGetAllComments(id, page, limit, {
+    const userData = useSelector((state: Rootstate) => state.authData)
+    const { data, refetch } = useGetAllComments(id, page, limit, {
         enabled: false
     });
+
+    const commentData = data as CommentResponse;
+    console.log(commentData, data);
 
     const { mutate: likeCommentMutation } = useLikeComment();
 
     useEffect(() => {
-        if (showComments && commentData?.comments) {
-            const formatted = commentData.comments.map((item: CommentApiResponse) => ({
+        if (showComments && commentData?.data?.comments) {
+            const formatted = commentData?.data?.comments.map((item: CommentApiResponse) => ({
                 id: item._id,
                 user: { name: item.userName, avatar: item.userProfileImg },
                 text: item.commentText,
-                liked: false,
+                liked: item.liked,
                 likes: item.likes,
                 repliesCount: item.repliesCount || 0,
                 replies: [],
             }));
 
             setComments(formatted);
-            setCommentsCount(commentData.total);
+            setCommentsCount(commentData?.data?.total);
         }
     }, [showComments, commentData]);
 
+    useEffect(() => {
+        const socket = getSocket(localStorage.getItem("access_token") || "");
+
+        const listener = (event: PostLikeToggledEvent) => {
+            if (event.postId === id) {
+                setLikeCount(event.likeCount);
+            }
+        };
+
+        socket.on("post:likeToggled", listener);
+
+        return () => {
+            socket.off("post:likeToggled", listener);
+        };
+    }, [id]);
 
     const handleLike = () => {
-        // Optimistic UI
         setIsLiked(prev => !prev);
-        setLikeCount(prev => (isLiked ? prev - 1 : prev + 1));
 
-        // Ask parent to update with backend result
         onLike?.((liked: boolean, count: number) => {
             setIsLiked(liked);
-            setLikeCount(count);
         });
     };
 
@@ -84,7 +102,7 @@ export function PostCard({
 
         const newComment: Comment = {
             id: tempId,
-            user: { name: "You", avatar: "/your-avatar.jpg" },
+            user: { name: userData.userName, avatar: userData.profileImg },
             text,
             liked: false,
             likes: 0,
@@ -98,9 +116,10 @@ export function PostCard({
             { postId, commentText: text },
             {
                 onSuccess: (res) => {
+                    console.log('add comment response : : : ', res);
                     setComments(prev =>
                         prev.map(comment =>
-                            comment.id === tempId ? { ...comment, id: res._id } : comment
+                            comment.id === tempId ? { ...comment, id: res?.data?._id } : comment
                         )
                     );
                 },
@@ -113,23 +132,25 @@ export function PostCard({
         );
     };
 
-    const handleAddReply = (commentId: string, replyText: string) => {
-        if (!replyText.trim()) return;
-
+    const handleAddReply = (
+        commentId: string,
+        replyText: string,
+        updateId?: (realId: string) => void
+    ) => {
         addReply(
             { commentId, replyText },
             {
                 onSuccess: (res) => {
-                    console.log("Reply successfully stored:", res);
-                    queryClient.invalidateQueries({ queryKey: ["comments", id, page] })
-                    queryClient.invalidateQueries({ queryKey: ["replies", commentId, page, limit] })
+                    updateId?.(res.data._id);
+                    toast.success("Reply added");
                 },
-                onError: (err) => {
-                    console.error("Error while adding reply:", err);
-                },
+                onError: () => {
+                    toast.error("Failed to add reply");
+                }
             }
         );
     };
+
 
     const toggleComments = () => {
         setShowComments(prev => {
@@ -155,7 +176,6 @@ export function PostCard({
                     )
                 );
             },
-
             onError: () => {
                 setComments(prev => toggleLike(prev, commentId));
             }
@@ -262,9 +282,9 @@ export function PostCard({
     );
 }
 
-// Helper: Toggle like on comment or reply
 function toggleLike(comments: Comment[], commentId: string): Comment[] {
     return comments.map(c => {
+        // Match the comment itself
         if (c.id === commentId) {
             return {
                 ...c,
@@ -272,12 +292,15 @@ function toggleLike(comments: Comment[], commentId: string): Comment[] {
                 likes: c.liked ? c.likes - 1 : c.likes + 1
             };
         }
-        if (c.replies) {
+
+        // Only recurse if replies exist
+        if (c.replies && c.replies.length > 0) {
             return {
                 ...c,
                 replies: toggleLike(c.replies, commentId)
             };
         }
+
         return c;
     });
 }

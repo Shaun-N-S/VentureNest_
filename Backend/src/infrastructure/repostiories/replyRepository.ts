@@ -5,6 +5,7 @@ import { IReplyModel } from "@infrastructure/db/models/replyModel";
 import { ReplyEntity } from "@domain/entities/replies/repliesEntity";
 import { PopulatedReply } from "application/type/populatedReply.type";
 import { ReplyMapper } from "application/mappers/replyMapper";
+import { UserRole } from "@domain/enum/userRole";
 
 export class ReplyRepository
   extends BaseRepository<ReplyEntity, IReplyModel>
@@ -31,5 +32,22 @@ export class ReplyRepository
     ]);
 
     return { replies: docs as PopulatedReply[], total };
+  }
+
+  async addLike(replyId: string, likerId: string, likerRole: UserRole) {
+    await this._model.updateOne(
+      { _id: replyId },
+      { $push: { likes: { likerId, likerRole } }, $inc: { likeCount: 1 } }
+    );
+  }
+
+  async removeLike(replyId: string, likerId: string): Promise<void> {
+    await this._model.updateOne(
+      { _id: replyId },
+      {
+        $pull: { likes: { likerId } },
+        $inc: { likeCount: -1 },
+      }
+    );
   }
 }

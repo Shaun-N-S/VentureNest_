@@ -13,7 +13,8 @@ export class GetReplyUseCase implements IGetReplyUseCase {
   async execute(
     commentId: string,
     limit: number,
-    page: number
+    page: number,
+    currentUserId: string
   ): Promise<{
     replies: ReplyFeedDTO[];
     total: number;
@@ -29,7 +30,7 @@ export class GetReplyUseCase implements IGetReplyUseCase {
       limit
     );
 
-    let formattedReplies = replies.map(ReplyMapper.toFeedDTO);
+    let formattedReplies = replies.map((r) => ReplyMapper.toFeedDTO(r, currentUserId));
 
     formattedReplies = await Promise.all(
       formattedReplies.map(async (reply) => {

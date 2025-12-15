@@ -1,4 +1,3 @@
-// src/components/modals/CreatePostModal.tsx
 import { AlertCircle, Image, Loader2, Video, X } from "lucide-react";
 import ImageCropper from "../cropper/ImageCropper";
 import { AxiosError } from "axios";
@@ -7,6 +6,7 @@ import { useCreatePost } from "../../hooks/Post/PostHooks";
 import toast from "react-hot-toast";
 import { queryClient } from "../../main";
 import type { PersonalPost } from "../../pages/Investor/Profile/InvestorProfile/ProfilePage";
+import type { PersonalPostCache } from "../../types/personalPostCache";
 
 interface MediaPreview {
     url: string;
@@ -180,39 +180,48 @@ export default function CreatePostModal({
             if (content.trim()) formData.append("content", content.trim());
 
             mediaFiles.forEach((file) => formData.append("mediaUrls", file));
-            console.log(authorId, authorRole, formData)
-            // await onSubmit(formData);
-            createPost(
-                formData, {
+
+            createPost(formData, {
                 onSuccess: (res) => {
-                    // console.log("res llllllll         ", res);
-                    // queryClient.setQueryData(
-                    //     ["personal-post", 1, 10],
-                    //     (oldData: { data: { posts: PersonalPost[]; totalPosts: number } } | undefined) => {
-                    //         if (!oldData) return oldData;
+                    const { postId, mediaUrls } = res.data;
 
-                    //         // Clone old data safely
-                    //         const newData = structuredClone(oldData);
+                    const newPost: PersonalPost = {
+                        _id: postId,
+                        authorId,
+                        content,
+                        mediaUrls,
+                        likeCount: 0,
+                        commentsCount: 0,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                    };
 
-                    //         // New post should be added at top (like Instagram)
-                    //         newData.data.posts = [res.data.post, ...oldData.data.posts];
+                    queryClient.setQueryData<PersonalPostCache | undefined>(
+                        ["personal-post", 1, 10],
+                        (oldData) => {
+                            if (!oldData) return oldData;
 
-                    //         // Update total count
-                    //         newData.data.totalPosts += 1;
+                            return {
+                                ...oldData,
+                                data: {
+                                    ...oldData.data,
+                                    data: {
+                                        ...oldData.data.data,
+                                        posts: [newPost, ...oldData.data.data.posts],
+                                        totalPosts: oldData.data.data.totalPosts + 1,
+                                    },
+                                },
+                            };
+                        }
+                    );
 
-                    //         return newData;
-                    //     }
-                    // );
-                    queryClient.invalidateQueries({ queryKey: ["personal-post", 1, 10] })
-                    toast.success(res.message)
+                    toast.success("Post created!");
                     handleClose();
                 },
-                onError: (err) => {
-                    toast.error(err.message)
-                }
+
+                onError: (err) => toast.error(err.message),
             });
-        }
-        catch (err) {
+        } catch (err) {
             const msg =
                 err instanceof AxiosError ? err.message : "Failed to create post";
             setError(msg);
@@ -220,6 +229,7 @@ export default function CreatePostModal({
             setIsSubmitting(false);
         }
     };
+
 
     /** --------------------------------------------------------------
      *  Close / reset

@@ -1,6 +1,7 @@
 import { investorModel } from "@infrastructure/db/models/investorModel";
 import { postModel } from "@infrastructure/db/models/postModel";
 import { userModel } from "@infrastructure/db/models/userModel";
+import { SocketEngagementEventPublisher } from "@infrastructure/realtime/Publishers/socketEngagementEventPublisher";
 import { InvestorRepository } from "@infrastructure/repostiories/investorRepository";
 import { PostRepository } from "@infrastructure/repostiories/postRepository";
 import { UserRepository } from "@infrastructure/repostiories/userRepository";
@@ -16,6 +17,7 @@ const postRespository = new PostRepository(postModel);
 const userRepository = new UserRepository(userModel);
 const investorRepository = new InvestorRepository(investorModel);
 const storageService = new StorageService();
+const engagementPublisher = new SocketEngagementEventPublisher();
 
 const createPostUseCase = new CreatePostUseCase(postRespository, storageService);
 const fetchPersonalPostUseCase = new FetchPersonalPostUseCase(postRespository, storageService);
@@ -26,7 +28,7 @@ const fetchAllPostsUseCase = new FetchAllPostsUseCase(
   storageService
 );
 const removePostUseCase = new RemovePostUseCase(postRespository, storageService);
-const likePostUseCase = new LikePostUseCase(postRespository);
+const likePostUseCase = new LikePostUseCase(postRespository, engagementPublisher);
 
 export const postController = new PostController(
   createPostUseCase,

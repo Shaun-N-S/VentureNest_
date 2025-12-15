@@ -28,26 +28,30 @@ export const useFetchAllPosts = (page: number, limit: number) => {
   });
 };
 
-interface FetchPostsResponse {
-  posts: AllPost[];
-  totalPosts: number;
-  hasNextPage: boolean;
-}
+// interface FetchPostsResponse {
+//   posts: AllPost[];
+//   totalPosts: number;
+//   hasNextPage: boolean;
+// }
 
-export const useInfinitePosts = (limit = 3) => {
-  return useInfiniteQuery<FetchPostsResponse, Error>({
-    queryKey: ["posts-infinite", limit],
-    queryFn: ({ pageParam }) => fetchAllPosts(pageParam as number, limit),
-    getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage.hasNextPage) return undefined;
-      return allPages.length + 1;
-    },
-    initialPageParam: 1,
-    staleTime: 1000 * 60 * 5, // 5 minutes - data stays fresh for 5 minutes
-    gcTime: 1000 * 60 * 10, // 10 minutes - cache persists for 10 minutes
-    refetchOnWindowFocus: false, // Prevent refetch on window focus
-  });
-};
+// export const useInfinitePosts = (limit = 3) => {
+//   return useInfiniteQuery<FetchPostsResponse, Error>({
+//     queryKey: ["posts-infinite", limit],
+//     queryFn: ({ pageParam }) => fetchAllPosts(pageParam as number, limit),
+//     getNextPageParam: (lastPage, allPages) => {
+//       const hasNext = lastPage?.data?.hasNextPage;
+
+//       if (!hasNext) return undefined;
+
+//       return allPages.length + 1; // Next page number
+//     },
+
+//     initialPageParam: 1,
+//     staleTime: 1000 * 60 * 5,
+//     gcTime: 1000 * 60 * 10,
+//     refetchOnWindowFocus: false,
+//   });
+// };
 
 export const useRemovePost = () => {
   return useMutation({

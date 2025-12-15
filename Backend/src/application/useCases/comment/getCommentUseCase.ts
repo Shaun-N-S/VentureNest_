@@ -13,7 +13,8 @@ export class GetCommentsUseCase implements IGetCommentsUseCase {
   async execute(
     postId: string,
     limit: number,
-    page: number
+    page: number,
+    currentUserId: string
   ): Promise<{
     comments: CommentFeedDTO[];
     total: number;
@@ -29,7 +30,7 @@ export class GetCommentsUseCase implements IGetCommentsUseCase {
       limit
     );
 
-    let formattedComments = comments.map(CommentMapper.toFeedDTO);
+    let formattedComments = comments.map((c) => CommentMapper.toFeedDTO(c, currentUserId));
 
     formattedComments = await Promise.all(
       formattedComments.map(async (comment) => {

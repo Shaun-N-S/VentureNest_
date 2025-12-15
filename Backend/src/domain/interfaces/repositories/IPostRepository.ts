@@ -15,6 +15,9 @@ export interface IPostRepository extends IBaseRepository<PostEntity> {
   ): Promise<{ posts: PostEntity[]; total: number; hasNextPage: boolean }>;
 
   addLike(postId: string, likerId: string, likerRole: UserRole): Promise<void>;
-
   removeLike(postId: string, likerId: string): Promise<void>;
+
+  findPostsMatchingInterests(interests: string[]): Promise<PostEntity[]>;
+  findPostsBySimilarAuthors(interests: string[]): Promise<PostEntity[]>;
+  findPostsByAuthorsWithCommonInterests(interests: string[]): Promise<PostEntity[]>;
 }

@@ -8,5 +8,6 @@ export interface ILikePostUseCase {
   ): Promise<{
     liked: boolean;
     likeCount: number;
+    postId: string;
   }>;
 }

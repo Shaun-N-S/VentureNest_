@@ -7,7 +7,12 @@ import { useEffect, useState } from 'react';
 import { updateUserData } from '../../store/Slice/authDataSlice';
 import { useFetchAllPosts, useLikePost } from '../../hooks/Post/PostHooks';
 import { PostCard } from '../../components/card/PostCard';
-import { Loader2, Smile } from 'lucide-react';
+import { FileText, ImageIcon, Loader2, Plus, Smile, VideoIcon } from 'lucide-react';
+import { queryClient } from '../../main';
+import { getSocket } from '../../lib/socket';
+import type { FetchPostsResponse } from '../../types/postFeed';
+import CreatePostModal from '../../components/modals/CreatePostModal';
+import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 
 export interface AllPost {
   _id: string;
@@ -24,14 +29,21 @@ export interface AllPost {
 }
 
 const Home = () => {
+
   const userData = useSelector((state: Rootstate) => state.authData);
   const [open, setOpen] = useState(false);
   const [topics, setTopics] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const { mutate: setInterestedTopics } = useIntrestedTopics();
-  const { data: postData, isLoading, refetch } = useFetchAllPosts(1, 10);
+  const { data: postData, isLoading, refetch } = useFetchAllPosts(page, limit);
   const { mutate: likePost } = useLikePost()
   const dispatch = useDispatch();
-  console.log("data : : ", postData?.data)
+  console.log("data : : ", postData?.data?.posts)
+  const [isCreatePostModal, setIsCreatePostModal] = useState(false);
+  const userId = useSelector((state: Rootstate) => state.authData.id);
+  const role = useSelector((state: Rootstate) => state.authData.role);
+
 
   useEffect(() => {
     if (userData.isFirstLogin) {
@@ -40,6 +52,43 @@ const Home = () => {
       setOpen(false);
     }
   }, [userData]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+
+    const socket = getSocket(token);
+
+    socket.on("connect", () => {
+      console.log("SOCKET CONNECTED → ", socket.id);
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("SOCKET ERROR:", err.message);
+    });
+
+    socket.on("post:likeToggled", (event) => {
+      console.log("REALTIME EVENT RECEIVED:", event);
+
+      const { postId, likeCount } = event;
+
+      queryClient.setQueryData(["posts-feed", page, limit], (old?: FetchPostsResponse) => {
+        if (!old?.posts) return old;
+
+        return {
+          ...old,
+          posts: old.posts.map(post =>
+            post._id === postId ? { ...post, likeCount } : post
+          ),
+        };
+      });
+    });
+
+    return () => {
+      socket.off("post:likeToggled");
+    };
+  }, []);
+
 
   const handleSave = (selected: string[]) => {
     setTopics(selected);
@@ -71,7 +120,6 @@ const Home = () => {
   };
 
 
-
   return (
     <div className="w-full min-h-screen bg-gray-50 px-4 sm:px-6 md:px-12 lg:px-32 xl:px-56 py-6">
 
@@ -93,7 +141,53 @@ const Home = () => {
       ) : (postData?.data?.posts ?? []).length > 0 ? (
 
         <div className="max-w-2xl mx-auto space-y-6">
-          {postData.data.posts.map((post: AllPost) => (
+
+          {/* Start a Post (LinkedIn-style) */}
+          <div className="bg-white rounded-xl border shadow-sm p-4 mt-4">
+
+            {/* Top Bar */}
+            <div
+              onClick={() => setIsCreatePostModal(true)}
+              className="flex items-center gap-4 border rounded-full px-4 py-3 cursor-pointer 
+               hover:bg-gray-50 transition"
+            >
+              <Avatar className="h-11 w-11">
+                <AvatarImage className='rounded-full' src={userData.profileImg} />
+                <AvatarFallback>{userData.userName?.charAt(0)}</AvatarFallback>
+              </Avatar>
+
+              <div className="flex-1 text-gray-600">
+                Start a post...
+              </div>
+            </div>
+
+            {/* Bottom Quick Actions */}
+            {/* <div className="flex justify-between mt-4 px-2">
+
+              <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
+                <ImageIcon className="h-5 w-5 text-blue-500" />
+                Photo
+              </button>
+
+              <button className="flex items-center gap-2 text-gray-600 hover:text-green-600 transition">
+                <VideoIcon className="h-5 w-5 text-green-500" />
+                Video
+              </button>
+
+              <button className="flex items-center gap-2 text-gray-600 hover:text-yellow-600 transition">
+                <FileText className="h-5 w-5 text-yellow-500" />
+                Write Article
+              </button>
+
+              <button className="flex items-center gap-2 text-gray-600 hover:text-purple-600 transition">
+                <Plus className="h-5 w-5 text-purple-500" />
+                More
+              </button>
+
+            </div> */}
+          </div>
+
+          {postData?.data?.posts.map((post: AllPost) => (
             <PostCard
               key={post._id}
               id={post._id}
@@ -112,7 +206,6 @@ const Home = () => {
               onReport={handleReport}
               context='home'
             />
-
           ))}
         </div>
 
@@ -125,6 +218,14 @@ const Home = () => {
         </div>
 
       )}
+
+      <CreatePostModal
+        isOpen={isCreatePostModal}
+        onClose={() => setIsCreatePostModal(false)}
+        authorId={userId}
+        authorRole={role || "USER"}
+      />
+
     </div>
   );
 };

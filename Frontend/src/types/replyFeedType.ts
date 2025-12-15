@@ -9,6 +9,7 @@ export interface ReplyFeedDTO {
   replierProfileImg?: string;
   replyText: string;
   likes: number;
+  liked: boolean;
   createdAt: string | Date;
 }
 
@@ -18,4 +19,5 @@ export interface ReplyApiResponse {
   replierProfileImg?: string;
   replyText: string;
   likes: number;
+  liked: boolean;
 }

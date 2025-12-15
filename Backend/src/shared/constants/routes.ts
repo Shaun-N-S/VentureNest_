@@ -102,6 +102,6 @@ export const ROUTES = {
     ADD_REPLIES: "/:commentId",
     FETCH_REPLIES: "/:commentId",
     REMOVE_REPLIES: "/remove",
-    LIKE_REPLIES: "/like",
+    LIKE_REPLIES: "/likes/:replyId",
   },
 };

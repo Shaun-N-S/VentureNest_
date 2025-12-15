@@ -8,6 +8,7 @@ export interface PostResDTO {
   mediaUrls: string[];
   likes: { likerId: string; likerRole: UserRole }[];
   likeCount: number;
+  liked: boolean;
   commentsCount: number;
   isActive: boolean;
   isDeleted: boolean;

@@ -11,7 +11,6 @@ export interface CommentResDTO {
 
   likes: { likerId: string; likerRole: UserRole }[];
   likeCount: number;
-
   isDeleted: boolean;
 
   createdAt: Date;
@@ -23,11 +22,17 @@ export interface CommentFeedDTO {
   postId: string;
   userId: string;
   userRole: UserRole;
+
   userName: string;
   userProfileImg?: string;
+
   commentText: string;
+
   likes: number;
   repliesCount: number;
+
+  liked: boolean;
+
   createdAt: Date;
 }
 

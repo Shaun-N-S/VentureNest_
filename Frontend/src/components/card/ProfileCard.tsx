@@ -1,12 +1,6 @@
 import { MessageCircle, Share2, MoreVertical } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
 import { Button } from "../ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "../ui/dropdown-menu"
 import { Badge } from "../ui/badge"
 import { AnimatePresence, motion } from "framer-motion"
 import type { ProfileCardProps } from "../../types/ProfileCardPropsType"
@@ -23,6 +17,7 @@ import { queryClient } from "../../main"
 import ProjectFormModal from "../modals/AddProjectModal"
 import { useCreateProject } from "../../hooks/Project/projectHooks"
 import type { PersonalProjectApiResponse } from "../../types/PersonalProjectApiResponse"
+
 
 export function ProfileCard(props: ProfileCardProps) {
     console.log(props);

@@ -23,7 +23,13 @@ export class FetchPersonalPostUseCase implements IFetchPersonalPostUseCase {
       limit
     );
 
-    let posts: PostResDTO[] = personalPosts.map((post) => PostMapper.toDTO(post));
+    let posts = personalPosts.map((post) => {
+      const dto = PostMapper.toDTO(post);
+
+      dto.liked = post.likes.some((l) => l.likerId === authorId);
+
+      return dto;
+    });
 
     posts = await Promise.all(
       posts.map(async (post) => {

@@ -9,6 +9,7 @@ import { UserRepository } from "@infrastructure/repostiories/userRepository";
 import { StorageService } from "@infrastructure/services/storageService";
 import { CreateReplyUseCase } from "application/useCases/Reply/createReplyUseCase";
 import { GetReplyUseCase } from "application/useCases/Reply/getReplyUseCase";
+import { LikeReplyUseCase } from "application/useCases/Reply/likeReplyUseCase";
 import { ReplyController } from "interfaceAdapters/controller/Reply/replyController";
 
 const replyRepo = new ReplyRepository(replyModel);
@@ -25,5 +26,10 @@ const createReplyUseCase = new CreateReplyUseCase(
   storageService
 );
 const getRepliesUseCase = new GetReplyUseCase(replyRepo, storageService);
+const likeReplyUseCase = new LikeReplyUseCase(replyRepo);
 
-export const replyController = new ReplyController(createReplyUseCase, getRepliesUseCase);
+export const replyController = new ReplyController(
+  createReplyUseCase,
+  getRepliesUseCase,
+  likeReplyUseCase
+);

@@ -6,13 +6,6 @@ import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageSe
 import { IFetchAllPostsUseCase } from "@domain/interfaces/useCases/post/IFetchAllPosts";
 import { PostFeedResDTO } from "application/dto/post/postDTO";
 import { PostMapper } from "application/mappers/postMapper";
-import { UserEntity } from "@domain/entities/user/userEntity";
-import { InvestorEntity } from "@domain/entities/investor/investorEntity";
-
-interface AuthorData {
-  name: string;
-  profileImg?: string;
-}
 
 export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
   constructor(
@@ -22,132 +15,98 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
     private _storageService: IStorageService
   ) {}
 
-  async fetchAllPosts(
-    currentUserId: string,
-    page: number,
-    limit: number
-  ): Promise<{ posts: PostFeedResDTO[]; totalPosts: number; hasNextPage: boolean }> {
-    const skip = (page - 1) * limit;
+  async fetchAllPosts(currentUserId: string, page: number, limit: number) {
+    const user = await this._userRepository.findById(currentUserId);
+    const interests = user?.interestedTopics || [];
 
-    const {
-      posts: allPosts,
-      total,
-      hasNextPage,
-    } = await this._postRepository.findAllPosts(skip, limit);
+    // PRIORITY 1 — Authors sharing interests
+    const authorInterestPosts =
+      await this._postRepository.findPostsByAuthorsWithCommonInterests(interests);
 
-    let posts: PostFeedResDTO[] = allPosts.map((post) => PostMapper.toDTO(post)) as any;
+    // PRIORITY 2 — Content matches user's interests
+    const contentInterestPosts = await this._postRepository.findPostsMatchingInterests(interests);
 
-    // Collect all user and investor IDs
+    // PRIORITY 3 — Latest fallback posts
+    const { posts: fallbackPosts } = await this._postRepository.findAllPosts(0, limit * 4);
+
+    // MERGE + REMOVE DUPLICATES
+    const merged = [
+      ...authorInterestPosts,
+      ...contentInterestPosts.filter((p) => !authorInterestPosts.some((x) => x._id === p._id)),
+      ...fallbackPosts.filter(
+        (p) =>
+          !authorInterestPosts.some((x) => x._id === p._id) &&
+          !contentInterestPosts.some((x) => x._id === p._id)
+      ),
+    ];
+
+    // PAGINATION AFTER MERGE
+    const start = (page - 1) * limit;
+    const end = page * limit;
+    const pageData = merged.slice(start, end);
+
+    // FETCH AUTHOR DETAILS
     const userIds: string[] = [];
     const investorIds: string[] = [];
 
-    posts.forEach((post) => {
-      if (post.authorRole === UserRole.USER) {
-        userIds.push(post.authorId);
-      } else {
-        investorIds.push(post.authorId);
-      }
+    pageData.forEach((post) => {
+      if (post.authorRole === UserRole.USER) userIds.push(post.authorId);
+      else investorIds.push(post.authorId);
     });
 
-    console.log("Total posts:", posts.length);
-    console.log("User IDs to fetch:", userIds);
-    console.log("Investor IDs to fetch:", investorIds);
-
-    // Fetch users and investors in parallel
     const [users, investors] = await Promise.all([
-      userIds.length > 0 ? this._userRepository.findByIds(userIds) : Promise.resolve([]),
-      investorIds.length > 0
-        ? this._investorRepository.findByIds(investorIds)
-        : Promise.resolve([]),
+      userIds.length ? this._userRepository.findByIds(userIds) : [],
+      investorIds.length ? this._investorRepository.findByIds(investorIds) : [],
     ]);
 
-    console.log("Users fetched:", users.length, users);
-    console.log(" Investors fetched:", investors.length, investors);
+    const userMap = new Map(users.map((u) => [u._id!, u]));
+    const investorMap = new Map(investors.map((i) => [i._id!, i]));
 
-    const userMap = new Map<string, AuthorData>();
-    users.forEach((u: UserEntity) => {
-      if (u._id) {
-        const authorData: AuthorData = {
-          name: u.userName,
-        };
-        if (u.profileImg) {
-          authorData.profileImg = u.profileImg;
+    // BUILD FEED DTOs
+    const result = await Promise.all(
+      pageData.map(async (post) => {
+        const dto = PostMapper.toDTO(post) as PostFeedResDTO;
+
+        dto.liked = post.likes.some((l) => l.likerId === currentUserId);
+
+        // Signed media URLs
+        if (post.mediaUrls?.length) {
+          dto.mediaUrls = await Promise.all(
+            post.mediaUrls.map((url) => this._storageService.createSignedUrl(url, 600))
+          );
         }
-        userMap.set(u._id.toString(), authorData);
-        console.log(`Added user to map: ${u._id} -> ${u.userName}`);
-      }
-    });
 
-    const investorMap = new Map<string, AuthorData>();
-    investors.forEach((i: InvestorEntity) => {
-      if (i._id) {
-        const authorData: AuthorData = {
-          name: i.userName || i.companyName || "Unknown Investor",
-        };
-        if (i.profileImg) {
-          authorData.profileImg = i.profileImg;
+        // Attach author details
+        if (post.authorRole === UserRole.USER) {
+          const author = userMap.get(post.authorId);
+          dto.authorName = author?.userName || "Unknown User";
+
+          if (author?.profileImg) {
+            dto.authorProfileImg = await this._storageService.createSignedUrl(
+              author.profileImg,
+              600
+            );
+          }
+        } else {
+          const investor = investorMap.get(post.authorId);
+          dto.authorName = investor?.userName || investor?.companyName || "Investor";
+
+          if (investor?.profileImg) {
+            dto.authorProfileImg = await this._storageService.createSignedUrl(
+              investor.profileImg,
+              600
+            );
+          }
         }
-        investorMap.set(i._id.toString(), authorData);
-        console.log(` Added investor to map: ${i._id} -> ${authorData.name}`);
-      }
-    });
 
-    console.log(" UserMap size:", userMap.size);
-    console.log(" InvestorMap size:", investorMap.size);
-
-    const urlsToSign = new Set<string>();
-
-    posts.forEach((post) => {
-      post.mediaUrls?.forEach((url) => urlsToSign.add(url));
-
-      const authorData =
-        post.authorRole === UserRole.USER
-          ? userMap.get(post.authorId)
-          : investorMap.get(post.authorId);
-
-      console.log(
-        ` Post ${post._id}: authorId=${post.authorId}, role=${post.authorRole}, found=${!!authorData}`
-      );
-
-      if (authorData?.profileImg) {
-        urlsToSign.add(authorData.profileImg);
-      }
-    });
-
-    // Batch generate signed URLs
-    const signedUrlMap = new Map<string, string>();
-    await Promise.all(
-      Array.from(urlsToSign).map(async (url) => {
-        const signedUrl = await this._storageService.createSignedUrl(url, 600);
-        signedUrlMap.set(url, signedUrl);
+        return dto;
       })
     );
 
-    // Build feed with signed URLs
-    const feed: PostFeedResDTO[] = posts.map((post) => {
-      const authorData =
-        post.authorRole === UserRole.USER
-          ? userMap.get(post.authorId)
-          : investorMap.get(post.authorId);
-
-      const feedItem: PostFeedResDTO = {
-        ...post,
-        mediaUrls: post.mediaUrls?.map((url) => signedUrlMap.get(url) || url) || [],
-        authorName: authorData?.name || "Unknown User",
-      };
-
-      // Add liked flag
-      feedItem.liked = post.likes.some((l) => l.likerId === currentUserId);
-
-      if (authorData?.profileImg && signedUrlMap.get(authorData.profileImg)) {
-        feedItem.authorProfileImg = signedUrlMap.get(authorData.profileImg);
-      }
-
-      return feedItem;
-    });
-
-    console.log("Sample feed item:", JSON.stringify(feed[0], null, 2));
-
-    return { posts: feed, totalPosts: total, hasNextPage };
+    return {
+      posts: result,
+      totalPosts: merged.length,
+      hasNextPage: end < merged.length,
+    };
   }
 }
