@@ -34,7 +34,6 @@ import { googleLoginSchema } from "@shared/validations/googleLoginValidator";
 import { IJWTService } from "@domain/interfaces/services/IJWTService";
 import { IGoogleLoginUseCase } from "@domain/interfaces/useCases/auth/IGoogleLoginUseCase";
 import { IGetProfileImg } from "@domain/interfaces/useCases/auth/IGetProfileImg";
-import { success } from "zod";
 import { IInterestedTopicsUseCase } from "@domain/interfaces/useCases/auth/IInterestedTopicsUseCase";
 
 export class UserAuthController {

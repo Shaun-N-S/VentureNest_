@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { ICreateProjectMonthlyReportUseCase } from "@domain/interfaces/useCases/project/ICreateProjectMonthlyReportUseCase";
-import { MulterFiles } from "@domain/types/multerFilesType";
 import { CreateProjectMonthlyReportDTO } from "application/dto/project/projectMonthlyReportDTO";
 import { CreateMonthlyReportReqSchema } from "@shared/validations/projectMonthlyReportValidator";
 import { InvalidDataException } from "application/constants/exceptions";

@@ -20,6 +20,7 @@ export class JWTService implements IJWTService {
     try {
       return sign(payload, secretKey, { expiresIn });
     } catch (error) {
+      console.log(error);
       throw new InvalidDataException(Errors.ACCESS_TOKEN_CREATION_FAILED);
     }
   }
@@ -34,6 +35,7 @@ export class JWTService implements IJWTService {
     try {
       return sign(payload, secretKey, { expiresIn });
     } catch (error) {
+      console.log(error);
       throw new InvalidDataException(Errors.REFRESH_TOKEN_CREATION_FAILED);
     }
   }

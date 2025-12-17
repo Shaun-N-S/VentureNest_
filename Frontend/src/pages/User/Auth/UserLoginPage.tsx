@@ -91,8 +91,11 @@ const UserLoginPage = () => {
 
         },
         onError: (err) => {
-          toast.error("Google login failed");
-          console.error(err);
+          if (err instanceof AxiosError) {
+            toast.error(err?.response?.data?.message)
+          }
+          // toast.error("Google login failed");
+          // console.error("error in google");
         },
       }
     );

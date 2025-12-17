@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   getAllUsers,
   updateUserStatus,
-} from "../../../services/Admin/User/adminUserService";
+} from "../../../services/Admin/User/AdminUserService";
 
 export const useGetAllUsers = (
   page: number,

@@ -10,17 +10,29 @@ export class FetchAllProjectsUseCase implements IFetchAllProjectsUseCase {
     private _storageService: IStorageService
   ) {}
 
-  async fetchAllProjects(page: number, limit: number) {
+  async fetchAllProjects(
+    userId: string,
+    page: number,
+    limit: number,
+    search?: string,
+    stage?: string,
+    sector?: string
+  ) {
     const skip = (page - 1) * limit;
 
     const { projects, total, hasNextPage } = await this._projectRepository.findAllProjects(
       skip,
-      limit
+      limit,
+      search,
+      stage,
+      sector
     );
 
     const dtoProjects: ProjectResDTO[] = await Promise.all(
       projects.map(async (project) => {
         const dto = ProjectMapper.toDTO(project);
+
+        dto.liked = project.likes.some((l) => l.likerId.toString() === userId);
 
         if (dto.logoUrl)
           dto.logoUrl = await this._storageService.createSignedUrl(dto.logoUrl, 10 * 60);

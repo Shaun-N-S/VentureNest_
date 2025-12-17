@@ -38,8 +38,10 @@ export const ROUTES = {
     BASE: "",
     USERS: "/users",
     INVESTORS: "/investors",
+    PROJECTS: "/projects",
     UPDATE_USER_STATUS: "/users/update-status",
     UPDATE_INVESTOR_STATUS: "/investors/update-status",
+    UPDATE_PROJECT_STATUS: "/projects/update-status",
     FETCH_USER_KYC: "/users/kyc",
     FETCH_INVESTOR_KYC: "/investors/kyc",
     UPDATE_USER_KYC: "/users/update-kyc",
@@ -82,6 +84,7 @@ export const ROUTES = {
     SINGLE_PROJECT: "/:projectId",
     ADD_MONTHLY_REPORT: "/monthly-report/:projectId",
     VERIFY_PROJECT: "/verify/:projectId",
+    LIKE: "/likes/:projectId",
   },
 
   RELATIONSHIP: {

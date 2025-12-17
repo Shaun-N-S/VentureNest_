@@ -35,6 +35,8 @@ export const API_ROUTES = {
     FETCH_INVESTORS_KYC: "/admin/investors/kyc",
     UPDATE_USERS_KYC: "/admin/users/update-kyc",
     UPDATE_INVESTORS_KYC: "/admin/investors/update-kyc",
+    PROJECTS: "/admin/projects",
+    PROJECTS_UPDATE_STATUS: "/admin/projects/update-status",
   },
 
   INVESTOR: {
@@ -71,6 +73,7 @@ export const API_ROUTES = {
     FETCH_SINGLE_PROJECT: "/projects/:projectId",
     ADD_MONTHLY_REPORT: "/projects/monthly-report/:projectId",
     VERIFY_STARTUP: "/projects/verify/:projectId",
+    LIKES: "/projects/likes/:projectId",
   },
 
   RELATIONSHIP: {

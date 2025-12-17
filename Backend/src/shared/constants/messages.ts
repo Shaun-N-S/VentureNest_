@@ -64,6 +64,9 @@ export const MESSAGES = {
     PROJECT_REMOVED_SUCCESSFULLY: "Project removed successfully",
     PROJECT_UPDATED_SUCCESSFULLY: "Project updated successfully",
     PROJECT_REGISTRATION_SUCCESSFULL: "Project registration successfull !",
+    LIKED_SUCCESSFULLY: "Project liked successfully",
+    STATUS_UPDATED_SUCCESSFULLY: "Project status updated successfully",
+    GET_ALL_PROJECTS: "Fetched projects successfully",
   },
 
   PROJECT_MONTHLY_REPORT: {

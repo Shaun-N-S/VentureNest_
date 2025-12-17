@@ -14,40 +14,59 @@ export class ProjectMapper {
       userId: entity.userId,
       startupName: entity.startupName,
       shortDescription: entity.shortDescription,
-      pitchDeckUrl: entity.pitchDeckUrl,
-      projectWebsite: entity.projectWebsite,
+
+      ...(entity.pitchDeckUrl && { pitchDeckUrl: entity.pitchDeckUrl }),
+      ...(entity.projectWebsite && { projectWebsite: entity.projectWebsite }),
+
       userRole: entity.userRole,
       teamSize: entity.teamSize,
       category: entity.category,
       stage: entity.stage,
-      logoUrl: entity.logoUrl,
-      coverImageUrl: entity.coverImageUrl,
-      location: entity.location,
+
+      ...(entity.logoUrl && { logoUrl: entity.logoUrl }),
+      ...(entity.coverImageUrl && { coverImageUrl: entity.coverImageUrl }),
+      ...(entity.location && { location: entity.location }),
+
       likes: entity.likes,
+      liked: false,
       likeCount: entity.likeCount,
       isActive: entity.isActive,
+
       donationEnabled: entity.donationEnabled,
       donationTarget: entity.donationTarget,
       donationReceived: entity.donationReceived,
+
       projectRegister: entity.projectRegister,
       createdAt: entity.createdAt!,
       updatedAt: entity.updatedAt!,
+
       ...(entity.walletId && { walletId: entity.walletId }),
     };
   }
 
   static toDTOFromPopulatedRepo(populatedProject: PopulatedProjectRepoDTO): ProjectResDTO {
     const dto: ProjectResDTO = {
-      _id: populatedProject._id!,
+      _id: populatedProject._id,
       userId: populatedProject.userId,
       startupName: populatedProject.startupName,
       shortDescription: populatedProject.shortDescription,
-      pitchDeckUrl: populatedProject.pitchDeckUrl || "",
-      projectWebsite: populatedProject.projectWebsite || "",
-      logoUrl: populatedProject.logoUrl || "",
-      coverImageUrl: populatedProject.coverImageUrl || "",
-      location: populatedProject.location || "",
-      walletId: populatedProject.walletId || "",
+
+      ...(populatedProject.pitchDeckUrl && {
+        pitchDeckUrl: populatedProject.pitchDeckUrl,
+      }),
+      ...(populatedProject.projectWebsite && {
+        projectWebsite: populatedProject.projectWebsite,
+      }),
+      ...(populatedProject.logoUrl && { logoUrl: populatedProject.logoUrl }),
+      ...(populatedProject.coverImageUrl && {
+        coverImageUrl: populatedProject.coverImageUrl,
+      }),
+      ...(populatedProject.location && {
+        location: populatedProject.location,
+      }),
+      ...(populatedProject.walletId && {
+        walletId: populatedProject.walletId,
+      }),
 
       userRole: populatedProject.userRole,
       teamSize: populatedProject.teamSize,
@@ -55,11 +74,14 @@ export class ProjectMapper {
       stage: populatedProject.stage,
 
       likes: populatedProject.likes,
+      liked: false,
       likeCount: populatedProject.likeCount,
       isActive: populatedProject.isActive,
+
       donationEnabled: populatedProject.donationEnabled,
       donationTarget: populatedProject.donationTarget,
       donationReceived: populatedProject.donationReceived,
+
       projectRegister: populatedProject.projectRegister,
       createdAt: populatedProject.createdAt,
       updatedAt: populatedProject.updatedAt,
@@ -110,22 +132,28 @@ export class ProjectMapper {
       userId: dto.userId,
       startupName: dto.startupName,
       shortDescription: dto.shortDescription,
-      pitchDeckUrl: dto.pitchDeckUrl || "",
-      projectWebsite: dto.projectWebsite || "",
+
+      ...(dto.pitchDeckUrl && { pitchDeckUrl: dto.pitchDeckUrl }),
+      ...(dto.projectWebsite && { projectWebsite: dto.projectWebsite }),
+
       userRole: dto.userRole,
       teamSize: dto.teamSize,
       category: dto.category,
       stage: dto.stage,
-      logoUrl: dto.logoUrl || "",
-      coverImageUrl: dto.coverImageUrl || "",
-      location: dto.location || "",
+
+      ...(dto.logoUrl && { logoUrl: dto.logoUrl }),
+      ...(dto.coverImageUrl && { coverImageUrl: dto.coverImageUrl }),
+      ...(dto.location && { location: dto.location }),
+
       likes: [],
       likeCount: 0,
       isActive: true,
-      donationEnabled: dto.donationEnabled || false,
-      donationTarget: dto.donationTarget || 0,
+
+      donationEnabled: dto.donationEnabled ?? false,
+      donationTarget: dto.donationTarget ?? 0,
       donationReceived: 0,
-      projectRegister: dto.projectRegister || false,
+
+      projectRegister: dto.projectRegister ?? false,
       createdAt: now,
       updatedAt: now,
     };
@@ -195,32 +223,54 @@ export class ProjectMapper {
     const updated: ProjectEntity = {
       _id: existing._id!,
       userId: existing.userId,
+
       startupName: dto.startupName ?? existing.startupName,
       shortDescription: dto.shortDescription ?? existing.shortDescription,
-      projectWebsite: dto.projectWebsite ?? existing.projectWebsite,
+
       userRole: dto.userRole ?? existing.userRole,
       teamSize: dto.teamSize ?? existing.teamSize,
       category: dto.category ?? existing.category,
       stage: dto.stage ?? existing.stage,
-      location: dto.location ?? existing.location,
-      pitchDeckUrl: dto.pitchDeckUrl ?? existing.pitchDeckUrl,
-      logoUrl: dto.logoUrl ?? existing.logoUrl,
-      coverImageUrl: dto.coverImageUrl ?? existing.coverImageUrl,
+
       donationEnabled: dto.donationEnabled ?? existing.donationEnabled,
       donationTarget: dto.donationTarget ?? existing.donationTarget,
       projectRegister: dto.projectRegister ?? existing.projectRegister,
+
       donationReceived: existing.donationReceived,
       likes: existing.likes,
       likeCount: existing.likeCount,
       isActive: existing.isActive,
+
       createdAt: existing.createdAt!,
       updatedAt: new Date(),
+
+      ...(existing.walletId && { walletId: existing.walletId }),
     };
 
-    if (existing.walletId) updated.walletId = existing.walletId;
+    // ✅ Optional fields – only add if value exists
+    if (dto.projectWebsite !== undefined) {
+      updated.projectWebsite = dto.projectWebsite;
+    }
+
+    if (dto.pitchDeckUrl !== undefined) {
+      updated.pitchDeckUrl = dto.pitchDeckUrl;
+    }
+
+    if (dto.logoUrl !== undefined) {
+      updated.logoUrl = dto.logoUrl;
+    }
+
+    if (dto.coverImageUrl !== undefined) {
+      updated.coverImageUrl = dto.coverImageUrl;
+    }
+
+    if (dto.location !== undefined) {
+      updated.location = dto.location;
+    }
 
     return updated;
   }
+
   static fromMongooseDocumentPopulated(doc: any): PopulatedProjectRepoDTO {
     const projectRepoDTO: PopulatedProjectRepoDTO = {
       _id: doc._id?.toString(),
@@ -236,7 +286,10 @@ export class ProjectMapper {
       logoUrl: doc.logoUrl ?? "",
       coverImageUrl: doc.coverImageUrl ?? "",
       location: doc.location ?? "",
-      likes: (doc.likes as mongoose.Types.ObjectId[]).map((id) => id.toString()),
+      likes: doc.likes.map((like: any) => ({
+        likerId: like.likerId.toString(),
+        likerRole: like.likerRole,
+      })),
       likeCount: doc.likeCount || 0,
       isActive: doc.isActive ?? true,
       donationEnabled: doc.donationEnabled ?? false,

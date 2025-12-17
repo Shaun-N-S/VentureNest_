@@ -1,4 +1,4 @@
-import { userAuthController } from "@infrastructure/DI/Auth/authContainer";
+import { authMiddleware, userAuthController } from "@infrastructure/DI/Auth/authContainer";
 import { userProfileController } from "@infrastructure/DI/User/UserProfileContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
@@ -84,6 +84,8 @@ export class User_Router {
 
     this._route.patch(
       ROUTES.USERS.PROFILE.UPDATE,
+      authMiddleware.verify,
+      authMiddleware.checkStatus,
       uploadMulter.fields([{ name: "profileImg", maxCount: 1 }]),
       (req: Request, res: Response, next: NextFunction) => {
         userProfileController.updateProfileData(req, res, next);

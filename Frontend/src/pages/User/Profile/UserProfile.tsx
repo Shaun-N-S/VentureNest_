@@ -11,19 +11,19 @@ import { useFetchPersonalPost, useLikePost, useRemovePost } from "../../../hooks
 import type { PersonalPost } from "../../Investor/Profile/InvestorProfile/ProfilePage"
 import toast from "react-hot-toast"
 import { queryClient } from "../../../main"
-import { useFetchPersonalProjects, useUpdateProject } from "../../../hooks/Project/projectHooks"
+import { useFetchPersonalProjects, useLikeProject, useRemoveProject, useUpdateProject } from "../../../hooks/Project/projectHooks"
 import type { PersonalProjectApiResponse, ProjectType } from "../../../types/projectType"
 import AddProjectModal from "../../../components/modals/AddProjectModal"
 import { MonthlyReportModal } from "../../../components/modals/AddProjectMonthlyReportModal"
 import { VerifyStartupModal } from "../../../components/modals/ProjectRegistrationModal"
+import type { PersonalProjectsResponse, RemoveProjectResponse } from "../../../types/personalPostCache"
 
 export default function ProfilePage() {
-    const [likedProjects, setLikedProjects] = useState<Set<string>>(new Set())
     const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set())
     const [isFollowing, setIsFollowing] = useState(false)
     const userData = useSelector((state: Rootstate) => state.authData)
     const userId = userData.id;
-    const isAdminVerified = userData.adminVerified === true;
+    const isAdminVerified = userData.adminVerified;
     const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null);
     const [isMonthlyReportOpen, setIsMonthlyReportOpen] = useState(false);
@@ -34,22 +34,12 @@ export default function ProfilePage() {
     const { data: postData, isLoading: postIsLoading } = useFetchPersonalPost(1, 10);
     const { data: projectData, isLoading: projectIsLoading } = useFetchPersonalProjects(1, 10)
     const { mutate: removePost } = useRemovePost();
+    const { mutate: removeProject } = useRemoveProject()
     const { mutate: updateProject } = useUpdateProject();
     const { mutate: likePost } = useLikePost()
+    const { mutate: likeProject } = useLikeProject()
     console.log("Post data fetched    : ", postData, postIsLoading)
     console.log("Project data fetched    : ", projectData, projectIsLoading)
-
-    const toggleProjectLike = (projectId: string) => {
-        setLikedProjects((prev) => {
-            const newSet = new Set(prev)
-            if (newSet.has(projectId)) {
-                newSet.delete(projectId)
-            } else {
-                newSet.add(projectId)
-            }
-            return newSet
-        })
-    }
 
     const togglePostLike = (postId: string) => {
         setLikedPosts((prev) => {
@@ -79,6 +69,33 @@ export default function ProfilePage() {
         )
     }
 
+    const handleRemoveProject = (projectId: string) => {
+        removeProject(projectId, {
+            onSuccess: (res: RemoveProjectResponse) => {
+                const removedId = res.data.projectId
+
+                toast.success(res.message)
+
+                queryClient.setQueryData<PersonalProjectsResponse>(
+                    ["personal-project", 1, 10],
+                    (oldData) => {
+                        if (!oldData) return oldData
+
+                        const copy = structuredClone(oldData)
+
+                        copy.data.data.projects = copy.data.data.projects.filter(
+                            (project) => project._id !== removedId
+                        )
+                        return copy
+                    }
+                )
+            },
+            onError: (err: Error) => {
+                toast.error(err.message || "Failed to remove project")
+            }
+        })
+    }
+
     const handleAddMonthlyReport = (projectId: string) => {
         setReportProjectId(projectId);
         setIsMonthlyReportOpen(true);
@@ -95,7 +112,7 @@ export default function ProfilePage() {
 
         formData.forEach((value, key) => {
             if (typeof value === "string") {
-                (obj as any)[key] = value;
+                (obj as Record<string, string>)[key] = value;
             }
         });
 
@@ -145,7 +162,7 @@ export default function ProfilePage() {
     };
 
     const handleVerifyProject = (projectId: string) => {
-        if (!isAdminVerified) {
+        if (!profileData.data.profileData.adminVerified) {
             toast.error("Your profile must be verified by admin before verifying a startup.");
             return;
         }
@@ -162,6 +179,48 @@ export default function ProfilePage() {
         likePost(postId, {
             onSuccess: (res) => updateUI(res.data.liked, res.data.likeCount),
             onError: () => toast.error("Failed to like post"),
+        });
+    };
+
+
+    const handleProjectLike = (
+        projectId: string,
+        updateUI: (liked: boolean) => void
+    ) => {
+        likeProject(projectId, {
+            onSuccess: (res) => {
+                updateUI(res.data.liked);
+
+                queryClient.setQueryData<PersonalProjectApiResponse>(
+                    ["personal-project", 1, 10],
+                    (old) => {
+                        if (!old) return old;
+
+                        return {
+                            ...old,
+                            data: {
+                                ...old.data,
+                                data: {
+                                    ...old.data.data,
+                                    projects: old.data.data.projects.map((p) =>
+                                        p._id === projectId
+                                            ? {
+                                                ...p,
+                                                liked: res.data.liked,
+                                                likeCount: res.data.likeCount,
+                                            }
+                                            : p
+                                    ),
+                                },
+                            },
+                        };
+                    }
+                );
+            },
+            onError: () => {
+                updateUI(false);
+                toast.error("Failed to like project");
+            },
         });
     };
 
@@ -236,12 +295,13 @@ export default function ProfilePage() {
                                             description={project.shortDescription}
                                             stage={project.stage!}
                                             logoUrl={project.logoUrl}
-                                            likes={project.likes}
+                                            likes={project.likeCount}
                                             liked={project.liked}
-                                            onLike={() => toggleProjectLike(project._id)}
+                                            onLike={(updateUI) => handleProjectLike(project._id, updateUI)}
                                             onEdit={() => handleEditProject(project)}
                                             onAddReport={handleAddMonthlyReport}
                                             onVerify={handleVerifyProject}
+                                            onRemove={handleRemoveProject}
                                         />
                                     ))
                                 ) : (

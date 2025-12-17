@@ -95,6 +95,14 @@ export class Project_Router {
         projectRegistrationController.registerProject(req, res, next);
       }
     );
+
+    this._route.post(
+      ROUTES.PROJECT.LIKE,
+      authMiddleware.verify,
+      (req: Request, res: Response, next: NextFunction) => {
+        projectController.likeProject(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

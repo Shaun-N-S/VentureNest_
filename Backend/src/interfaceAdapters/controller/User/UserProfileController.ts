@@ -8,10 +8,7 @@ import { multerFileToFileConverter } from "@shared/utils/fileConverter";
 import { ResponseHelper } from "@shared/utils/responseHelper";
 import { userProfileUpdateSchema } from "@shared/validations/userProfileUpdateValidator";
 import { DataMissingExecption, InvalidDataException } from "application/constants/exceptions";
-import {
-  UserProfileUpdateDTO,
-  UserProfileUpdateReqDTO,
-} from "application/dto/user/userProfileUpdateDTO";
+import { UserProfileUpdateReqDTO } from "application/dto/user/userProfileUpdateDTO";
 import { NextFunction, Request, Response } from "express";
 
 export class UserProfileController {

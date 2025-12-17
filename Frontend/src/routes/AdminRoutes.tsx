@@ -8,6 +8,8 @@ import UsersListing from "../pages/Admin/UsersListing";
 import InvestorsListing from "../pages/Admin/InvestorListing";
 import AdminLayout from "../layouts/AdminLayout";
 import VerificationPage from "../pages/Admin/verificationListing";
+import ProjectsListing from "../pages/Admin/ProjectListingPage";
+import ProjectDetailedPage from "../pages/Common/ProjectDetailedPage";
 
 const AdminRoutes = () => {
   return (
@@ -24,6 +26,8 @@ const AdminRoutes = () => {
           <Route path={FRONTEND_ROUTES.ADMIN.USERS} element={<UsersListing />} />
           <Route path={FRONTEND_ROUTES.ADMIN.INVESTORS} element={<InvestorsListing />} />
           <Route path={FRONTEND_ROUTES.ADMIN.VERIFICATIONS} element={<VerificationPage />} />
+          <Route path={FRONTEND_ROUTES.ADMIN.PROJECTS} element={<ProjectsListing />} />
+          <Route path={`${FRONTEND_ROUTES.ADMIN.PROJECTS}/:id`} element={<ProjectDetailedPage />} />
         </Route>
       </Route>
     </Routes>

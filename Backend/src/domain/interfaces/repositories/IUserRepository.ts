@@ -10,4 +10,5 @@ export interface IUserRepository extends IBaseRepository<UserEntity> {
   updateKycStatus(userId: string, status: KYCStatus, reason?: string): Promise<UserEntity | null>;
   googleSignUp(user: UserEntity): Promise<string>;
   setInterestedTopics(userId: string, interestedTopics: string[]): Promise<void>;
+  getStatus(userId: string): Promise<UserStatus>;
 }
