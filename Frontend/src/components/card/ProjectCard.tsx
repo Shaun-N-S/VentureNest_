@@ -10,6 +10,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 export function ProjectCard({
     id,
@@ -23,13 +25,33 @@ export function ProjectCard({
     onEdit,
     onAddReport,
     onVerify,
+    onRemove,
 }: ProjectCardProps) {
+
+    const [isLiked, setIsLiked] = useState(liked);
+    console.log(liked)
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        setIsLiked(liked);
+    }, [liked]);
+
+
+    const handleLike = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        setIsLiked(prev => !prev);
+
+        onLike?.((newLiked) => {
+            setIsLiked(newLiked);
+        });
+    };
 
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
+            onClick={() => navigate(`/projects/${id}`)}
             className="
                 w-full bg-gray-100 rounded-2xl p-3 sm:p-4 md:p-6 
                 flex flex-col sm:flex-row 
@@ -74,18 +96,16 @@ export function ProjectCard({
                     <Button
                         variant="ghost"
                         size="icon"
-                        onClick={onLike}
-                        className={`
-                            h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 
-                            ${liked ? "text-red-500" : "text-gray-600"}
-                        `}
+                        onClick={handleLike}
+                        className={isLiked ? "text-red-500" : "text-gray-600"}
                     >
-                        <Heart className={`h-4 w-4 sm:h-5 sm:w-5 ${liked ? "fill-current" : ""}`} />
+                        <Heart
+                            className={`h-5 w-5 transition-colors ${isLiked ? "fill-red-500" : ""
+                                }`}
+                        />
                     </Button>
 
-                    <span className="text-xs sm:text-sm font-semibold text-gray-700 min-w-[1.5rem] sm:min-w-[2rem]">
-                        {likes}
-                    </span>
+                    <span className="text-sm font-semibold">{likes}</span>
                 </div>
 
                 {/* More Options */}
@@ -94,6 +114,7 @@ export function ProjectCard({
                         <Button
                             variant="ghost"
                             size="icon"
+                            onClick={(e) => e.stopPropagation()}
                             className="
                                 h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 
                                 text-gray-600 
@@ -113,28 +134,46 @@ export function ProjectCard({
                         "
                     >
                         <DropdownMenuItem
-                            onClick={() => onEdit?.()}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onEdit?.()
+                            }}
                             className="px-3 py-2 text-sm hover:bg-gray-100 rounded-lg cursor-pointer"
                         >
                             Edit Project
                         </DropdownMenuItem>
 
-                        <DropdownMenuItem
-                            onClick={() => onAddReport?.(id)}
+                        {/* <DropdownMenuItem
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onAddReport?.(id)
+                            }}
                             className="px-3 py-2 text-sm hover:bg-gray-100 rounded-lg cursor-pointer"
                         >
                             Add Monthly Report
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
 
-                        <DropdownMenuItem
-                            onClick={() => onVerify?.(id)}
+                        {/* <DropdownMenuItem
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onVerify?.(id)
+                            }}
                             className="px-3 py-2 text-sm hover:bg-gray-100 rounded-lg cursor-pointer"
                         >
                             Verify Project
+                        </DropdownMenuItem> */}
+                        <DropdownMenuItem
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onRemove?.(id)
+                            }}
+                            className="px-3 py-2 text-sm hover:bg-gray-100 rounded-lg cursor-pointer"
+                        >
+                            Remove Project
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-        </motion.div>
+        </motion.div >
     )
 }

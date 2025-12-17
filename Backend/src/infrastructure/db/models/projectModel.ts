@@ -4,6 +4,7 @@ import { PreferredSector } from "@domain/enum/preferredSector";
 import { StartupStage } from "@domain/enum/startupStages";
 import { TeamSize } from "@domain/enum/teamSize";
 import { ProjectRole } from "@domain/enum/projectRole";
+import { UserRole } from "@domain/enum/userRole";
 
 export interface IProjectModel extends Document {
   userId: Types.ObjectId;
@@ -18,7 +19,10 @@ export interface IProjectModel extends Document {
   logoUrl?: string;
   coverImageUrl?: string;
   location?: string;
-  likes: Types.ObjectId[];
+  likes: {
+    likerId: Types.ObjectId;
+    likerRole: UserRole;
+  }[];
   likeCount: number;
   isActive: boolean;
   walletId?: Types.ObjectId;

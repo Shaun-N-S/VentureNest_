@@ -16,9 +16,9 @@ export interface ProjectType {
   logoUrl?: string;
   coverImageUrl?: string;
   pitchDeckUrl?: string;
-
-  likes?: number;
-  liked?: boolean;
+  isActive?: boolean;
+  likeCount: number;
+  liked: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -29,9 +29,23 @@ export interface PersonalProjectList {
 }
 
 export interface PersonalProjectApiResponse {
+  data: {
+    data: {
+      projects: ProjectType[];
+      totalProjects: number;
+      hasNextPage: boolean;
+    };
+  };
+}
+
+export interface ProjectLikeData {
+  projectId: string;
+  liked: boolean;
+  likeCount: number;
+}
+
+export interface ProjectLikeResponse {
   success: boolean;
   message: string;
-  data: {
-    data: PersonalProjectList;
-  };
+  data: ProjectLikeData;
 }

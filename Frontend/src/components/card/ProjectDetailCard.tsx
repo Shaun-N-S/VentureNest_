@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Heart, Download, Flag, MapPin, FileText, ExternalLink, Users, Target, Sparkles } from "lucide-react"
 import { Badge } from "../ui/badge"
@@ -66,18 +66,29 @@ export function ProjectDetailCard({
 }: ProjectDetailCardProps) {
     const [isPdfOpen, setIsPdfOpen] = useState(false)
     const [numPages, setNumPages] = useState<number | null>(null)
-    const [liked, setLiked] = useState(isLiked)
-    const [likeCount, setLikeCount] = useState(likes)
+    // const [liked, setLiked] = useState(isLiked)
+    // const [likeCount, setLikeCount] = useState(likes)
+
+
+    // useEffect(() => {
+    //     setLiked(isLiked);
+    //     setLikeCount(likes);
+    // }, [isLiked, likes]);
 
     const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
         setNumPages(numPages)
     }
 
     const handleLike = () => {
-        setLiked(!liked)
-        setLikeCount(prev => liked ? prev - 1 : prev + 1)
-        onLike?.(id)
-    }
+        // const prevLiked = liked;
+        // const prevCount = likeCount;
+
+        // setLiked(!prevLiked);
+        // setLikeCount(prevLiked ? prevCount - 1 : prevCount + 1);
+
+        onLike?.(id);
+    };
+
 
     const stageClass = stageColors[stage] || "bg-muted text-muted-foreground border-border"
 
@@ -106,9 +117,10 @@ export function ProjectDetailCard({
                         className="absolute top-6 right-6 p-3 rounded-full bg-card/90 backdrop-blur-sm shadow-lg border border-border/50 transition-colors"
                     >
                         <Heart
-                            className={`w-6 h-6 transition-colors ${liked ? "fill-destructive text-destructive" : "text-muted-foreground"
+                            className={`w-6 h-6 transition-colors ${isLiked ? "fill-destructive text-destructive" : "text-muted-foreground"
                                 }`}
                         />
+                        <span className="text-lg font-bold text-foreground">{likes}</span>
                     </motion.button>
 
                     {/* Logo Overlay */}
@@ -151,16 +163,20 @@ export function ProjectDetailCard({
                             )}
                         </div>
 
-                        <motion.div
+                        {/* <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 }}
                             className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-xl"
                         >
-                            <Heart className="w-5 h-5 text-destructive" />
-                            <span className="text-lg font-bold text-foreground">{likeCount}</span>
-                            <span className="text-sm text-muted-foreground">likes</span>
-                        </motion.div>
+                            <Heart
+                                className={`w-6 h-6 transition-colors ${isLiked ? "fill-destructive text-destructive" : "text-muted-foreground"
+                                    }`}
+                            /> */}
+
+                        {/* <span className="text-lg font-bold text-foreground">{likes}</span> */}
+                        {/* <span className="text-sm text-muted-foreground">likes</span> */}
+                        {/* </motion.div> */}
                     </div>
 
                     {/* Description */}
@@ -249,8 +265,8 @@ export function ProjectDetailCard({
                                 </h2>
                             </div>
 
-                            <div className="grid sm:grid-cols-2 gap-3">
-                                <Button
+                            <div className="grid sm:grid-cols-1 gap-3">
+                                {/* <Button
                                     variant="outline"
                                     onClick={() => setIsPdfOpen(true)}
                                     className="h-auto py-4 px-5 justify-start gap-3 bg-secondary/30 hover:bg-secondary border-border/50"
@@ -262,7 +278,7 @@ export function ProjectDetailCard({
                                         <p className="font-semibold text-foreground">View Deck</p>
                                         <p className="text-xs text-muted-foreground">Preview in browser</p>
                                     </div>
-                                </Button>
+                                </Button> */}
 
                                 <Button
                                     variant="outline"
@@ -292,7 +308,7 @@ export function ProjectDetailCard({
                         <Button
                             variant="ghost"
                             onClick={() => onReport?.(id)}
-                            className="w-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
+                            className="w-full mt-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
                         >
                             <Flag className="w-4 h-4" />
                             Report this project

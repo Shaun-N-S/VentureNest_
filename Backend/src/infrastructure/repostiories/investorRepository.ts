@@ -7,6 +7,8 @@ import { IInvestorModel } from "@infrastructure/db/models/investorModel";
 import { UserStatus } from "@domain/enum/userStatus";
 import { KYCStatus } from "@domain/enum/kycStatus";
 import { UserRole } from "@domain/enum/userRole";
+import { NotFoundExecption } from "application/constants/exceptions";
+import { INVESTOR_ERRORS } from "@shared/constants/error";
 
 export class InvestorRepository
   extends BaseRepository<InvestorEntity, IInvestorModel>
@@ -94,5 +96,15 @@ export class InvestorRepository
 
     if (!udpatedInvestor) return null;
     return InvestorMapper.fromMongooseDocument(udpatedInvestor);
+  }
+
+  async getStatus(investorId: string): Promise<UserStatus> {
+    const doc = await this._model.findById(investorId, { status: 1 });
+
+    if (!doc) {
+      throw new NotFoundExecption(INVESTOR_ERRORS.INVESTOR_NOT_FOUND);
+    }
+
+    return doc.status;
   }
 }

@@ -1,5 +1,6 @@
 import { adminInvestorController } from "@infrastructure/DI/Admin/adminInvestorContainer";
 import { adminKycController } from "@infrastructure/DI/Admin/adminKycContainer";
+import { adminProjectController } from "@infrastructure/DI/Admin/adminProjectContainer";
 import { adminUserController } from "@infrastructure/DI/Admin/adminUserContainer";
 import { adminAuthController, authMiddleware } from "@infrastructure/DI/Auth/authContainer";
 import { ROUTES } from "@shared/constants/routes";
@@ -79,6 +80,22 @@ export class Admin_Routes {
       authMiddleware.verify,
       (req: Request, res: Response, next: NextFunction) => {
         adminKycController.udpateInvestorKycStatus(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ADMIN.PROJECTS,
+      authMiddleware.verify,
+      (req: Request, res: Response, next: NextFunction) => {
+        adminProjectController.getAllProjects(req, res, next);
+      }
+    );
+
+    this._route.patch(
+      ADMIN.UPDATE_PROJECT_STATUS,
+      authMiddleware.verify,
+      (req: Request, res: Response, next: NextFunction) => {
+        adminProjectController.updateProjectStatus(req, res, next);
       }
     );
   }

@@ -1,4 +1,3 @@
-import { UserEntity } from "@domain/entities/user/userEntity";
 import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";

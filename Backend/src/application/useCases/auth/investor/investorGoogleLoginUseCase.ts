@@ -1,13 +1,15 @@
 import { KYCStatus } from "@domain/enum/kycStatus";
-import { PreferredSector } from "@domain/enum/preferredSector";
 import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
+import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 import { IGoogleAuthService } from "@domain/interfaces/services/IGoogleAuthService";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IGoogleLoginUseCase } from "@domain/interfaces/useCases/auth/IGoogleLoginUseCase";
+import { INVESTOR_ERRORS } from "@shared/constants/error";
 import { fetchImageAsBuffer } from "@shared/utils/fetchImageAsBuffer";
+import { IsBlockedExecption } from "application/constants/exceptions";
 import {
   IGoogleLoginRequestDTO,
   IGoogleLoginResponseDTO,
@@ -18,7 +20,8 @@ export class InvestorGoogleLoginUseCase implements IGoogleLoginUseCase {
   constructor(
     private _investorRepository: IInvestorRepository,
     private _googleAuthService: IGoogleAuthService,
-    private _storageService: IStorageService
+    private _storageService: IStorageService,
+    private _cacheService: IKeyValueTTLCaching
   ) {}
 
   async execute({
@@ -28,6 +31,7 @@ export class InvestorGoogleLoginUseCase implements IGoogleLoginUseCase {
     const { email, googleId, userName, profileImage } =
       await this._googleAuthService.authorize(authorizationCode);
 
+    console.log(role);
     let investor = await this._investorRepository.findByEmail(email);
 
     let profileImageKey = investor?.profileImg || "";
@@ -67,6 +71,13 @@ export class InvestorGoogleLoginUseCase implements IGoogleLoginUseCase {
       const profileKey = profileImageKey || investor.profileImg;
       investor.profileImg = await this._storageService.createSignedUrl(profileKey!, 10 * 60);
     }
+
+    if (investor.status === UserStatus.BLOCKED) {
+      throw new IsBlockedExecption(INVESTOR_ERRORS.INVESTOR_BLOKED);
+    }
+
+    await this._cacheService.setData(`USER_STATUS:${investor._id}`, 60 * 15, investor.status);
+
     return InvestorMapper.toLoginInvestorResponse(investor);
   }
 }

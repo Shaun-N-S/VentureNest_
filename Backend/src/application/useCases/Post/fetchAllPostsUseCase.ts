@@ -19,17 +19,13 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
     const user = await this._userRepository.findById(currentUserId);
     const interests = user?.interestedTopics || [];
 
-    // PRIORITY 1 — Authors sharing interests
     const authorInterestPosts =
       await this._postRepository.findPostsByAuthorsWithCommonInterests(interests);
 
-    // PRIORITY 2 — Content matches user's interests
     const contentInterestPosts = await this._postRepository.findPostsMatchingInterests(interests);
 
-    // PRIORITY 3 — Latest fallback posts
     const { posts: fallbackPosts } = await this._postRepository.findAllPosts(0, limit * 4);
 
-    // MERGE + REMOVE DUPLICATES
     const merged = [
       ...authorInterestPosts,
       ...contentInterestPosts.filter((p) => !authorInterestPosts.some((x) => x._id === p._id)),
@@ -40,12 +36,10 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
       ),
     ];
 
-    // PAGINATION AFTER MERGE
     const start = (page - 1) * limit;
     const end = page * limit;
     const pageData = merged.slice(start, end);
 
-    // FETCH AUTHOR DETAILS
     const userIds: string[] = [];
     const investorIds: string[] = [];
 
@@ -62,21 +56,18 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
     const userMap = new Map(users.map((u) => [u._id!, u]));
     const investorMap = new Map(investors.map((i) => [i._id!, i]));
 
-    // BUILD FEED DTOs
     const result = await Promise.all(
       pageData.map(async (post) => {
         const dto = PostMapper.toDTO(post) as PostFeedResDTO;
 
         dto.liked = post.likes.some((l) => l.likerId === currentUserId);
 
-        // Signed media URLs
         if (post.mediaUrls?.length) {
           dto.mediaUrls = await Promise.all(
             post.mediaUrls.map((url) => this._storageService.createSignedUrl(url, 600))
           );
         }
 
-        // Attach author details
         if (post.authorRole === UserRole.USER) {
           const author = userMap.get(post.authorId);
           dto.authorName = author?.userName || "Unknown User";

@@ -1,5 +1,6 @@
 import { UserStatus } from "@domain/enum/userStatus";
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
+import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 import { IHashPasswordService } from "@domain/interfaces/services/IHashPasswordService";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IUserLoginUseCase } from "@domain/interfaces/useCases/auth/user/IUserLoginUseCase";
@@ -17,15 +18,18 @@ export class UserLoginUseCase implements IUserLoginUseCase {
   private _userRepository;
   private _hashService;
   private _storageService;
+  private _cacheService;
 
   constructor(
     userRepository: IUserRepository,
     hashService: IHashPasswordService,
-    storageService: IStorageService
+    storageService: IStorageService,
+    cacheService: IKeyValueTTLCaching
   ) {
     this._userRepository = userRepository;
     this._hashService = hashService;
     this._storageService = storageService;
+    this._cacheService = cacheService;
   }
 
   async userLogin(email: string, password: string): Promise<LoginUserResponseDTO> {
@@ -38,6 +42,8 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     if (user.status === UserStatus.BLOCKED) {
       throw new IsBlockedExecption(USER_ERRORS.USER_BLOCKED);
     }
+
+    await this._cacheService.setData(`USER_STATUS:${user._id}`, 60 * 15, user.status);
 
     if (!user.password) {
       if (user.googleId) {

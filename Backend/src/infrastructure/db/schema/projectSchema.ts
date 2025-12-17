@@ -1,8 +1,9 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { PreferredSector } from "@domain/enum/preferredSector";
 import { StartupStage } from "@domain/enum/startupStages";
 import { TeamSize } from "@domain/enum/teamSize";
 import { ProjectRole } from "@domain/enum/projectRole";
+import { UserRole } from "@domain/enum/userRole";
 
 const projectSchema = new mongoose.Schema(
   {
@@ -40,7 +41,16 @@ const projectSchema = new mongoose.Schema(
     coverImageUrl: { type: String },
     location: { type: String },
 
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    likes: [
+      {
+        likerId: { type: Types.ObjectId, required: true },
+        likerRole: {
+          type: String,
+          enum: [UserRole.USER, UserRole.INVESTOR],
+          required: true,
+        },
+      },
+    ],
     likeCount: { type: Number, default: 0 },
 
     isActive: { type: Boolean, default: true },

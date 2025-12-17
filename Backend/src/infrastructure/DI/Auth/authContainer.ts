@@ -63,13 +63,19 @@ const sendOtpUseCase = new SignUpSendOtpUseCase(
   hashService
 );
 const verifyOtpUseCase = new VerifyOtpUseCase(cacheStorage);
-const userLoginUseCase = new UserLoginUseCase(userRepository, hashService, storageService);
+const userLoginUseCase = new UserLoginUseCase(
+  userRepository,
+  hashService,
+  storageService,
+  cacheStorage
+);
 const tokenCreationUseCase = new TokenCreationUseCase(jwtService);
 const cacheUserUseCase = new CacheUserUseCase(cacheStorage);
 const investorLoginUseCase = new InvestorLoginUseCase(
   investorRepository,
   hashService,
-  storageService
+  storageService,
+  cacheStorage
 );
 const cacheInvestorUseCase = new CacheInvestorUseCase(cacheStorage);
 const resendOtpUseCase = new ResendOtpUseCase(
@@ -108,12 +114,14 @@ const tokenValidationUseCase = new TokenInvalidationUseCase(jwtService, cacheSto
 const googleLoginUseCase = new UserGoogleLoginUseCase(
   userRepository,
   googleAuthService,
-  storageService
+  storageService,
+  cacheStorage
 );
 const investorGoogleLoginUseCase = new InvestorGoogleLoginUseCase(
   investorRepository,
   googleAuthService,
-  storageService
+  storageService,
+  cacheStorage
 );
 const getProfileImgUseCase = new GetProfileImgUseCase(
   userRepository,
@@ -165,4 +173,9 @@ export const adminAuthController = new AdminAuthController(
   tokenCreationUseCase
 );
 
-export const authMiddleware = new AuthMiddleware(jwtService, cacheStorage);
+export const authMiddleware = new AuthMiddleware(
+  jwtService,
+  cacheStorage,
+  userRepository,
+  investorRepository
+);

@@ -10,7 +10,7 @@ export class RemoveProjectUseCase implements IRemoveProjectUseCase {
     private _storageService: IStorageService
   ) {}
 
-  async removeProject(projectId: string, userId: string): Promise<void> {
+  async removeProject(projectId: string, userId: string): Promise<{ projectId: string }> {
     const project = await this._projectRepository.findById(projectId);
 
     if (!project) throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);
@@ -23,6 +23,8 @@ export class RemoveProjectUseCase implements IRemoveProjectUseCase {
 
     const assets = [project.logoUrl, project.coverImageUrl, project.pitchDeckUrl].filter(Boolean);
 
-    await Promise.all(assets.map((a) => this._storageService.delete(a)));
+    await Promise.all(assets.map((a) => this._storageService.delete(a!)));
+
+    return { projectId };
   }
 }

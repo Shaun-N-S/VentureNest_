@@ -7,6 +7,8 @@ import { IUserModel } from "@infrastructure/db/models/userModel";
 import { UserStatus } from "@domain/enum/userStatus";
 import { UserRole } from "@domain/enum/userRole";
 import { KYCStatus } from "@domain/enum/kycStatus";
+import { NotFoundExecption } from "application/constants/exceptions";
+import { USER_ERRORS } from "@shared/constants/error";
 
 export class UserRepository
   extends BaseRepository<UserEntity, IUserModel>
@@ -90,5 +92,15 @@ export class UserRepository
 
     if (!updatedUser) return null;
     return UserMapper.fromMongooseDocument(updatedUser);
+  }
+
+  async getStatus(userId: string): Promise<UserStatus> {
+    const doc = await this._model.findById(userId, { status: 1 });
+
+    if (!doc) {
+      throw new NotFoundExecption(USER_ERRORS.USER_NOT_FOUND);
+    }
+
+    return doc.status;
   }
 }

@@ -15,6 +15,7 @@ import { Request, Response, NextFunction } from "express";
 import { IFetchProjectByIdUseCase } from "@domain/interfaces/useCases/project/IFetchProjectByIdUseCase";
 import { IUpdateProjectUseCase } from "@domain/interfaces/useCases/project/IUpdateProjectUseCase";
 import { UpdateProjectReqSchema } from "@shared/validations/updateProjectValidator";
+import { ILikeProjectUseCase } from "@domain/interfaces/useCases/project/ILikeProjectUseCase";
 
 export class ProjectController {
   constructor(
@@ -23,7 +24,8 @@ export class ProjectController {
     private _fetchAllProjects: IFetchAllProjectsUseCase,
     private _removeProject: IRemoveProjectUseCase,
     private _fetchProjectById: IFetchProjectByIdUseCase,
-    private _updateProjectUseCase: IUpdateProjectUseCase
+    private _updateProjectUseCase: IUpdateProjectUseCase,
+    private _likeProjectUseCase: ILikeProjectUseCase
   ) {}
 
   async addProject(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -89,10 +91,21 @@ export class ProjectController {
 
   async fetchAllProjects(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const userId = res.locals?.user?.userId;
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
+      const search = req.query.search as string | undefined;
+      const stage = req.query.stage as string | undefined;
+      const sector = req.query.sector as string | undefined;
 
-      const data = await this._fetchAllProjects.fetchAllProjects(page, limit);
+      const data = await this._fetchAllProjects.fetchAllProjects(
+        userId,
+        page,
+        limit,
+        search,
+        stage,
+        sector
+      );
 
       ResponseHelper.success(res, MESSAGES.PROJECT.PROJECT_FETCH_SUCCESS, { data }, HTTPSTATUS.OK);
     } catch (error) {
@@ -102,12 +115,17 @@ export class ProjectController {
 
   async removeProject(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const projectId = req.params.id!;
+      const projectId = req.params.projectId!;
       const userId = res.locals?.user?.userId;
+      console.log(projectId, userId, req.params);
+      const result = await this._removeProject.removeProject(projectId, userId);
 
-      await this._removeProject.removeProject(projectId, userId);
-
-      ResponseHelper.success(res, MESSAGES.PROJECT.PROJECT_REMOVED_SUCCESSFULLY, HTTPSTATUS.OK);
+      ResponseHelper.success(
+        res,
+        MESSAGES.PROJECT.PROJECT_REMOVED_SUCCESSFULLY,
+        result,
+        HTTPSTATUS.OK
+      );
     } catch (error) {
       next(error);
     }
@@ -116,10 +134,11 @@ export class ProjectController {
   async findProjectById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const projectId = req.params.projectId;
+      const userId = res.locals?.user?.userId;
 
       if (!projectId) throw new InvalidDataException(Errors.INVALID_DATA);
 
-      const project = await this._fetchProjectById.fetchProjectById(projectId);
+      const project = await this._fetchProjectById.fetchProjectById(projectId, userId);
 
       ResponseHelper.success(
         res,
@@ -175,6 +194,22 @@ export class ProjectController {
         updated,
         HTTPSTATUS.OK
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async likeProject(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { projectId } = req.params;
+      const likerId = res.locals?.user?.userId;
+      const likerRole = res.locals?.user?.role;
+
+      if (!projectId) throw new InvalidDataException(Errors.INVALID_DATA);
+
+      const result = await this._likeProjectUseCase.execute(projectId, likerId, likerRole);
+
+      ResponseHelper.success(res, MESSAGES.PROJECT.LIKED_SUCCESSFULLY, result, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

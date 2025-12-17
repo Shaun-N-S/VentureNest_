@@ -1,5 +1,6 @@
 import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
+import type { ProjectLikeResponse } from "../../types/projectType";
 
 export const addProject = async (formData: FormData) => {
   const response = await AxiosInstance.post(API_ROUTES.PROJECT.ADD, formData, {
@@ -36,14 +37,21 @@ export const fetchPersonalProjects = async (page: number, limit: number) => {
   return response.data;
 };
 
-export const fetchAllProjects = async (page: number, limit: number) => {
+export const fetchAllProjects = async (
+  page: number,
+  limit: number,
+  search?: string,
+  stage?: string,
+  sector?: string
+) => {
   const response = await AxiosInstance.get(
     API_ROUTES.PROJECT.FETCH_ALL_PROJECTS,
     {
-      params: { page, limit },
+      params: { page, limit, search, stage, sector },
       withCredentials: true,
     }
   );
+
   return response.data.data;
 };
 
@@ -88,6 +96,15 @@ export const verifyStartup = async (formData: FormData) => {
       },
       withCredentials: true,
     }
+  );
+  return response.data;
+};
+
+export const likeProject = async (
+  projectId: string
+): Promise<ProjectLikeResponse> => {
+  const response = await AxiosInstance.post(
+    API_ROUTES.PROJECT.LIKES.replace(":projectId", projectId)
   );
   return response.data;
 };

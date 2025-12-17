@@ -6,9 +6,10 @@ export interface ProjectCardProps {
   logoUrl?: string;
   likes?: number;
   liked?: boolean;
-  onLike?: () => void;
+  onLike?: (updateUI: (liked: boolean) => void) => void;
 
   onEdit?: () => void;
   onAddReport?: (id: string) => void;
   onVerify?: (projectId: string) => void;
+  onRemove?: (projectId: string) => void;
 }

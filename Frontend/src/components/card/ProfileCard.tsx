@@ -20,7 +20,7 @@ import type { PersonalProjectApiResponse } from "../../types/PersonalProjectApiR
 
 
 export function ProfileCard(props: ProfileCardProps) {
-    console.log(props);
+    console.log("props", props);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
@@ -28,7 +28,7 @@ export function ProfileCard(props: ProfileCardProps) {
     const role = useSelector((state: Rootstate) => state.authData.role)
     const userId = useSelector((state: Rootstate) => state.authData.id)
     const userData = useSelector((state: Rootstate) => state.authData);
-
+    const data = props.userData;
     const handleEditProfile = () => setIsEditModalOpen(true);
     const handleKYCVerification = () => setIsKYCModalOpen(true);
     const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
@@ -46,7 +46,7 @@ export function ProfileCard(props: ProfileCardProps) {
                 const newProjectId = res?.data?.projectId;
                 const signedLogoUrl = res?.data?.logoUrl;
 
-                toast.success("Project created successfully");
+                // toast.success("Project created successfully");
 
                 queryClient.setQueryData(["personal-project", 1, 10], (oldData: PersonalProjectApiResponse) => {
                     if (!oldData?.data?.data?.projects) return oldData;
@@ -98,7 +98,7 @@ export function ProfileCard(props: ProfileCardProps) {
                         <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                                 <h2 className="text-xl md:text-2xl font-bold">{userData.userName}</h2>
-                                {userData.adminVerified ? (
+                                {data.adminVerified ? (
                                     <Badge variant="secondary" className="bg-blue-100 text-blue-700 flex items-center gap-1">
                                         <span>✓</span> Verified
                                     </Badge>
@@ -153,7 +153,7 @@ export function ProfileCard(props: ProfileCardProps) {
 
 
                     {/* Stats */}
-                    <div className="flex gap-6 md:gap-8">
+                    {/* <div className="flex gap-6 md:gap-8">
                         <div className="text-center">
                             <p className="font-bold text-lg md:text-xl">{0}</p>
                             <p className="text-xs md:text-sm text-muted-foreground">Posts</p>
@@ -166,7 +166,7 @@ export function ProfileCard(props: ProfileCardProps) {
                             <p className="font-bold text-lg md:text-xl">{0}</p>
                             <p className="text-xs md:text-sm text-muted-foreground">Following</p>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Menu button */}
@@ -184,7 +184,7 @@ export function ProfileCard(props: ProfileCardProps) {
                                     animate={{ opacity: 1, scale: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
                                     transition={{ duration: 0.15, ease: "easeOut" }}
-                                    className="absolute right-0 top-10 z-50 w-48 rounded-xl bg-white/50 shadow-lg border border-gray-200 p-2"
+                                    className="absolute right-0 top-10 z-50 w-48 rounded-xl bg-white shadow-lg border border-gray-200 p-2"
                                 >
                                     <button
                                         onClick={handleEditProfile}
@@ -220,12 +220,18 @@ export function ProfileCard(props: ProfileCardProps) {
                 {/* <Button onClick={onFollow} variant={isFollowing ? "outline" : "default"} className="flex-1">
                     {isFollowing ? "Following" : "Follow"}
                 </Button> */}
-                <Button variant="outline" size="icon" className="h-10 w-10 bg-transparent">
+                {role === "USER" ?
+                    <Button onClick={handleAddProject} className="flex-1 bg-blue-500 hover:bg-blue-600">
+                        Add a project
+                    </Button>
+
+                    : ""}
+                {/* <Button variant="outline" size="icon" className="h-10 w-10 bg-transparent">
                     <MessageCircle className="h-4 w-4" />
                 </Button>
                 <Button variant="outline" size="icon" className="h-10 w-10 bg-transparent">
                     <Share2 className="h-4 w-4" />
-                </Button>
+                </Button> */}
             </div>
             {role === "INVESTOR" ? (
                 <EditInvestorProfileModal

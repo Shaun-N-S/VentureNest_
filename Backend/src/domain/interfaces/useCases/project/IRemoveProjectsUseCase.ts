@@ -1,3 +1,3 @@
 export interface IRemoveProjectUseCase {
-  removeProject(projectId: string, userId: string): Promise<void>;
+  removeProject(projectId: string, userId: string): Promise<{ projectId: string }>;
 }

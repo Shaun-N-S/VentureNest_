@@ -12,7 +12,7 @@ export class FetchProjectByIdUseCase implements IFetchProjectByIdUseCase {
     private _storageService: IStorageService
   ) {}
 
-  async fetchProjectById(projectId: string): Promise<ProjectResDTO> {
+  async fetchProjectById(projectId: string, userId: string): Promise<ProjectResDTO> {
     const populatedProject = await this._projectRepo.fetchPopulatedProjectById(projectId);
 
     if (!populatedProject) throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);
@@ -21,7 +21,7 @@ export class FetchProjectByIdUseCase implements IFetchProjectByIdUseCase {
 
     if (dto.user) {
       dto.user.profileImg = dto.user.profileImg
-        ? await this._storageService.createSignedUrl(dto.user.profileImg, 10 * 60) // <-- Sign the URL
+        ? await this._storageService.createSignedUrl(dto.user.profileImg, 10 * 60)
         : null;
     }
 
@@ -36,6 +36,8 @@ export class FetchProjectByIdUseCase implements IFetchProjectByIdUseCase {
     if (dto.pitchDeckUrl) {
       dto.pitchDeckUrl = await this._storageService.createSignedUrl(dto.pitchDeckUrl, 10 * 60);
     }
+
+    dto.liked = dto.likes.some((u) => u.likerId === userId);
 
     return dto;
   }

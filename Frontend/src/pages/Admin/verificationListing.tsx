@@ -292,6 +292,12 @@ const VerificationPage = () => {
                             >
                                 Investors
                             </TabsTrigger>
+                            {/* <TabsTrigger
+                                value="projects"
+                                className="px-6 py-2 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                            >
+                                Projects
+                            </TabsTrigger> */}
                         </TabsList>
 
                         {/* Search and Filter */}
@@ -320,7 +326,6 @@ const VerificationPage = () => {
                                     Search
                                 </button>
                             </div>
-
                             <select
                                 value={statusFilter}
                                 onChange={handleStatusChange}

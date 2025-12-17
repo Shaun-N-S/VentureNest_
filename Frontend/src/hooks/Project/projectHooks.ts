@@ -5,10 +5,12 @@ import {
   fetchAllProjects,
   fetchPersonalProjects,
   fetchProjectById,
+  likeProject,
+  removeProject,
   updateProject,
   verifyStartup,
 } from "../../services/Project/projectService";
-import { string } from "zod";
+import type { ProjectLikeResponse } from "../../types/projectType";
 
 export const useCreateProject = () => {
   return useMutation({
@@ -29,10 +31,16 @@ export const useFetchPersonalProjects = (page: number, limit: number) => {
   });
 };
 
-export const useFetchAllProjects = (page: number, limit: number) => {
+export const useFetchAllProjects = (
+  page: number,
+  limit: number,
+  search?: string,
+  stage?: string,
+  sector?: string
+) => {
   return useQuery({
-    queryKey: ["projects", page, limit],
-    queryFn: () => fetchAllProjects(page, limit),
+    queryKey: ["projects", page, limit, search, stage, sector],
+    queryFn: () => fetchAllProjects(page, limit, search, stage, sector),
   });
 };
 
@@ -52,5 +60,17 @@ export const useAddMonthlyReport = () => {
 export const useVerifyProject = () => {
   return useMutation({
     mutationFn: (formData: FormData) => verifyStartup(formData),
+  });
+};
+
+export const useRemoveProject = () => {
+  return useMutation({
+    mutationFn: (projectId: string) => removeProject(projectId),
+  });
+};
+
+export const useLikeProject = () => {
+  return useMutation<ProjectLikeResponse, Error, string>({
+    mutationFn: (projectId: string) => likeProject(projectId),
   });
 };

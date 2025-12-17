@@ -31,5 +31,6 @@ export const FRONTEND_ROUTES = {
     USERS: "/users",
     INVESTORS: "/investors",
     VERIFICATIONS: "/verifications",
+    PROJECTS: "/projects",
   },
 };

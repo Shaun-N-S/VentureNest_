@@ -3,6 +3,7 @@ import { Heart } from "lucide-react"
 import { Button } from "../../components/ui/button"
 import { Badge } from "../../components/ui/badge"
 import { useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
 
 interface ProjectCardProps {
     id: string
@@ -13,8 +14,8 @@ interface ProjectCardProps {
     // maxFunding: number
     image: string
     likes: number
-    isLiked?: boolean
-    onLike?: (id: string) => void
+    liked?: boolean
+    onLike: (updateUI: (liked: boolean, count: number) => void) => void;
     onOpen?: (id: string) => void
 }
 
@@ -28,16 +29,36 @@ export function ProjectPageCard({
     // maxFunding,
     image,
     likes,
-    isLiked = false,
+    liked = false,
     onLike,
 
 }: ProjectCardProps) {
-
+    const [isLiked, setIsLiked] = useState(liked);
+    const [likeCount, setLikeCount] = useState(likes);
     const navigate = useNavigate()
+
+    useEffect(() => {
+        setIsLiked(liked);
+        setLikeCount(likes);
+    }, [liked, likes]);
+
 
     const handleClick = () => {
         navigate(`/projects/${id}`)
     }
+
+    const handleLike = (e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        setIsLiked(prev => !prev);
+        setLikeCount(prev => (isLiked ? prev - 1 : prev + 1));
+
+        onLike((liked, count) => {
+            setIsLiked(liked);
+            setLikeCount(count);
+        });
+    };
+
 
     return (
         <motion.div
@@ -61,11 +82,12 @@ export function ProjectPageCard({
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => onLike?.(id)}
-                        className={`ml-2 ${isLiked ? "text-red-500" : "text-gray-400"}`}
+                        onClick={handleLike}
+                        className={isLiked ? "text-red-500" : "text-gray-400"}
                     >
+
                         <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
-                        <span className="ml-1 text-sm">{likes}</span>
+                        <span className="ml-1 text-sm">{likeCount}</span>
                     </Button>
                 </div>
 

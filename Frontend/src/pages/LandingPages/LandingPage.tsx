@@ -105,9 +105,26 @@ const steps = [
 
 const navLinks = [
     { href: "/projects", label: "Projects" },
-    { href: "/profiles", label: "Explore Profiles" },
     { href: "/#features", label: "Features" },
+    { href: "/#profiles", label: "Explore Profiles" },
+    { href: "/#reviews", label: "Reviews" },
+
 ]
+
+const scrollToSection = (id: string) => {
+    const el = document.getElementById(id)
+    if (!el) return
+
+    const yOffset = -80 // sticky navbar height
+    const y =
+        el.getBoundingClientRect().top +
+        window.pageYOffset +
+        yOffset
+
+    window.scrollTo({ top: y, behavior: "smooth" })
+    // closeEverything()
+}
+
 
 export default function LandingPage() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -134,17 +151,28 @@ export default function LandingPage() {
 
                         {/* Desktop Links */}
                         <div className="hidden md:flex items-center gap-8">
-                            {navLinks.map((link) => (
-                                <Link
-                                    key={link.href}
-                                    to={link.href}
-                                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                                    onClick={closeEverything}
-                                >
-                                    {link.label}
-                                </Link>
-                            ))}
+                            {navLinks.map((link) =>
+                                link.href.startsWith("/#") ? (
+                                    <button
+                                        key={link.href}
+                                        onClick={() => scrollToSection(link.href.replace("/#", ""))}
+                                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                    >
+                                        {link.label}
+                                    </button>
+                                ) : (
+                                    <Link
+                                        key={link.href}
+                                        to={link.href}
+                                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                        onClick={closeEverything}
+                                    >
+                                        {link.label}
+                                    </Link>
+                                )
+                            )}
                         </div>
+
 
                         {/* Desktop Auth */}
                         <div className="relative hidden md:flex items-center gap-3">
@@ -338,7 +366,7 @@ export default function LandingPage() {
             </section>
 
             {/* How It Works */}
-            <section className="border-t py-16 md:py-24">
+            <section id="profiles" className="border-t py-16 md:py-24">
                 <div className="container mx-auto px-4">
                     <motion.div
                         initial="hidden"
@@ -374,7 +402,7 @@ export default function LandingPage() {
             </section>
 
             {/* Testimonials */}
-            <section className="border-t bg-muted/30 py-16 md:py-24">
+            <section id="reviews" className="border-t bg-muted/30 py-16 md:py-24">
                 <div className="container mx-auto px-4">
                     <motion.div
                         initial="hidden"

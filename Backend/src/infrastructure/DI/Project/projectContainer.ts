@@ -10,6 +10,7 @@ import { CreateProjectUseCase } from "application/useCases/Project/createProject
 import { FetchAllProjectsUseCase } from "application/useCases/Project/fetchAllProjectsUseCase";
 import { FetchPersonalProjectsUseCase } from "application/useCases/Project/fetchPersonalProjectsUseCase";
 import { FetchProjectByIdUseCase } from "application/useCases/Project/fetchProjectByIdUseCase";
+import { LikeProjectUseCase } from "application/useCases/Project/likeProjectUseCase";
 import { RegisterProjectUseCase } from "application/useCases/Project/registerProjectUseCase";
 import { RemoveProjectUseCase } from "application/useCases/Project/removeProjectsUseCase";
 import { UpdateProjectUseCase } from "application/useCases/Project/updateProjectUseCase";
@@ -30,6 +31,7 @@ const fetchProjectByIdUseCase = new FetchProjectByIdUseCase(projectRepo, storage
 const updateProjectUseCase = new UpdateProjectUseCase(projectRepo, storageService);
 const createMonthlyReportUseCase = new CreateProjectMonthlyReportUseCase(projectMontlyReportRepo);
 const verifyProjectUseCase = new RegisterProjectUseCase(projectRegisterRepo, storageService);
+const likeProjectUseCase = new LikeProjectUseCase(projectRepo);
 
 export const projectController = new ProjectController(
   createProjectUseCase,
@@ -37,7 +39,8 @@ export const projectController = new ProjectController(
   fetchAllProjectsUseCase,
   removeProjectUseCase,
   fetchProjectByIdUseCase,
-  updateProjectUseCase
+  updateProjectUseCase,
+  likeProjectUseCase
 );
 
 export const projectMonthlyReportController = new MonthlyReportController(

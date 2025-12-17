@@ -23,6 +23,8 @@ export class FetchPersonalProjectsUseCase implements IFetchPersonalProjectsUseCa
       projects.map(async (project) => {
         const dto = ProjectMapper.toDTO(project);
 
+        dto.liked = project.likes.some((l) => l.likerId.toString() === userId);
+
         if (dto.logoUrl)
           dto.logoUrl = await this._storageService.createSignedUrl(dto.logoUrl, 10 * 60);
 
