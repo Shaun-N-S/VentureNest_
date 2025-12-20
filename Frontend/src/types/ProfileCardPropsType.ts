@@ -1,18 +1,3 @@
-// export interface ProfileCardProps {
-//   userName: string;
-//   title: string;
-// bio: string;
-// profileImg: string;
-//   verified?: boolean;
-//   stats: {
-//     posts: number;
-//     followers: number;
-//     following: number;
-//   };
-// onFollow?: () => void;
-// isFollowing?: boolean;
-// }
-
 export interface ProfileCardProps {
   userData: {
     userName: string;
@@ -21,6 +6,10 @@ export interface ProfileCardProps {
     profileImg?: string;
     adminVerified?: boolean;
     linkedInUrl?: string;
+    connectionsCount?: number;
+    postCount?: number;
+    projectCount?: number;
+    investmentCount?: number;
   };
   isFollowing: boolean;
   onFollow: () => void;

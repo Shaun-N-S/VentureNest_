@@ -4,7 +4,10 @@ import { CreateUserDTO } from "application/dto/auth/createUserDTO";
 import { LoginAdminResponseDTO } from "application/dto/auth/LoginAdminDTO";
 import { LoginUserResponseDTO } from "application/dto/auth/LoginUserDTO";
 import { UserDTO } from "application/dto/user/userDTO";
-import { UserProfileUpdateResDTO } from "application/dto/user/userProfileUpdateDTO";
+import {
+  UserProfileResDTO,
+  UserProfileUpdateResDTO,
+} from "application/dto/user/userProfileUpdateDTO";
 import { UserEntity } from "domain/entities/user/userEntity";
 import { UserRole } from "domain/enum/userRole";
 import { UserStatus } from "domain/enum/userStatus";
@@ -150,7 +153,7 @@ export class UserMapper {
     };
   }
 
-  static userProfileData(data: UserEntity): UserProfileUpdateResDTO {
+  static userProfileData(data: UserEntity): UserProfileResDTO {
     return {
       userName: data.userName,
       bio: data.bio || "",

@@ -16,7 +16,7 @@ export class RemoveProjectUseCase implements IRemoveProjectUseCase {
     if (!project) throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);
 
     if (project.userId.toString() !== userId) {
-      throw new InvalidDataException(Errors.NOT_AUTHORIZED);
+      throw new InvalidDataException(Errors.UNAUTHORIZED_ACCESS);
     }
 
     await this._projectRepository.update(projectId, { isActive: false });

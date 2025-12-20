@@ -18,7 +18,7 @@ export class RemovePostUseCase implements IRemovePostUseCase {
     }
 
     if (post.authorId.toString() !== userId) {
-      throw new InvalidDataException(Errors.NOT_AUTHORIZED);
+      throw new InvalidDataException(Errors.UNAUTHORIZED_ACCESS);
     }
 
     await this._postRepository.update(postId, { isDeleted: true });

@@ -18,13 +18,20 @@ export class AdminProjectController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const status = req.query.status as string | undefined;
+      const stage = req.query.stage as string[] | [];
       const search = req.query.search as string | undefined;
 
       if (page < 1 || limit < 1 || limit > 100) {
         throw new InvalidDataException(Errors.INVALID_PAGINATION_PARAMETERS);
       }
 
-      const result = await this._getAllProjectsUseCase.getAllProjects(page, limit, status, search);
+      const result = await this._getAllProjectsUseCase.getAllProjects(
+        page,
+        limit,
+        status,
+        stage,
+        search
+      );
 
       if (!result || result.projects.length === 0) {
         throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);

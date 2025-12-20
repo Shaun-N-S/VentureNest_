@@ -98,6 +98,7 @@ export class ProjectRepository
     skip: number,
     limit: number,
     status?: string,
+    stage?: string[],
     search?: string
   ): Promise<ProjectEntity[]> {
     const query: any = {};
@@ -105,6 +106,14 @@ export class ProjectRepository
     // status filter
     if (status) {
       query.isActive = status === "ACTIVE";
+    }
+
+    if (stage) {
+      query.stage = stage;
+      // stage.map((s) => {
+      //   query.stage = s;
+      // });
+      console.log("stages in repo :", stage);
     }
 
     // search filter
@@ -140,5 +149,12 @@ export class ProjectRepository
     }
 
     return this._model.countDocuments(query);
+  }
+
+  async countProjectsByAuthor(userId: string): Promise<number> {
+    return this._model.countDocuments({
+      userId,
+      isActive: true,
+    });
   }
 }

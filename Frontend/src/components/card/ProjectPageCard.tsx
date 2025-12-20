@@ -95,11 +95,11 @@ export function ProjectPageCard({
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{description}</p>
 
                 {/* Image */}
-                <div className="w-full h-48 rounded-xl mb-4 bg-gray-100 flex items-center justify-center overflow-hidden">
+                <div className="w-full h-48 rounded-xl mb-4 bg-gray-100 flex overflow-hidden">
                     <img
                         src={image}
                         alt={name}
-                        className="max-h-full max-w-full object-contain"
+                        className="w-full h-full object-cover"
                         loading="lazy"
                     />
                 </div>

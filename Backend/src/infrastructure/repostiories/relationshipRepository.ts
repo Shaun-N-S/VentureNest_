@@ -86,4 +86,12 @@ export class RelationshipRepository
     );
     return updated.modifiedCount > 0;
   }
+
+  async countConnections(userId: string): Promise<number> {
+    return this._model.countDocuments({
+      type: RelationshipType.CONNECTION,
+      status: ConnectionStatus.ACCEPTED,
+      $or: [{ fromUserId: userId }, { toUserId: userId }],
+    });
+  }
 }

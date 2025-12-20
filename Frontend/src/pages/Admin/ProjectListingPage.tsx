@@ -11,6 +11,8 @@ import {
     useUpdateProjectStatus,
 } from "../../hooks/Admin/ProjectHooks"
 import type { ProjectType } from "../../types/projectType"
+import { STAGES } from "../../types/StartupStages"
+import { option } from "framer-motion/client"
 
 interface TableProject extends ProjectType {
     id: string
@@ -30,6 +32,7 @@ const ProjectsListing = () => {
     const [page, setPage] = useState(1)
     const [limit] = useState(5)
     const [statusFilter, setStatusFilter] = useState("")
+    const [stageFilter, setStageFilter] = useState([]);
     const [searchInput, setSearchInput] = useState("")
     const [debouncedSearch, setDebouncedSearch] = useState("")
     const [modalOpen, setModalOpen] = useState(false)
@@ -47,6 +50,7 @@ const ProjectsListing = () => {
         page,
         limit,
         statusFilter,
+        stageFilter,
         debouncedSearch
     )
 
@@ -91,6 +95,18 @@ const ProjectsListing = () => {
         (e: React.ChangeEvent<HTMLSelectElement>) => {
             setStatusFilter(e.target.value)
             setPage(1)
+        },
+        []
+    )
+
+    const arr = [];
+    const handleStageFilterChange = useCallback(
+        (e: React.ChangeEvent<HTMLSelectElement>) => {
+            arr.push(e.target.value);
+            console.log(arr);
+            setStageFilter(arr);
+
+            setPage(1);
         },
         []
     )
@@ -241,6 +257,17 @@ const ProjectsListing = () => {
                         Search
                     </button>
                 </div>
+
+                <select
+                    value={stageFilter}
+                    onChange={handleStageFilterChange}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"
+                >
+                    <option value="">All Stage</option>
+                    {STAGES.map((s) => (
+                        <option value={s}>{s}</option>
+                    ))}
+                </select>
 
                 <select
                     value={statusFilter}

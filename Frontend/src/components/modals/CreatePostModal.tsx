@@ -253,7 +253,7 @@ export default function CreatePostModal({
             {cropperState && (
                 <ImageCropper
                     imageSrc={cropperState.imageSrc}
-                    aspect={1} // you can make this configurable
+                    aspect={16/9}
                     onSave={handleCroppedImage}
                     onCancel={() => setCropperState(null)}
                 />

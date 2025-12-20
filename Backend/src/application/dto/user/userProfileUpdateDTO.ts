@@ -31,3 +31,17 @@ export interface UserProfileUpdateResDTO {
   adminVerified?: boolean;
   kycStatus?: KYCStatus;
 }
+
+export interface UserProfileResDTO {
+  userName?: string;
+  bio?: string;
+  profileImg?: string;
+  website?: string;
+  linkedInUrl?: string;
+  kycRejectReason?: string;
+  adminVerified?: boolean;
+  kycStatus?: KYCStatus;
+  postCount?: number;
+  connectionsCount?: number;
+  projectCount?: number;
+}

@@ -24,4 +24,6 @@ export interface IRelationshipRepository extends IBaseRepository<RelationshipEnt
     toUserId: string,
     status: ConnectionStatus
   ): Promise<boolean | null>;
+
+  countConnections(userId: string): Promise<number>;
 }

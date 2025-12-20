@@ -43,7 +43,6 @@ export default function TopicSelectionModal({
       return
     }
     onSubmit(selectedTopics)
-    toast.success("Topics saved successfully!")
     onClose()
   }
 

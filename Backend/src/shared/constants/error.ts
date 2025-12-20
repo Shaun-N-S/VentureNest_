@@ -35,7 +35,7 @@ export const Errors = {
   UPLOAD_ERROR: "Error while uploading",
   CONVERSTION_ERROR: "Error while converting file",
   NO_KYC_FOUND: "No kyc application found",
-  NOT_AUTHORIZED: "Your are not authorized !",
+  UNAUTHORIZED_ACCESS: "Your are not authorized !",
   NO_STATUS_FOUND: "No status found",
 };
 

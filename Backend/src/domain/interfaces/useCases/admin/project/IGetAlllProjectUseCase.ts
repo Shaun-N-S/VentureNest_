@@ -5,6 +5,7 @@ export interface IGetAllProjectsUseCase {
     page: number,
     limit: number,
     status?: string,
+    stage?: string[],
     search?: string
   ): Promise<{
     projects: ProjectResDTO[];

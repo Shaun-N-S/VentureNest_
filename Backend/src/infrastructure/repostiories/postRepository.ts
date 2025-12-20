@@ -138,4 +138,11 @@ export class PostRepository
       }
     );
   }
+
+  async countPostsByAuthor(authorId: string): Promise<number> {
+    return this._model.countDocuments({
+      authorId,
+      isDeleted: false,
+    });
+  }
 }

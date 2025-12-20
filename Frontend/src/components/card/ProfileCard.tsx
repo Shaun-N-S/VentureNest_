@@ -33,6 +33,7 @@ export function ProfileCard(props: ProfileCardProps) {
     const handleKYCVerification = () => setIsKYCModalOpen(true);
     const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
     const { mutate: addProject } = useCreateProject()
+    const isInvestor = userData.role === "INVESTOR";
 
     const handleAddProject = () => setIsAddProjectOpen(true);
     const handleCreatePost = () => {
@@ -92,12 +93,12 @@ export function ProfileCard(props: ProfileCardProps) {
                     {/* Avatar and Name */}
                     <div className="flex items-center gap-4 mb-4">
                         <Avatar className="h-16 w-16 md:h-20 md:w-20">
-                            <AvatarImage src={userData.profileImg || "/placeholder.svg"} alt={userData.userName} />
-                            <AvatarFallback>{userData.userName.charAt(0)}</AvatarFallback>
+                            <AvatarImage src={data.profileImg || "/placeholder.svg"} alt={data.userName} />
+                            <AvatarFallback>{data.userName.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                                <h2 className="text-xl md:text-2xl font-bold">{userData.userName}</h2>
+                                <h2 className="text-xl md:text-2xl font-bold">{data.userName}</h2>
                                 {data.adminVerified ? (
                                     <Badge variant="secondary" className="bg-blue-100 text-blue-700 flex items-center gap-1">
                                         <span>✓</span> Verified
@@ -119,11 +120,11 @@ export function ProfileCard(props: ProfileCardProps) {
                     {/* Bio */}
                     <div className="max-w-full md:max-w-[600px] overflow-hidden">
                         <p className="text-sm md:text-base text-foreground mb-4 break-words whitespace-pre-line">
-                            {userData.bio}
+                            {data.bio}
                         </p>
-                        {userData.linkedInUrl && (
+                        {data.linkedInUrl && (
                             <a
-                                href={userData.linkedInUrl ? userData.linkedInUrl : ""}
+                                href={data.linkedInUrl ? data.linkedInUrl : ""}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-blue-600 hover:underline flex items-center gap-2 pt-2"
@@ -134,17 +135,17 @@ export function ProfileCard(props: ProfileCardProps) {
                                 View Profile
                             </a>
                         )}
-                        {userData.website && (
+                        {data.website && (
                             <InfoItem
                                 label="Website"
                                 value={
                                     <a
-                                        href={userData.website ? userData.website : ""}
+                                        href={data.website ? data.website : ""}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-blue-600 hover:underline truncate block"
                                     >
-                                        {userData.website}
+                                        {data.website}
                                     </a>
                                 }
                             />
@@ -153,20 +154,20 @@ export function ProfileCard(props: ProfileCardProps) {
 
 
                     {/* Stats */}
-                    {/* <div className="flex gap-6 md:gap-8">
+                    <div className="flex gap-6 md:gap-8 justify-evenly">
                         <div className="text-center">
-                            <p className="font-bold text-lg md:text-xl">{0}</p>
+                            <p className="font-bold text-lg md:text-xl">{data.postCount ?? 0}</p>
                             <p className="text-xs md:text-sm text-muted-foreground">Posts</p>
                         </div>
                         <div className="text-center">
-                            <p className="font-bold text-lg md:text-xl">{0}</p>
-                            <p className="text-xs md:text-sm text-muted-foreground">Followers</p>
+                            <p className="font-bold text-lg md:text-xl">{isInvestor ? data.investmentCount ?? 0 : data.projectCount ?? 0}</p>
+                            <p className="text-xs md:text-sm text-muted-foreground">{isInvestor ? "Investments" : "Projects"}</p>
                         </div>
                         <div className="text-center">
-                            <p className="font-bold text-lg md:text-xl">{0}</p>
-                            <p className="text-xs md:text-sm text-muted-foreground">Following</p>
+                            <p className="font-bold text-lg md:text-xl">{data.connectionsCount ?? 0}</p>
+                            <p className="text-xs md:text-sm text-muted-foreground">Connections</p>
                         </div>
-                    </div> */}
+                    </div>
                 </div>
 
                 {/* Menu button */}
@@ -192,14 +193,6 @@ export function ProfileCard(props: ProfileCardProps) {
                                     >
                                         Edit Profile
                                     </button>
-                                    {role === "USER" && (
-                                        <button
-                                            onClick={handleAddProject}
-                                            className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors mb-2"
-                                        >
-                                            Add Project
-                                        </button>
-                                    )}
                                     <button
                                         onClick={handleCreatePost}
                                         className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors"
@@ -242,7 +235,7 @@ export function ProfileCard(props: ProfileCardProps) {
                 />
             ) : role === "USER" ? (
                 <UserEditProfileModal
-                    data={userData}
+                    data={data}
                     userId={userId}
                     open={isEditModalOpen}
                     onOpenChange={setIsEditModalOpen}

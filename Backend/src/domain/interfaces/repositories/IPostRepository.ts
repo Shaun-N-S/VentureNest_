@@ -20,4 +20,5 @@ export interface IPostRepository extends IBaseRepository<PostEntity> {
   findPostsMatchingInterests(interests: string[]): Promise<PostEntity[]>;
   findPostsBySimilarAuthors(interests: string[]): Promise<PostEntity[]>;
   findPostsByAuthorsWithCommonInterests(interests: string[]): Promise<PostEntity[]>;
+  countPostsByAuthor(authorId: string): Promise<number>;
 }

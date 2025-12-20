@@ -1,3 +1,4 @@
+import { UserRole } from "@domain/enum/userRole";
 import { adminInvestorController } from "@infrastructure/DI/Admin/adminInvestorContainer";
 import { adminKycController } from "@infrastructure/DI/Admin/adminKycContainer";
 import { adminProjectController } from "@infrastructure/DI/Admin/adminProjectContainer";
@@ -5,6 +6,12 @@ import { adminUserController } from "@infrastructure/DI/Admin/adminUserContainer
 import { adminAuthController, authMiddleware } from "@infrastructure/DI/Auth/authContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
+
+const adminGuard = [
+  authMiddleware.verify,
+  authMiddleware.checkStatus,
+  authMiddleware.authorizeRole([UserRole.ADMIN]),
+];
 
 export class Admin_Routes {
   private _route: Router;
@@ -22,11 +29,8 @@ export class Admin_Routes {
       adminAuthController.adminLogin(req, res, next)
     );
 
-    this._route.get(
-      ADMIN.USERS,
-      authMiddleware.verify,
-      (req: Request, res: Response, next: NextFunction) =>
-        adminUserController.getAllUsers(req, res, next)
+    this._route.get(ADMIN.USERS, ...adminGuard, (req: Request, res: Response, next: NextFunction) =>
+      adminUserController.getAllUsers(req, res, next)
     );
 
     this._route.post(

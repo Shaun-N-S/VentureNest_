@@ -40,7 +40,7 @@ export const NetworkProfileCard = ({
 
                 <CardContent className="mt-3 space-y-1">
                     <h2 className="font-semibold">{name}</h2>
-                    <p className="text-sm text-gray-600">{role}</p>
+                    {/* <p className="text-sm text-gray-600">{role}</p> */}
                     <p className="text-sm text-gray-500">{desc}</p>
 
                     <Button

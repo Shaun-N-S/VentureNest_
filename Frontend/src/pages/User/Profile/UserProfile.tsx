@@ -23,7 +23,6 @@ export default function ProfilePage() {
     const [isFollowing, setIsFollowing] = useState(false)
     const userData = useSelector((state: Rootstate) => state.authData)
     const userId = userData.id;
-    const isAdminVerified = userData.adminVerified;
     const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null);
     const [isMonthlyReportOpen, setIsMonthlyReportOpen] = useState(false);

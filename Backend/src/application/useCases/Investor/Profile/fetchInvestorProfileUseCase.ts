@@ -24,6 +24,7 @@ export class FetchInvestorProfileUseCase implements IFetchInvestorProfileUseCase
       profileData.profileImg!,
       10 * 60
     );
+    console.log("Investor profileData  : ,", profileData);
 
     return profileData;
   }
