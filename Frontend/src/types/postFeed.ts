@@ -1,4 +1,3 @@
-
 export interface FeedPost {
   _id: string;
   authorId: string;
@@ -14,9 +13,7 @@ export interface FeedPost {
 }
 
 export interface FetchPostsResponse {
-  posts: AllPost[];
-  totalPosts: number;
-  hasNextPage: boolean;
+  data: { posts: AllPost[]; totalPosts: number; hasNextPage: boolean };
 }
 
 export interface AllPost {

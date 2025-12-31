@@ -1,7 +1,7 @@
 import { UserEntity } from "domain/entities/user/userEntity";
 import { BaseRepository } from "./baseRepository";
 import { IUserRepository } from "domain/interfaces/repositories/IUserRepository";
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { UserMapper } from "application/mappers/userMappers";
 import { IUserModel } from "@infrastructure/db/models/userModel";
 import { UserStatus } from "@domain/enum/userStatus";
@@ -102,5 +102,31 @@ export class UserRepository
     }
 
     return doc.status;
+  }
+
+  async findByIdsPaginated(ids: string[], skip: number, limit: number, search?: string) {
+    const query: any = {
+      _id: { $in: ids.map((id) => new mongoose.Types.ObjectId(id)) },
+    };
+
+    if (search) {
+      query.userName = { $regex: search, $options: "i" };
+    }
+
+    const docs = await this._model.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });
+
+    return docs.map((doc) => UserMapper.fromMongooseDocument(doc));
+  }
+
+  async countByIds(ids: string[], search?: string) {
+    const query: any = {
+      _id: { $in: ids.map((id) => new mongoose.Types.ObjectId(id)) },
+    };
+
+    if (search) {
+      query.userName = { $regex: search, $options: "i" };
+    }
+
+    return this._model.countDocuments(query);
   }
 }

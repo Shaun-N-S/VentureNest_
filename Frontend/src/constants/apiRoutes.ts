@@ -81,6 +81,7 @@ export const API_ROUTES = {
     CONNECTION_REQ: "/relations/connection-req/:toUserId",
     GET_PERSONAL_CONNECTION_REQ: "/relations/personal/connection-req",
     CONNECTION_STATUS_UPDATE: "/relations/update/connection-req",
+    GET_CONNECTIONS_PEOPLE: "/relations/connections-people-list",
   },
 
   COMMENT: {

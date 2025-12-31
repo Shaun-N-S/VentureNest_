@@ -1,6 +1,7 @@
 import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
 import { type ApiResponse } from "../../types/apiResponseType";
+import type { ConnectionsPeopleResponse } from "../../types/ConnectionsPeopleResponseType";
 import type { NetworkUser } from "../../types/networkType";
 
 export interface GetNetworkUsersResponse {
@@ -57,4 +58,19 @@ export const updateConnectionReqStatus = async (
     { withCredentials: true }
   );
   return response.data;
+};
+
+export const getConnectionsPeopleList = async (
+  page: number,
+  limit: number,
+  search?: string
+): Promise<ConnectionsPeopleResponse> => {
+  const response = await AxiosInstance.get<
+    ApiResponse<ConnectionsPeopleResponse>
+  >(API_ROUTES.RELATIONSHIP.GET_CONNECTIONS_PEOPLE, {
+    params: { page, limit, search },
+    withCredentials: true,
+  });
+
+  return response.data.data;
 };

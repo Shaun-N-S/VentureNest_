@@ -10,7 +10,8 @@ export class GetAllProjectsUseCase implements IGetAllProjectsUseCase {
     page: number,
     limit: number,
     status?: string,
-    stage?: string[],
+    stage?: string,
+    sector?: string,
     search?: string
   ): Promise<{
     projects: ProjectResDTO[];
@@ -22,7 +23,7 @@ export class GetAllProjectsUseCase implements IGetAllProjectsUseCase {
     console.log("stages : ", stage);
 
     const [projects, totalProjects] = await Promise.all([
-      this._projectRepository.findAllAdmin(skip, limit, status, stage, search),
+      this._projectRepository.findAllAdmin(skip, limit, status, stage, sector, search),
       this._projectRepository.countAdmin(status, search),
     ]);
 

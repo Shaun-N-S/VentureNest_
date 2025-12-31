@@ -1,7 +1,7 @@
-import { authMiddleware } from "@infrastructure/DI/Auth/authContainer";
 import { replyController } from "@infrastructure/DI/Reply/replyContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
+import { userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 
 export class Reply_Router {
   private _route: Router;
@@ -14,7 +14,7 @@ export class Reply_Router {
   private _setRoute() {
     this._route.post(
       ROUTES.REPLIES.ADD_REPLIES,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         replyController.addReply(req, res, next);
       }
@@ -22,7 +22,7 @@ export class Reply_Router {
 
     this._route.get(
       ROUTES.REPLIES.FETCH_REPLIES,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         replyController.getReplies(req, res, next);
       }
@@ -30,7 +30,7 @@ export class Reply_Router {
 
     this._route.post(
       ROUTES.REPLIES.LIKE_REPLIES,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         replyController.likeReply(req, res, next);
       }

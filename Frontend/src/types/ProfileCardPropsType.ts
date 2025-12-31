@@ -4,11 +4,15 @@ export interface ProfileCardProps {
     bio?: string;
     website?: string;
     profileImg?: string;
-    adminVerified?: boolean;
     linkedInUrl?: string;
-    connectionsCount?: number;
+
+    adminVerified?: boolean;
+    kycStatus?: "PENDING" | "APPROVED" | "REJECTED" | "SUBMITTED";
+    kycRejectReason?: string;
+
     postCount?: number;
     projectCount?: number;
+    connectionsCount?: number;
     investmentCount?: number;
   };
   isFollowing: boolean;

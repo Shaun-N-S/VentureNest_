@@ -6,10 +6,7 @@ import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageSe
 import { IFetchUserProfileUseCase } from "@domain/interfaces/useCases/user/profile/IFetchUserProfileUseCase";
 import { USER_ERRORS } from "@shared/constants/error";
 import { NotFoundExecption } from "application/constants/exceptions";
-import {
-  UserProfileResDTO,
-  UserProfileUpdateResDTO,
-} from "application/dto/user/userProfileUpdateDTO";
+import { UserProfileResDTO } from "application/dto/user/userProfileUpdateDTO";
 import { UserMapper } from "application/mappers/userMappers";
 
 export class FetchUserProfileUseCase implements IFetchUserProfileUseCase {
@@ -23,7 +20,6 @@ export class FetchUserProfileUseCase implements IFetchUserProfileUseCase {
 
   async fetchUserProfile(id: string): Promise<UserProfileResDTO> {
     const user = await this._userRepository.findById(id);
-    console.log("user data from useCase : : : ", user);
 
     if (!user) {
       throw new NotFoundExecption(USER_ERRORS.NO_USERS_FOUND);

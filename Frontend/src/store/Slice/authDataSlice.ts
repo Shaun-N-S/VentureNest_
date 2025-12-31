@@ -15,6 +15,11 @@ export interface UserAuthData {
   linkedInUrl: string;
   companyName: string;
   adminVerified: boolean;
+  isAuthenticated?: boolean;
+  connectionsCount?: number;
+  postsCount?: number;
+  projectsCount?: number;
+  investmentCount?: number;
 }
 
 interface UserPayloadFromAPI {
@@ -30,6 +35,11 @@ interface UserPayloadFromAPI {
   linkedInUrl: string;
   companyName: string;
   adminVerified: boolean;
+  isAuthenticated?: boolean;
+  connectionsCount?: number;
+  postsCount?: number;
+  projectsCount?: number;
+  investmentCount?: number;
 }
 
 const initialState: UserAuthData = {
@@ -45,6 +55,11 @@ const initialState: UserAuthData = {
   linkedInUrl: "",
   companyName: "",
   adminVerified: false,
+  isAuthenticated: false,
+  connectionsCount: 0,
+  postsCount: 0,
+  projectsCount: 0,
+  investmentCount: 0,
 };
 
 const AuthDataSlice = createSlice({
@@ -61,10 +76,14 @@ const AuthDataSlice = createSlice({
         isFirstLogin: action.payload.isFirstLogin,
         profileImg: action.payload.profileImg,
         bio: action.payload.bio,
-        website: action.payload.bio,
+        website: action.payload.website,
         linkedInUrl: action.payload.linkedInUrl,
         companyName: action.payload.companyName,
         adminVerified: action.payload.adminVerified,
+        connectionsCount: action.payload.connectionsCount ?? 0,
+        postsCount: action.payload.postsCount ?? 0,
+        projectsCount: action.payload.projectsCount ?? 0,
+        investmentCount: action.payload.investmentCount ?? 0,
       };
     },
 

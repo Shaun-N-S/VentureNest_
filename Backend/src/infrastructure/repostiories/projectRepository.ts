@@ -98,7 +98,8 @@ export class ProjectRepository
     skip: number,
     limit: number,
     status?: string,
-    stage?: string[],
+    stage?: string,
+    sector?: string,
     search?: string
   ): Promise<ProjectEntity[]> {
     const query: any = {};
@@ -108,12 +109,14 @@ export class ProjectRepository
       query.isActive = status === "ACTIVE";
     }
 
+    // stage filter
     if (stage) {
       query.stage = stage;
-      // stage.map((s) => {
-      //   query.stage = s;
-      // });
-      console.log("stages in repo :", stage);
+    }
+
+    //sector filter
+    if (sector) {
+      query.category = sector;
     }
 
     // search filter

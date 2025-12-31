@@ -9,8 +9,6 @@ import { CommentSection, type Comment } from "../Comments/CommentSection"
 import { useAddComment, useGetAllComments, useLikeComment } from "../../hooks/Comment/commentHooks"
 import type { CommentApiResponse, CommentResponse } from "../../types/commentApiResponse"
 import { useAddReply } from "../../hooks/Reply/replyHooks"
-import { getSocket } from "../../lib/socket"
-import type { PostLikeToggledEvent } from "../../types/postLikeToggledEvent"
 import { useSelector } from "react-redux"
 import type { Rootstate } from "../../store/store"
 import toast from "react-hot-toast"
@@ -32,9 +30,6 @@ export function PostCard({
 }: PostCardProps) {
     const [open, setOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement | null>(null);
-
-    const [isLiked, setIsLiked] = useState(liked);
-    const [likeCount, setLikeCount] = useState(likes);
     const [commentsCount, setCommentsCount] = useState(initialCommentsCount);
     const { mutate: addComment } = useAddComment()
     const { mutate: addReply } = useAddReply()
@@ -68,31 +63,6 @@ export function PostCard({
             setCommentsCount(commentData?.data?.total);
         }
     }, [showComments, commentData]);
-
-    useEffect(() => {
-        const socket = getSocket(localStorage.getItem("access_token") || "");
-
-        const listener = (event: PostLikeToggledEvent) => {
-            if (event.postId === id) {
-                setLikeCount(event.likeCount);
-            }
-        };
-
-        socket.on("post:likeToggled", listener);
-
-        return () => {
-            socket.off("post:likeToggled", listener);
-        };
-    }, [id]);
-
-    const handleLike = () => {
-        setIsLiked(prev => !prev);
-
-        onLike?.((liked: boolean, count: number) => {
-            setIsLiked(liked);
-        });
-    };
-
 
     const handleAddComment = (postId: string, text: string) => {
         if (!text.trim()) return;
@@ -255,11 +225,11 @@ export function PostCard({
             <div className="px-4 py-3 border-t flex items-center gap-6">
                 <motion.button
                     whileTap={{ scale: 0.9 }}
-                    onClick={handleLike}
-                    className={`flex items-center gap-2 font-medium ${isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"}`}
+                    onClick={onLike}
+                    className={`flex items-center gap-2 font-medium ${liked ? "text-red-500" : "text-gray-600 hover:text-red-500"}`}
                 >
-                    <Heart className={`h-6 w-6 ${isLiked ? "fill-red-500" : ""}`} />
-                    <span>{likeCount}</span>
+                    <Heart className={`h-6 w-6 ${liked ? "fill-red-500" : ""}`} />
+                    <span>{likes}</span>
                 </motion.button>
 
                 <div className="flex items-center gap-2 text-gray-600 font-medium">

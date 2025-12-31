@@ -28,7 +28,8 @@ export interface IProjectRepository extends IBaseRepository<ProjectEntity> {
     skip: number,
     limit: number,
     status?: string,
-    stage?: string[],
+    stage?: string,
+    sector?: string,
     search?: string
   ): Promise<ProjectEntity[]>;
 

@@ -2,7 +2,7 @@ import { postController } from "@infrastructure/DI/Post/PostContainer";
 import { ROUTES } from "../../shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
 import { uploadMulter } from "interfaceAdapters/middleware/multer";
-import { authMiddleware } from "@infrastructure/DI/Auth/authContainer";
+import { userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 
 export class Post_Router {
   private _route: Router;
@@ -15,7 +15,7 @@ export class Post_Router {
   private _setRoute() {
     this._route.post(
       ROUTES.POST.ADD,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       uploadMulter.fields([{ name: "mediaUrls", maxCount: 3 }]),
       (req: Request, res: Response, next: NextFunction) => {
         postController.addPost(req, res, next);
@@ -24,7 +24,7 @@ export class Post_Router {
 
     this._route.get(
       ROUTES.POST.PERSONAL_POST,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         postController.fetchPersonalPosts(req, res, next);
       }
@@ -32,7 +32,7 @@ export class Post_Router {
 
     this._route.get(
       ROUTES.POST.FEED,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         postController.fetchAllPosts(req, res, next);
       }
@@ -40,7 +40,7 @@ export class Post_Router {
 
     this._route.patch(
       ROUTES.POST.REMOVE,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         postController.removePost(req, res, next);
       }
@@ -48,7 +48,7 @@ export class Post_Router {
 
     this._route.post(
       ROUTES.POST.LIKE,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         postController.likePost(req, res, next);
       }

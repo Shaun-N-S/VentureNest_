@@ -35,6 +35,7 @@ const UserLoginPage = () => {
             website: res.data.user.website,
             linkedInUrl: res.data.user.linkedInUrl,
             adminVerified: res.data.user.adminVerified,
+            isAuthenticated: true,
             companyName: res.data.user.companyName,
           })
         );
@@ -84,6 +85,7 @@ const UserLoginPage = () => {
               website: res.data.user.website,
               linkedInUrl: res.data.user.linkedInUrl,
               adminVerified: res.data.user.adminVerified,
+              isAuthenticated: true,
               companyName: res.data.user.companyName,
             })
           );
@@ -94,8 +96,6 @@ const UserLoginPage = () => {
           if (err instanceof AxiosError) {
             toast.error(err?.response?.data?.message)
           }
-          // toast.error("Google login failed");
-          // console.error("error in google");
         },
       }
     );

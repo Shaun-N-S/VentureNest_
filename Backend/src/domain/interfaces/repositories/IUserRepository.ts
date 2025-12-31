@@ -11,4 +11,11 @@ export interface IUserRepository extends IBaseRepository<UserEntity> {
   googleSignUp(user: UserEntity): Promise<string>;
   setInterestedTopics(userId: string, interestedTopics: string[]): Promise<void>;
   getStatus(userId: string): Promise<UserStatus>;
+  findByIdsPaginated(
+    ids: string[],
+    skip: number,
+    limit: number,
+    search?: string
+  ): Promise<UserEntity[]>;
+  countByIds(ids: string[], search?: string): Promise<number>;
 }

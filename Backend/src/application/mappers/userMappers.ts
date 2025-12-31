@@ -162,6 +162,7 @@ export class UserMapper {
       linkedInUrl: data.linkedInUrl || "",
       adminVerified: data.adminVerified,
       kycStatus: data.kycStatus,
+      kycRejectReason: data.kycRejectReason || "",
     };
   }
 }

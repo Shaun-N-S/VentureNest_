@@ -1,4 +1,5 @@
 import { IGetConnectionReqUseCase } from "@domain/interfaces/useCases/relationship/IGetConnectionReqUseCase";
+import { IGetConnectionsPeopleListUseCase } from "@domain/interfaces/useCases/relationship/IGetConnectionsPeopleListUseCase ";
 import { IGetNetworkUsersUseCase } from "@domain/interfaces/useCases/relationship/IGetNetworkUsersUseCase";
 import { ISendConnectionReqUseCase } from "@domain/interfaces/useCases/relationship/ISendConnectionReqUseCase";
 import { IUpdateConnectionReqStatusUseCase } from "@domain/interfaces/useCases/relationship/IUpdateConnectionReqStatusUseCase";
@@ -14,7 +15,8 @@ export class RelationshipController {
     private _sendConnectionReqUseCase: ISendConnectionReqUseCase,
     private _getNetwrokUsersUseCase: IGetNetworkUsersUseCase,
     private _getConnectionReqUseCase: IGetConnectionReqUseCase,
-    private _udpateConnectionReqStatusUseCase: IUpdateConnectionReqStatusUseCase
+    private _udpateConnectionReqStatusUseCase: IUpdateConnectionReqStatusUseCase,
+    private _getConnectionsPeopleListUseCase: IGetConnectionsPeopleListUseCase
   ) {}
 
   async getNetworkUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -115,6 +117,26 @@ export class RelationshipController {
       );
     } catch (error) {
       next(error);
+    }
+  }
+
+  async getConnectionsPeopleList(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = res.locals.user.userId;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const search = req.query.search?.toString();
+
+      const result = await this._getConnectionsPeopleListUseCase.execute(
+        userId,
+        page,
+        limit,
+        search
+      );
+
+      ResponseHelper.success(res, "Connections fetched", result, 200);
+    } catch (err) {
+      next(err);
     }
   }
 }

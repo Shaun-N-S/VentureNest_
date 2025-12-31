@@ -1,7 +1,7 @@
-import { authMiddleware } from "@infrastructure/DI/Auth/authContainer";
 import { commentController } from "@infrastructure/DI/comment/commentContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
+import { userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 
 export class Comment_Router {
   private _route: Router;
@@ -14,7 +14,7 @@ export class Comment_Router {
   private _setRoute() {
     this._route.post(
       ROUTES.COMMENT.ADD_COMMENT,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         commentController.addComment(req, res, next);
       }
@@ -22,7 +22,7 @@ export class Comment_Router {
 
     this._route.get(
       ROUTES.COMMENT.FETCH_COMMENTS,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         commentController.getComments(req, res, next);
       }
@@ -30,7 +30,7 @@ export class Comment_Router {
 
     this._route.post(
       ROUTES.COMMENT.LIKE_COMMENT,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         commentController.likeComment(req, res, next);
       }
