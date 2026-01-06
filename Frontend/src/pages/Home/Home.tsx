@@ -1,18 +1,17 @@
-import { useSelector, useDispatch } from 'react-redux';
-import type { Rootstate } from '../../store/store';
-import { useIntrestedTopics } from '../../hooks/Auth/AuthHooks';
-import toast from 'react-hot-toast';
-import TopicSelectionModal from '../../components/modals/InterestedTopics';
-import { useEffect, useState } from 'react';
-import { updateUserData } from '../../store/Slice/authDataSlice';
-import { useFetchAllPosts, useLikePost } from '../../hooks/Post/PostHooks';
-import { PostCard } from '../../components/card/PostCard';
-import { FileText, ImageIcon, Loader2, Plus, Smile, VideoIcon } from 'lucide-react';
-import { queryClient } from '../../main';
-import { getSocket } from '../../lib/socket';
-import type { FetchPostsResponse } from '../../types/postFeed';
-import CreatePostModal from '../../components/modals/CreatePostModal';
-import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
+import { useSelector, useDispatch } from "react-redux";
+import type { Rootstate } from "../../store/store";
+import { useIntrestedTopics } from "../../hooks/Auth/AuthHooks";
+import toast from "react-hot-toast";
+import TopicSelectionModal from "../../components/modals/InterestedTopics";
+import { useEffect, useState } from "react";
+import { updateUserData } from "../../store/Slice/authDataSlice";
+import { useInfinitePosts, useLikePost } from "../../hooks/Post/PostHooks";
+import { PostCard } from "../../components/card/PostCard";
+import { Loader2, Smile } from "lucide-react";
+import CreatePostModal from "../../components/modals/CreatePostModal";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { useInView } from "react-intersection-observer";
+import PostSkeleton from "../../components/Skelton/PostSkelton";
 
 export interface AllPost {
   _id: string;
@@ -29,21 +28,30 @@ export interface AllPost {
 }
 
 const Home = () => {
-
   const userData = useSelector((state: Rootstate) => state.authData);
   const [open, setOpen] = useState(false);
   const [topics, setTopics] = useState<string[]>([]);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
   const { mutate: setInterestedTopics } = useIntrestedTopics();
-  const { data: postData, isLoading, refetch } = useFetchAllPosts(page, limit);
-  const { mutate: likePost } = useLikePost()
+  const { mutate: likePost } = useLikePost();
   const dispatch = useDispatch();
-  console.log("data : : ", postData?.data?.posts)
+  const {
+    data: postData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfinitePosts(2);
+
+  const posts = postData?.pages.flatMap((page) => page.posts) ?? [];
+
+  console.log("posts : ", postData);
   const [isCreatePostModal, setIsCreatePostModal] = useState(false);
   const userId = useSelector((state: Rootstate) => state.authData.id);
   const role = useSelector((state: Rootstate) => state.authData.role);
-
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "200px",
+  });
 
   useEffect(() => {
     if (userData.isFirstLogin) {
@@ -54,75 +62,42 @@ const Home = () => {
   }, [userData]);
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return;
-
-    const socket = getSocket(token);
-
-    socket.on("connect", () => {
-      console.log("SOCKET CONNECTED → ", socket.id);
-    });
-
-    socket.on("connect_error", (err) => {
-      console.error("SOCKET ERROR:", err.message);
-    });
-
-    socket.on("post:likeToggled", (event) => {
-      console.log("REALTIME EVENT RECEIVED:", event);
-
-      const { postId, likeCount } = event;
-
-      queryClient.setQueryData(["posts-feed", page, limit], (old?: FetchPostsResponse) => {
-        if (!old?.posts) return old;
-
-        return {
-          ...old,
-          posts: old.posts.map(post =>
-            post._id === postId ? { ...post, likeCount } : post
-          ),
-        };
-      });
-    });
-
-    return () => {
-      socket.off("post:likeToggled");
-    };
-  }, []);
-
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
 
   const handleSave = (selected: string[]) => {
     setTopics(selected);
-    setInterestedTopics({ id: userData.id, interestedTopics: selected }, {
-      onSuccess: () => {
-        dispatch(updateUserData({ isFirstLogin: false }));
-        toast.success('Topics saved successfully!');
-      },
-      onError: (err) => {
-        console.error(err);
-        toast.error('Failed to save topics');
-      },
-    });
+    setInterestedTopics(
+      { id: userData.id, interestedTopics: selected },
+      {
+        onSuccess: () => {
+          dispatch(updateUserData({ isFirstLogin: false }));
+          toast.success("Topics saved successfully!");
+        },
+        onError: (err) => {
+          console.error(err);
+          toast.error("Failed to save topics");
+        },
+      }
+    );
   };
 
   const handleReport = (postId: string) => {
-    console.log("post id for reporting ", postId)
-  }
+    console.log("post id for reporting ", postId);
+  };
 
-  const handleLike = (postId: string, updateUI: (liked: boolean, count: number) => void) => {
+  const handleLike = (postId: string) => {
     likePost(postId, {
-      onSuccess: (res) => {
-        updateUI(res.data.liked, res.data.likeCount);
-      },
       onError: () => {
         toast.error("Failed to like post");
-      }
+      },
     });
   };
 
-
   return (
     <div className="w-full min-h-screen bg-gray-50 px-4 sm:px-6 md:px-12 lg:px-32 xl:px-56 py-6">
-
       {/* First login topic modal */}
       <TopicSelectionModal
         isOpen={open}
@@ -133,18 +108,15 @@ const Home = () => {
 
       {/* Loading */}
       {isLoading ? (
-        <div className="flex justify-center items-center py-20 text-gray-500 gap-2">
-          <Loader2 className="animate-spin h-5 w-5" />
-          Loading posts...
-        </div>
-
-      ) : (postData?.data?.posts ?? []).length > 0 ? (
-
         <div className="max-w-2xl mx-auto space-y-6">
-
-          {/* Start a Post (LinkedIn-style) */}
+          {[...Array(3)].map((_, i) => (
+            <PostSkeleton key={i} />
+          ))}
+        </div>
+      ) : (posts ?? []).length > 0 ? (
+        <div className="max-w-2xl mx-auto space-y-6">
+          {/* Start a Post */}
           <div className="bg-white rounded-xl border shadow-sm p-4 mt-4">
-
             {/* Top Bar */}
             <div
               onClick={() => setIsCreatePostModal(true)}
@@ -152,42 +124,18 @@ const Home = () => {
                hover:bg-gray-50 transition"
             >
               <Avatar className="h-11 w-11">
-                <AvatarImage className='rounded-full' src={userData.profileImg} />
+                <AvatarImage
+                  className="rounded-full"
+                  src={userData.profileImg}
+                />
                 <AvatarFallback>{userData.userName?.charAt(0)}</AvatarFallback>
               </Avatar>
 
-              <div className="flex-1 text-gray-600">
-                Start a post...
-              </div>
+              <div className="flex-1 text-gray-600">Start a post...</div>
             </div>
-
-            {/* Bottom Quick Actions */}
-            {/* <div className="flex justify-between mt-4 px-2">
-
-              <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
-                <ImageIcon className="h-5 w-5 text-blue-500" />
-                Photo
-              </button>
-
-              <button className="flex items-center gap-2 text-gray-600 hover:text-green-600 transition">
-                <VideoIcon className="h-5 w-5 text-green-500" />
-                Video
-              </button>
-
-              <button className="flex items-center gap-2 text-gray-600 hover:text-yellow-600 transition">
-                <FileText className="h-5 w-5 text-yellow-500" />
-                Write Article
-              </button>
-
-              <button className="flex items-center gap-2 text-gray-600 hover:text-purple-600 transition">
-                <Plus className="h-5 w-5 text-purple-500" />
-                More
-              </button>
-
-            </div> */}
           </div>
 
-          {postData?.data?.posts.map((post: AllPost) => (
+          {posts.map((post: AllPost) => (
             <PostCard
               key={post._id}
               id={post._id}
@@ -202,21 +150,33 @@ const Home = () => {
               likes={post.likeCount}
               comments={post.commentsCount}
               liked={post.liked}
-              onLike={(updateUI) => handleLike(post._id, updateUI)}
+              onLike={() => handleLike(post._id)}
               onReport={handleReport}
-              context='home'
+              context="home"
             />
           ))}
+
+          <div ref={ref} className="flex flex-col items-center py-6 gap-4">
+            {isFetchingNextPage && (
+              <div className="flex items-center gap-2 text-gray-500">
+                <Loader2 className="animate-spin h-5 w-5" />
+                <span className="text-sm">Loading more posts…</span>
+              </div>
+            )}
+
+            {!hasNextPage && posts.length > 0 && (
+              <div className="text-sm text-gray-400">
+                You’re all caught up 🎉
+              </div>
+            )}
+          </div>
         </div>
-
       ) : (
-
         /* Empty State UI */
         <div className="flex flex-col justify-center items-center text-gray-500 py-20 gap-2">
           <Smile className="h-10 w-10 text-gray-400" />
           <p>No posts yet</p>
         </div>
-
       )}
 
       <CreatePostModal
@@ -225,7 +185,6 @@ const Home = () => {
         authorId={userId}
         authorRole={role || "USER"}
       />
-
     </div>
   );
 };

@@ -1,7 +1,8 @@
-import { authMiddleware, userAuthController } from "@infrastructure/DI/Auth/authContainer";
+import { userAuthController } from "@infrastructure/DI/Auth/authContainer";
 import { userProfileController } from "@infrastructure/DI/User/UserProfileContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
+import { userGuard } from "interfaceAdapters/middleware/guards";
 import { uploadMulter } from "interfaceAdapters/middleware/multer";
 
 export class User_Router {
@@ -63,6 +64,7 @@ export class User_Router {
 
     this._route.get(
       USER_AUTH.GET_PROFILE_IMG,
+      // ...userGuard,
       (req: Request, res: Response, next: NextFunction) => {
         userAuthController.handleProfileImg(req, res, next);
       }
@@ -70,6 +72,7 @@ export class User_Router {
 
     this._route.post(
       USER_AUTH.SET_INTERESTED_TOPICS,
+      // ...userGuard,
       (req: Request, res: Response, next: NextFunction) => {
         userAuthController.handleInterestedTopics(req, res, next);
       }
@@ -77,6 +80,7 @@ export class User_Router {
 
     this._route.get(
       ROUTES.USERS.PROFILE.FETCH_DATA,
+      ...userGuard,
       (req: Request, res: Response, next: NextFunction) => {
         userProfileController.getProfileData(req, res, next);
       }
@@ -84,8 +88,7 @@ export class User_Router {
 
     this._route.patch(
       ROUTES.USERS.PROFILE.UPDATE,
-      authMiddleware.verify,
-      authMiddleware.checkStatus,
+      ...userGuard,
       uploadMulter.fields([{ name: "profileImg", maxCount: 1 }]),
       (req: Request, res: Response, next: NextFunction) => {
         userProfileController.updateProfileData(req, res, next);

@@ -1,3 +1,4 @@
+import type { PersonalPost } from "../pages/Investor/Profile/InvestorProfile/ProfilePage";
 
 export interface FeedPost {
   _id: string;
@@ -14,9 +15,7 @@ export interface FeedPost {
 }
 
 export interface FetchPostsResponse {
-  posts: AllPost[];
-  totalPosts: number;
-  hasNextPage: boolean;
+  data: { posts: AllPost[]; totalPosts: number; hasNextPage: boolean };
 }
 
 export interface AllPost {
@@ -31,4 +30,20 @@ export interface AllPost {
   createdAt: string;
   updatedAt: string;
   liked?: boolean;
+}
+
+export interface PostsPage {
+  posts: AllPost[];
+  totalPosts: number;
+  hasNextPage: boolean;
+}
+
+export interface PersonalPostPage {
+  data: {
+    data: {
+      posts: PersonalPost[];
+      totalPosts: number;
+      hasNextPage: boolean;
+    };
+  };
 }

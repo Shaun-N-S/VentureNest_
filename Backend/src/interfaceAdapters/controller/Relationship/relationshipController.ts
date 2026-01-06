@@ -1,4 +1,5 @@
 import { IGetConnectionReqUseCase } from "@domain/interfaces/useCases/relationship/IGetConnectionReqUseCase";
+import { IGetConnectionsPeopleListUseCase } from "@domain/interfaces/useCases/relationship/IGetConnectionsPeopleListUseCase ";
 import { IGetNetworkUsersUseCase } from "@domain/interfaces/useCases/relationship/IGetNetworkUsersUseCase";
 import { ISendConnectionReqUseCase } from "@domain/interfaces/useCases/relationship/ISendConnectionReqUseCase";
 import { IUpdateConnectionReqStatusUseCase } from "@domain/interfaces/useCases/relationship/IUpdateConnectionReqStatusUseCase";
@@ -14,7 +15,8 @@ export class RelationshipController {
     private _sendConnectionReqUseCase: ISendConnectionReqUseCase,
     private _getNetwrokUsersUseCase: IGetNetworkUsersUseCase,
     private _getConnectionReqUseCase: IGetConnectionReqUseCase,
-    private _udpateConnectionReqStatusUseCase: IUpdateConnectionReqStatusUseCase
+    private _udpateConnectionReqStatusUseCase: IUpdateConnectionReqStatusUseCase,
+    private _getConnectionsPeopleListUseCase: IGetConnectionsPeopleListUseCase
   ) {}
 
   async getNetworkUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -23,8 +25,6 @@ export class RelationshipController {
       const limit = parseInt(req.query.limit as string) || 10;
       const search = req.query.search as string | undefined;
       const currentUserId = res.locals?.user?.userId;
-
-      console.log("serach reachec :::::::        ", search);
 
       if (page < 1 || limit < 1 || limit > 100) {
         throw new InvalidDataException(Errors.INVALID_PAGINATION_PARAMETERS);
@@ -36,7 +36,6 @@ export class RelationshipController {
         search,
         currentUserId
       );
-      console.log("results : :   , ", results);
 
       ResponseHelper.success(
         res,
@@ -59,6 +58,9 @@ export class RelationshipController {
       if (!toUserId || !fromUserId) {
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
+      console.log(
+        "reached here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      );
 
       await this._sendConnectionReqUseCase.execute(fromUserId, toUserId);
 
@@ -115,6 +117,26 @@ export class RelationshipController {
       );
     } catch (error) {
       next(error);
+    }
+  }
+
+  async getConnectionsPeopleList(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = res.locals.user.userId;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const search = req.query.search?.toString();
+
+      const result = await this._getConnectionsPeopleListUseCase.execute(
+        userId,
+        page,
+        limit,
+        search
+      );
+
+      ResponseHelper.success(res, "Connections fetched", result, 200);
+    } catch (err) {
+      next(err);
     }
   }
 }

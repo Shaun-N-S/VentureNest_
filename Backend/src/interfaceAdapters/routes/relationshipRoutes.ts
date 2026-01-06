@@ -1,7 +1,7 @@
-import { authMiddleware } from "@infrastructure/DI/Auth/authContainer";
 import { relationshipController } from "@infrastructure/DI/Relationship/relationshipContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
+import { userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 
 export class Relationship_Router {
   private _route: Router;
@@ -14,7 +14,7 @@ export class Relationship_Router {
   private _setRoute() {
     this._route.get(
       ROUTES.RELATIONSHIP.GET_USERS,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         relationshipController.getNetworkUsers(req, res, next);
       }
@@ -22,7 +22,7 @@ export class Relationship_Router {
 
     this._route.post(
       ROUTES.RELATIONSHIP.CONNECTION_REQ,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         relationshipController.sendConnection(req, res, next);
       }
@@ -30,7 +30,7 @@ export class Relationship_Router {
 
     this._route.get(
       ROUTES.RELATIONSHIP.GET_PERSONAL_CONNECTION_REQ,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         relationshipController.getConnectionReq(req, res, next);
       }
@@ -38,9 +38,17 @@ export class Relationship_Router {
 
     this._route.patch(
       ROUTES.RELATIONSHIP.UPDATE_CONNECTION_REQ,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         relationshipController.updateConnectionReqStaus(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ROUTES.RELATIONSHIP.GET_CONNECTIONS_PEOPLE,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        relationshipController.getConnectionsPeopleList(req, res, next);
       }
     );
   }

@@ -6,7 +6,6 @@ import { useState } from "react"
 import LeftPanel from "../../../components/auth/LeftPanal"
 import toast from "react-hot-toast"
 import { motion } from "framer-motion"
-import { AxiosError } from "axios"
 
 
 type SignupPayload = { userName: string; email: string; password: string }

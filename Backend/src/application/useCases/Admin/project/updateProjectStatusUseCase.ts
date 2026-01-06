@@ -8,10 +8,7 @@ import { ProjectMapper } from "application/mappers/projectMapper";
 import { ProjectResDTO } from "application/dto/project/projectDTO";
 
 export class UpdateProjectStatusUseCase implements IUpdateProjectStatusUseCase {
-  constructor(
-    private _projectRepository: IProjectRepository,
-    private _cacheService: IKeyValueTTLCaching
-  ) {}
+  constructor(private _projectRepository: IProjectRepository) {}
 
   async updateProjectStatus(
     projectId: string,
@@ -24,8 +21,6 @@ export class UpdateProjectStatusUseCase implements IUpdateProjectStatusUseCase {
     if (!updatedProject) {
       throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);
     }
-
-    // await this._cacheService.deleteData(`PROJECT:${projectId}`);
 
     return {
       project: ProjectMapper.toDTO(updatedProject),

@@ -6,6 +6,7 @@ import { RelationshipRepository } from "@infrastructure/repostiories/relationshi
 import { UserRepository } from "@infrastructure/repostiories/userRepository";
 import { StorageService } from "@infrastructure/services/storageService";
 import { GetConnectionReqUseCase } from "application/useCases/Relationship/getConnectionReqUseCase";
+import { GetConnectionsPeopleListUseCase } from "application/useCases/Relationship/GetConnectionsPeopleListUseCase";
 import { GetNetworkUsersUseCase } from "application/useCases/Relationship/getNetworkUsersUseCase";
 import { SendConnectionReqUseCase } from "application/useCases/Relationship/sendConnectionReqUseCase";
 import { UpdateConnectionReqStatusUseCase } from "application/useCases/Relationship/UpdateConnectionReqStatusUseCase";
@@ -30,10 +31,17 @@ const getConnectionReqUseCase = new GetConnectionReqUseCase(
   storageService
 );
 const updateConnectionReqStatusUseCase = new UpdateConnectionReqStatusUseCase(relationshipRepo);
+const getConnectionsPeopleListUseCase = new GetConnectionsPeopleListUseCase(
+  relationshipRepo,
+  userRepo,
+  investorRepo,
+  storageService
+);
 
 export const relationshipController = new RelationshipController(
   sendConnectionReqUseCase,
   getNetworkUseCase,
   getConnectionReqUseCase,
-  updateConnectionReqStatusUseCase
+  updateConnectionReqStatusUseCase,
+  getConnectionsPeopleListUseCase
 );

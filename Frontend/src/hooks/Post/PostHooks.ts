@@ -1,4 +1,9 @@
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  type InfiniteData,
+} from "@tanstack/react-query";
 import {
   addPost,
   fetchAllPosts,
@@ -6,7 +11,8 @@ import {
   likePost,
   removePost,
 } from "../../services/Post/PostService";
-import type { AllPost } from "../../pages/Home/Home";
+import type { PostsPage } from "../../types/postFeed";
+import { queryClient } from "../../main";
 
 export const useCreatePost = () => {
   return useMutation({
@@ -14,10 +20,18 @@ export const useCreatePost = () => {
   });
 };
 
-export const useFetchPersonalPost = (page: number, limit: number) => {
-  return useQuery({
-    queryKey: ["personal-post", page, limit],
-    queryFn: () => fetchPersonalPosts(page, limit),
+export const useInfinitePersonalPosts = (limit = 5) => {
+  return useInfiniteQuery({
+    queryKey: ["personal-post"],
+    initialPageParam: 1,
+
+    queryFn: ({ pageParam }) => fetchPersonalPosts(pageParam as number, limit),
+
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.data.data.hasNextPage ? allPages.length + 1 : undefined,
+
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -28,30 +42,20 @@ export const useFetchAllPosts = (page: number, limit: number) => {
   });
 };
 
-// interface FetchPostsResponse {
-//   posts: AllPost[];
-//   totalPosts: number;
-//   hasNextPage: boolean;
-// }
+export const useInfinitePosts = (limit = 2) => {
+  return useInfiniteQuery<PostsPage>({
+    queryKey: ["posts-feed"],
+    initialPageParam: 1,
 
-// export const useInfinitePosts = (limit = 3) => {
-//   return useInfiniteQuery<FetchPostsResponse, Error>({
-//     queryKey: ["posts-infinite", limit],
-//     queryFn: ({ pageParam }) => fetchAllPosts(pageParam as number, limit),
-//     getNextPageParam: (lastPage, allPages) => {
-//       const hasNext = lastPage?.data?.hasNextPage;
+    queryFn: ({ pageParam }) => fetchAllPosts(pageParam as number, limit),
 
-//       if (!hasNext) return undefined;
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasNextPage ? allPages.length + 1 : undefined,
 
-//       return allPages.length + 1; // Next page number
-//     },
-
-//     initialPageParam: 1,
-//     staleTime: 1000 * 60 * 5,
-//     gcTime: 1000 * 60 * 10,
-//     refetchOnWindowFocus: false,
-//   });
-// };
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: false,
+  });
+};
 
 export const useRemovePost = () => {
   return useMutation({
@@ -62,5 +66,46 @@ export const useRemovePost = () => {
 export const useLikePost = () => {
   return useMutation({
     mutationFn: (postId: string) => likePost(postId),
+
+    onMutate: async (postId: string) => {
+      await queryClient.cancelQueries({ queryKey: ["posts-feed"] });
+
+      const previous = queryClient.getQueryData<InfiniteData<PostsPage>>([
+        "posts-feed",
+      ]);
+
+      queryClient.setQueryData<InfiniteData<PostsPage>>(
+        ["posts-feed"],
+        (old) => {
+          if (!old) return old;
+
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              posts: page.posts.map((post) =>
+                post._id === postId
+                  ? {
+                      ...post,
+                      liked: !post.liked,
+                      likeCount: post.liked
+                        ? post.likeCount - 1
+                        : post.likeCount + 1,
+                    }
+                  : post
+              ),
+            })),
+          };
+        }
+      );
+
+      return { previous };
+    },
+
+    onError: (_err, _postId, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(["posts-feed"], ctx.previous);
+      }
+    },
   });
 };

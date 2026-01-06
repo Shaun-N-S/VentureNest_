@@ -35,7 +35,7 @@ export const Errors = {
   UPLOAD_ERROR: "Error while uploading",
   CONVERSTION_ERROR: "Error while converting file",
   NO_KYC_FOUND: "No kyc application found",
-  NOT_AUTHORIZED: "Your are not authorized !",
+  UNAUTHORIZED_ACCESS: "Your are not authorized !",
   NO_STATUS_FOUND: "No status found",
 };
 
@@ -64,6 +64,9 @@ export const POST_ERRORS = {
 
 export const RELATIONSHIP_ERRORS = {
   NO_RELATIONSHIP_EXIST: "No relationship existing !",
+  CONNECTION_ALREADY_PENDING: "Connection request is already pending !",
+  ALREADY_CONNECTED: "Users are already connected !",
+  INVALID_RELATIONSHIP_TYPE: "Invalid relationship type !",
 };
 
 export const COMMENT_ERRORS = {

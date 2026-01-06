@@ -55,7 +55,6 @@ export class PostController {
   async fetchPersonalPosts(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const authorId = res.locals?.user?.userId;
-      console.log(req.cookies);
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
 
@@ -91,7 +90,6 @@ export class PostController {
     try {
       const postId = req.params.id!;
       const authorId = res.locals?.user?.userId;
-      console.log("reached backend ........           :", postId, authorId);
       await this._removePosts.removePost(postId, authorId);
 
       ResponseHelper.success(res, MESSAGES.POST.POST_REMOVED_SUCCESSFULLY, HTTPSTATUS.OK);

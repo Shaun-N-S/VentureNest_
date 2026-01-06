@@ -1,9 +1,9 @@
 export interface IEngagementEventPublisher {
-  // Publish when a post is liked or unliked.
-  publishPostLikeToggled(event: {
+  publishPostLikeUpdated(data: {
     postId: string;
-    likerId: string;
-    liked: boolean;
     likeCount: number;
+    actorId: string;
   }): Promise<void>;
+
+  publishPostCommentUpdated(data: { postId: string; commentCount: number }): Promise<void>;
 }

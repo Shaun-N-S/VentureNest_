@@ -1,4 +1,3 @@
-import { authMiddleware } from "@infrastructure/DI/Auth/authContainer";
 import {
   projectController,
   projectMonthlyReportController,
@@ -6,6 +5,7 @@ import {
 } from "@infrastructure/DI/Project/projectContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
+import { userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 import { uploadMulter } from "interfaceAdapters/middleware/multer";
 
 export class Project_Router {
@@ -19,7 +19,7 @@ export class Project_Router {
   private _setRoute() {
     this._route.post(
       ROUTES.PROJECT.CREATE,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       uploadMulter.fields([
         { name: "pitchDeckUrl", maxCount: 1 },
         { name: "logoUrl", maxCount: 1 },
@@ -32,7 +32,7 @@ export class Project_Router {
 
     this._route.patch(
       ROUTES.PROJECT.UPDATE,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       uploadMulter.fields([
         { name: "pitchDeckUrl", maxCount: 1 },
         { name: "logoUrl", maxCount: 1 },
@@ -45,7 +45,7 @@ export class Project_Router {
 
     this._route.get(
       ROUTES.PROJECT.FETCH_PROJECTS,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         projectController.fetchAllProjects(req, res, next);
       }
@@ -53,7 +53,7 @@ export class Project_Router {
 
     this._route.get(
       ROUTES.PROJECT.PERSONAL_PROJECTS,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         projectController.fetchPersonalProjects(req, res, next);
       }
@@ -61,7 +61,7 @@ export class Project_Router {
 
     this._route.get(
       ROUTES.PROJECT.SINGLE_PROJECT,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         projectController.findProjectById(req, res, next);
       }
@@ -69,7 +69,7 @@ export class Project_Router {
 
     this._route.patch(
       ROUTES.PROJECT.REMOVE,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         projectController.removeProject(req, res, next);
       }
@@ -77,7 +77,7 @@ export class Project_Router {
 
     this._route.post(
       ROUTES.PROJECT.ADD_MONTHLY_REPORT,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       uploadMulter.none(),
       (req: Request, res: Response, next: NextFunction) => {
         projectMonthlyReportController.addMonthlyReport(req, res, next);
@@ -86,7 +86,7 @@ export class Project_Router {
 
     this._route.post(
       ROUTES.PROJECT.VERIFY_PROJECT,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       uploadMulter.fields([
         { name: "gstCertificate", maxCount: 1 },
         { name: "companyRegistrationCertificate", maxCount: 1 },
@@ -98,7 +98,7 @@ export class Project_Router {
 
     this._route.post(
       ROUTES.PROJECT.LIKE,
-      authMiddleware.verify,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         projectController.likeProject(req, res, next);
       }

@@ -5,6 +5,8 @@ export const getAllProjects = async (
   page = 1,
   limit = 10,
   status?: string,
+  stage?: string,
+  sector?: string,
   search?: string
 ) => {
   const params = new URLSearchParams({
@@ -14,6 +16,8 @@ export const getAllProjects = async (
 
   if (status) params.append("status", status);
   if (search) params.append("search", search);
+  if (stage) params.append("stage", stage);
+  if (sector) params.append("sector", sector);
 
   const response = await AxiosInstance.get(
     `${API_ROUTES.ADMIN.PROJECTS}?${params.toString()}`

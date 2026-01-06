@@ -6,6 +6,7 @@ import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValu
 import { IJWTService } from "@domain/interfaces/services/IJWTService";
 import { Errors, USER_ERRORS } from "@shared/constants/error";
 import { HTTPSTATUS } from "@shared/constants/httpStatus";
+import { ResponseHelper } from "@shared/utils/responseHelper";
 import { NextFunction, Request, Response } from "express";
 
 export class AuthMiddleware {
@@ -20,7 +21,7 @@ export class AuthMiddleware {
     const header = req.header("Authorization");
 
     if (!header?.startsWith("Bearer ")) {
-      res.status(HTTPSTATUS.UNAUTHORIZED).json({ success: false, message: Errors.INVALID_TOKEN });
+      ResponseHelper.error(res, Errors.INVALID_TOKEN, HTTPSTATUS.UNAUTHORIZED);
       return;
     }
     console.log("bearer");
@@ -28,7 +29,7 @@ export class AuthMiddleware {
     const decoded = this._jwtService.verifyAccessToken(token as string);
     console.log(decoded);
     if (!decoded) {
-      res.status(HTTPSTATUS.UNAUTHORIZED).json({ success: false, message: Errors.INVALID_TOKEN });
+      ResponseHelper.error(res, Errors.INVALID_TOKEN, HTTPSTATUS.UNAUTHORIZED);
       return;
     }
     console.log("verified");
@@ -36,7 +37,7 @@ export class AuthMiddleware {
     const blackListed = await this._cacheService.getData(`blackList:${token}`);
 
     if (blackListed) {
-      res.status(HTTPSTATUS.UNAUTHORIZED).json({ success: false, message: Errors.INVALID_TOKEN });
+      ResponseHelper.error(res, Errors.INVALID_TOKEN, HTTPSTATUS.UNAUTHORIZED);
       return;
     }
     res.locals.user = { role: decoded.role, userId: decoded.userId };
@@ -48,25 +49,30 @@ export class AuthMiddleware {
       const userId = res.locals?.user?.userId;
       const role = res.locals?.user?.role;
       console.log("userid and role : ,", userId, role);
+
+      if (!userId || !role) {
+        ResponseHelper.error(res, Errors.INVALID_TOKEN, HTTPSTATUS.UNAUTHORIZED);
+        return;
+      }
       let status = await this._cacheService.getData(`USER_STATUS:${userId}`);
       console.log("status of users  : ", status);
       if (!status) {
-        if (role === UserRole.USER) {
+        if (role === UserRole.USER || role === UserRole.ADMIN) {
           status = await this._userRepo.getStatus(userId);
+          console.log("status from user repo : ,", status);
         }
 
         if (role === UserRole.INVESTOR) {
           status = await this._investorRepo.getStatus(userId);
+          console.log("status from investor repo : ,", status);
         }
 
         await this._cacheService.setData(`USER_STATUS:${userId}`, 60 * 15, status!);
       }
 
       if (status === UserStatus.BLOCKED) {
-        return res.status(HTTPSTATUS.FORBIDDEN).json({
-          success: false,
-          message: USER_ERRORS.USER_BLOCKED,
-        });
+        ResponseHelper.error(res, USER_ERRORS.USER_BLOCKED, HTTPSTATUS.FORBIDDEN);
+        return;
       }
 
       next();
@@ -74,5 +80,16 @@ export class AuthMiddleware {
       console.error(error);
       next(error);
     }
+  };
+
+  authorizeRole = (roles: UserRole[]) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+      const role = res.locals?.user?.role;
+      if (!role || !roles.includes(role)) {
+        ResponseHelper.error(res, Errors.UNAUTHORIZED_ACCESS, HTTPSTATUS.FORBIDDEN);
+        return;
+      }
+      next();
+    };
   };
 }

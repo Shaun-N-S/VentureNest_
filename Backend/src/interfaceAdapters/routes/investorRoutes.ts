@@ -2,6 +2,7 @@ import { investorAuthController } from "@infrastructure/DI/Auth/authContainer";
 import { investorProfileController } from "@infrastructure/DI/Investor/InvestorProfileContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
+import { investorGuard } from "interfaceAdapters/middleware/guards";
 import { uploadMulter } from "interfaceAdapters/middleware/multer";
 
 export class Investor_Router {
@@ -61,6 +62,7 @@ export class Investor_Router {
 
     this._route.post(
       ROUTES.INVESTORS.PROFILE.COMPLETION,
+      ...investorGuard,
       uploadMulter.fields([
         { name: "profileImg", maxCount: 1 },
         { name: "portfolioPdf", maxCount: 1 },
@@ -72,6 +74,7 @@ export class Investor_Router {
 
     this._route.get(
       ROUTES.INVESTORS.PROFILE.FETCH_DATA,
+      ...investorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         investorProfileController.getProfileData(req, res, next);
       }
@@ -79,6 +82,7 @@ export class Investor_Router {
 
     this._route.patch(
       ROUTES.INVESTORS.PROFILE.UPDATE,
+      ...investorGuard,
       uploadMulter.fields([{ name: "profileImg", maxCount: 1 }]),
       (req: Request, res: Response, next: NextFunction) => {
         investorProfileController.updateProfileData(req, res, next);
@@ -87,6 +91,7 @@ export class Investor_Router {
 
     this._route.patch(
       ROUTES.KYC.UPDATE,
+      // ...investorGuard,
       uploadMulter.fields([
         { name: "aadharImg", maxCount: 1 },
         { name: "selfieImg", maxCount: 1 },

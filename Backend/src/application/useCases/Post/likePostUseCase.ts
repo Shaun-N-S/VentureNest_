@@ -37,7 +37,12 @@ export class LikePostUseCase implements ILikePostUseCase {
       liked: !alreadyLiked,
       likeCount: updated?.likeCount!,
     };
-    await this.engagementPublisher.publishPostLikeToggled(result);
+
+    await this.engagementPublisher.publishPostLikeUpdated({
+      postId,
+      likeCount: updated!.likeCount,
+      actorId: likerId,
+    });
 
     return {
       postId,

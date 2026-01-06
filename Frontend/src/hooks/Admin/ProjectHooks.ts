@@ -8,11 +8,13 @@ export const useGetAllProjects = (
   page: number,
   limit: number,
   status?: string,
+  stage?: string,
+  sector?: string,
   search?: string
 ) => {
   return useQuery({
-    queryKey: ["admin-projects", page, limit, status, search],
-    queryFn: () => getAllProjects(page, limit, status, search),
+    queryKey: ["admin-projects", page, limit, status, stage, sector, search],
+    queryFn: () => getAllProjects(page, limit, status, stage, sector, search),
   });
 };
 

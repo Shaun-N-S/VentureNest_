@@ -1,1 +1,1 @@
-export type ConnectionStatus ="none" | "pending" | "accepted";
+export type ConnectionStatus = "none" | "pending" | "accepted" | "rejected";

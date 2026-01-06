@@ -28,8 +28,11 @@ export interface IProjectRepository extends IBaseRepository<ProjectEntity> {
     skip: number,
     limit: number,
     status?: string,
+    stage?: string,
+    sector?: string,
     search?: string
   ): Promise<ProjectEntity[]>;
 
   countAdmin(status?: string, search?: string): Promise<number>;
+  countProjectsByAuthor(userId: string): Promise<number>;
 }

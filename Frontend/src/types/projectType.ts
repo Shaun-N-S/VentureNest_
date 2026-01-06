@@ -49,3 +49,9 @@ export interface ProjectLikeResponse {
   message: string;
   data: ProjectLikeData;
 }
+
+export interface ProjectsPage {
+  projects: ProjectType[];
+  totalProjects: number;
+  hasNextPage: boolean;
+}

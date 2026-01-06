@@ -1,10 +1,10 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import {
   addComment,
   getAllComments,
   likeComment,
 } from "../../services/Comment/CommentService";
-import type { CommentApiResponse, CommentResponse } from "../../types/commentApiResponse";
+import type { CommentResponse } from "../../types/commentApiResponse";
 
 export const useAddComment = () => {
   return useMutation({
@@ -20,16 +20,24 @@ export const useAddComment = () => {
   });
 };
 
-export const useGetAllComments = (
+export const useInfiniteComments = (
   postId: string,
-  page: number,
-  limit: number,
-  config?: { enabled?: boolean }
+  limit = 10,
+  enabled = true
 ) => {
-  return useQuery<CommentResponse>({
-    queryKey: ["comments", postId, page],
-    queryFn: () => getAllComments(postId, page, limit),
-    enabled: config?.enabled ?? true,
+  return useInfiniteQuery<CommentResponse>({
+    queryKey: ["comments", postId],
+
+    initialPageParam: 1,
+
+    queryFn: ({ pageParam }) =>
+      getAllComments(postId, pageParam as number, limit),
+
+    getNextPageParam: (lastPage) =>
+      lastPage.data.hasNextPage ? lastPage.data.currentPage + 1 : undefined,
+
+    enabled,
+    staleTime: 1000 * 60,
   });
 };
 

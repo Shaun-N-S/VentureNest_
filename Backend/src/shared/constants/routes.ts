@@ -92,6 +92,7 @@ export const ROUTES = {
     CONNECTION_REQ: "/connection-req/:toUserId",
     GET_PERSONAL_CONNECTION_REQ: "/personal/connection-req",
     UPDATE_CONNECTION_REQ: "/update/connection-req/:fromUserId/:status",
+    GET_CONNECTIONS_PEOPLE: "/connections-people-list",
   },
 
   COMMENT: {
