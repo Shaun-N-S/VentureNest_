@@ -17,7 +17,9 @@ export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleLis
   async execute(userId: string, page: number, limit: number, search?: string) {
     const skip = (page - 1) * limit;
 
-    // 1️⃣ Get accepted connections
+    /**
+     * 1️⃣ Fetch all accepted connections
+     */
     const connections = await this._relationshipRepository.findConnections(userId);
 
     if (!connections.length) {
@@ -29,31 +31,71 @@ export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleLis
       };
     }
 
-    const connectedIds = connections.map((c) =>
-      c.fromUserId === userId ? c.toUserId : c.fromUserId
-    );
+    /**
+     * 2️⃣ Extract UNIQUE connected user IDs
+     * (handles A→B and B→A duplicates)
+     */
+    const connectedIdsSet = new Set<string>();
 
-    // 2️⃣ Paginated fetch
-    const [users, totalUsers] = await Promise.all([
-      this._userRepository.findByIdsPaginated(connectedIds, skip, limit, search),
-      this._userRepository.countByIds(connectedIds, search),
+    for (const c of connections) {
+      if (c.fromUserId === userId) {
+        connectedIdsSet.add(c.toUserId);
+      } else {
+        connectedIdsSet.add(c.fromUserId);
+      }
+    }
+
+    const connectedIds = Array.from(connectedIdsSet);
+
+    /**
+     * 3️⃣ Fetch USERS & INVESTORS in parallel
+     * (because relationship has no role info)
+     */
+    const [users, investors] = await Promise.all([
+      this._userRepository.findByIds(connectedIds),
+      this._investorRepository.findByIds(connectedIds),
     ]);
 
-    // 3️⃣ Map DTOs
-    const mapped = await Promise.all(
-      users.map(async (user) => {
-        const dto = RelationshipMapper.NetworkUsers(user, user.role, ConnectionStatus.ACCEPTED);
+    /**
+     * 4️⃣ Normalize into ONE list
+     */
+    const combined = [
+      ...users.map((u) => RelationshipMapper.NetworkUsers(u, u.role, ConnectionStatus.ACCEPTED)),
+      ...investors.map((i) =>
+        RelationshipMapper.NetworkUsers(i, i.role, ConnectionStatus.ACCEPTED)
+      ),
+    ];
 
+    /**
+     * 5️⃣ Apply search AFTER merge
+     */
+    const filtered = search
+      ? combined.filter((u) => u.userName?.toLowerCase().includes(search.toLowerCase()))
+      : combined;
+
+    /**
+     * 6️⃣ Pagination AFTER filtering
+     */
+    const totalUsers = filtered.length;
+    const paginated = filtered.slice(skip, skip + limit);
+
+    /**
+     * 7️⃣ Generate signed profile image URLs
+     */
+    const finalUsers = await Promise.all(
+      paginated.map(async (dto) => {
         if (dto.profileImg) {
           dto.profileImg = await this._storageService.createSignedUrl(dto.profileImg, 600);
         }
-
         return dto;
       })
     );
 
+    /**
+     * 8️⃣ Final response
+     */
     return {
-      users: mapped,
+      users: finalUsers,
       totalUsers,
       totalPages: Math.ceil(totalUsers / limit),
       currentPage: page,

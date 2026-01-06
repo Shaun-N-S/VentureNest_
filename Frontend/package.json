@@ -49,6 +49,7 @@
     "react-hook-form": "^7.66.1",
     "react-hot-toast": "^2.6.0",
     "react-image-crop": "^11.0.10",
+    "react-intersection-observer": "^10.0.0",
     "react-pdf": "^10.2.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.3",

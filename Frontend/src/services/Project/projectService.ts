@@ -52,7 +52,7 @@ export const fetchAllProjects = async (
     }
   );
 
-  return response.data.data;
+  return response.data.data.data;
 };
 
 export const removeProject = async (projectId: string) => {

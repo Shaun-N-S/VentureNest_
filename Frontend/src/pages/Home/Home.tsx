@@ -5,21 +5,13 @@ import toast from "react-hot-toast";
 import TopicSelectionModal from "../../components/modals/InterestedTopics";
 import { useEffect, useState } from "react";
 import { updateUserData } from "../../store/Slice/authDataSlice";
-import { useFetchAllPosts, useLikePost } from "../../hooks/Post/PostHooks";
+import { useInfinitePosts, useLikePost } from "../../hooks/Post/PostHooks";
 import { PostCard } from "../../components/card/PostCard";
-import {
-  FileText,
-  ImageIcon,
-  Loader2,
-  Plus,
-  Smile,
-  VideoIcon,
-} from "lucide-react";
+import { Loader2, Smile } from "lucide-react";
 import CreatePostModal from "../../components/modals/CreatePostModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { queryClient } from "../../main";
-import type { FetchPostsResponse } from "../../types/postFeed";
-import { getSocket } from "../../lib/socket";
+import { useInView } from "react-intersection-observer";
+import PostSkeleton from "../../components/Skelton/PostSkelton";
 
 export interface AllPost {
   _id: string;
@@ -39,16 +31,27 @@ const Home = () => {
   const userData = useSelector((state: Rootstate) => state.authData);
   const [open, setOpen] = useState(false);
   const [topics, setTopics] = useState<string[]>([]);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
   const { mutate: setInterestedTopics } = useIntrestedTopics();
-  const { data: postData, isLoading, refetch } = useFetchAllPosts(page, limit);
   const { mutate: likePost } = useLikePost();
   const dispatch = useDispatch();
-  console.log("data : : ", postData?.data?.posts);
+  const {
+    data: postData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfinitePosts(2);
+
+  const posts = postData?.pages.flatMap((page) => page.posts) ?? [];
+
+  console.log("posts : ", postData);
   const [isCreatePostModal, setIsCreatePostModal] = useState(false);
   const userId = useSelector((state: Rootstate) => state.authData.id);
   const role = useSelector((state: Rootstate) => state.authData.role);
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "200px",
+  });
 
   useEffect(() => {
     if (userData.isFirstLogin) {
@@ -57,6 +60,12 @@ const Home = () => {
       setOpen(false);
     }
   }, [userData]);
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
 
   const handleSave = (selected: string[]) => {
     setTopics(selected);
@@ -80,98 +89,12 @@ const Home = () => {
   };
 
   const handleLike = (postId: string) => {
-    const previousData = queryClient.getQueryData<FetchPostsResponse>([
-      "posts-feed",
-      page,
-      limit,
-    ]);
-
-    queryClient.setQueryData(
-      ["posts-feed", page, limit],
-      (old: FetchPostsResponse) => {
-        if (!old?.data?.posts) return old;
-
-        return {
-          ...old,
-          data: {
-            ...old.data,
-            posts: old.data.posts.map((post: AllPost) => {
-              if (post._id !== postId) return post;
-
-              const liked = !post.liked;
-              return {
-                ...post,
-                liked,
-                likeCount: liked ? post.likeCount + 1 : post.likeCount - 1,
-              };
-            }),
-          },
-        };
-      }
-    );
-
     likePost(postId, {
       onError: () => {
-        if (previousData) {
-          queryClient.setQueryData(["posts-feed", page, limit], previousData);
-        }
         toast.error("Failed to like post");
       },
     });
   };
-
-  useEffect(() => {
-    const socket = getSocket();
-    if (!socket || !userId) {
-      console.log("⏭️ Socket not ready in Home");
-      return;
-    }
-
-    console.log("👂 Home listening for post:likeToggled");
-
-    const onLikeToggled = ({
-      postId,
-      likeCount,
-      likerId,
-    }: {
-      postId: string;
-      likeCount: number;
-      likerId: string;
-    }) => {
-      console.log("📨 Home received socket event:", {
-        postId,
-        likeCount,
-        likerId,
-      });
-
-      // 🔁 Update React Query cache
-      queryClient.setQueriesData(
-        {
-          predicate: (query) =>
-            Array.isArray(query.queryKey) && query.queryKey[0] === "posts-feed",
-        },
-        (old: FetchPostsResponse | undefined) => {
-          if (!old?.data?.posts) return old;
-
-          return {
-            ...old,
-            data: {
-              ...old.data,
-              posts: old.data.posts.map((post) =>
-                post._id === postId ? { ...post, likeCount } : post
-              ),
-            },
-          };
-        }
-      );
-    };
-
-    socket.on("post:likeToggled", onLikeToggled);
-
-    return () => {
-      socket.off("post:likeToggled", onLikeToggled);
-    };
-  }, [userId]);
 
   return (
     <div className="w-full min-h-screen bg-gray-50 px-4 sm:px-6 md:px-12 lg:px-32 xl:px-56 py-6">
@@ -185,11 +108,12 @@ const Home = () => {
 
       {/* Loading */}
       {isLoading ? (
-        <div className="flex justify-center items-center py-20 text-gray-500 gap-2">
-          <Loader2 className="animate-spin h-5 w-5" />
-          Loading posts...
+        <div className="max-w-2xl mx-auto space-y-6">
+          {[...Array(3)].map((_, i) => (
+            <PostSkeleton key={i} />
+          ))}
         </div>
-      ) : (postData?.data?.posts ?? []).length > 0 ? (
+      ) : (posts ?? []).length > 0 ? (
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Start a Post */}
           <div className="bg-white rounded-xl border shadow-sm p-4 mt-4">
@@ -211,7 +135,7 @@ const Home = () => {
             </div>
           </div>
 
-          {postData?.data?.posts.map((post: AllPost) => (
+          {posts.map((post: AllPost) => (
             <PostCard
               key={post._id}
               id={post._id}
@@ -231,6 +155,21 @@ const Home = () => {
               context="home"
             />
           ))}
+
+          <div ref={ref} className="flex flex-col items-center py-6 gap-4">
+            {isFetchingNextPage && (
+              <div className="flex items-center gap-2 text-gray-500">
+                <Loader2 className="animate-spin h-5 w-5" />
+                <span className="text-sm">Loading more posts…</span>
+              </div>
+            )}
+
+            {!hasNextPage && posts.length > 0 && (
+              <div className="text-sm text-gray-400">
+                You’re all caught up 🎉
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         /* Empty State UI */

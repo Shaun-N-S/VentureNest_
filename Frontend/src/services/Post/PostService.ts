@@ -26,7 +26,7 @@ export const fetchAllPosts = async (page: number, limit: number) => {
     params: { page, limit },
     withCredentials: true,
   });
-  return response.data.data;
+  return response.data.data.data;
 };
 
 export const removePost = async (postId: string) => {

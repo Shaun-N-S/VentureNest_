@@ -14,7 +14,7 @@ import { Comment_Router } from "interfaceAdapters/routes/commentRoutes";
 import { Reply_Router } from "interfaceAdapters/routes/replyRoutes";
 import { Project_Router } from "interfaceAdapters/routes/projectRoutes";
 import http from "http";
-import { initSocket } from "@infrastructure/realtime/socketGateway";
+import { initSocket } from "@infrastructure/realtime/socketServer";
 
 class Express_app {
   private _app: Express;
@@ -36,12 +36,6 @@ class Express_app {
     );
     this._app.use(express.json());
     this._app.use(cookieParser());
-  }
-
-  private _setErrorHandlingMiddleware() {
-    this._app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-      errorHandlingMiddleware(err, req, res, next);
-    });
   }
 
   private _setLoggingMiddleware() {
@@ -70,15 +64,17 @@ class Express_app {
     this._app.use("/replies", new Reply_Router().get_router());
   }
 
+  private _setErrorHandlingMiddleware() {
+    this._app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+      errorHandlingMiddleware(err, req, res, next);
+    });
+  }
+
   listen() {
     const server = http.createServer(this._app);
     initSocket(server);
 
     server.listen(CONFIG.PORT, (err?: any) => {
-      if (err) {
-        console.log("Error while starting server");
-        throw err;
-      }
       console.log(`Server is running on PORT : ${CONFIG.PORT}`);
     });
   }

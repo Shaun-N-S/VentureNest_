@@ -1,4 +1,4 @@
-import { Bell, Inbox } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { ConnectionRequestCard } from "../../components/card/ConnectionRequestCard ";
 import { useConnectionStatusUpdate, useGetConnectionReq } from "../../hooks/Relationship/relationshipHooks";
 import toast from "react-hot-toast";
@@ -10,10 +10,9 @@ import { queryClient } from "../../main";
 export default function NotificationPage() {
     const [page] = useState(1);
     const [limit] = useState(10);
-
     const { data, isLoading } = useGetConnectionReq(page, limit);
     const { mutate: updateConnectionReqStatus } = useConnectionStatusUpdate();
-    console.log(data, isLoading)
+    console.log(data, isLoading);
     // const { mutate: acceptReq } = useAcceptRequest();
     // const { mutate: rejectReq } = useRejectRequest();
 

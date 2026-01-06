@@ -44,7 +44,6 @@ const InvestorRoutes = () => {
                     <Route path={FRONTEND_ROUTES.INVESTOR.PROJECT} element={<ProjectPage />} />
                     <Route path={`${FRONTEND_ROUTES.INVESTOR.PROJECT}/:id`} element={<ProjectDetailedPage />} />
                 </Route>
-
             </Route>
         </Routes>
     );

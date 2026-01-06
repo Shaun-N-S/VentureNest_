@@ -2,13 +2,12 @@ import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
 
-export const initSocket = (token: string) => {
+export const initSocket = () => {
   if (socket) return socket;
 
   socket = io(import.meta.env.VITE_API_BASE_URL, {
-    auth: { token },
-    transports: ["websocket"],
     withCredentials: true,
+    transports: ["websocket"],
   });
 
   socket.on("connect", () => {
@@ -16,10 +15,9 @@ export const initSocket = (token: string) => {
   });
 
   socket.on("connect_error", (err) => {
-    console.error("🔴 Socket connection error:", err.message);
+    console.error("🔴 Socket error:", err.message);
   });
 
-  console.log("Socket initialized");
   return socket;
 };
 

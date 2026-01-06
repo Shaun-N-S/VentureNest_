@@ -36,6 +36,7 @@ export function ProfileCard(props: ProfileCardProps) {
   const { mutate: addProject } = useCreateProject();
   const isInvestor = userData.role === "INVESTOR";
   const profileData = props.userData;
+  console.log("profileData  : ", profileData);
 
   const {
     data: connectionsData,
@@ -241,7 +242,7 @@ export function ProfileCard(props: ProfileCardProps) {
               onClick={handleOpenConnections}
             >
               <p className="font-bold text-lg md:text-xl">
-                {userData.connectionsCount ?? 0}
+                {profileData.connectionsCount ?? 0}
               </p>
               <p className="text-xs md:text-sm text-muted-foreground">
                 Connections

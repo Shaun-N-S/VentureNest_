@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import {
   addMontlyProjectReport,
   addProject,
@@ -10,7 +10,7 @@ import {
   updateProject,
   verifyStartup,
 } from "../../services/Project/projectService";
-import type { ProjectLikeResponse } from "../../types/projectType";
+import type { ProjectLikeResponse, ProjectsPage } from "../../types/projectType";
 
 export const useCreateProject = () => {
   return useMutation({
@@ -31,16 +31,24 @@ export const useFetchPersonalProjects = (page: number, limit: number) => {
   });
 };
 
-export const useFetchAllProjects = (
-  page: number,
+export const useInfiniteProjects = (
   limit: number,
   search?: string,
   stage?: string,
   sector?: string
 ) => {
-  return useQuery({
-    queryKey: ["projects", page, limit, search, stage, sector],
-    queryFn: () => fetchAllProjects(page, limit, search, stage, sector),
+  return useInfiniteQuery<ProjectsPage>({
+    queryKey: ["projects", limit, search, stage, sector],
+    initialPageParam: 1,
+
+    queryFn: ({ pageParam }) =>
+      fetchAllProjects(pageParam as number, limit, search, stage, sector),
+
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasNextPage ? allPages.length + 1 : undefined,
+
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: false,
   });
 };
 

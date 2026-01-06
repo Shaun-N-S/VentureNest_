@@ -2,7 +2,7 @@ import { RelationshipEntity } from "@domain/entities/follows/RelationshipEntity"
 import { BaseRepository } from "./baseRepository";
 import { IRelationshipModel } from "@infrastructure/db/models/relationshipModel";
 import { IRelationshipRepository } from "@domain/interfaces/repositories/IRelationshipRepository";
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { RelationshipMapper } from "application/mappers/relationshipMapper";
 import { RelationshipType, ConnectionStatus } from "@domain/enum/connectionStatus";
 
@@ -88,10 +88,31 @@ export class RelationshipRepository
   }
 
   async countConnections(userId: string): Promise<number> {
-    return this._model.countDocuments({
-      type: RelationshipType.CONNECTION,
-      status: ConnectionStatus.ACCEPTED,
-      $or: [{ fromUserId: userId }, { toUserId: userId }],
-    });
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    const result = await this._model.aggregate([
+      {
+        $match: {
+          type: RelationshipType.CONNECTION,
+          status: ConnectionStatus.ACCEPTED,
+          $or: [{ fromUserId: userObjectId }, { toUserId: userObjectId }],
+        },
+      },
+      {
+        $project: {
+          connectedUser: {
+            $cond: [{ $eq: ["$fromUserId", userObjectId] }, "$toUserId", "$fromUserId"],
+          },
+        },
+      },
+      {
+        $group: { _id: "$connectedUser" },
+      },
+      {
+        $count: "count",
+      },
+    ]);
+
+    return result[0]?.count || 0;
   }
 }

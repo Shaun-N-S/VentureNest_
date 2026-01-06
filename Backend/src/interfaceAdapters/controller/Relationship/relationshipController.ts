@@ -26,8 +26,6 @@ export class RelationshipController {
       const search = req.query.search as string | undefined;
       const currentUserId = res.locals?.user?.userId;
 
-      console.log("serach reachec :::::::        ", search);
-
       if (page < 1 || limit < 1 || limit > 100) {
         throw new InvalidDataException(Errors.INVALID_PAGINATION_PARAMETERS);
       }
@@ -38,7 +36,6 @@ export class RelationshipController {
         search,
         currentUserId
       );
-      console.log("results : :   , ", results);
 
       ResponseHelper.success(
         res,
@@ -61,6 +58,9 @@ export class RelationshipController {
       if (!toUserId || !fromUserId) {
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
+      console.log(
+        "reached here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      );
 
       await this._sendConnectionReqUseCase.execute(fromUserId, toUserId);
 

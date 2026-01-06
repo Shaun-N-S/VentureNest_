@@ -14,6 +14,9 @@ export interface InvestorProfileDTO {
   linkedInUrl?: string;
   kycStatus?: KYCStatus;
   kycRejectReason?: string;
+  connectionsCount?: number;
+  postCount?: number;
+  investmentCount?: number;
 }
 
 export interface InvestorProfileUpdateFormDataDTO {

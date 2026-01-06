@@ -1,4 +1,6 @@
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
+import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository";
+import { IRelationshipRepository } from "@domain/interfaces/repositories/IRelationshipRepository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IFetchInvestorProfileUseCase } from "@domain/interfaces/useCases/investor/profile/IFetchInvestorProfileUseCase";
 import { INVESTOR_ERRORS } from "@shared/constants/error";
@@ -9,6 +11,8 @@ import { InvestorMapper } from "application/mappers/investorMapper";
 export class FetchInvestorProfileUseCase implements IFetchInvestorProfileUseCase {
   constructor(
     private _investorRepository: IInvestorRepository,
+    private _relationshipRepo: IRelationshipRepository,
+    private _postRepo: IPostRepository,
     private _storageService: IStorageService
   ) {}
 
@@ -19,12 +23,19 @@ export class FetchInvestorProfileUseCase implements IFetchInvestorProfileUseCase
       throw new NotFoundExecption(INVESTOR_ERRORS.NO_INVESTORS_FOUND);
     }
 
-    const profileData: InvestorProfileDTO = InvestorMapper.investorProfileDatatoDTO(investor);
-    profileData.profileImg = await this._storageService.createSignedUrl(
-      profileData.profileImg!,
-      10 * 60
-    );
-    console.log("Investor profileData  : ,", profileData);
+    const profileData = InvestorMapper.investorProfileDatatoDTO(investor);
+
+    if (profileData.profileImg) {
+      profileData.profileImg = await this._storageService.createSignedUrl(
+        profileData.profileImg,
+        10 * 60
+      );
+    }
+
+    // ✅ ADD COUNTS
+    profileData.connectionsCount = await this._relationshipRepo.countConnections(id);
+
+    profileData.postCount = await this._postRepo.countPostsByAuthor(id);
 
     return profileData;
   }

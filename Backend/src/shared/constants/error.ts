@@ -64,6 +64,9 @@ export const POST_ERRORS = {
 
 export const RELATIONSHIP_ERRORS = {
   NO_RELATIONSHIP_EXIST: "No relationship existing !",
+  CONNECTION_ALREADY_PENDING: "Connection request is already pending !",
+  ALREADY_CONNECTED: "Users are already connected !",
+  INVALID_RELATIONSHIP_TYPE: "Invalid relationship type !",
 };
 
 export const COMMENT_ERRORS = {

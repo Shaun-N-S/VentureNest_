@@ -1,3 +1,5 @@
+import type { PersonalPost } from "../pages/Investor/Profile/InvestorProfile/ProfilePage";
+
 export interface FeedPost {
   _id: string;
   authorId: string;
@@ -28,4 +30,20 @@ export interface AllPost {
   createdAt: string;
   updatedAt: string;
   liked?: boolean;
+}
+
+export interface PostsPage {
+  posts: AllPost[];
+  totalPosts: number;
+  hasNextPage: boolean;
+}
+
+export interface PersonalPostPage {
+  data: {
+    data: {
+      posts: PersonalPost[];
+      totalPosts: number;
+      hasNextPage: boolean;
+    };
+  };
 }

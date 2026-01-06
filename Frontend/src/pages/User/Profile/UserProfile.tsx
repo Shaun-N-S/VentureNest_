@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 import type { Rootstate } from "../../../store/store";
 import { useFetchUserProfile } from "../../../hooks/User/Profile/UserProfileHooks";
 import {
-  useFetchPersonalPost,
+  useInfinitePersonalPosts,
   useLikePost,
   useRemovePost,
 } from "../../../hooks/Post/PostHooks";
@@ -34,14 +34,16 @@ import AddProjectModal from "../../../components/modals/AddProjectModal";
 import { MonthlyReportModal } from "../../../components/modals/AddProjectMonthlyReportModal";
 import { VerifyStartupModal } from "../../../components/modals/ProjectRegistrationModal";
 import type {
+  PersonalPostCache,
   PersonalProjectsResponse,
   RemoveProjectResponse,
 } from "../../../types/personalPostCache";
 import { useDispatch } from "react-redux";
 import { updateUserData } from "../../../store/Slice/authDataSlice";
+import { useInView } from "react-intersection-observer";
+import { Loader2 } from "lucide-react";
 
 export default function ProfilePage() {
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [isFollowing, setIsFollowing] = useState(false);
   const userData = useSelector((state: Rootstate) => state.authData);
   const userId = userData.id;
@@ -54,10 +56,11 @@ export default function ProfilePage() {
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [verifyProjectId, setVerifyProjectId] = useState<string | null>(null);
   const { data: profileData } = useFetchUserProfile(userId);
-  const { data: postData, isLoading: postIsLoading } = useFetchPersonalPost(
-    1,
-    10
-  );
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfinitePersonalPosts(5);
+
+  const posts = data?.pages.flatMap((page) => page.data.data.posts) ?? [];
+
   const { data: projectData, isLoading: projectIsLoading } =
     useFetchPersonalProjects(1, 10);
   const { mutate: removePost } = useRemovePost();
@@ -66,16 +69,16 @@ export default function ProfilePage() {
   const { mutate: likePost } = useLikePost();
   const { mutate: likeProject } = useLikeProject();
   const dispatch = useDispatch();
-  //   dispatch(
-  //     updateUserData({
-  //       postsCount: profileData?.data.profileData.postsCount ?? 0,
-  //       projectsCount: profileData?.data.profileData.projectsCount ?? 0,
-  //       investmentCount: profileData?.data.profileData.investmentCount ?? 0,
-  //     })
-  //   );
-  // console.log("Post data fetched    : ", postData, postIsLoading);
-  // console.log("Project data fetched    : ", projectData, projectIsLoading);
-  console.log("profile data from profile page  : ", profileData);
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "200px",
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
 
   useEffect(() => {
     if (!profileData?.data?.profileData) return;
@@ -91,18 +94,6 @@ export default function ProfilePage() {
       })
     );
   }, [profileData, dispatch]);
-
-  const togglePostLike = (postId: string) => {
-    setLikedPosts((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
-      }
-      return newSet;
-    });
-  };
 
   const handleRemove = (postId: string) => {
     console.log("PostId to remove this post : ", postId);
@@ -227,14 +218,48 @@ export default function ProfilePage() {
     setIsVerifyModalOpen(true);
   };
 
-  const handleProfileLike = (
-    postId: string,
-    updateUI: (liked: boolean, count: number) => void
-  ) => {
-    togglePostLike(postId);
+  const handleProfileLike = (postId: string) => {
+    const previousData = queryClient.getQueryData<PersonalPostCache>([
+      "personal-post",
+      1,
+      10,
+    ]);
+
+    queryClient.setQueryData(
+      ["personal-post", 1, 10],
+      (old: PersonalPostCache) => {
+        if (!old?.data?.data?.posts) return old;
+
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            data: {
+              ...old.data.data,
+              posts: old.data.data.posts.map((post) =>
+                post._id === postId
+                  ? {
+                      ...post,
+                      liked: !post.liked,
+                      likeCount: post.liked
+                        ? post.likeCount - 1
+                        : post.likeCount + 1,
+                    }
+                  : post
+              ),
+            },
+          },
+        };
+      }
+    );
+
     likePost(postId, {
-      onSuccess: (res) => updateUI(res.data.liked, res.data.likeCount),
-      onError: () => toast.error("Failed to like post"),
+      onError: () => {
+        if (previousData) {
+          queryClient.setQueryData(["personal-post", 1, 10], previousData);
+        }
+        toast.error("Failed to like post");
+      },
     });
   };
 
@@ -308,9 +333,8 @@ export default function ProfilePage() {
                 transition={{ duration: 0.3 }}
                 className="grid gap-6"
               >
-                {postData?.data?.data?.posts &&
-                postData.data.data.posts.length > 0 ? (
-                  postData.data.data.posts.map((post: PersonalPost) => (
+                {posts && posts.length > 0 ? (
+                  posts.map((post: PersonalPost) => (
                     <PostCard
                       key={post._id}
                       id={post._id}
@@ -325,9 +349,7 @@ export default function ProfilePage() {
                       likes={post.likeCount}
                       comments={post.commentsCount}
                       liked={post.liked}
-                      onLike={(updateUI) =>
-                        handleProfileLike(post._id, updateUI)
-                      }
+                      onLike={() => handleProfileLike(post._id)}
                       context="profile"
                       onRemove={handleRemove}
                     />
@@ -337,6 +359,9 @@ export default function ProfilePage() {
                     No posts yet
                   </div>
                 )}
+                <div ref={ref}>
+                  {isFetchingNextPage && <Loader2 className="animate-spin" />}
+                </div>
               </motion.div>
             </TabsContent>
 
@@ -396,7 +421,6 @@ export default function ProfilePage() {
         projectId={verifyProjectId}
         founderId={userId}
       />
-      
     </div>
   );
 }
