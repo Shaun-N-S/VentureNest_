@@ -108,4 +108,9 @@ export const ROUTES = {
     REMOVE_REPLIES: "/remove",
     LIKE_REPLIES: "/likes/:replyId",
   },
+
+  REPORTS: {
+    CREATE_POST_REPORT: "/create/:postId",
+    CREATE_PROJECT_REPORT: "/create/project/:projectId",
+  },
 };

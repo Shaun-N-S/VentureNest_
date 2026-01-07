@@ -91,4 +91,8 @@ export const MESSAGES = {
     REPLY_FETCHED_SUCCESSFULLY: "Replies fetched successfully",
     REPLY_LIKED_SUCCESSFULLY: "Reply liked successfully",
   },
+
+  REPORT: {
+    REPORT_CREATED_SUCCESSFULLY: "Report created successfully",
+  },
 };
