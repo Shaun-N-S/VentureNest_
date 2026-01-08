@@ -110,7 +110,6 @@ export const ROUTES = {
   },
 
   REPORTS: {
-    CREATE_POST_REPORT: "/create/:postId",
-    CREATE_PROJECT_REPORT: "/create/project/:projectId",
+    CREATE: "/",
   },
 };

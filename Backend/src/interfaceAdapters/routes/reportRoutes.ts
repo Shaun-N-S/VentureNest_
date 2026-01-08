@@ -13,7 +13,7 @@ export class Report_Router {
 
   private _setRoute() {
     this._route.post(
-      ROUTES.REPORTS.CREATE_POST_REPORT,
+      ROUTES.REPORTS.CREATE,
       ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         reportController.createReport(req, res, next);
