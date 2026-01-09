@@ -48,7 +48,7 @@ const ProjectPage = () => {
     }
   }, [inView, hasNextPage, fetchNextPage]);
 
-  const { mutate: likeProject } = useLikeProject();
+  const { mutate: likeProject, isPending } = useLikeProject();
 
   const handleProjectLike = (
     projectId: string,
@@ -228,6 +228,7 @@ const ProjectPage = () => {
                 likes={project.likeCount}
                 liked={project.liked}
                 onLike={(updateUI) => handleProjectLike(project._id, updateUI)}
+                isLikeLoading={isPending}
               />
             ))}
           </motion.div>
