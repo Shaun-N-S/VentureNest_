@@ -1,4 +1,4 @@
-export enum ReportMonth {
+export enum ProjectReportMonth {
   JANUARY = "January",
   FEBRUARY = "February",
   MARCH = "March",

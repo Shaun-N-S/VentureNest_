@@ -16,7 +16,8 @@ export interface ReportEntity {
   reasonText?: string;
 
   status: ReportStatus;
-
+  reviewedBy?: string;
+  actionTaken?: string;
   reviewedAt?: Date;
 
   createdAt?: Date;

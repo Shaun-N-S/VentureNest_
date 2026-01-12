@@ -154,3 +154,22 @@ export interface PopulatedProjectRepoDTO {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface AdminProjectResDTO {
+  id: string;
+  startupName: string;
+  shortDescription: string;
+  stage: string;
+  category: string;
+  isActive: boolean;
+  createdAt: Date;
+
+  logoUrl?: string | null;
+  coverImageUrl?: string | null;
+
+  owner: {
+    id: string;
+    name: string;
+    profileImg?: string | null;
+  };
+}

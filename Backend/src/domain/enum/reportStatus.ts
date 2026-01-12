@@ -3,4 +3,5 @@ export enum ReportStatus {
   REVIEWED = "reviewed",
   REJECTED = "rejected",
   ACTION_TAKEN = "action_taken",
+  ARCHIVED = "archived",
 }

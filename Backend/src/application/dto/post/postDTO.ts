@@ -35,3 +35,21 @@ export interface CreatePostEntityDTO {
   content?: string;
   mediaUrls?: string[];
 }
+
+export interface AdminPostResDTO {
+  id: string;
+  content?: string;
+  mediaUrls: string[];
+  likeCount: number;
+  commentsCount: number;
+  isActive: boolean;
+  isDeleted: boolean;
+  createdAt: Date;
+
+  author: {
+    id: string;
+    role: UserRole;
+    name?: string;
+    profileImg?: string | null;
+  };
+}

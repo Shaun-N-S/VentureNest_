@@ -45,6 +45,14 @@ const reportSchema = new mongoose.Schema(
       index: true,
     },
 
+    reviewedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+    },
+    actionTaken: {
+      type: String,
+    },
+
     reviewedAt: {
       type: Date,
     },

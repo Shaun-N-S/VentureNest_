@@ -2,15 +2,12 @@ import mongoose from "mongoose";
 import { ReportEntity } from "@domain/entities/report/reportEntity";
 import { CreateReportDTO } from "application/dto/report/createReportDTO";
 import { ReportDTO } from "application/dto/report/reportDTO";
-import { AdminReportDTO } from "application/dto/report/adminReportDTO";
 import { IReportModel } from "@infrastructure/db/models/reportModel";
 import { ReportStatus } from "@domain/enum/reportStatus";
 
 export class ReportMapper {
   static toEntity(dto: CreateReportDTO): ReportEntity {
     return {
-      _id: new mongoose.Types.ObjectId().toString(),
-
       reportedById: dto.reportedById,
       reportedByType: dto.reportedByType,
 
@@ -41,24 +38,8 @@ export class ReportMapper {
     };
   }
 
-  static toAdminDTO(entity: ReportEntity): AdminReportDTO {
-    return {
-      _id: entity._id!,
-      reportedById: entity.reportedById,
-      reportedByType: entity.reportedByType,
-      targetType: entity.targetType,
-      targetId: entity.targetId,
-      reasonCode: entity.reasonCode,
-      ...(entity.reasonText && { reasonText: entity.reasonText }),
-      status: entity.status,
-      ...(entity.reviewedAt && { reviewedAt: entity.reviewedAt }),
-      ...(entity.createdAt && { createdAt: entity.createdAt }),
-    };
-  }
-
   static toMongooseDocument(entity: ReportEntity) {
     return {
-      _id: new mongoose.Types.ObjectId(entity._id),
       reportedById: new mongoose.Types.ObjectId(entity.reportedById),
       reportedByType: entity.reportedByType,
       targetType: entity.targetType,

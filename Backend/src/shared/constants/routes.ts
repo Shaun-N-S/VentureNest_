@@ -46,6 +46,13 @@ export const ROUTES = {
     FETCH_INVESTOR_KYC: "/investors/kyc",
     UPDATE_USER_KYC: "/users/update-kyc",
     UPDATE_INVESTOR_KYC: "/investors/update-kyc",
+    REPORTED_POSTS: "/reports/posts",
+    REPORTED_POST_DETAILS: "/reports/posts/:postId",
+    REPORTED_PROJECTS: "/reports/projects",
+    REPORTED_PROJECT_DETAILS: "/reports/projects/:projectId",
+    UPDATE_REPORT_STATUS: "/reports/:reportId/status",
+    POST_BY_ID: "/content/posts/:postId",
+    PROJECT_BY_ID: "/content/projects/:projectId",
   },
 
   USERS: {
@@ -111,5 +118,7 @@ export const ROUTES = {
 
   REPORTS: {
     CREATE: "/",
+    REPORTED_POSTS: "/reported-posts",
+    REPORTED_PROJECTS: "/reported-projects",
   },
 };

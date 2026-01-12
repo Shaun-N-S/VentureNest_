@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { ReportMonth } from "@domain/enum/reportMonth";
+import { ProjectReportMonth } from "@domain/enum/reportMonth";
 import { NetProfitLossType } from "@domain/enum/NetProfitLossType";
 
 export const CreateMonthlyReportReqSchema = z.object({
   projectId: z.string().min(1, "Project ID is required"),
 
-  month: z.enum(Object.values(ReportMonth)),
+  month: z.enum(Object.values(ProjectReportMonth)),
   year: z.preprocess(
     (v) => (v === "" || v === undefined ? undefined : Number(v)),
     z

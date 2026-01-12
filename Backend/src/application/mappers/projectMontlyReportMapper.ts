@@ -5,7 +5,7 @@ import {
   CreateProjectMonthlyReportEntityDTO,
 } from "application/dto/project/projectMonthlyReportDTO";
 import mongoose from "mongoose";
-import { ReportMonth } from "@domain/enum/reportMonth";
+import { ProjectReportMonth } from "@domain/enum/reportMonth";
 import { NetProfitLossType } from "@domain/enum/NetProfitLossType";
 
 export class ProjectMonthlyReportMapper {
@@ -43,7 +43,7 @@ export class ProjectMonthlyReportMapper {
 
       projectId: dto.projectId,
 
-      month: dto.month as ReportMonth,
+      month: dto.month as ProjectReportMonth,
       year: dto.year,
 
       revenue: dto.revenue,
@@ -67,7 +67,7 @@ export class ProjectMonthlyReportMapper {
       _id: doc._id?.toString()!,
       projectId: doc.projectId?.toString(),
 
-      month: doc.month as ReportMonth,
+      month: doc.month as ProjectReportMonth,
       year: doc.year,
 
       revenue: doc.revenue,

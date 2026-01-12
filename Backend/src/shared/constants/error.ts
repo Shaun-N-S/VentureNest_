@@ -37,6 +37,7 @@ export const Errors = {
   NO_KYC_FOUND: "No kyc application found",
   UNAUTHORIZED_ACCESS: "Your are not authorized !",
   NO_STATUS_FOUND: "No status found",
+  INVALID_STATUS_TRANSITION: "Invalid status transition",
 };
 
 export const USER_ERRORS = {

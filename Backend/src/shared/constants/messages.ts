@@ -94,5 +94,10 @@ export const MESSAGES = {
 
   REPORT: {
     REPORT_CREATED_SUCCESSFULLY: "Report created successfully",
+    REPORTED_POSTS_FETCHED: "Reported posts fetched successfully",
+    REPORTED_PROJECTS_FETCHED: "Reported projects fetched successfully",
+    POST_REPORTS_FETCHED: "Post reports fetched successfully",
+    PROJECT_REPORTS_FETCHED: "Project reports fetched successfully",
+    REPORT_STATUS_UPDATED: "Report status updated successfully",
   },
 };
