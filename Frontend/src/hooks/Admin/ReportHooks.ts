@@ -3,6 +3,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   getAllReportedPosts,
   getAllReportedProjects,
+  getPostById,
+  getProjectById,
   getReportedPost,
   getReportedProject,
   updateReportStatus,
@@ -48,7 +50,6 @@ export const useUpdateReportStatus = () => {
       reportId: string;
       payload: { status: string; actionTaken?: string };
     }) => updateReportStatus(reportId, payload),
-
   });
 };
 
