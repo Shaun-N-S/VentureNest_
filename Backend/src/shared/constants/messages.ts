@@ -103,5 +103,8 @@ export const MESSAGES = {
 
   PLAN: {
     CREATED_SUCCESSFULLY: "Plan created successfully",
+    FETCHED_SUCCESSFULLY: "Plans fetched successfully",
+    UPDATED_SUCCESSFULLY: "Plan updated successfully",
+    STATUS_UPDATED_SUCCESSFULLY: "Plan status updated successfully",
   },
 };

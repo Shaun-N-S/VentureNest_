@@ -152,11 +152,37 @@ export class Admin_Routes {
         adminContentController.getProjectById(req, res, next)
     );
 
+    //plans
     this._route.post(
       ADMIN.PLANS,
       ...adminGuard,
       (req: Request, res: Response, next: NextFunction) =>
         adminPlanController.createPlan(req, res, next)
+    );
+
+    this._route.get(ADMIN.PLANS, ...adminGuard, (req: Request, res: Response, next: NextFunction) =>
+      adminPlanController.getAllPlans(req, res, next)
+    );
+
+    this._route.get(
+      ADMIN.PLAN_BY_ID,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminPlanController.getPlanById(req, res, next)
+    );
+
+    this._route.put(
+      ADMIN.PLAN_BY_ID,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminPlanController.updatePlan(req, res, next)
+    );
+
+    this._route.patch(
+      ADMIN.PLAN_STATUS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminPlanController.updatePlanStatus(req, res, next)
     );
   }
 

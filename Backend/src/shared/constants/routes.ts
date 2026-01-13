@@ -54,6 +54,8 @@ export const ROUTES = {
     POST_BY_ID: "/content/posts/:postId",
     PROJECT_BY_ID: "/content/projects/:projectId",
     PLANS: "/plans",
+    PLAN_BY_ID: "/plans/:planId",
+    PLAN_STATUS: "/plans/:planId/status",
   },
 
   USERS: {

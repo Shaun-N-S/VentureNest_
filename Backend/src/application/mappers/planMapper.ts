@@ -4,6 +4,7 @@ import { IPlanModel } from "@infrastructure/db/models/planModel";
 import { CreatePlanDTO } from "application/dto/plan/createPlanDTO";
 import { PlanDTO } from "application/dto/plan/planDTO";
 import { PlanStatus } from "@domain/enum/planStatus";
+import { UpdatePlanDTO } from "application/dto/plan/updatePlanDTO";
 
 export class PlanMapper {
   static toEntity(dto: CreatePlanDTO): PlanEntity {
@@ -59,6 +60,28 @@ export class PlanMapper {
       status: doc.status,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
+    };
+  }
+
+  static mergeForUpdate(existing: PlanEntity, update: UpdatePlanDTO): PlanEntity {
+    return {
+      ...existing,
+
+      name: update.name ?? existing.name,
+      description: update.description ?? existing.description,
+
+      limits: {
+        messages: update.limits?.messages ?? existing.limits.messages,
+        consentLetters: update.limits?.consentLetters ?? existing.limits.consentLetters,
+        profileBoost: update.limits?.profileBoost ?? existing.limits.profileBoost,
+      },
+
+      billing: {
+        durationDays: update.billing?.durationDays ?? existing.billing.durationDays,
+        price: update.billing?.price ?? existing.billing.price,
+      },
+
+      updatedAt: new Date(),
     };
   }
 }

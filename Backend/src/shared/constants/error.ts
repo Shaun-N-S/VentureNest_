@@ -87,3 +87,7 @@ export const REPORT_ERRORS = {
   NO_REPORT_FOUND: "No report found !",
   ALREADY_REPORTED: "You have already reported this item",
 };
+
+export const PLAN_ERRORS = {
+  PLAN_NOT_FOUND: "Plan not found!",
+};
