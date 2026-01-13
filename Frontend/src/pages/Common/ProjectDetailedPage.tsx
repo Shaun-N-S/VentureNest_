@@ -10,11 +10,16 @@ import { motion } from "framer-motion";
 import { queryClient } from "../../main";
 import toast from "react-hot-toast";
 import type { ProjectType } from "../../types/projectType";
+import { useState } from "react";
+import { ReportModal } from "../../components/modals/ReportModal";
+import { ReportTargetType } from "../../types/reportTargetType";
 
 const ProjectDetailedPage = () => {
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportTargetId, setReportTargetId] = useState<string | null>(null);
   const { id } = useParams();
   const { data, isLoading } = useFetchProjectById(id!);
-  const { mutate: likeProject } = useLikeProject();
+  const { mutate: likeProject, isPending } = useLikeProject();
 
   console.log("data for detailed page  project    : ,", data);
 
@@ -61,6 +66,11 @@ const ProjectDetailedPage = () => {
       },
       onError: () => toast.error("Failed to like project"),
     });
+  };
+
+  const handleReport = (projectId: string) => {
+    setReportTargetId(projectId);
+    setIsReportOpen(true);
   };
 
   if (isLoading) {
@@ -135,7 +145,22 @@ const ProjectDetailedPage = () => {
           pitchDeckName="Pitch Deck"
           location={project.location}
           onLike={handleProjectLike}
+          isLikeLoading={isPending}
+          onReport={handleReport}
         />
+        {/* Report Modal */}
+        {isReportOpen && reportTargetId && (
+          <>
+            {reportTargetId && (
+              <ReportModal
+                open={isReportOpen}
+                onClose={() => setIsReportOpen(false)}
+                targetId={reportTargetId}
+                targetType={ReportTargetType.PROJECT}
+              />
+            )}
+          </>
+        )}
       </div>
     </div>
   );

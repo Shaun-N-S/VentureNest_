@@ -1,11 +1,11 @@
 import { Document, model, Types } from "mongoose";
 import projectMonthlyReportSchema from "../schema/projectMonthlyReportSchema";
-import { ReportMonth } from "@domain/enum/reportMonth";
+import { ProjectReportMonth } from "@domain/enum/reportMonth";
 import { NetProfitLossType } from "@domain/enum/NetProfitLossType";
 
 export interface IProjectMonthlyReportModel extends Document {
   projectId: Types.ObjectId;
-  month: ReportMonth;
+  month: ProjectReportMonth;
   year: number;
 
   revenue: number;

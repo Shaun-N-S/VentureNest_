@@ -1,11 +1,11 @@
-import { ReportMonth } from "@domain/enum/reportMonth";
+import { ProjectReportMonth } from "@domain/enum/reportMonth";
 import { NetProfitLossType } from "@domain/enum/NetProfitLossType";
 
 export interface ProjectMonthlyReportResDTO {
   _id: string;
   projectId: string;
 
-  month: ReportMonth;
+  month: ProjectReportMonth;
   year: number;
 
   revenue: number;
@@ -26,7 +26,7 @@ export interface ProjectMonthlyReportResDTO {
 export interface CreateProjectMonthlyReportDTO {
   projectId: string;
 
-  month: ReportMonth;
+  month: ProjectReportMonth;
   year: number;
 
   revenue: number;
@@ -44,7 +44,7 @@ export interface CreateProjectMonthlyReportDTO {
 export interface CreateProjectMonthlyReportEntityDTO {
   projectId: string;
 
-  month: ReportMonth;
+  month: ProjectReportMonth;
   year: number;
 
   revenue: number;

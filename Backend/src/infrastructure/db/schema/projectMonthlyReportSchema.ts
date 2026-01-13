@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ReportMonth } from "@domain/enum/reportMonth";
+import { ProjectReportMonth } from "@domain/enum/reportMonth";
 import { NetProfitLossType } from "@domain/enum/NetProfitLossType";
 
 const projectMonthlyReportSchema = new mongoose.Schema(
@@ -12,7 +12,7 @@ const projectMonthlyReportSchema = new mongoose.Schema(
 
     month: {
       type: String,
-      enum: Object.values(ReportMonth),
+      enum: Object.values(ProjectReportMonth),
       required: true,
     },
 

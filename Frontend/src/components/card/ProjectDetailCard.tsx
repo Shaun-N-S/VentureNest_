@@ -40,6 +40,7 @@ interface ProjectDetailCardProps {
   pitchDeckName?: string;
   location?: string;
   onLike?: (id: string) => void;
+  isLikeLoading?: boolean;
   onReport?: (id: string) => void;
 }
 
@@ -66,6 +67,7 @@ export function ProjectDetailCard({
   pitchDeckName,
   location,
   onLike,
+  isLikeLoading = false,
   onReport,
 }: ProjectDetailCardProps) {
   const [isPdfOpen, setIsPdfOpen] = useState(false);
@@ -100,11 +102,14 @@ export function ProjectDetailCard({
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
 
           {/* Floating Like Button */}
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+          {/* <motion.button
+            whileHover={!isLikeLoading ? { scale: 1.1 } : undefined}
+            whileTap={!isLikeLoading ? { scale: 0.9 } : undefined}
             onClick={handleLike}
-            className="absolute top-6 right-6 p-3 rounded-full bg-card/90 backdrop-blur-sm shadow-lg border border-border/50 transition-colors"
+            disabled={isLikeLoading}
+            className={`absolute top-6 right-6 p-3 rounded-full
+    ${isLikeLoading ? "opacity-50 cursor-not-allowed" : ""}
+  `}
           >
             <Heart
               className={`w-6 h-6 transition-colors ${
@@ -114,7 +119,7 @@ export function ProjectDetailCard({
               }`}
             />
             <span className="text-lg font-bold text-foreground">{likes}</span>
-          </motion.button>
+          </motion.button> */}
 
           {/* Logo Overlay */}
           <div className="absolute -bottom-12 left-8 z-10">

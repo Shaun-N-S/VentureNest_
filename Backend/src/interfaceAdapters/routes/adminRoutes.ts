@@ -1,9 +1,10 @@
-import { UserRole } from "@domain/enum/userRole";
+import { adminContentController } from "@infrastructure/DI/Admin/adminContentContainer";
 import { adminInvestorController } from "@infrastructure/DI/Admin/adminInvestorContainer";
 import { adminKycController } from "@infrastructure/DI/Admin/adminKycContainer";
 import { adminProjectController } from "@infrastructure/DI/Admin/adminProjectContainer";
+import { adminReportController } from "@infrastructure/DI/Admin/adminReportContainer";
 import { adminUserController } from "@infrastructure/DI/Admin/adminUserContainer";
-import { adminAuthController, authMiddleware } from "@infrastructure/DI/Auth/authContainer";
+import { adminAuthController } from "@infrastructure/DI/Auth/authContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
 import { adminGuard } from "interfaceAdapters/middleware/guards";
@@ -97,6 +98,57 @@ export class Admin_Routes {
       (req: Request, res: Response, next: NextFunction) => {
         adminProjectController.updateProjectStatus(req, res, next);
       }
+    );
+
+    this._route.get(
+      ADMIN.REPORTED_POSTS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        adminReportController.getReportedPosts(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ADMIN.REPORTED_PROJECTS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminReportController.getReportedProjects(req, res, next)
+    );
+
+    this._route.get(
+      ADMIN.REPORTED_POST_DETAILS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        adminReportController.getPostReports(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ADMIN.REPORTED_PROJECT_DETAILS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminReportController.getProjectReports(req, res, next)
+    );
+
+    this._route.patch(
+      ADMIN.UPDATE_REPORT_STATUS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminReportController.updateReportStatus(req, res, next)
+    );
+
+    this._route.get(
+      ADMIN.POST_BY_ID,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminContentController.getPostById(req, res, next)
+    );
+
+    this._route.get(
+      ADMIN.PROJECT_BY_ID,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminContentController.getProjectById(req, res, next)
     );
   }
 

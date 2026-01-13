@@ -37,6 +37,13 @@ export const API_ROUTES = {
     UPDATE_INVESTORS_KYC: "/admin/investors/update-kyc",
     PROJECTS: "/admin/projects",
     PROJECTS_UPDATE_STATUS: "/admin/projects/update-status",
+    REPORTED_POSTS: "/admin/reports/posts",
+    REPORTED_POST: "/admin/reports/posts/:postId",
+    REPORTED_PROJECTS: "/admin/reports/projects",
+    REPORTED_PROJECT: "/admin/reports/projects/:projectId",
+    UPDATE_REPORT_STATUS: "/admin/reports/:reportId/status",
+    POST_BY_ID: "/admin/content/posts/:postId",
+    PROJECT_BY_ID: "/admin/content/projects/:projectId",
   },
 
   INVESTOR: {
@@ -94,5 +101,9 @@ export const API_ROUTES = {
     ADD_REPLY: "/replies",
     FETCH_REPLY: "/replies/:commentId",
     LIKE_REPLY: "/replies/likes/:replyId",
+  },
+
+  REPORT: {
+    CREATE: "/reports",
   },
 };

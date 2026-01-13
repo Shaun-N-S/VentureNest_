@@ -64,24 +64,45 @@ export class ProjectRepository
     return ProjectMapper.fromMongooseDocumentPopulated(doc);
   }
 
-  async addLike(projectId: string, likerId: string, likerRole: UserRole): Promise<void> {
-    await this._model.updateOne(
-      { _id: projectId },
+  async toggleLike(
+    projectId: string,
+    likerId: string,
+    likerRole: UserRole
+  ): Promise<{ liked: boolean; likeCount: number }> {
+    //LIKE
+    const likedDoc = await this._model.findOneAndUpdate(
+      {
+        _id: projectId,
+        "likes.likerId": { $ne: likerId },
+      },
       {
         $push: { likes: { likerId, likerRole } },
         $inc: { likeCount: 1 },
-      }
+      },
+      { new: true }
     );
-  }
 
-  async removeLike(projectId: string, likerId: string): Promise<void> {
-    await this._model.updateOne(
-      { _id: projectId },
+    if (likedDoc) {
+      return { liked: true, likeCount: likedDoc.likeCount };
+    }
+
+    // UNLIKE
+    const unlikedDoc = await this._model.findOneAndUpdate(
+      {
+        _id: projectId,
+        "likes.likerId": likerId,
+      },
       {
         $pull: { likes: { likerId } },
         $inc: { likeCount: -1 },
-      }
+      },
+      { new: true }
     );
+
+    return {
+      liked: false,
+      likeCount: unlikedDoc?.likeCount ?? 0,
+    };
   }
 
   async updateStatus(projectId: string, status: UserStatus): Promise<ProjectEntity | null> {

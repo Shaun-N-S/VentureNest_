@@ -58,9 +58,6 @@ export class RelationshipController {
       if (!toUserId || !fromUserId) {
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
-      console.log(
-        "reached here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-      );
 
       await this._sendConnectionReqUseCase.execute(fromUserId, toUserId);
 

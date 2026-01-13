@@ -12,6 +12,9 @@ import CreatePostModal from "../../components/modals/CreatePostModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { useInView } from "react-intersection-observer";
 import PostSkeleton from "../../components/Skelton/PostSkelton";
+import { ReportModal } from "../../components/modals/ReportModal";
+import { ReportModalSkeleton } from "../../components/Skelton/ReportModalSkelton";
+import { ReportTargetType } from "../../types/reportTargetType";
 
 export interface AllPost {
   _id: string;
@@ -31,6 +34,9 @@ const Home = () => {
   const userData = useSelector((state: Rootstate) => state.authData);
   const [open, setOpen] = useState(false);
   const [topics, setTopics] = useState<string[]>([]);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportTargetId, setReportTargetId] = useState<string | null>(null);
+  const [isReportModalLoading, setIsReportModalLoading] = useState(false);
   const { mutate: setInterestedTopics } = useIntrestedTopics();
   const { mutate: likePost } = useLikePost();
   const dispatch = useDispatch();
@@ -85,7 +91,13 @@ const Home = () => {
   };
 
   const handleReport = (postId: string) => {
-    console.log("post id for reporting ", postId);
+    setReportTargetId(postId);
+    setIsReportModalLoading(true);
+    setIsReportOpen(true);
+
+    setTimeout(() => {
+      setIsReportModalLoading(false);
+    }, 300);
   };
 
   const handleLike = (postId: string) => {
@@ -130,7 +142,6 @@ const Home = () => {
                 />
                 <AvatarFallback>{userData.userName?.charAt(0)}</AvatarFallback>
               </Avatar>
-
               <div className="flex-1 text-gray-600">Start a post...</div>
             </div>
           </div>
@@ -177,6 +188,22 @@ const Home = () => {
           <Smile className="h-10 w-10 text-gray-400" />
           <p>No posts yet</p>
         </div>
+      )}
+
+      {/* Report Modal */}
+      {isReportOpen && reportTargetId && (
+        <>
+          {isReportModalLoading ? (
+            <ReportModalSkeleton/>
+          ) : (
+            <ReportModal
+              open={isReportOpen}
+              onClose={() => setIsReportOpen(false)}
+              targetId={reportTargetId}
+              targetType={ReportTargetType.POST}
+            />
+          )}
+        </>
       )}
 
       <CreatePostModal

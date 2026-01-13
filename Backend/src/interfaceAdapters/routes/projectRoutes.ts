@@ -61,7 +61,7 @@ export class Project_Router {
 
     this._route.get(
       ROUTES.PROJECT.SINGLE_PROJECT,
-      ...userOrInvestorGuard,
+      // ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         projectController.findProjectById(req, res, next);
       }

@@ -21,8 +21,12 @@ export interface IProjectRepository extends IBaseRepository<ProjectEntity> {
 
   fetchPopulatedProjectById(id: string): Promise<PopulatedProjectRepoDTO | null>;
 
-  addLike(projectId: string, likerId: string, likerRole: UserRole): Promise<void>;
-  removeLike(projectId: string, likerId: string): Promise<void>;
+  toggleLike(
+    projectId: string,
+    likerId: string,
+    likerRole: UserRole
+  ): Promise<{ liked: boolean; likeCount: number }>;
+
   updateStatus(projectId: string, status: UserStatus): Promise<ProjectEntity | null>;
   findAllAdmin(
     skip: number,

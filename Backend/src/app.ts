@@ -15,6 +15,7 @@ import { Reply_Router } from "interfaceAdapters/routes/replyRoutes";
 import { Project_Router } from "interfaceAdapters/routes/projectRoutes";
 import http from "http";
 import { initSocket } from "@infrastructure/realtime/socketServer";
+import { Report_Router } from "interfaceAdapters/routes/reportRoutes";
 
 class Express_app {
   private _app: Express;
@@ -62,6 +63,8 @@ class Express_app {
     this._app.use("/comment", new Comment_Router().get_router());
 
     this._app.use("/replies", new Reply_Router().get_router());
+
+    this._app.use("/reports", new Report_Router().get_router());
   }
 
   private _setErrorHandlingMiddleware() {

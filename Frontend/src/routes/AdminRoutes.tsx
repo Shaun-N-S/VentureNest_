@@ -10,6 +10,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import VerificationPage from "../pages/Admin/verificationListing";
 import ProjectsListing from "../pages/Admin/ProjectListingPage";
 import ProjectDetailedPage from "../pages/Common/ProjectDetailedPage";
+import ReportManagementPage from "../pages/Admin/ReportsListingPage";
 
 const AdminRoutes = () => {
   return (
@@ -28,6 +29,7 @@ const AdminRoutes = () => {
           <Route path={FRONTEND_ROUTES.ADMIN.VERIFICATIONS} element={<VerificationPage />} />
           <Route path={FRONTEND_ROUTES.ADMIN.PROJECTS} element={<ProjectsListing />} />
           <Route path={`${FRONTEND_ROUTES.ADMIN.PROJECTS}/:id`} element={<ProjectDetailedPage />} />
+          <Route path={FRONTEND_ROUTES.ADMIN.REPORTS} element={<ReportManagementPage />} />
         </Route>
       </Route>
     </Routes>
