@@ -100,4 +100,8 @@ export const MESSAGES = {
     PROJECT_REPORTS_FETCHED: "Project reports fetched successfully",
     REPORT_STATUS_UPDATED: "Report status updated successfully",
   },
+
+  PLAN: {
+    CREATED_SUCCESSFULLY: "Plan created successfully",
+  },
 };

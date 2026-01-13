@@ -53,6 +53,7 @@ export const ROUTES = {
     UPDATE_REPORT_STATUS: "/reports/:reportId/status",
     POST_BY_ID: "/content/posts/:postId",
     PROJECT_BY_ID: "/content/projects/:projectId",
+    PLANS: "/plans",
   },
 
   USERS: {
