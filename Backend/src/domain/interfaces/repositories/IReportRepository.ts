@@ -7,6 +7,7 @@ import {
   AdminReportedPostDTO,
   AdminReportedProjectDTO,
 } from "application/dto/report/adminReportDTO";
+import { ReportReason } from "@domain/enum/reportReason";
 
 export interface IReportRepository extends IBaseRepository<ReportEntity> {
   existsDuplicate(
@@ -18,9 +19,19 @@ export interface IReportRepository extends IBaseRepository<ReportEntity> {
 
   findByTarget(targetType: ReportTargetType, targetId: string): Promise<ReportEntity[]>;
 
-  getReportedPosts(): Promise<AdminReportedPostDTO[]>;
+  getReportedPosts(params: {
+    skip: number;
+    limit: number;
+    status?: ReportStatus;
+    reason?: ReportReason;
+  }): Promise<{ data: AdminReportedPostDTO[]; total: number }>;
 
-  getReportedProjects(): Promise<AdminReportedProjectDTO[]>;
+  getReportedProjects(params: {
+    skip: number;
+    limit: number;
+    status?: ReportStatus;
+    reason?: ReportReason;
+  }): Promise<{ data: AdminReportedProjectDTO[]; total: number }>;
 
   updateStatus(
     reportId: string,

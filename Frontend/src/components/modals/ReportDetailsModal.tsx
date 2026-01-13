@@ -2,7 +2,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { AlertTriangle, Calendar, User, Shield, X } from "lucide-react";
+import {
+  AlertTriangle,
+  Calendar,
+  User,
+  Shield,
+  X,
+  Loader2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   useGetPostById,
@@ -11,6 +18,8 @@ import {
   useGetReportedProject,
   useUpdateReportStatus,
 } from "../../hooks/Admin/ReportHooks";
+import { ProjectDetailCard } from "../card/ProjectDetailCard";
+import { PostCard } from "../card/PostCard";
 
 /* ===================== TYPES ===================== */
 
@@ -67,11 +76,10 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
   const updateStatusMutation = useUpdateReportStatus();
 
   const reports: ReportDetail[] = useMemo(() => {
-    if (isPost) return postReports.data ?? [];
-    return projectReports.data ?? [];
+    return isPost ? (postReports.data ?? []) : (projectReports.data ?? []);
   }, [isPost, postReports.data, projectReports.data]);
 
-  /* ===================== LOCAL STATE (PER REPORT) ===================== */
+  /* ===================== LOCAL STATE ===================== */
 
   const [statusMap, setStatusMap] = useState<Record<string, ReportStatus>>({});
   const [actionMap, setActionMap] = useState<Record<string, string>>({});
@@ -80,8 +88,6 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
     statusMap[id] ?? "reviewed";
 
   const getActionTaken = (id: string): string => actionMap[id] ?? "";
-
-  /* ===================== HANDLERS ===================== */
 
   const handleUpdateStatus = (reportId: string) => {
     const status = getSelectedStatus(reportId);
@@ -102,9 +108,9 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-5xl w-full max-h-[90vh] overflow-y-auto p-0">
         {/* Header */}
-        <DialogHeader className="p-6 border-b flex flex-row items-center justify-between">
+        <DialogHeader className="p-6 border-b flex items-center justify-between">
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             <AlertTriangle className="text-red-500" />
             Report Details
@@ -117,7 +123,7 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
         {/* Body */}
         <div className="p-6 space-y-6">
           {/* Summary */}
-          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between bg-gray-50 p-4 rounded-lg">
+          <div className="flex justify-between bg-gray-50 p-4 rounded-lg">
             <div>
               <p className="text-sm text-gray-500">
                 {isPost ? "Post ID" : "Project ID"}
@@ -132,97 +138,111 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
             </Badge>
           </div>
 
-          <Button
-            variant="outline"
-            onClick={() => setShowTarget((prev) => !prev)}
-            className="w-fit"
-          >
+          {/* Show Content Button */}
+          <Button variant="outline" onClick={() => setShowTarget((p) => !p)}>
             {showTarget ? "Hide" : "Show"} {isPost ? "Post" : "Project"}
           </Button>
 
-          {showTarget && isPost && (
-            <div className="border rounded-xl p-4 bg-gray-50 space-y-3">
-              {postQuery.isLoading && <p>Loading post...</p>}
+          {/* ===================== CONTENT PREVIEW ===================== */}
 
-              {postQuery.data && (
-                <>
-                  <h3 className="font-semibold text-lg">
-                    {postQuery.data.title}
-                  </h3>
+          {showTarget && (
+            <div className="border rounded-xl p-4 bg-gray-50">
+              {(postQuery.isLoading || projectQuery.isLoading) && (
+                <div className="flex justify-center py-10">
+                  <Loader2 className="animate-spin" />
+                </div>
+              )}
 
-                  {postQuery.data.image && (
-                    <img
-                      src={postQuery.data.image}
-                      className="w-full max-h-64 object-cover rounded-lg"
-                    />
-                  )}
+              {/* PROJECT */}
+              {!isPost && projectQuery.data && (
+                <ProjectDetailCard
+                  id={projectQuery.data.id}
+                  name={projectQuery.data.startupName}
+                  stage={projectQuery.data.stage}
+                  image={projectQuery.data.coverImageUrl}
+                  logo={projectQuery.data.logoUrl}
+                  likes={0}
+                  founders={[
+                    {
+                      id: projectQuery.data.owner.id,
+                      name: projectQuery.data.owner.name,
+                      image: projectQuery.data.owner.profileImg ?? "",
+                      initials: projectQuery.data.owner.name[0],
+                      userRole: "Founder",
+                    },
+                  ]}
+                  aim={projectQuery.data.shortDescription}
+                />
+              )}
 
-                  <p className="text-sm text-gray-700 line-clamp-4">
-                    {postQuery.data.content}
-                  </p>
-
-                  <Button
-                    variant="link"
-                    onClick={() =>
-                      window.open(`/admin/posts/${postQuery.data.id}`, "_blank")
-                    }
-                  >
-                    Open Full Post →
-                  </Button>
-                </>
+              {/* POST */}
+              {isPost && postQuery.data && (
+                <PostCard
+                  id={postQuery.data.id}
+                  author={{
+                    name: "Reported User",
+                    avatar: "/placeholder.svg",
+                    followers: 0,
+                  }}
+                  timestamp={new Date(
+                    postQuery.data.createdAt
+                  ).toLocaleString()}
+                  content={postQuery.data.content}
+                  mediaUrls={postQuery.data.mediaUrls}
+                  likes={postQuery.data.likeCount}
+                  comments={postQuery.data.commentsCount}
+                  context="home"
+                />
               )}
             </div>
           )}
 
-          {/* Reports */}
+          {/* ===================== REPORTS ===================== */}
+
           <div className="space-y-4">
             {reports.map((report) => (
               <div
                 key={report.reportId}
-                className="border rounded-xl p-4 space-y-4 hover:shadow-sm transition"
+                className="border rounded-xl p-4 space-y-4"
               >
                 {/* Reporter */}
                 <div className="flex items-center gap-3">
                   {report.reporter.profileImg ? (
                     <img
                       src={report.reporter.profileImg}
-                      className="w-10 h-10 rounded-full object-cover"
+                      className="w-10 h-10 rounded-full"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
                       <User className="w-5 h-5 text-white" />
                     </div>
                   )}
 
                   <div>
                     <p className="font-semibold">{report.reporter.name}</p>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Shield size={14} />
-                      {report.reporter.role}
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <Shield size={14} /> {report.reporter.role}
                     </div>
                   </div>
                 </div>
 
                 {/* Reason */}
-                <div>
-                  <Badge variant="outline">
-                    {report.reasonCode.replace("_", " ")}
-                  </Badge>
-                  {report.reasonText && (
-                    <p className="mt-2 text-sm text-gray-700">
-                      {report.reasonText}
-                    </p>
-                  )}
-                </div>
+                <Badge variant="outline">
+                  {report.reasonCode.replace("_", " ")}
+                </Badge>
+
+                {report.reasonText && (
+                  <p className="text-sm text-gray-700">{report.reasonText}</p>
+                )}
 
                 {/* Meta */}
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <div className="flex items-center gap-1">
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span className="flex items-center gap-1">
                     <Calendar size={14} />
                     {new Date(report.createdAt).toLocaleString()}
-                  </div>
+                  </span>
 
-                  <Badge variant="secondary" className="capitalize">
+                  <Badge variant="secondary">
                     {report.status.replace("_", " ")}
                   </Badge>
                 </div>
@@ -233,12 +253,12 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
                     <select
                       value={getSelectedStatus(report.reportId)}
                       onChange={(e) =>
-                        setStatusMap((prev) => ({
-                          ...prev,
+                        setStatusMap((p) => ({
+                          ...p,
                           [report.reportId]: e.target.value as ReportStatus,
                         }))
                       }
-                      className="w-full border rounded-lg px-3 py-2"
+                      className="w-full border rounded px-3 py-2"
                     >
                       <option value="reviewed">Reviewed</option>
                       <option value="action_taken">Action Taken</option>
@@ -247,11 +267,11 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
 
                     {getSelectedStatus(report.reportId) === "action_taken" && (
                       <Textarea
-                        placeholder="Describe the action taken"
+                        placeholder="Describe action taken"
                         value={getActionTaken(report.reportId)}
                         onChange={(e) =>
-                          setActionMap((prev) => ({
-                            ...prev,
+                          setActionMap((p) => ({
+                            ...p,
                             [report.reportId]: e.target.value,
                           }))
                         }
@@ -261,7 +281,6 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
                     <Button
                       onClick={() => handleUpdateStatus(report.reportId)}
                       disabled={updateStatusMutation.isPending}
-                      className="w-full"
                     >
                       Update Status
                     </Button>
@@ -269,12 +288,6 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
                 )}
               </div>
             ))}
-
-            {reports.length === 0 && (
-              <div className="text-center py-10 text-gray-500">
-                No reports found
-              </div>
-            )}
           </div>
         </div>
       </DialogContent>

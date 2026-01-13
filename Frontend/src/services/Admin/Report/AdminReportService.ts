@@ -1,13 +1,28 @@
 import AxiosInstance from "../../../axios/axios";
 import { API_ROUTES } from "../../../constants/apiRoutes";
 
-export const getAllReportedPosts = async () => {
-  const response = await AxiosInstance.get(API_ROUTES.ADMIN.REPORTED_POSTS);
+export const getAllReportedPosts = async (params: {
+  page: number;
+  limit: number;
+  status?: string;
+  reason?: string;
+}) => {
+  const response = await AxiosInstance.get(API_ROUTES.ADMIN.REPORTED_POSTS, {
+    params,
+  });
   return response.data.data;
 };
 
-export const getAllReportedProjects = async () => {
-  const response = await AxiosInstance.get(API_ROUTES.ADMIN.REPORTED_PROJECTS);
+export const getAllReportedProjects = async (params: {
+  page: number;
+  limit: number;
+  status?: string;
+  reason?: string;
+}) => {
+  const response = await AxiosInstance.get(API_ROUTES.ADMIN.REPORTED_PROJECTS, {
+    params,
+  });
+
   return response.data.data;
 };
 
@@ -47,7 +62,6 @@ export const getPostById = async (postId: string) => {
 
   return response.data.data;
 };
-
 
 export const getProjectById = async (projectId: string) => {
   const response = await AxiosInstance.get(

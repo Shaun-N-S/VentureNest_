@@ -10,18 +10,38 @@ import {
   updateReportStatus,
 } from "../../services/Admin/Report/AdminReportService";
 import { QUERY_KEYS } from "../../constants/queryKey";
+import type { ReportStatus } from "../../types/report";
+import type { ReportReason } from "../../types/reportReason";
+import type { ReportedPostRow } from "../../pages/Admin/ReportsListingPage";
 
-export const useGetAllReportedPosts = () => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.REPORTED_POSTS],
-    queryFn: getAllReportedPosts,
+interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  limit: number;
+  total: number;
+}
+
+export const useGetAllReportedPosts = (params: {
+  page: number;
+  limit: number;
+  status?: ReportStatus;
+  reason?: ReportReason;
+}) => {
+  return useQuery<PaginatedResponse<ReportedPostRow>>({
+    queryKey: ["reported-posts", params],
+    queryFn: () => getAllReportedPosts(params),
   });
 };
 
-export const useGetAllReportedProjects = () => {
+export const useGetAllReportedProjects = (params: {
+  page: number;
+  limit: number;
+  status?: string;
+  reason?: string;
+}) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.REPORTED_PROJECTS],
-    queryFn: getAllReportedProjects,
+    queryKey: [QUERY_KEYS.REPORTED_PROJECTS, params],
+    queryFn: () => getAllReportedProjects(params),
   });
 };
 

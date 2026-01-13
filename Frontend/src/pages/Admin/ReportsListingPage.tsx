@@ -1,5 +1,4 @@
-import { X } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Pagination from "../../components/pagination/Pagination";
 import Table from "../../components/table/Table";
 import {
@@ -13,20 +12,14 @@ import {
   useGetAllReportedProjects,
 } from "../../hooks/Admin/ReportHooks";
 import ReportDetailsModal from "../../components/modals/ReportDetailsModal";
+import { ReportReason, ReportStatus } from "../../types/report";
 
 /* ===================== TYPES ===================== */
-
-type ReportStatus =
-  | "pending"
-  | "reviewed"
-  | "rejected"
-  | "action_taken"
-  | "archived";
 
 interface BaseReportRow {
   id: string;
   reportCount: number;
-  reasons: string[];
+  reasons: ReportReason[];
   latestReportAt: string;
   status: ReportStatus;
 }
@@ -46,8 +39,9 @@ const ReportManagementPage = () => {
   const [page, setPage] = useState(1);
   const limit = 5;
 
-  const [searchInput, setSearchInput] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ReportStatus | "">("");
+  const [reasonFilter, setReasonFilter] = useState<ReportReason | "">("");
+
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<
     ReportedPostRow | ReportedProjectRow | null
@@ -55,47 +49,48 @@ const ReportManagementPage = () => {
 
   /* ===================== API ===================== */
 
-  const { data: postData } = useGetAllReportedPosts();
-  const { data: projectData } = useGetAllReportedProjects();
+  const queryParams = {
+    page,
+    limit,
+    status: statusFilter || undefined,
+    reason: reasonFilter || undefined,
+  };
+
+  const { data: postData } = useGetAllReportedPosts(queryParams);
+  const { data: projectData } = useGetAllReportedProjects(queryParams);
 
   /* ===================== DATA MAPPING ===================== */
 
   const postRows: ReportedPostRow[] = useMemo(() => {
     return (
-      postData?.map((item) => ({
+      postData?.data.map((item: ReportedPostRow) => ({
+        ...item,
         id: item.postId,
-        postId: item.postId,
-        reportCount: item.reportCount,
-        reasons: item.reasons,
-        latestReportAt: item.latestReportAt,
-        status: item.status,
-      })) || []
+      })) ?? []
     );
   }, [postData]);
 
   const projectRows: ReportedProjectRow[] = useMemo(() => {
     return (
-      projectData?.map((item) => ({
+      projectData?.data.map((item: ReportedProjectRow) => ({
         id: item.projectId,
         projectId: item.projectId,
         reportCount: item.reportCount,
         reasons: item.reasons,
         latestReportAt: item.latestReportAt,
         status: item.status,
-      })) || []
+      })) ?? []
     );
   }, [projectData]);
 
   const activeRows = activeTab === "posts" ? postRows : projectRows;
 
-  /* ===================== PAGINATION (FRONTEND ONLY) ===================== */
+  /* ===================== PAGINATION ===================== */
 
-  const totalPages = Math.max(1, Math.ceil(activeRows.length / limit));
-
-  const paginatedRows = useMemo(() => {
-    const start = (page - 1) * limit;
-    return activeRows.slice(start, start + limit);
-  }, [activeRows, page]);
+  const totalPages =
+    activeTab === "posts"
+      ? Math.ceil((postData?.total ?? 0) / limit)
+      : Math.ceil((projectData?.total ?? 0) / limit);
 
   /* ===================== HANDLERS ===================== */
 
@@ -153,7 +148,7 @@ const ReportManagementPage = () => {
     {
       id: "view",
       label: "View",
-      render: (row: any) => (
+      render: (row: ReportedPostRow | ReportedProjectRow) => (
         <button
           onClick={() => handleViewClick(row)}
           className="px-5 py-1.5 bg-indigo-600 text-white text-xs rounded-full hover:bg-indigo-700"
@@ -195,6 +190,39 @@ const ReportManagementPage = () => {
           Report Management
         </h1>
 
+        {/* Filters */}
+        <div className="flex gap-4 mb-6">
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as ReportStatus | "")
+            }
+            className="border rounded px-3 py-2"
+          >
+            <option value="">All Status</option>
+            {Object.values(ReportStatus).map((s) => (
+              <option key={s} value={s}>
+                {s.replace("_", " ")}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={reasonFilter}
+            onChange={(e) =>
+              setReasonFilter(e.target.value as ReportReason | "")
+            }
+            className="border rounded px-3 py-2"
+          >
+            <option value="">All Reasons</option>
+            {Object.values(ReportReason).map((r) => (
+              <option key={r} value={r}>
+                {r.replace("_", " ")}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <Tabs
           value={activeTab}
           onValueChange={(v) => {
@@ -208,17 +236,11 @@ const ReportManagementPage = () => {
           </TabsList>
 
           <TabsContent value="posts">
-            <Table
-              headers={postHeaders}
-              data={paginatedRows as ReportedPostRow[]}
-            />
+            <Table headers={postHeaders} data={postRows} />
           </TabsContent>
 
           <TabsContent value="projects">
-            <Table
-              headers={projectHeaders}
-              data={paginatedRows as ReportedProjectRow[]}
-            />
+            <Table headers={projectHeaders} data={projectRows} />
           </TabsContent>
         </Tabs>
 

@@ -10,6 +10,8 @@ import { Errors } from "@shared/constants/error";
 import { IGetProjectReportsUseCase } from "@domain/interfaces/useCases/admin/report/IGetProjectReportsUseCase";
 import { updateReportStatusSchema } from "@shared/validations/updateReportStatusValidator";
 import { IUpdateReportStatusUseCase } from "@domain/interfaces/useCases/admin/report/IUpdateReportStatusUseCase";
+import { ReportStatus } from "@domain/enum/reportStatus";
+import { ReportReason } from "@domain/enum/reportReason";
 
 export class AdminReportController {
   constructor(
@@ -22,9 +24,20 @@ export class AdminReportController {
 
   async getReportedPosts(req: Request, res: Response, next: NextFunction) {
     try {
-      const reports = await this._getReportedPostsUseCase.execute();
+      const page = Number(req.query.page ?? 1);
+      const limit = Number(req.query.limit ?? 10);
 
-      ResponseHelper.success(res, MESSAGES.REPORT.REPORTED_POSTS_FETCHED, reports, HTTPSTATUS.OK);
+      const status = req.query.status as ReportStatus | undefined;
+      const reason = req.query.reason as ReportReason | undefined;
+
+      const result = await this._getReportedPostsUseCase.execute({
+        page,
+        limit,
+        ...(status && { status }),
+        ...(reason && { reason }),
+      });
+
+      ResponseHelper.success(res, MESSAGES.REPORT.REPORTED_POSTS_FETCHED, result, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }
@@ -32,14 +45,20 @@ export class AdminReportController {
 
   async getReportedProjects(req: Request, res: Response, next: NextFunction) {
     try {
-      const reports = await this._getReportedProjectsUseCase.execute();
+      const page = Number(req.query.page ?? 1);
+      const limit = Number(req.query.limit ?? 10);
 
-      ResponseHelper.success(
-        res,
-        MESSAGES.REPORT.REPORTED_PROJECTS_FETCHED,
-        reports,
-        HTTPSTATUS.OK
-      );
+      const status = req.query.status as ReportStatus | undefined;
+      const reason = req.query.reason as ReportReason | undefined;
+
+      const result = await this._getReportedProjectsUseCase.execute({
+        page,
+        limit,
+        ...(status && { status }),
+        ...(reason && { reason }),
+      });
+
+      ResponseHelper.success(res, MESSAGES.REPORT.REPORTED_PROJECTS_FETCHED, result, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

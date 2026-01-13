@@ -11,6 +11,7 @@ import {
   AdminReportedPostDTO,
   AdminReportedProjectDTO,
 } from "application/dto/report/adminReportDTO";
+import { ReportReason } from "@domain/enum/reportReason";
 
 export class ReportRepository
   extends BaseRepository<ReportEntity, IReportModel>
@@ -65,77 +66,110 @@ export class ReportRepository
     return updated ? ReportMapper.fromMongooseDocument(updated) : null;
   }
 
-  async getReportedPosts(): Promise<AdminReportedPostDTO[]> {
-    const result = await this._model.aggregate([
-      {
-        $match: {
-          targetType: "post",
+  async getReportedPosts(params: {
+    skip: number;
+    limit: number;
+    status?: ReportStatus;
+    reason?: ReportReason;
+  }) {
+    const { skip, limit, status, reason } = params;
+
+    const match: any = {
+      targetType: ReportTargetType.POST,
+    };
+
+    if (status) match.status = status;
+    if (reason) match.reasonCode = reason;
+
+    const [data, totalAgg] = await Promise.all([
+      this._model.aggregate([
+        { $match: match },
+        {
+          $group: {
+            _id: "$targetId",
+            postId: { $first: "$targetId" },
+            reportCount: { $sum: 1 },
+            reasons: { $addToSet: "$reasonCode" },
+            latestReportAt: { $max: "$createdAt" },
+            status: { $first: "$status" },
+          },
         },
-      },
-      {
-        $group: {
-          _id: "$targetId",
-          reportCount: { $sum: 1 },
-          reasons: { $addToSet: "$reasonCode" },
-          latestReportAt: { $max: "$createdAt" },
-          status: { $first: "$status" },
+        { $sort: { latestReportAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $project: {
+            _id: 0,
+            postId: { $toString: "$postId" },
+            reportCount: 1,
+            reasons: 1,
+            latestReportAt: 1,
+            status: 1,
+          },
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          postId: { $toString: "$_id" },
-          reportCount: 1,
-          reasons: 1,
-          latestReportAt: 1,
-          status: 1,
-        },
-      },
-      {
-        $sort: {
-          reportCount: -1,
-          latestReportAt: -1,
-        },
-      },
+      ]),
+      this._model.aggregate([
+        { $match: match },
+        { $group: { _id: "$targetId" } },
+        { $count: "total" },
+      ]),
     ]);
 
-    return result;
+    return {
+      data,
+      total: totalAgg[0]?.total ?? 0,
+    };
   }
 
-  async getReportedProjects(): Promise<AdminReportedProjectDTO[]> {
-    const result = await this._model.aggregate([
-      {
-        $match: {
-          targetType: "project",
+  async getReportedProjects(params: {
+    skip: number;
+    limit: number;
+    status?: ReportStatus;
+    reason?: ReportReason;
+  }): Promise<{ data: AdminReportedProjectDTO[]; total: number }> {
+    const { skip, limit, status, reason } = params;
+
+    const match: any = {
+      targetType: ReportTargetType.PROJECT,
+    };
+
+    if (status) match.status = status;
+    if (reason) match.reasonCode = reason;
+
+    const [data, totalResult] = await Promise.all([
+      this._model.aggregate([
+        { $match: match },
+        {
+          $group: {
+            _id: "$targetId",
+            projectId: { $first: "$targetId" },
+            reportCount: { $sum: 1 },
+            reasons: { $addToSet: "$reasonCode" },
+            latestReportAt: { $max: "$createdAt" },
+            status: { $first: "$status" },
+          },
         },
-      },
-      {
-        $group: {
-          _id: "$targetId",
-          reportCount: { $sum: 1 },
-          reasons: { $addToSet: "$reasonCode" },
-          latestReportAt: { $max: "$createdAt" },
-          status: { $last: "$status" }, // latest status wins
+        { $sort: { latestReportAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $project: {
+            _id: 0,
+            projectId: { $toString: "$projectId" },
+            reportCount: 1,
+            reasons: 1,
+            latestReportAt: 1,
+            status: 1,
+          },
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          projectId: { $toString: "$_id" },
-          reportCount: 1,
-          reasons: 1,
-          latestReportAt: 1,
-          status: 1,
-        },
-      },
-      {
-        $sort: {
-          reportCount: -1,
-          latestReportAt: -1,
-        },
-      },
+      ]),
+
+      this._model.countDocuments(match),
     ]);
 
-    return result;
+    return {
+      data,
+      total: totalResult,
+    };
   }
 }
