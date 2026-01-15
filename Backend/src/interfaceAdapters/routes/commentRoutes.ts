@@ -22,7 +22,7 @@ export class Comment_Router {
 
     this._route.get(
       ROUTES.COMMENT.FETCH_COMMENTS,
-      ...userOrInvestorGuard,
+      // ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         commentController.getComments(req, res, next);
       }

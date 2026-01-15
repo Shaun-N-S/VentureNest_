@@ -44,6 +44,9 @@ export const API_ROUTES = {
     UPDATE_REPORT_STATUS: "/admin/reports/:reportId/status",
     POST_BY_ID: "/admin/content/posts/:postId",
     PROJECT_BY_ID: "/admin/content/projects/:projectId",
+    PLANS: "/admin/plans",
+    PLAN_BY_ID: "/admin/plans/:planId",
+    PLAN_STATUS: "/admin/plans/:planId/status",
   },
 
   INVESTOR: {

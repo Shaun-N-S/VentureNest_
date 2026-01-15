@@ -12,8 +12,6 @@ import {
 } from "../../hooks/Admin/ProjectHooks";
 import type { ProjectType } from "../../types/projectType";
 import { STAGES } from "../../types/StartupStages";
-import { option } from "framer-motion/client";
-import { set } from "zod";
 import { SECTOR } from "../../types/PreferredSector";
 
 interface TableProject extends ProjectType {
