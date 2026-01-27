@@ -14,7 +14,6 @@ export const NetworkProfileCard = ({
   id,
   profileImg,
   name,
-  role,
   desc,
   sendConnection,
   connectionStatus,

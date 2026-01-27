@@ -1,1 +1,1 @@
-export type PlanRole = "User" | "Investor";
+export type PlanRole = "USER" | "INVESTOR";

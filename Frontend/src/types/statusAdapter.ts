@@ -1,13 +1,7 @@
-import type { PlanStatus } from "../types/planStatus";
+import type { PlanStatus } from "./planStatus";
 
 export const planStatusToModalStatus = (
-  status: PlanStatus
+  status: PlanStatus,
 ): "ACTIVE" | "BLOCKED" => {
-  return status === "Active" ? "ACTIVE" : "BLOCKED";
-};
-
-export const modalStatusToPlanStatus = (
-  status: "ACTIVE" | "BLOCKED"
-): PlanStatus => {
-  return status === "ACTIVE" ? "Active" : "Inactive";
+  return status === "ACTIVE" ? "ACTIVE" : "BLOCKED";
 };

@@ -1,5 +1,4 @@
 import type { PlanRole } from "./planRole";
-import type { ProfileBoost } from "./profileBoost";
 import type { PlanStatus } from "./planStatus";
 
 export interface Plan {
@@ -9,9 +8,20 @@ export interface Plan {
   description: string;
 
   limits: {
-    messages: number;
-    consentLetters: number;
-    profileBoost: ProfileBoost;
+    projects: number;
+    proposalsPerMonth: number;
+    meetingRequests: number;
+    investmentOffers: number;
+    activeInvestments: number;
+  };
+
+  permissions: {
+    canCreateProject: boolean;
+    canSendProposal: boolean;
+    canRequestMeeting: boolean;
+    canSendInvestmentOffer: boolean;
+    canInvestMoney: boolean;
+    canViewInvestmentDashboard: boolean;
   };
 
   billing: {
@@ -24,15 +34,28 @@ export interface Plan {
   updatedAt: string;
 }
 
+/* ---------- Payloads ---------- */
+
 export interface CreatePlanPayload {
   name: string;
   role: PlanRole;
   description: string;
 
   limits: {
-    messages: number;
-    consentLetters: number;
-    profileBoost: ProfileBoost;
+    projects: number;
+    proposalsPerMonth: number;
+    meetingRequests: number;
+    investmentOffers: number;
+    activeInvestments: number;
+  };
+
+  permissions: {
+    canCreateProject: boolean;
+    canSendProposal: boolean;
+    canRequestMeeting: boolean;
+    canSendInvestmentOffer: boolean;
+    canInvestMoney: boolean;
+    canViewInvestmentDashboard: boolean;
   };
 
   billing: {
@@ -44,15 +67,11 @@ export interface CreatePlanPayload {
 export interface UpdatePlanPayload {
   name?: string;
   description?: string;
+  limits?: Partial<Plan["limits"]>;
+  billing?: Partial<Plan["billing"]>;
+}
 
-  limits?: {
-    messages?: number;
-    consentLetters?: number;
-    profileBoost?: ProfileBoost;
-  };
-
-  billing?: {
-    durationDays?: number;
-    price?: number;
-  };
+export interface PaginatedPlansExplaination {
+  plans: Plan[];
+  total: number;
 }

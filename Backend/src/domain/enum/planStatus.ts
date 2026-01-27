@@ -1,4 +1,4 @@
 export enum PlanStatus {
-  ACTIVE = "active",
-  INACTIVE = "inactive",
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
 }

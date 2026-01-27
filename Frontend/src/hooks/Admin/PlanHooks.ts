@@ -12,12 +12,8 @@ import type {
   CreatePlanPayload,
   UpdatePlanPayload,
   Plan,
+  PaginatedPlansExplaination,
 } from "../../types/planType";
-
-interface PaginatedResponse<T> {
-  plans: T[];
-  total: number;
-}
 
 /**
  * Get All Plans (Admin)
@@ -26,8 +22,9 @@ export const useGetAllPlans = (params: {
   page: number;
   limit: number;
   status?: string;
+  search?: string;
 }) => {
-  return useQuery<PaginatedResponse<Plan>>({
+  return useQuery<PaginatedPlansExplaination>({
     queryKey: [QUERY_KEYS.ADMIN_PLANS, params],
     queryFn: () => getAllPlans(params),
   });
@@ -48,8 +45,8 @@ export const useGetPlanById = (planId?: string) => {
  * Create Plan
  */
 export const useCreatePlan = () => {
-  return useMutation({
-    mutationFn: (payload: CreatePlanPayload) => createPlan(payload),
+  return useMutation<Plan, Error, CreatePlanPayload>({
+    mutationFn: createPlan,
   });
 };
 
@@ -57,23 +54,24 @@ export const useCreatePlan = () => {
  * Update Plan
  */
 export const useUpdatePlan = () => {
-  return useMutation({
-    mutationFn: ({
-      planId,
-      payload,
-    }: {
-      planId: string;
-      payload: UpdatePlanPayload;
-    }) => updatePlan(planId, payload),
+  return useMutation<
+    Plan,
+    Error,
+    { planId: string; payload: UpdatePlanPayload }
+  >({
+    mutationFn: ({ planId, payload }) => updatePlan(planId, payload),
   });
 };
+
+export interface UpdateStatusContext {
+  previousData?: PaginatedPlansExplaination;
+}
 
 /**
  * Update Plan Status
  */
 export const useUpdatePlanStatus = () => {
-  return useMutation({
-    mutationFn: ({ planId, status }: { planId: string; status: PlanStatus }) =>
-      updatePlanStatus(planId, { status }),
+  return useMutation<Plan, Error, { planId: string; status: PlanStatus }>({
+    mutationFn: ({ planId, status }) => updatePlanStatus(planId, { status }),
   });
 };

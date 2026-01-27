@@ -1,5 +1,4 @@
 import { PlanRole } from "@domain/enum/planRole";
-import { ProfileBoost } from "@domain/enum/profileBoost";
 
 export interface CreatePlanDTO {
   name: string;
@@ -7,9 +6,20 @@ export interface CreatePlanDTO {
   description: string;
 
   limits: {
-    messages: number;
-    consentLetters: number;
-    profileBoost: ProfileBoost;
+    projects?: number;
+    proposalsPerMonth?: number;
+    meetingRequests?: number;
+    investmentOffers?: number;
+    activeInvestments?: number;
+  };
+
+  permissions: {
+    canCreateProject: boolean;
+    canSendProposal: boolean;
+    canRequestMeeting: boolean;
+    canSendInvestmentOffer: boolean;
+    canInvestMoney: boolean;
+    canViewInvestmentDashboard: boolean;
   };
 
   billing: {

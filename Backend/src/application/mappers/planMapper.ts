@@ -14,6 +14,7 @@ export class PlanMapper {
       role: dto.role,
       description: dto.description,
       limits: dto.limits,
+      permissions: dto.permissions,
       billing: dto.billing,
       status: PlanStatus.ACTIVE,
       createdAt: new Date(),
@@ -28,6 +29,7 @@ export class PlanMapper {
       role: entity.role,
       description: entity.description,
       limits: entity.limits,
+      permissions: entity.permissions,
       billing: entity.billing,
       status: entity.status,
       createdAt: entity.createdAt ?? new Date(),
@@ -42,6 +44,7 @@ export class PlanMapper {
       role: entity.role,
       description: entity.description,
       limits: entity.limits,
+      permissions: entity.permissions,
       billing: entity.billing,
       status: entity.status,
       createdAt: entity.createdAt,
@@ -56,6 +59,7 @@ export class PlanMapper {
       role: doc.role,
       description: doc.description,
       limits: doc.limits,
+      permissions: doc.permissions,
       billing: doc.billing,
       status: doc.status,
       createdAt: doc.createdAt,
@@ -71,9 +75,19 @@ export class PlanMapper {
       description: update.description ?? existing.description,
 
       limits: {
-        messages: update.limits?.messages ?? existing.limits.messages,
-        consentLetters: update.limits?.consentLetters ?? existing.limits.consentLetters,
-        profileBoost: update.limits?.profileBoost ?? existing.limits.profileBoost,
+        ...existing.limits,
+        ...(update.limits
+          ? Object.fromEntries(Object.entries(update.limits).filter(([, v]) => v !== undefined))
+          : {}),
+      },
+
+      permissions: {
+        ...existing.permissions,
+        ...(update.permissions
+          ? Object.fromEntries(
+              Object.entries(update.permissions).filter(([, v]) => v !== undefined)
+            )
+          : {}),
       },
 
       billing: {

@@ -36,4 +36,27 @@ export class PlanRepository
 
     return updated ? PlanMapper.fromMongooseDocument(updated) : null;
   }
+
+  async findAllPlans(
+    skip: number,
+    limit: number,
+    status?: string,
+    search?: string
+  ): Promise<PlanEntity[]> {
+    const query: any = {};
+    if (status) query.status = status;
+    if (search) query.name = { $regex: search, $options: "i" };
+
+    const docs = await this._model.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });
+
+    return docs.map((doc) => PlanMapper.fromMongooseDocument(doc));
+  }
+
+  async countPlans(status?: string, search?: string): Promise<number> {
+    const query: any = {};
+    if (status) query.status = status;
+    if (search) query.name = { $regex: search, $options: "i" };
+
+    return this._model.countDocuments(query);
+  }
 }

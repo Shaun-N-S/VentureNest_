@@ -1,4 +1,4 @@
 export enum PlanRole {
-  USER = "User",
-  INVESTOR = "Investor",
+  USER = "USER",
+  INVESTOR = "INVESTOR",
 }

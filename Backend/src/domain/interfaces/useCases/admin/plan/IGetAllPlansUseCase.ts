@@ -4,6 +4,7 @@ export interface IGetAllPlansUseCase {
   execute(
     page: number,
     limit: number,
-    status?: string
+    status?: string,
+    search?: string
   ): Promise<{ plans: PlanDTO[]; total: number }>;
 }

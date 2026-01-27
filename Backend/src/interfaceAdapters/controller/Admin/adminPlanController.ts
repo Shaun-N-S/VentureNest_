@@ -26,13 +26,14 @@ export class AdminPlanController {
 
   async createPlan(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      console.log(req.body);
       const validated = createPlanSchema.safeParse(req.body);
 
       if (!validated.success) {
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
 
-      const result = await this._createPlanUseCase.execute(validated.data);
+      const result = await this._createPlanUseCase.execute(req.body);
 
       ResponseHelper.success(res, MESSAGES.PLAN.CREATED_SUCCESSFULLY, result, HTTPSTATUS.CREATED);
     } catch (error) {
@@ -45,8 +46,9 @@ export class AdminPlanController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const status = req.query.status as string | undefined;
+      const search = req.query.search as string | undefined;
 
-      const data = await this._getAllPlansUseCase.execute(page, limit, status);
+      const data = await this._getAllPlansUseCase.execute(page, limit, status, search);
 
       ResponseHelper.success(res, MESSAGES.PLAN.FETCHED_SUCCESSFULLY, data, HTTPSTATUS.OK);
     } catch (error) {

@@ -11,7 +11,7 @@ import VerificationPage from "../pages/Admin/verificationListing";
 import ProjectsListing from "../pages/Admin/ProjectListingPage";
 import ProjectDetailedPage from "../pages/Common/ProjectDetailedPage";
 import ReportManagementPage from "../pages/Admin/ReportsListingPage";
-import AdminPlansPage from "../pages/Admin/PlanPage";
+import AdminPlansPage from "../pages/Admin/PlanManagementPage";
 
 const AdminRoutes = () => {
   return (

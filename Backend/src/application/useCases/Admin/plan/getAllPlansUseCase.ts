@@ -9,12 +9,14 @@ export class GetAllPlansUseCase implements IGetAllPlansUseCase {
   async execute(
     page: number,
     limit: number,
-    status?: string
+    status?: string,
+    search?: string
   ): Promise<{ plans: PlanDTO[]; total: number }> {
     const skip = (page - 1) * limit;
 
-    const plans = await this._planRepository.findAll(skip, limit, status);
-    const total = await this._planRepository.count(status);
+    const plans = await this._planRepository.findAllPlans(skip, limit, status, search);
+
+    const total = await this._planRepository.countPlans(status, search);
 
     return {
       plans: plans.map((plan) => PlanMapper.toDTO(plan)),

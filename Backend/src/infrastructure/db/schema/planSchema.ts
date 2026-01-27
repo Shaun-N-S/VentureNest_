@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { PlanRole } from "@domain/enum/planRole";
 import { PlanStatus } from "@domain/enum/planStatus";
-import { ProfileBoost } from "@domain/enum/profileBoost";
 
 const planSchema = new mongoose.Schema(
   {
@@ -20,23 +19,68 @@ const planSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
+      trim: true,
     },
 
     limits: {
-      messages: {
+      // USER
+      projects: {
         type: Number,
-        required: true,
         min: 0,
       },
-      consentLetters: {
+      proposalsPerMonth: {
         type: Number,
-        required: true,
         min: 0,
       },
-      profileBoost: {
-        type: String,
-        enum: Object.values(ProfileBoost),
+      meetingRequests: {
+        type: Number,
+        min: 0,
+      },
+
+      // INVESTOR
+      investmentOffers: {
+        type: Number,
+        min: 0,
+      },
+      activeInvestments: {
+        type: Number,
+        min: 0,
+      },
+    },
+
+    permissions: {
+      // USER
+      canCreateProject: {
+        type: Boolean,
         required: true,
+        default: false,
+      },
+      canSendProposal: {
+        type: Boolean,
+        required: true,
+        default: false,
+      },
+      canRequestMeeting: {
+        type: Boolean,
+        required: true,
+        default: false,
+      },
+
+      // INVESTOR
+      canSendInvestmentOffer: {
+        type: Boolean,
+        required: true,
+        default: false,
+      },
+      canInvestMoney: {
+        type: Boolean,
+        required: true,
+        default: false,
+      },
+      canViewInvestmentDashboard: {
+        type: Boolean,
+        required: true,
+        default: false,
       },
     },
 
@@ -44,10 +88,12 @@ const planSchema = new mongoose.Schema(
       durationDays: {
         type: Number,
         required: true,
+        min: 1,
       },
       price: {
         type: Number,
         required: true,
+        min: 0,
       },
     },
 

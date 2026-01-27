@@ -1,6 +1,5 @@
 import { PlanRole } from "@domain/enum/planRole";
 import { PlanStatus } from "@domain/enum/planStatus";
-import { ProfileBoost } from "@domain/enum/profileBoost";
 
 export interface PlanEntity {
   _id?: string;
@@ -10,14 +9,31 @@ export interface PlanEntity {
   description: string;
 
   limits: {
-    messages: number;
-    consentLetters: number;
-    profileBoost: ProfileBoost;
+    // USER (Founder)
+    projects?: number;
+    proposalsPerMonth?: number;
+    meetingRequests?: number;
+
+    // INVESTOR
+    investmentOffers?: number;
+    activeInvestments?: number;
+  };
+
+  permissions: {
+    // USER
+    canCreateProject: boolean;
+    canSendProposal: boolean;
+    canRequestMeeting: boolean;
+
+    // INVESTOR
+    canSendInvestmentOffer: boolean;
+    canInvestMoney: boolean;
+    canViewInvestmentDashboard: boolean;
   };
 
   billing: {
-    durationDays: number; // 30, 180, 365
-    price: number; // display-only for now
+    durationDays: number;
+    price: number;
   };
 
   status: PlanStatus;
