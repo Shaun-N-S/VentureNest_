@@ -13,6 +13,8 @@ import MyNetworkPage from "../pages/Common/MyNetworkPage";
 import NotificationPage from "../pages/Common/NotificationPage";
 import ProjectPage from "../pages/Common/ProjectPage";
 import ProjectDetailedPage from "../pages/Common/ProjectDetailedPage";
+import PlansPage from "../pages/Common/PlanPage";
+import PaymentSuccess from "../pages/Common/PaymentSuccess";
 
 const UserRoutes = () => {
     return (
@@ -45,6 +47,8 @@ const UserRoutes = () => {
                     <Route path={FRONTEND_ROUTES.USER.NOTIFICATIONS} element={<NotificationPage />} />
                     <Route path={FRONTEND_ROUTES.USER.PROJECT} element={<ProjectPage />} />
                     <Route path={`${FRONTEND_ROUTES.USER.PROJECT}/:id`} element={<ProjectDetailedPage />} />
+                    <Route path={`${FRONTEND_ROUTES.USER.PLANS}`} element={<PlansPage />} />
+                    <Route path={FRONTEND_ROUTES.USER.PAYMENT_SUCCESS} element={<PaymentSuccess />} />
                 </Route>
             </Route>
         </Routes>

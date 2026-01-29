@@ -38,6 +38,7 @@ export const Errors = {
   UNAUTHORIZED_ACCESS: "Your are not authorized !",
   NO_STATUS_FOUND: "No status found",
   INVALID_STATUS_TRANSITION: "Invalid status transition",
+  INVALID_STRIPE_WEBHOOK_SIGNATURE: "Invalid Stripe webhook signature",
 };
 
 export const USER_ERRORS = {
@@ -90,4 +91,6 @@ export const REPORT_ERRORS = {
 
 export const PLAN_ERRORS = {
   PLAN_NOT_FOUND: "Plan not found!",
+  INACTIVE_PLAN: "Plan is not active!",
+  PLAN_ID_MISSING: "Plan ID is missing!",
 };

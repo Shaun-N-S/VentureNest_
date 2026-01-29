@@ -109,4 +109,12 @@ export const API_ROUTES = {
   REPORT: {
     CREATE: "/reports",
   },
+
+  PLANS: {
+    AVAILABLE_PLANS: "/plans/available",
+  },
+
+  SUBSCRIPTION: {
+    CHECKOUT: "/subscriptions/checkout",
+  },
 };

@@ -124,4 +124,12 @@ export const ROUTES = {
     REPORTED_POSTS: "/reported-posts",
     REPORTED_PROJECTS: "/reported-projects",
   },
+
+  PLANS: {
+    AVAILABLE_PLANS: "/available",
+  },
+
+  SUBSCRIPTION: {
+    CHECKOUT: "/checkout",
+  },
 };

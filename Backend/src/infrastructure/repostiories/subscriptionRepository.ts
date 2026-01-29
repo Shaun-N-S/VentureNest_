@@ -5,6 +5,7 @@ import { SubscriptionEntity } from "@domain/entities/subscription/subscriptionEn
 import { ISubscriptionModel } from "@infrastructure/db/models/subscriptionModel";
 import { SubscriptionMapper } from "application/mappers/subscriptionMapper";
 import { SubscriptionStatus } from "@domain/enum/subscriptionStatus";
+import { UserRole } from "@domain/enum/userRole";
 
 export class SubscriptionRepository
   extends BaseRepository<SubscriptionEntity, ISubscriptionModel>
@@ -14,32 +15,54 @@ export class SubscriptionRepository
     super(_model, SubscriptionMapper);
   }
 
-  /**
-   * Get active subscription of a user
-   * Used in guards & subscription checks
-   */
-  async findActiveByUserId(userId: string): Promise<SubscriptionEntity | null> {
+  async findActiveByOwner(
+    ownerId: string,
+    ownerRole: UserRole
+  ): Promise<SubscriptionEntity | null> {
     const doc = await this._model.findOne({
-      userId,
+      ownerId,
+      ownerRole,
       status: SubscriptionStatus.ACTIVE,
+      expiresAt: { $gt: new Date() },
     });
 
     return doc ? SubscriptionMapper.fromMongooseDocument(doc) : null;
   }
 
-  /**
-   * Cancel user's active subscription
-   * Soft cancel (status change)
-   */
-  async cancelSubscription(userId: string): Promise<SubscriptionEntity | null> {
+  async findLatestByOwner(
+    ownerId: string,
+    ownerRole: UserRole
+  ): Promise<SubscriptionEntity | null> {
+    const doc = await this._model.findOne({ ownerId, ownerRole }).sort({ createdAt: -1 });
+
+    return doc ? SubscriptionMapper.fromMongooseDocument(doc) : null;
+  }
+
+  async cancelSubscription(
+    ownerId: string,
+    ownerRole: UserRole
+  ): Promise<SubscriptionEntity | null> {
+    const updated = await this._model.findOneAndUpdate(
+      { ownerId, ownerRole, status: SubscriptionStatus.ACTIVE },
+      { status: SubscriptionStatus.CANCELLED },
+      { new: true }
+    );
+
+    return updated ? SubscriptionMapper.fromMongooseDocument(updated) : null;
+  }
+
+  async expireSubscription(
+    ownerId: string,
+    ownerRole: UserRole
+  ): Promise<SubscriptionEntity | null> {
     const updated = await this._model.findOneAndUpdate(
       {
-        userId,
+        ownerId,
+        ownerRole,
         status: SubscriptionStatus.ACTIVE,
+        expiresAt: { $lte: new Date() },
       },
-      {
-        status: SubscriptionStatus.CANCELLED,
-      },
+      { status: SubscriptionStatus.EXPIRED },
       { new: true }
     );
 

@@ -107,4 +107,6 @@ export const MESSAGES = {
     UPDATED_SUCCESSFULLY: "Plan updated successfully",
     STATUS_UPDATED_SUCCESSFULLY: "Plan status updated successfully",
   },
+
+  CHECKOUT_CREATED: "Checkout session created successfully",
 };

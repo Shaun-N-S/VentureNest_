@@ -15,10 +15,6 @@ export class PlanRepository
     super(_model, PlanMapper);
   }
 
-  /**
-   * Get plans by role (User / Investor)
-   * Used for public plan listing
-   */
   async findByRole(role: PlanRole): Promise<PlanEntity[]> {
     const docs = await this._model
       .find({ role, status: PlanStatus.ACTIVE })
@@ -27,10 +23,6 @@ export class PlanRepository
     return docs.map((doc) => PlanMapper.fromMongooseDocument(doc));
   }
 
-  /**
-   * Activate / Deactivate plan
-   * Admin-only operation
-   */
   async updateStatus(planId: string, status: PlanStatus): Promise<PlanEntity | null> {
     const updated = await this._model.findByIdAndUpdate(planId, { status }, { new: true });
 

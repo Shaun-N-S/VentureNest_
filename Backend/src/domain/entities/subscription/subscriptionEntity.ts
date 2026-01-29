@@ -1,9 +1,12 @@
 import { SubscriptionStatus } from "@domain/enum/subscriptionStatus";
+import { UserRole } from "@domain/enum/userRole";
 
 export interface SubscriptionEntity {
-  _id?: string;
+  id?: string;
 
-  userId: string;
+  ownerId: string;
+  ownerRole: UserRole;
+
   planId: string;
 
   startedAt: Date;
@@ -11,9 +14,11 @@ export interface SubscriptionEntity {
 
   status: SubscriptionStatus;
 
-  usage: {
-    messagesUsed: number;
-    consentLettersUsed: number;
+  usage?: {
+    projectsUsed?: number;
+    proposalsUsed?: number;
+    meetingRequestsUsed?: number;
+    investmentOffersUsed?: number;
   };
 
   createdAt?: Date;
