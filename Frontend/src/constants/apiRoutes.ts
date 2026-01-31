@@ -72,6 +72,7 @@ export const API_ROUTES = {
     FEED: "/posts/feed",
     REMOVE: "/posts/remove/:id",
     LIKES: "/posts/likes/:postId",
+    LIKED_BY: "/posts/:postId/likes",
   },
 
   PROJECT: {

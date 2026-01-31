@@ -1,6 +1,7 @@
 import { ICreatePostUseCase } from "@domain/interfaces/useCases/post/ICreatePostUseCase";
 import { IFetchAllPostsUseCase } from "@domain/interfaces/useCases/post/IFetchAllPosts";
 import { IFetchPersonalPostUseCase } from "@domain/interfaces/useCases/post/IFetchPersonalPostUseCase";
+import { IFetchPostLikesUseCase } from "@domain/interfaces/useCases/post/IFetchPostLikesUseCase";
 import { ILikePostUseCase } from "@domain/interfaces/useCases/post/ILikePostUseCase";
 import { IRemovePostUseCase } from "@domain/interfaces/useCases/post/IRemovePostUseCase";
 import { MulterFiles } from "@domain/types/multerFilesType";
@@ -20,7 +21,8 @@ export class PostController {
     private _fetchPersonalPost: IFetchPersonalPostUseCase,
     private _fetchAllPosts: IFetchAllPostsUseCase,
     private _removePosts: IRemovePostUseCase,
-    private _likePost: ILikePostUseCase
+    private _likePost: ILikePostUseCase,
+    private _fetchPostLikes: IFetchPostLikesUseCase
   ) {}
 
   async addPost(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -109,6 +111,23 @@ export class PostController {
       const result = await this._likePost.execute(postId, likerId, likerRole);
 
       ResponseHelper.success(res, MESSAGES.POST.POST_LIKED_SUCCESSFULY, result, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async fetchPostLikes(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { postId } = req.params;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 5;
+      const search = req.query.search as string | undefined;
+
+      if (!postId) throw new InvalidDataException(Errors.INVALID_DATA);
+
+      const data = await this._fetchPostLikes.execute(postId, page, limit, search);
+
+      ResponseHelper.success(res, "Post likes fetched successfully", data, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

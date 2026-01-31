@@ -38,8 +38,6 @@ export interface PersonalPost {
 }
 
 export default function ProfilePage() {
-  const [likedProjects, setLikedProjects] = useState<Set<string>>(new Set());
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [isFollowing, setIsFollowing] = useState(false);
   const userData = useSelector((state: Rootstate) => state.authData);
   const userId = userData.id;
@@ -63,7 +61,7 @@ export default function ProfilePage() {
         postsCount: p.postCount,
         investmentCount: p.investmentCount,
         connectionsCount: p.connectionsCount,
-      })
+      }),
     );
   }, [profileData, dispatch]);
 
@@ -77,18 +75,6 @@ export default function ProfilePage() {
       fetchNextPage();
     }
   }, [inView, hasNextPage, fetchNextPage]);
-
-  const toggleProjectLike = (projectId: string) => {
-    setLikedProjects((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(projectId)) {
-        newSet.delete(projectId);
-      } else {
-        newSet.add(projectId);
-      }
-      return newSet;
-    });
-  };
 
   const handleProfileLike = (postId: string) => {
     queryClient.setQueryData<InfiniteData<PersonalPostPage>>(
@@ -113,13 +99,13 @@ export default function ProfilePage() {
                           ? post.likeCount - 1
                           : post.likeCount + 1,
                       }
-                    : post
+                    : post,
                 ),
               },
             },
           })),
         };
-      }
+      },
     );
 
     likePost(postId, {
@@ -131,14 +117,11 @@ export default function ProfilePage() {
   };
 
   const handleRemove = (postId: string) => {
-    console.log("Deleting post:", postId);
-
     removePost(postId, {
       onSuccess: (res) => {
-        console.log("heey reomved "); // ← NOW WORKS
         toast.success(res.message);
       },
-      onError: (err) => {
+      onError: () => {
         toast.error("Failed to delete");
       },
     });
@@ -204,24 +187,6 @@ export default function ProfilePage() {
                 </div>
               </motion.div>
             </TabsContent>
-
-            {/* <TabsContent value="projects" className="space-y-6">
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.3 }}
-                                className="grid gap-4"
-                            >
-                                {projects.map((project) => (
-                                    <ProjectCard
-                                        key={project.id}
-                                        {...project}
-                                        liked={likedProjects.has(project.id)}
-                                        onLike={() => toggleProjectLike(project.id)}
-                                    />
-                                ))}
-                            </motion.div>
-                        </TabsContent> */}
           </Tabs>
         </div>
       </div>

@@ -8,6 +8,7 @@ import {
   addPost,
   fetchAllPosts,
   fetchPersonalPosts,
+  fetchPostLikes,
   likePost,
   removePost,
 } from "../../services/Post/PostService";
@@ -92,11 +93,11 @@ export const useLikePost = () => {
                         ? post.likeCount - 1
                         : post.likeCount + 1,
                     }
-                  : post
+                  : post,
               ),
             })),
           };
-        }
+        },
       );
 
       return { previous };
@@ -107,5 +108,20 @@ export const useLikePost = () => {
         queryClient.setQueryData(["posts-feed"], ctx.previous);
       }
     },
+  });
+};
+
+export const usePostLikes = (
+  postId: string,
+  enabled: boolean,
+  search?: string,
+) => {
+  return useInfiniteQuery({
+    queryKey: ["post-likes", postId, search],
+    enabled,
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => fetchPostLikes(postId, pageParam, 5, search),
+    getNextPageParam: (lastPage, pages) =>
+      lastPage.hasNextPage ? pages.length + 1 : undefined,
   });
 };

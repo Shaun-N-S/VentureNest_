@@ -12,7 +12,7 @@ import {
   AvatarImage,
 } from "../../components/ui/avatar";
 import { X, Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Skeleton } from "../../components/ui/skeleton";
 import { useDebounce } from "../../hooks/Debounce/useDebounce";
 
@@ -34,7 +34,7 @@ interface PeopleListModalProps {
 
   hasNextPage?: boolean;
   fetchNextPage?: () => void;
-
+  onSearch: (value: string) => void;
   onActionClick?: (id: string) => void;
 }
 
@@ -47,18 +47,15 @@ export function PeopleListModal({
   hasNextPage,
   fetchNextPage,
   onActionClick,
+  onSearch,
 }: PeopleListModalProps) {
   const [search, setSearch] = useState("");
 
   const debouncedSearch = useDebounce(search, 400);
 
-  const filteredPeople = useMemo(() => {
-    if (!debouncedSearch) return people;
-
-    return people.filter((p) =>
-      p.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-    );
-  }, [people, debouncedSearch]);
+  useEffect(() => {
+    onSearch(debouncedSearch);
+  }, [debouncedSearch, onSearch]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
@@ -88,13 +85,29 @@ export function PeopleListModal({
         {/* Search */}
         <div className="px-6 py-3 border-b">
           <div className="relative">
+            {/* Search icon */}
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+
+            {/* Input */}
             <Input
               placeholder="Search..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
+              className="pl-9 pr-9"
             />
+
+            {search && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSearch("");
+                }}
+                className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -105,7 +118,7 @@ export function PeopleListModal({
         >
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)
-            : filteredPeople.map((person) => (
+            : people.map((person) => (
                 <div
                   key={person.id}
                   className="flex items-center justify-between"
@@ -138,7 +151,7 @@ export function PeopleListModal({
                 </div>
               ))}
 
-          {!loading && filteredPeople.length === 0 && (
+          {!loading && people.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-6">
               No results found
             </p>

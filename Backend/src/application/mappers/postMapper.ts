@@ -1,7 +1,10 @@
+import { InvestorEntity } from "@domain/entities/investor/investorEntity";
 import { PostEntity } from "@domain/entities/post/postEntity";
+import { UserEntity } from "@domain/entities/user/userEntity";
 import { UserRole } from "@domain/enum/userRole";
 import { IPostModel } from "@infrastructure/db/models/postModel";
 import { PostResDTO, CreatePostEntityDTO } from "application/dto/post/postDTO";
+import { PostLikeUserDTO } from "application/dto/post/postLikeUserDTO";
 import mongoose from "mongoose";
 
 export class PostMapper {
@@ -98,6 +101,34 @@ export class PostMapper {
       isDeleted: false,
       createdAt: now,
       updatedAt: now,
+    };
+  }
+
+  static fromUser(user: UserEntity): PostLikeUserDTO {
+    if (!user._id) {
+      throw new Error("User _id is required for PostLikeUserDTO");
+    }
+
+    return {
+      id: user._id,
+      name: user.userName,
+      ...(user.bio && { bio: user.bio }),
+      ...(user.profileImg && { profileImg: user.profileImg }),
+      role: UserRole.USER,
+    };
+  }
+
+  static fromInvestor(investor: InvestorEntity): PostLikeUserDTO {
+    if (!investor._id) {
+      throw new Error("Investor _id is required for PostLikeUserDTO");
+    }
+
+    return {
+      id: investor._id,
+      name: investor.userName,
+      ...(investor.bio && { bio: investor.bio }),
+      ...(investor.profileImg && { profileImg: investor.profileImg }),
+      role: UserRole.INVESTOR,
     };
   }
 }

@@ -8,12 +8,11 @@ import {
   type GetNetworkUsersResponse,
 } from "../../services/Relationships/relationshipService";
 import type { UpdateConnectionPayload } from "../../types/updateConnectionPayload";
-import type { ConnectionsPeopleResponse } from "../../types/ConnectionsPeopleResponseType";
 
 export const useGetNetworkUsers = (
   page: number,
   limit: number,
-  search?: string
+  search?: string,
 ) => {
   return useQuery<GetNetworkUsersResponse>({
     queryKey: ["network-users", page, limit, search],
@@ -42,7 +41,7 @@ export const useConnectionStatusUpdate = () => {
 };
 
 export const useConnectionsPeopleList = (search?: string, limit = 10) => {
-  return useInfiniteQuery<ConnectionsPeopleResponse>({
+  return useInfiniteQuery({
     queryKey: ["connections-people-list", search],
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>

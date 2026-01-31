@@ -16,4 +16,12 @@ export interface IInvestorRepository extends IBaseRepository<InvestorEntity> {
   googleSignUp(user: InvestorEntity): Promise<string>;
   setInterestedTopics(investorId: string, interestedTopics: string[]): Promise<void>;
   getStatus(investorId: string): Promise<UserStatus>;
+  findByIdsPaginated(
+    ids: string[],
+    skip: number,
+    limit: number,
+    search?: string
+  ): Promise<InvestorEntity[]>;
+
+  countByIds(ids: string[], search?: string): Promise<number>;
 }

@@ -7,8 +7,11 @@ import toast from "react-hot-toast";
 import { queryClient } from "../../main";
 import type { PersonalPost } from "../../pages/Investor/Profile/InvestorProfile/ProfilePage";
 import type { PersonalPostCache } from "../../types/personalPostCache";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateUserData } from "../../store/Slice/authDataSlice";
+import type { Rootstate } from "../../store/store";
+import type { AllPost, PostsPage } from "../../types/postFeed";
+import type { InfiniteData } from "@tanstack/react-query";
 
 interface MediaPreview {
   url: string;
@@ -35,6 +38,7 @@ export default function CreatePostModal({
   authorId,
   authorRole,
 }: CreatePostModalProps) {
+  const userData = useSelector((state: Rootstate) => state.authData);
   const [content, setContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<MediaPreview[]>([]);
@@ -96,7 +100,7 @@ export default function CreatePostModal({
       }
       if (isVideo && file.size > MAX_VIDEO_SIZE) {
         setError(
-          `Video ${file.name} is too large. Max size is 10 MB (≈30-45 sec)`
+          `Video ${file.name} is too large. Max size is 10 MB (≈30-45 sec)`,
         );
         continue;
       }
@@ -203,6 +207,39 @@ export default function CreatePostModal({
             updatedAt: new Date().toISOString(),
           };
 
+          const homePost: AllPost = {
+            _id: postId,
+            authorId,
+            content,
+            mediaUrls,
+            likeCount: 0,
+            commentsCount: 0,
+            liked: false,
+            authorName: userData.userName,
+            authorProfileImg: userData.profileImg,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+
+          queryClient.setQueryData<InfiniteData<PostsPage>>(
+            ["posts-feed"],
+            (oldData) => {
+              if (!oldData) return oldData;
+
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page, index) =>
+                  index === 0
+                    ? {
+                        ...page,
+                        posts: [homePost, ...page.posts],
+                      }
+                    : page,
+                ),
+              };
+            },
+          );
+
           queryClient.setQueryData<PersonalPostCache | undefined>(
             ["personal-post", 1, 10],
             (oldData) => {
@@ -219,7 +256,7 @@ export default function CreatePostModal({
                   },
                 },
               };
-            }
+            },
           );
 
           dispatch(updateUserData({ postsCount: res.data.postsCount }));

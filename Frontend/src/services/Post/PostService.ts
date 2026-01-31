@@ -16,7 +16,7 @@ export const fetchPersonalPosts = async (page: number, limit: number) => {
     {
       params: { page, limit },
       withCredentials: true,
-    }
+    },
   );
   return response.data;
 };
@@ -32,14 +32,30 @@ export const fetchAllPosts = async (page: number, limit: number) => {
 export const removePost = async (postId: string) => {
   console.log("in service : : :  ", postId);
   const response = await AxiosInstance.patch(
-    API_ROUTES.POST.REMOVE.replace(":id", postId)
+    API_ROUTES.POST.REMOVE.replace(":id", postId),
   );
   return response.data;
 };
 
 export const likePost = async (postId: string) => {
   const response = await AxiosInstance.post(
-    API_ROUTES.POST.LIKES.replace(":postId", postId)
+    API_ROUTES.POST.LIKES.replace(":postId", postId),
   );
   return response.data;
+};
+
+export const fetchPostLikes = async (
+  postId: string,
+  page: number,
+  limit: number,
+  search?: string,
+) => {
+  const res = await AxiosInstance.get(
+    API_ROUTES.POST.LIKED_BY.replace(":postId", postId),
+    {
+      params: { page, limit, search },
+      withCredentials: true,
+    },
+  );
+  return res.data.data;
 };

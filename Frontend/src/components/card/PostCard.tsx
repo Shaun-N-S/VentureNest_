@@ -21,6 +21,9 @@ import type { Rootstate } from "../../store/store";
 import toast from "react-hot-toast";
 import { CommentSkeleton } from "../Skelton/CommentSkelton";
 import { getSocket } from "../../lib/socket";
+import { PeopleListModal } from "../modals/PeopleListModal";
+import { usePostLikes } from "../../hooks/Post/PostHooks";
+import type { PostLikeUser } from "../../types/postLikes";
 
 export function PostCard({
   id,
@@ -44,14 +47,38 @@ export function PostCard({
   const { mutate: addReply } = useAddReply();
   const [comments, setComments] = useState<Comment[]>([]);
   const [showComments, setShowComments] = useState(false);
+  const [likesOpen, setLikesOpen] = useState(false);
   const userData = useSelector((state: Rootstate) => state.authData);
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteComments(id, 5, showComments);
+  const [likeSearch, setLikeSearch] = useState("");
+  const {
+    data: commentsData,
+    fetchNextPage: fetchNextComments,
+    hasNextPage: hasMoreComments,
+    isFetchingNextPage: isFetchingComments,
+    isLoading: isCommentsLoading,
+  } = useInfiniteComments(id, 5, showComments);
+
+  const {
+    data: likesDataPages,
+    fetchNextPage: fetchNextLikes,
+    hasNextPage: hasMoreLikes,
+    isLoading: isLikesLoading,
+  } = usePostLikes(id, likesOpen, likeSearch);
+
+  const likesData =
+    likesDataPages?.pages.flatMap((page) =>
+      page.users.map((u: PostLikeUser) => ({
+        id: u.id,
+        name: u.name,
+        avatar: u.profileImg,
+        subtitle: u.bio || "",
+      })),
+    ) ?? [];
 
   useEffect(() => {
-    if (!data) return;
+    if (!commentsData) return;
 
-    const formatted = data.pages.flatMap((page) =>
+    const formatted = commentsData.pages.flatMap((page) =>
       page.data.comments.map((item) => ({
         id: item._id,
         user: { name: item.userName, avatar: item.userProfileImg },
@@ -60,12 +87,12 @@ export function PostCard({
         likes: item.likes,
         repliesCount: item.repliesCount || 0,
         replies: [],
-      }))
+      })),
     );
 
     setComments(formatted);
-    setCommentsCount(data.pages[0].data.total);
-  }, [data]);
+    setCommentsCount(commentsData.pages[0].data.total);
+  }, [commentsData]);
 
   useEffect(() => {
     const socket = getSocket();
@@ -106,8 +133,8 @@ export function PostCard({
             prev.map((comment) =>
               comment.id === tempId
                 ? { ...comment, id: res?.data?._id }
-                : comment
-            )
+                : comment,
+            ),
           );
         },
         onError: (err) => {
@@ -115,7 +142,7 @@ export function PostCard({
           setComments((prev) => prev.filter((c) => c.id !== tempId));
           setCommentsCount((prev) => prev - 1);
         },
-      }
+      },
     );
   };
 
@@ -128,8 +155,8 @@ export function PostCard({
             prev.map((c) =>
               c.id === commentId
                 ? { ...c, repliesCount: (c.repliesCount ?? 0) + 1 }
-                : c
-            )
+                : c,
+            ),
           );
 
           toast.success("Reply added");
@@ -137,7 +164,7 @@ export function PostCard({
         onError: () => {
           toast.error("Failed to add reply");
         },
-      }
+      },
     );
   };
 
@@ -150,8 +177,8 @@ export function PostCard({
               liked: !c.liked,
               likes: c.liked ? c.likes - 1 : c.likes + 1,
             }
-          : c
-      )
+          : c,
+      ),
     );
 
     likeCommentMutation(commentId);
@@ -245,7 +272,15 @@ export function PostCard({
           className={`flex items-center gap-2 font-medium ${liked ? "text-red-500" : "text-gray-600 hover:text-red-500"}`}
         >
           <Heart className={`h-6 w-6 ${liked ? "fill-red-500" : ""}`} />
-          <span>{likes}</span>
+          <span
+            onClick={(e) => {
+              e.stopPropagation();
+              setLikesOpen(true);
+            }}
+            className="cursor-pointer hover:underline"
+          >
+            {likes}
+          </span>
         </motion.button>
 
         <div className="flex items-center gap-2 text-gray-600 font-medium">
@@ -253,6 +288,17 @@ export function PostCard({
           <span>{commentsCount}</span>
         </div>
       </div>
+
+      <PeopleListModal
+        open={likesOpen}
+        onOpenChange={setLikesOpen}
+        title="Liked by"
+        people={likesData}
+        loading={isLikesLoading}
+        hasNextPage={hasMoreLikes}
+        fetchNextPage={fetchNextLikes}
+        onSearch={setLikeSearch}
+      />
 
       <CommentSection
         postId={id}
@@ -264,7 +310,7 @@ export function PostCard({
       {showComments && (
         <div className="max-h-[320px] overflow-y-auto bg-gray-50 px-4 pb-3">
           {/* Initial loading */}
-          {isLoading && (
+          {isCommentsLoading && (
             <>
               <CommentSkeleton />
               <CommentSkeleton />
@@ -273,7 +319,7 @@ export function PostCard({
           )}
 
           {/* Empty state */}
-          {!isLoading && comments.length === 0 && (
+          {!isCommentsLoading && comments.length === 0 && (
             <div className="text-center text-sm text-gray-500 py-6">
               No comments yet. Be the first to comment 💬
             </div>
@@ -290,17 +336,14 @@ export function PostCard({
           ))}
 
           {/* Load more */}
-          {hasNextPage && (
-            <div className="flex justify-center py-4">
-              <Button
-                variant="ghost"
-                disabled={isFetchingNextPage}
-                onClick={() => fetchNextPage()}
-                className="text-sm text-blue-600"
-              >
-                {isFetchingNextPage ? "Loading..." : "Load more comments"}
-              </Button>
-            </div>
+          {hasMoreComments && (
+            <Button
+              variant="ghost"
+              disabled={isFetchingComments}
+              onClick={() => fetchNextComments()}
+            >
+              {isFetchingComments ? "Loading..." : "Load more comments"}
+            </Button>
           )}
         </div>
       )}

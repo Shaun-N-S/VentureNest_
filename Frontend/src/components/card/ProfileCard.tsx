@@ -21,12 +21,12 @@ import { PeopleListModal, type PersonItem } from "../modals/PeopleListModal";
 import { useConnectionsPeopleList } from "../../hooks/Relationship/relationshipHooks";
 
 export function ProfileCard(props: ProfileCardProps) {
-  console.log("props", props);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [isCreatePostModal, setIsCreatePostModal] = useState(false);
+  const [connectionSearch, setConnectionSearch] = useState("");
   const role = useSelector((state: Rootstate) => state.authData.role);
   const userId = useSelector((state: Rootstate) => state.authData.id);
   const userData = useSelector((state: Rootstate) => state.authData);
@@ -36,7 +36,6 @@ export function ProfileCard(props: ProfileCardProps) {
   const { mutate: addProject } = useCreateProject();
   const isInvestor = userData.role === "INVESTOR";
   const profileData = props.userData;
-  console.log("profileData  : ", profileData);
 
   const {
     data: connectionsData,
@@ -44,7 +43,7 @@ export function ProfileCard(props: ProfileCardProps) {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-  } = useConnectionsPeopleList();
+  } = useConnectionsPeopleList(connectionSearch, 5);
 
   const people: PersonItem[] =
     connectionsData?.pages.flatMap((page) =>
@@ -54,7 +53,7 @@ export function ProfileCard(props: ProfileCardProps) {
         subtitle: user.bio || "",
         avatar: user.profileImg,
         actionLabel: "Remove",
-      }))
+      })),
     ) ?? [];
 
   const handleAddProject = () => setIsAddProjectOpen(true);
@@ -91,7 +90,7 @@ export function ProfileCard(props: ProfileCardProps) {
                 },
               },
             };
-          }
+          },
         );
 
         setIsAddProjectOpen(false);
@@ -118,14 +117,14 @@ export function ProfileCard(props: ProfileCardProps) {
           <div className="flex items-center gap-4 mb-4">
             <Avatar className="h-16 w-16 md:h-20 md:w-20">
               <AvatarImage
-                src={userData.profileImg || "/placeholder.svg"}
-                alt={userData.userName}
+                src={profileData.profileImg || "/placeholder.svg"}
+                alt={profileData.userName}
               />
-              <AvatarFallback>{userData.userName.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{profileData.userName.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex items-center gap-2 mb-1">
               <h2 className="text-xl md:text-2xl font-bold">
-                {userData.userName}
+                {profileData.userName}
               </h2>
 
               {/* APPROVED */}
@@ -162,11 +161,11 @@ export function ProfileCard(props: ProfileCardProps) {
           {/* Bio */}
           <div className="max-w-full md:max-w-[600px] overflow-hidden">
             <p className="text-sm md:text-base text-foreground mb-4 break-words whitespace-pre-line">
-              {userData.bio}
+              {profileData.bio}
             </p>
-            {userData.linkedInUrl && (
+            {profileData.linkedInUrl && (
               <a
-                href={userData.linkedInUrl ? userData.linkedInUrl : ""}
+                href={profileData.linkedInUrl ? profileData.linkedInUrl : ""}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline flex items-center gap-2 pt-2"
@@ -181,17 +180,17 @@ export function ProfileCard(props: ProfileCardProps) {
                 View Profile
               </a>
             )}
-            {userData.website && (
+            {profileData.website && (
               <InfoItem
                 label="Website"
                 value={
                   <a
-                    href={userData.website ? userData.website : ""}
+                    href={profileData.website ? profileData.website : ""}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline truncate block"
                   >
-                    {userData.website}
+                    {profileData.website}
                   </a>
                 }
               />
@@ -319,14 +318,14 @@ export function ProfileCard(props: ProfileCardProps) {
       </div>
       {role === "INVESTOR" ? (
         <EditInvestorProfileModal
-          data={userData}
+          data={profileData}
           investorId={userId}
           open={isEditModalOpen}
           onOpenChange={setIsEditModalOpen}
         />
       ) : role === "USER" ? (
         <UserEditProfileModal
-          data={userData}
+          data={profileData}
           userId={userId}
           open={isEditModalOpen}
           onOpenChange={setIsEditModalOpen}
@@ -362,6 +361,7 @@ export function ProfileCard(props: ProfileCardProps) {
         hasNextPage={hasNextPage}
         fetchNextPage={fetchNextPage}
         onActionClick={(id) => console.log("Remove connection:", id)}
+        onSearch={setConnectionSearch}
       />
     </motion.div>
   );

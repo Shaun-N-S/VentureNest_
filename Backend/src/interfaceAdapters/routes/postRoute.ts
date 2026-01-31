@@ -53,6 +53,14 @@ export class Post_Router {
         postController.likePost(req, res, next);
       }
     );
+
+    this._route.get(
+      ROUTES.POST.LIKES,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        postController.fetchPostLikes(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

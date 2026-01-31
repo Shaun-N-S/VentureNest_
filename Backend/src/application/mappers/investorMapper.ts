@@ -77,6 +77,8 @@ export class InvestorMapper {
       kycStatus: entity.kycStatus,
       isFirstLogin: entity.isFirstLogin,
       profileImg: entity.profileImg || "",
+      companyName: entity.companyName,
+      location: entity.location,
       createdAt: entity.createdAt || new Date(),
       updatedAt: entity.updatedAt || new Date(),
     };
@@ -171,6 +173,8 @@ export class InvestorMapper {
       investmentMax: data.investmentMax,
       adminVerified: data.adminVerified,
       linkedInUrl: data.linkedInUrl || "",
+      kycStatus: data.kycStatus,
+      kycRejectReason: data.kycRejectReason || "",
     };
   }
 

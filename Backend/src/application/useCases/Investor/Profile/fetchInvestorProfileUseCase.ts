@@ -32,7 +32,6 @@ export class FetchInvestorProfileUseCase implements IFetchInvestorProfileUseCase
       );
     }
 
-    // ✅ ADD COUNTS
     profileData.connectionsCount = await this._relationshipRepo.countConnections(id);
 
     profileData.postCount = await this._postRepo.countPostsByAuthor(id);

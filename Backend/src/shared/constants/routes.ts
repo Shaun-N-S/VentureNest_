@@ -83,6 +83,7 @@ export const ROUTES = {
     FEED: "/feed",
     REMOVE: "/remove/:id",
     LIKE: "/likes/:postId",
+    LIKES: "/:postId/likes",
   },
 
   PROJECT: {
