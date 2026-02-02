@@ -1,4 +1,5 @@
 export interface ProfileCardProps {
+  isOwnProfile?: boolean;
   userData: {
     userName: string;
     bio?: string;

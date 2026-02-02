@@ -28,22 +28,36 @@ import type {
   ProjectType,
 } from "../../types/projectType";
 import type { PersonalPostCache } from "../../types/personalPostCache";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useInView } from "react-intersection-observer";
 import { Loader2 } from "lucide-react";
 import type { UserRole } from "../../types/UserRole";
 import { useParams } from "react-router-dom";
+import type { Rootstate } from "../../store/store";
+import { ReportTargetType } from "../../types/reportTargetType";
+import { ReportModal } from "../../components/modals/ReportModal";
+import { ReportModalSkeleton } from "../../components/Skelton/ReportModalSkelton";
 
 export default function CommonProfilePage() {
   const { id } = useParams<{ id?: string }>();
+  const loggedInUserId = useSelector((s: Rootstate) => s.authData.id);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportTargetId, setReportTargetId] = useState<string | null>(null);
+  const [isReportModalLoading, setIsReportModalLoading] = useState(false);
+  const isOwnProfile = !id || id === loggedInUserId;
+  const profileUserId = isOwnProfile ? loggedInUserId : id!;
   const [isFollowing, setIsFollowing] = useState(false);
-  const { data: profileData } = useFetchUserProfile(id!);
+  const { data: profileData } = useFetchUserProfile(profileUserId!);
   console.log("profile data 998798987987  :", profileData);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfinitePersonalPostsById(id!, 5);
+    useInfinitePersonalPostsById(profileUserId!, 5);
   const posts = data?.pages.flatMap((page) => page.data.data.posts) ?? [];
 
-  const { data: projectData } = useFetchPersonalProjectsById(id!, 1, 10);
+  const { data: projectData } = useFetchPersonalProjectsById(
+    profileUserId!,
+    1,
+    10,
+  );
   const { mutate: likePost } = useLikePost();
   const { mutate: likeProject } = useLikeProject();
   const { ref, inView } = useInView({
@@ -143,6 +157,16 @@ export default function CommonProfilePage() {
     });
   };
 
+  const handleReport = (postId: string) => {
+    setReportTargetId(postId);
+    setIsReportModalLoading(true);
+    setIsReportOpen(true);
+
+    setTimeout(() => {
+      setIsReportModalLoading(false);
+    }, 300);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
@@ -152,6 +176,7 @@ export default function CommonProfilePage() {
             {profileData?.data?.profileData && (
               <ProfileCard
                 userData={profileData.data.profileData}
+                isOwnProfile={isOwnProfile}
                 isFollowing={isFollowing}
                 onFollow={() => setIsFollowing(!isFollowing)}
               />
@@ -193,7 +218,8 @@ export default function CommonProfilePage() {
                       comments={post.commentsCount}
                       liked={post.liked}
                       onLike={() => handleProfileLike(post._id)}
-                      context="profile"
+                      onReport={handleReport}
+                      context={isOwnProfile ? "profile" : "home"}
                     />
                   ))
                 ) : (
@@ -229,12 +255,29 @@ export default function CommonProfilePage() {
                       onLike={(updateUI) =>
                         handleProjectLike(project._id, updateUI)
                       }
+                      isOwnProfile={isOwnProfile}
                     />
                   ))
                 ) : (
                   <div className="text-center py-12 text-gray-500">
                     No projects yet
                   </div>
+                )}
+
+                {/* Report Modal */}
+                {isReportOpen && reportTargetId && (
+                  <>
+                    {isReportModalLoading ? (
+                      <ReportModalSkeleton />
+                    ) : (
+                      <ReportModal
+                        open={isReportOpen}
+                        onClose={() => setIsReportOpen(false)}
+                        targetId={reportTargetId}
+                        targetType={ReportTargetType.POST}
+                      />
+                    )}
+                  </>
                 )}
               </motion.div>
             </TabsContent>

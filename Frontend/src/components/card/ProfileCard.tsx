@@ -164,14 +164,14 @@ export function ProfileCard(props: ProfileCardProps) {
               )}
 
               {/* PENDING / SUBMITTED */}
-              {profileData.kycStatus === "SUBMITTED" && (
+              {props.isOwnProfile && profileData.kycStatus === "SUBMITTED" && (
                 <span className="text-sm text-yellow-600 font-medium">
                   KYC under processing
                 </span>
               )}
 
               {/* NOT SUBMITTED */}
-              {profileData.kycStatus === "PENDING" ? (
+              {props.isOwnProfile && profileData.kycStatus === "PENDING" ? (
                 <button
                   onClick={handleKYCVerification}
                   className="text-sm text-blue-600 hover:underline focus:outline-none"
@@ -223,14 +223,14 @@ export function ProfileCard(props: ProfileCardProps) {
             )}
           </div>
 
-          {profileData.kycStatus === "REJECTED" && (
+          {props.isOwnProfile && profileData.kycStatus === "REJECTED" && (
             <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
               <p className="text-sm font-semibold text-red-700">
                 KYC Verification Failed
               </p>
 
               <p className="text-sm text-red-600 mt-1">
-                {profileData.kycRejectReason ??
+                {(props.isOwnProfile && profileData.kycRejectReason) ??
                   "Your documents did not meet verification requirements."}
               </p>
 
@@ -277,47 +277,49 @@ export function ProfileCard(props: ProfileCardProps) {
         </div>
 
         {/* Menu button */}
-        <div className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          >
-            <MoreVertical className="h-4 w-4" />
-          </Button>
+        {props.isOwnProfile && (
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
 
-          <AnimatePresence>
-            {isDropdownOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setIsDropdownOpen(false)}
-                />
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute right-0 top-10 z-50 w-48 rounded-xl bg-white shadow-lg border border-gray-200 p-2"
-                >
-                  <button
-                    onClick={handleEditProfile}
-                    className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors mb-2"
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsDropdownOpen(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="absolute right-0 top-10 z-50 w-48 rounded-xl bg-white shadow-lg border border-gray-200 p-2"
                   >
-                    Edit Profile
-                  </button>
-                  <button
-                    onClick={handleCreatePost}
-                    className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors"
-                  >
-                    Create a New Post
-                  </button>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-        </div>
+                    <button
+                      onClick={handleEditProfile}
+                      className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors mb-2"
+                    >
+                      Edit Profile
+                    </button>
+                    <button
+                      onClick={handleCreatePost}
+                      className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors"
+                    >
+                      Create a New Post
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
 
       {/* Action buttons */}
@@ -325,7 +327,7 @@ export function ProfileCard(props: ProfileCardProps) {
         {/* <Button onClick={onFollow} variant={isFollowing ? "outline" : "default"} className="flex-1">
                     {isFollowing ? "Following" : "Follow"}
                 </Button> */}
-        {role === "USER" ? (
+        {props.isOwnProfile && role === "USER" ? (
           <Button
             onClick={handleAddProject}
             className="flex-1 bg-blue-500 hover:bg-blue-600"
@@ -342,7 +344,7 @@ export function ProfileCard(props: ProfileCardProps) {
                     <Share2 className="h-4 w-4" />
                 </Button> */}
       </div>
-      {role === "INVESTOR" ? (
+      {props.isOwnProfile && role === "INVESTOR" ? (
         <EditInvestorProfileModal
           data={profileData}
           investorId={userId}
