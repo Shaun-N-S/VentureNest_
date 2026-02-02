@@ -60,6 +60,14 @@ export class Project_Router {
     );
 
     this._route.get(
+      ROUTES.PROJECT.PERSONAL_PROJECT_BY_ID,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        projectController.fetchPersonalProjectsById(req, res, next);
+      }
+    );
+
+    this._route.get(
       ROUTES.PROJECT.SINGLE_PROJECT,
       // ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {

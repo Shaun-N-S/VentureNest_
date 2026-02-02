@@ -80,7 +80,7 @@ export class User_Router {
 
     this._route.get(
       ROUTES.USERS.PROFILE.FETCH_DATA,
-      ...userGuard,
+      // ...userGuard,
       (req: Request, res: Response, next: NextFunction) => {
         userProfileController.getProfileData(req, res, next);
       }

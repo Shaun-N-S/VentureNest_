@@ -69,6 +69,7 @@ export const API_ROUTES = {
   POST: {
     ADD: "/posts/add",
     FETCH_PERSONAL_POST: "/posts/personal",
+    FETCH_PERSONAL_POST_BY_ID: "/posts/personal/:userId",
     FEED: "/posts/feed",
     REMOVE: "/posts/remove/:id",
     LIKES: "/posts/likes/:postId",
@@ -80,6 +81,7 @@ export const API_ROUTES = {
     UPDATE_PROJECT: "/projects/update/:projectId",
     FETCH_ALL_PROJECTS: "/projects",
     FETCH_PERSONAL_PROJECT: "/projects/personal",
+    FETCH_PERSONAL_PROJECT_BY_ID: "/projects/personal/:userId",
     REMOVE_PROJECT: "/projects/remove/:projectId",
     FETCH_SINGLE_PROJECT: "/projects/:projectId",
     ADD_MONTHLY_REPORT: "/projects/monthly-report/:projectId",
@@ -93,6 +95,7 @@ export const API_ROUTES = {
     GET_PERSONAL_CONNECTION_REQ: "/relations/personal/connection-req",
     CONNECTION_STATUS_UPDATE: "/relations/update/connection-req",
     GET_CONNECTIONS_PEOPLE: "/relations/connections-people-list",
+    REMOVE_CONNECTION: "/relations/remove/connection/:userId",
   },
 
   COMMENT: {

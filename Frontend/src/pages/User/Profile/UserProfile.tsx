@@ -42,6 +42,7 @@ import { useDispatch } from "react-redux";
 import { updateUserData } from "../../../store/Slice/authDataSlice";
 import { useInView } from "react-intersection-observer";
 import { Loader2 } from "lucide-react";
+import type { UserRole } from "../../../types/UserRole";
 
 export default function ProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false);
@@ -61,8 +62,7 @@ export default function ProfilePage() {
   console.log(profileData, "profile data :");
   const posts = data?.pages.flatMap((page) => page.data.data.posts) ?? [];
 
-  const { data: projectData } =
-    useFetchPersonalProjects(1, 10);
+  const { data: projectData } = useFetchPersonalProjects(1, 10);
   const { mutate: removePost } = useRemovePost();
   const { mutate: removeProject } = useRemoveProject();
   const { mutate: updateProject } = useUpdateProject();
@@ -339,6 +339,8 @@ export default function ProfilePage() {
                       key={post._id}
                       id={post._id}
                       author={{
+                        id: userData.id,
+                        role: userData.role as UserRole,
                         name: userData.userName,
                         avatar: userData.profileImg,
                         followers: 0,

@@ -21,7 +21,7 @@ export const updateProject = async (formData: FormData) => {
         "Content-Type": "multipart/form-data",
       },
       withCredentials: true,
-    }
+    },
   );
   return response.data;
 };
@@ -32,7 +32,22 @@ export const fetchPersonalProjects = async (page: number, limit: number) => {
     {
       params: { page, limit },
       withCredentials: true,
-    }
+    },
+  );
+  return response.data;
+};
+
+export const fetchPersonalProjectsById = async (
+  userId: string,
+  page: number,
+  limit: number,
+) => {
+  const response = await AxiosInstance.get(
+    API_ROUTES.PROJECT.FETCH_PERSONAL_PROJECT_BY_ID.replace(":userId", userId),
+    {
+      params: { page, limit },
+      withCredentials: true,
+    },
   );
   return response.data;
 };
@@ -42,14 +57,14 @@ export const fetchAllProjects = async (
   limit: number,
   search?: string,
   stage?: string,
-  sector?: string
+  sector?: string,
 ) => {
   const response = await AxiosInstance.get(
     API_ROUTES.PROJECT.FETCH_ALL_PROJECTS,
     {
       params: { page, limit, search, stage, sector },
       withCredentials: true,
-    }
+    },
   );
 
   return response.data.data.data;
@@ -57,14 +72,14 @@ export const fetchAllProjects = async (
 
 export const removeProject = async (projectId: string) => {
   const response = await AxiosInstance.patch(
-    API_ROUTES.PROJECT.REMOVE_PROJECT.replace(":projectId", projectId)
+    API_ROUTES.PROJECT.REMOVE_PROJECT.replace(":projectId", projectId),
   );
   return response.data;
 };
 
 export const fetchProjectById = async (projectId: string) => {
   const response = await AxiosInstance.get(
-    API_ROUTES.PROJECT.FETCH_SINGLE_PROJECT.replace(":projectId", projectId)
+    API_ROUTES.PROJECT.FETCH_SINGLE_PROJECT.replace(":projectId", projectId),
   );
   return response.data;
 };
@@ -79,7 +94,7 @@ export const addMontlyProjectReport = async (formData: FormData) => {
         "Content-Type": "multipart/form-data",
       },
       withCredentials: true,
-    }
+    },
   );
   return response.data;
 };
@@ -95,16 +110,16 @@ export const verifyStartup = async (formData: FormData) => {
         "Content-Type": "multipart/form-data",
       },
       withCredentials: true,
-    }
+    },
   );
   return response.data;
 };
 
 export const likeProject = async (
-  projectId: string
+  projectId: string,
 ): Promise<ProjectLikeResponse> => {
   const response = await AxiosInstance.post(
-    API_ROUTES.PROJECT.LIKES.replace(":projectId", projectId)
+    API_ROUTES.PROJECT.LIKES.replace(":projectId", projectId),
   );
   return response.data;
 };

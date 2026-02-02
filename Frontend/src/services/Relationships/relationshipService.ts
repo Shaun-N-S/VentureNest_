@@ -16,7 +16,7 @@ export interface GetNetworkUsersResponse {
 export const getNetworkUsers = async (
   page: number,
   limit: number,
-  search?: string
+  search?: string,
 ) => {
   const response = await AxiosInstance.get<
     ApiResponse<GetNetworkUsersResponse>
@@ -31,7 +31,7 @@ export const sendConnectionReq = async (toUserId: string) => {
   const response = await AxiosInstance.post(
     API_ROUTES.RELATIONSHIP.CONNECTION_REQ.replace(":toUserId", toUserId),
     {},
-    { withCredentials: true }
+    { withCredentials: true },
   );
   return response.data;
 };
@@ -42,7 +42,7 @@ export const getConnectionReq = async (page: number, limit: number) => {
     {
       params: { page, limit },
       withCredentials: true,
-    }
+    },
   );
 
   return response.data;
@@ -50,12 +50,12 @@ export const getConnectionReq = async (page: number, limit: number) => {
 
 export const updateConnectionReqStatus = async (
   fromUserId: string,
-  status: string
+  status: string,
 ) => {
   const response = await AxiosInstance.patch(
     `${API_ROUTES.RELATIONSHIP.CONNECTION_STATUS_UPDATE}/${fromUserId}/${status}`,
     {},
-    { withCredentials: true }
+    { withCredentials: true },
   );
   return response.data;
 };
@@ -63,7 +63,7 @@ export const updateConnectionReqStatus = async (
 export const getConnectionsPeopleList = async (
   page: number,
   limit: number,
-  search?: string
+  search?: string,
 ): Promise<ConnectionsPeopleResponse> => {
   const response = await AxiosInstance.get<
     ApiResponse<ConnectionsPeopleResponse>
@@ -73,4 +73,12 @@ export const getConnectionsPeopleList = async (
   });
 
   return response.data.data;
+};
+
+export const removeConnection = async (userId: string) => {
+  const response = await AxiosInstance.delete(
+    API_ROUTES.RELATIONSHIP.REMOVE_CONNECTION.replace(":userId", userId),
+    { withCredentials: true },
+  );
+  return response.data;
 };

@@ -8,6 +8,7 @@ import { StorageService } from "@infrastructure/services/storageService";
 import { GetConnectionReqUseCase } from "application/useCases/Relationship/getConnectionReqUseCase";
 import { GetConnectionsPeopleListUseCase } from "application/useCases/Relationship/GetConnectionsPeopleListUseCase";
 import { GetNetworkUsersUseCase } from "application/useCases/Relationship/getNetworkUsersUseCase";
+import { RemoveConnectionUseCase } from "application/useCases/Relationship/removeConnectionUseCase";
 import { SendConnectionReqUseCase } from "application/useCases/Relationship/sendConnectionReqUseCase";
 import { UpdateConnectionReqStatusUseCase } from "application/useCases/Relationship/UpdateConnectionReqStatusUseCase";
 import { RelationshipController } from "interfaceAdapters/controller/Relationship/relationshipController";
@@ -37,11 +38,13 @@ const getConnectionsPeopleListUseCase = new GetConnectionsPeopleListUseCase(
   investorRepo,
   storageService
 );
+const removeConnectionUseCase = new RemoveConnectionUseCase(relationshipRepo);
 
 export const relationshipController = new RelationshipController(
   sendConnectionReqUseCase,
   getNetworkUseCase,
   getConnectionReqUseCase,
   updateConnectionReqStatusUseCase,
-  getConnectionsPeopleListUseCase
+  getConnectionsPeopleListUseCase,
+  removeConnectionUseCase
 );

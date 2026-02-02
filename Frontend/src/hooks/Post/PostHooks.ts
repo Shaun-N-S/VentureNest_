@@ -8,6 +8,7 @@ import {
   addPost,
   fetchAllPosts,
   fetchPersonalPosts,
+  fetchPersonalPostsById,
   fetchPostLikes,
   likePost,
   removePost,
@@ -32,6 +33,18 @@ export const useInfinitePersonalPosts = (limit = 5) => {
       lastPage.data.data.hasNextPage ? allPages.length + 1 : undefined,
 
     staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useInfinitePersonalPostsById = (userId: string, limit = 5) => {
+  return useInfiniteQuery({
+    queryKey: ["personal-post-by-id"],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      fetchPersonalPostsById(userId, pageParam as number, limit),
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.data.data.hasNextPage ? allPages.length + 1 : undefined,
     refetchOnWindowFocus: false,
   });
 };

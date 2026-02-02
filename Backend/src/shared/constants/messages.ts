@@ -78,6 +78,8 @@ export const MESSAGES = {
     FETCHED_PERSONAL_REQ_SUCCESSFULLY: "Fetched personal requests successfull",
     CONNECTION_SEND_SUCCESSFULLY: "Connection request send successfully",
     STATUS_UPDATTED_SUCCESSFULLY: "Status updated successfully",
+    CONNECTION_REMOVED_SUCCESSFULLY: "Connection removed successfully",
+    CONNECTIONS_FETCHED_SUCCESSFULLY: "Connections fetched successfully",
   },
 
   COMMENT: {

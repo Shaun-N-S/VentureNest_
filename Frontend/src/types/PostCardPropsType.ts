@@ -1,9 +1,13 @@
+import type { UserRole } from "./UserRole";
+
 export interface PostCardProps {
   id: string;
   author: {
+    id: string;
     name: string;
     avatar: string;
     followers: number;
+    role: UserRole;
   };
   timestamp: string;
   content: string;

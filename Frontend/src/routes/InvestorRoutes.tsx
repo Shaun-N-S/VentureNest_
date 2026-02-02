@@ -15,6 +15,7 @@ import ProjectPage from "../pages/Common/ProjectPage";
 import ProjectDetailedPage from "../pages/Common/ProjectDetailedPage";
 import PaymentSuccess from "../pages/Common/PaymentSuccess";
 import PlansPage from "../pages/Common/PlanPage";
+import CommonProfilePage from "../pages/Common/ProfilePage";
 
 const InvestorRoutes = () => {
   return (
@@ -70,6 +71,10 @@ const InvestorRoutes = () => {
           <Route
             path={`${FRONTEND_ROUTES.INVESTOR.PAYMENT_SUCCESS}`}
             element={<PaymentSuccess />}
+          />
+          <Route
+            path={FRONTEND_ROUTES.USER.COMMON_PROFILE}
+            element={<CommonProfilePage />}
           />
         </Route>
       </Route>

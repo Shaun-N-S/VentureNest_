@@ -4,13 +4,17 @@ import {
   addProject,
   fetchAllProjects,
   fetchPersonalProjects,
+  fetchPersonalProjectsById,
   fetchProjectById,
   likeProject,
   removeProject,
   updateProject,
   verifyStartup,
 } from "../../services/Project/projectService";
-import type { ProjectLikeResponse, ProjectsPage } from "../../types/projectType";
+import type {
+  ProjectLikeResponse,
+  ProjectsPage,
+} from "../../types/projectType";
 
 export const useCreateProject = () => {
   return useMutation({
@@ -31,11 +35,22 @@ export const useFetchPersonalProjects = (page: number, limit: number) => {
   });
 };
 
+export const useFetchPersonalProjectsById = (
+  userId: string,
+  page: number,
+  limit: number,
+) => {
+  return useQuery({
+    queryKey: ["personal-project-by-id", userId, page, limit],
+    queryFn: () => fetchPersonalProjectsById(userId, page, limit),
+  });
+};
+
 export const useInfiniteProjects = (
   limit: number,
   search?: string,
   stage?: string,
-  sector?: string
+  sector?: string,
 ) => {
   return useInfiniteQuery<ProjectsPage>({
     queryKey: ["projects", limit, search, stage, sector],

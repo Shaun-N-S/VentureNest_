@@ -3,6 +3,7 @@ import {
   getConnectionReq,
   getConnectionsPeopleList,
   getNetworkUsers,
+  removeConnection,
   sendConnectionReq,
   updateConnectionReqStatus,
   type GetNetworkUsersResponse,
@@ -52,5 +53,11 @@ export const useConnectionsPeopleList = (search?: string, limit = 10) => {
       }
       return undefined;
     },
+  });
+};
+
+export const useRemoveConnection = () => {
+  return useMutation({
+    mutationFn: (userId: string) => removeConnection(userId),
   });
 };

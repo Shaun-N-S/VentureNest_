@@ -80,6 +80,7 @@ export const ROUTES = {
   POST: {
     ADD: "/add",
     PERSONAL_POST: "/personal",
+    PERSONAL_POST_BY_ID: "/personal/:userId",
     FEED: "/feed",
     REMOVE: "/remove/:id",
     LIKE: "/likes/:postId",
@@ -91,6 +92,7 @@ export const ROUTES = {
     UPDATE: "/update/:projectId",
     FETCH_PROJECTS: "/",
     PERSONAL_PROJECTS: "/personal",
+    PERSONAL_PROJECT_BY_ID: "/personal/:userId",
     REMOVE: "/remove/:projectId",
     SINGLE_PROJECT: "/:projectId",
     ADD_MONTHLY_REPORT: "/monthly-report/:projectId",
@@ -104,6 +106,7 @@ export const ROUTES = {
     GET_PERSONAL_CONNECTION_REQ: "/personal/connection-req",
     UPDATE_CONNECTION_REQ: "/update/connection-req/:fromUserId/:status",
     GET_CONNECTIONS_PEOPLE: "/connections-people-list",
+    REMOVE_CONNECTION: "/remove/connection/:userId",
   },
 
   COMMENT: {

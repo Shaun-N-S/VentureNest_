@@ -24,6 +24,7 @@ import { getSocket } from "../../lib/socket";
 import { PeopleListModal } from "../modals/PeopleListModal";
 import { usePostLikes } from "../../hooks/Post/PostHooks";
 import type { PostLikeUser } from "../../types/postLikes";
+import { useNavigate } from "react-router";
 
 export function PostCard({
   id,
@@ -64,6 +65,8 @@ export function PostCard({
     hasNextPage: hasMoreLikes,
     isLoading: isLikesLoading,
   } = usePostLikes(id, likesOpen, likeSearch);
+
+  const navigate = useNavigate();
 
   const likesData =
     likesDataPages?.pages.flatMap((page) =>
@@ -188,6 +191,17 @@ export function PostCard({
     setShowComments((prev) => !prev);
   };
 
+  const handleAuthorClick = () => {
+    const isSelf = author.id === userData.id;
+    const isInvestor = author.role === "INVESTOR";
+
+    if (isInvestor) {
+      navigate(isSelf ? "/investor/profile" : `/investor/profile/${author.id}`);
+    } else {
+      navigate(isSelf ? "/profile" : `/profile/${author.id}`);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -198,12 +212,20 @@ export function PostCard({
       {/* Header */}
       <div className="p-4 flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
-          <Avatar className="h-12 w-12">
+          <Avatar
+            className="h-12 w-12 cursor-pointer"
+            onClick={handleAuthorClick}
+          >
             <AvatarImage src={author.avatar || "/placeholder.svg"} />
-            <AvatarFallback>{author.name[0]}</AvatarFallback>
+            {/* <AvatarFallback>{author.name[0]}</AvatarFallback> */}
           </Avatar>
           <div>
-            <h4 className="font-semibold text-base">{author.name}</h4>
+            <h4
+              className="font-semibold text-base cursor-pointer hover:underline"
+              onClick={handleAuthorClick}
+            >
+              {author.name}
+            </h4>
             <p className="text-sm text-gray-500">{timestamp}</p>
           </div>
         </div>

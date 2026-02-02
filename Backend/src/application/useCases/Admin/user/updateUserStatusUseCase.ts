@@ -20,7 +20,7 @@ export class UpdateUserStatusUseCase implements IUpdateUserStatusUseCase {
 
     if (!updatedUser) throw new NotFoundExecption(USER_ERRORS.USER_NOT_FOUND);
 
-    await this._cacheService.deleteData(`USER_STATUS:${UserRole.USER}:${userId}`);
+    await this._cacheService.deleteData(`USER_STATUS:${userId}`);
 
     return { user: updatedUser as UserDTO };
   }

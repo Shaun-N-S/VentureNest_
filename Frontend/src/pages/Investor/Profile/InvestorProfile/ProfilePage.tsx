@@ -24,10 +24,14 @@ import { Loader2 } from "lucide-react";
 import { queryClient } from "../../../../main";
 import type { InfiniteData } from "@tanstack/react-query";
 import type { PersonalPostPage } from "../../../../types/postFeed";
+import type { UserRole } from "../../../../types/UserRole";
 
 export interface PersonalPost {
   _id: string;
+  name: string;
+  authorAvatar: string;
   authorId: string;
+  authorRole: UserRole;
   content: string;
   mediaUrls: string[];
   likeCount: number;
@@ -162,6 +166,8 @@ export default function ProfilePage() {
                       key={post._id}
                       id={post._id}
                       author={{
+                        id: userData.id,
+                        role: userData.role as UserRole,
                         name: userData.userName,
                         avatar: userData.profileImg,
                         followers: 0,

@@ -54,7 +54,8 @@ export class AuthMiddleware {
         ResponseHelper.error(res, Errors.INVALID_TOKEN, HTTPSTATUS.UNAUTHORIZED);
         return;
       }
-      let status = await this._cacheService.getData(`USER_STATUS:${userId}`);
+      const cacheKey = `USER_STATUS:${userId}`;
+      let status = await this._cacheService.getData(cacheKey);
       console.log("status of users  : ", status);
       if (!status) {
         if (role === UserRole.USER || role === UserRole.ADMIN) {

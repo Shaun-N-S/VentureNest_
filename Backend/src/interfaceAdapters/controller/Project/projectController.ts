@@ -89,6 +89,24 @@ export class ProjectController {
     }
   }
 
+  async fetchPersonalProjectsById(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.params.userId;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      if (!userId) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const data = await this._fetchPersonalProjects.fetchPersonalProjects(userId, page, limit);
+
+      ResponseHelper.success(res, MESSAGES.PROJECT.PROJECT_FETCH_SUCCESS, { data }, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async fetchAllProjects(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = res.locals?.user?.userId;

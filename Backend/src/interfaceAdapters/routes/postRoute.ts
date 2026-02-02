@@ -31,6 +31,14 @@ export class Post_Router {
     );
 
     this._route.get(
+      ROUTES.POST.PERSONAL_POST_BY_ID,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        postController.fetchPersonalPostsById(req, res, next);
+      }
+    );
+
+    this._route.get(
       ROUTES.POST.FEED,
       ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {

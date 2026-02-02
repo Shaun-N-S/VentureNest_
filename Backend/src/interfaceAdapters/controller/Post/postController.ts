@@ -73,6 +73,24 @@ export class PostController {
     }
   }
 
+  async fetchPersonalPostsById(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const authorId = req.params.userId;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      if (!authorId) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const data = await this._fetchPersonalPost.fetchPersonalPost(authorId, page, limit);
+      console.log(data);
+
+      ResponseHelper.success(res, MESSAGES.POST.POST_FETCHED_SUCCESSFULLY, { data }, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async fetchAllPosts(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const currentUserId = res.locals?.user?.userId;

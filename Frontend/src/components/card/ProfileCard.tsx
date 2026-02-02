@@ -18,7 +18,12 @@ import ProjectFormModal from "../modals/AddProjectModal";
 import { useCreateProject } from "../../hooks/Project/projectHooks";
 import type { PersonalProjectApiResponse } from "../../types/PersonalProjectApiResponse";
 import { PeopleListModal, type PersonItem } from "../modals/PeopleListModal";
-import { useConnectionsPeopleList } from "../../hooks/Relationship/relationshipHooks";
+import {
+  useConnectionsPeopleList,
+  useRemoveConnection,
+} from "../../hooks/Relationship/relationshipHooks";
+import { updateUserData } from "../../store/Slice/authDataSlice";
+import { useDispatch } from "react-redux";
 
 export function ProfileCard(props: ProfileCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -34,6 +39,8 @@ export function ProfileCard(props: ProfileCardProps) {
   const handleKYCVerification = () => setIsKYCModalOpen(true);
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
   const { mutate: addProject } = useCreateProject();
+  const { mutate: removeConnection } = useRemoveConnection();
+  const dispatch = useDispatch();
   const isInvestor = userData.role === "INVESTOR";
   const profileData = props.userData;
 
@@ -101,6 +108,25 @@ export function ProfileCard(props: ProfileCardProps) {
 
   const handleOpenConnections = () => {
     setOpen(true);
+  };
+
+  const handleRemoveConnection = (id: string) => {
+    removeConnection(id, {
+      onSuccess: () => {
+        toast.success("Connection removed");
+
+        queryClient.invalidateQueries({
+          queryKey: ["connections-people-list"],
+        });
+
+        dispatch(
+          updateUserData({
+            connectionsCount: Math.max((userData.connectionsCount ?? 1) - 1, 0),
+          }),
+        );
+      },
+      onError: () => toast.error("Failed to remove connection"),
+    });
   };
 
   return (
@@ -222,15 +248,15 @@ export function ProfileCard(props: ProfileCardProps) {
           <div className="flex gap-6 md:gap-8 justify-evenly">
             <div className="text-center">
               <p className="font-bold text-lg md:text-xl">
-                {userData.postsCount ?? 0}
+                {profileData.postCount ?? 0}
               </p>
               <p className="text-xs md:text-sm text-muted-foreground">Posts</p>
             </div>
             <div className="text-center">
               <p className="font-bold text-lg md:text-xl">
                 {isInvestor
-                  ? (userData.investmentCount ?? 0)
-                  : (userData.projectsCount ?? 0)}
+                  ? (profileData.investmentCount ?? 0)
+                  : (profileData.projectCount ?? 0)}
               </p>
               <p className="text-xs md:text-sm text-muted-foreground">
                 {isInvestor ? "Investments" : "Projects"}
@@ -360,7 +386,7 @@ export function ProfileCard(props: ProfileCardProps) {
         loading={isLoading || isFetchingNextPage}
         hasNextPage={hasNextPage}
         fetchNextPage={fetchNextPage}
-        onActionClick={(id) => console.log("Remove connection:", id)}
+        onActionClick={handleRemoveConnection}
         onSearch={setConnectionSearch}
       />
     </motion.div>

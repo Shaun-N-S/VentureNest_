@@ -21,39 +21,60 @@ AxiosInstance.interceptors.request.use((config) => {
 });
 
 AxiosInstance.interceptors.response.use(
-  (res) => {
-    return res},
+  (res) => res,
   async (err) => {
-    const orignialRequest = err.config;
-    console.log(err.response);
-    if (
-      err.response.status === 401 &&
-      err.response.data.message === "Token expired" &&
-      !orignialRequest.retry
-    ) {
-      console.log("retrying");
+    const originalRequest = err.config;
+
+    const status = err.response?.status;
+    const message = err.response?.data?.message;
+
+    /* ---------------- BLOCKED USER ---------------- */
+    if (status === 403 && message?.toLowerCase().includes("blocked")) {
+      const role = store.getState().authData.role;
+
+      store.dispatch(clearData());
+      store.dispatch(deleteToken());
+
+      if (role === "INVESTOR") {
+        window.location.href = "/investor/login";
+      } else if (role === "ADMIN") {
+        window.location.href = "/admin/login";
+      } else {
+        window.location.href = "/login";
+      }
+
+      return Promise.reject(err);
+    }
+
+    /* ---------------- TOKEN EXPIRED ---------------- */
+    if (status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
       try {
-        orignialRequest.retry = true;
         const response = await AxiosInstance.post(API_ROUTES.AUTH.REFRESH);
+
         store.dispatch(setToken(response.data.data));
-        orignialRequest.headers.Authorization = `Bearer ${response.data.data}`;
-        return AxiosInstance(orignialRequest);
-      } catch (error) {
-        console.log(error);
-        const userRole = store.getState().authData.role;
+        originalRequest.headers.Authorization = `Bearer ${response.data.data}`;
+
+        return AxiosInstance(originalRequest);
+      } catch {
+        const role = store.getState().authData.role;
+
         store.dispatch(clearData());
         store.dispatch(deleteToken());
-        if (userRole === "INVESTOR") {
-          window.location.href = `/investor/login`;
-        } else if (userRole === "ADMIN") {
-          window.location.href = `/admin/login`;
+
+        if (role === "INVESTOR") {
+          window.location.href = "/investor/login";
+        } else if (role === "ADMIN") {
+          window.location.href = "/admin/login";
         } else {
-          window.location.href = `/login`;
+          window.location.href = "/login";
         }
       }
     }
+
     return Promise.reject(err);
-  }
+  },
 );
 
 export default AxiosInstance;

@@ -12,6 +12,7 @@ export const FRONTEND_ROUTES = {
     PROJECT: "/projects",
     PLANS: "/plans",
     PAYMENT_SUCCESS: "/payment-success",
+    COMMON_PROFILE: "/profile/:id",
   },
 
   INVESTOR: {
