@@ -115,4 +115,17 @@ export class RelationshipRepository
 
     return result[0]?.count || 0;
   }
+
+  async removeConnection(userId1: string, userId2: string): Promise<boolean> {
+    const result = await this._model.deleteOne({
+      type: RelationshipType.CONNECTION,
+      status: ConnectionStatus.ACCEPTED,
+      $or: [
+        { fromUserId: userId1, toUserId: userId2 },
+        { fromUserId: userId2, toUserId: userId1 },
+      ],
+    });
+
+    return result.deletedCount === 1;
+  }
 }

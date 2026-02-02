@@ -6,7 +6,7 @@ import {
 
 export const useFetchUserProfile = (id: string) => {
   return useQuery({
-    queryKey: ["userProfile"],
+    queryKey: ["userProfile",id],
     queryFn: () => getUserProfile(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,

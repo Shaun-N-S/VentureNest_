@@ -1,4 +1,5 @@
 import type { PersonalPost } from "../pages/Investor/Profile/InvestorProfile/ProfilePage";
+import type { UserRole } from "./UserRole";
 
 export interface FeedPost {
   _id: string;
@@ -21,6 +22,7 @@ export interface FetchPostsResponse {
 export interface AllPost {
   _id: string;
   authorId: string;
+  authorRole: UserRole;
   content: string;
   mediaUrls: string[];
   likeCount: number;

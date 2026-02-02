@@ -51,6 +51,14 @@ export class Relationship_Router {
         relationshipController.getConnectionsPeopleList(req, res, next);
       }
     );
+
+    this._route.delete(
+      ROUTES.RELATIONSHIP.REMOVE_CONNECTION,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        relationshipController.removeConnection(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

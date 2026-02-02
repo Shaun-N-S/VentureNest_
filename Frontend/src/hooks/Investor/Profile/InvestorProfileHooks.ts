@@ -7,7 +7,7 @@ import {
 
 export const useFetchInvestorProfile = (id: string) => {
   return useQuery({
-    queryKey: ["investorProfile"],
+    queryKey: ["investorProfile", id],
     queryFn: () => getInvestorProfile(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,

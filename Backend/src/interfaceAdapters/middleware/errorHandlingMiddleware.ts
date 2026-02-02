@@ -5,6 +5,7 @@ import {
   AlreadyExisitingExecption,
   ApplicationException,
   DataMissingExecption,
+  ForbiddenException,
   InvalidDataException,
   InvalidOTPExecption,
   IsBlockedExecption,
@@ -31,7 +32,7 @@ export const errorHandlingMiddleware = (
         statusCode = HTTPSTATUS.NOT_FOUND;
       } else if (err instanceof AlreadyExisitingExecption) {
         statusCode = HTTPSTATUS.CONFLICT;
-      } else if (err instanceof IsBlockedExecption) {
+      } else if (err instanceof IsBlockedExecption || err instanceof ForbiddenException) {
         statusCode = HTTPSTATUS.FORBIDDEN;
       } else if (
         err instanceof InvalidOTPExecption ||

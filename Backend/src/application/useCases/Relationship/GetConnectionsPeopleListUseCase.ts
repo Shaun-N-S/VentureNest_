@@ -8,18 +8,18 @@ import { RelationshipMapper } from "application/mappers/relationshipMapper";
 
 export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleListUseCase {
   constructor(
-    private _relationshipRepository: IRelationshipRepository,
-    private _userRepository: IUserRepository,
-    private _investorRepository: IInvestorRepository,
-    private _storageService: IStorageService
+    private readonly _relationshipRepository: IRelationshipRepository,
+    private readonly _userRepository: IUserRepository,
+    private readonly _investorRepository: IInvestorRepository,
+    private readonly _storageService: IStorageService
   ) {}
 
   async execute(userId: string, page: number, limit: number, search?: string) {
     const skip = (page - 1) * limit;
 
-    /**
-     * 1️⃣ Fetch all accepted connections
-     */
+    /* --------------------------------------------
+     * 1️⃣ Get accepted connections
+     * -------------------------------------------- */
     const connections = await this._relationshipRepository.findConnections(userId);
 
     if (!connections.length) {
@@ -31,59 +31,49 @@ export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleLis
       };
     }
 
-    /**
-     * 2️⃣ Extract UNIQUE connected user IDs
-     * (handles A→B and B→A duplicates)
-     */
+    /* --------------------------------------------
+     * 2️⃣ Extract connected user IDs
+     * -------------------------------------------- */
     const connectedIdsSet = new Set<string>();
 
-    for (const c of connections) {
-      if (c.fromUserId === userId) {
-        connectedIdsSet.add(c.toUserId);
+    for (const connection of connections) {
+      if (connection.fromUserId === userId) {
+        connectedIdsSet.add(connection.toUserId);
       } else {
-        connectedIdsSet.add(c.fromUserId);
+        connectedIdsSet.add(connection.fromUserId);
       }
     }
 
     const connectedIds = Array.from(connectedIdsSet);
 
-    /**
-     * 3️⃣ Fetch USERS & INVESTORS in parallel
-     * (because relationship has no role info)
-     */
-    const [users, investors] = await Promise.all([
-      this._userRepository.findByIds(connectedIds),
-      this._investorRepository.findByIds(connectedIds),
+    /* --------------------------------------------
+     * 3️⃣ Fetch users & investors WITH DB SEARCH
+     * -------------------------------------------- */
+    const [users, investors, usersCount, investorsCount] = await Promise.all([
+      this._userRepository.findByIdsPaginated(connectedIds, skip, limit, search),
+      this._investorRepository.findByIdsPaginated(connectedIds, skip, limit, search),
+      this._userRepository.countByIds(connectedIds, search),
+      this._investorRepository.countByIds(connectedIds, search),
     ]);
 
-    /**
-     * 4️⃣ Normalize into ONE list
-     */
-    const combined = [
-      ...users.map((u) => RelationshipMapper.NetworkUsers(u, u.role, ConnectionStatus.ACCEPTED)),
-      ...investors.map((i) =>
-        RelationshipMapper.NetworkUsers(i, i.role, ConnectionStatus.ACCEPTED)
-      ),
-    ];
+    /* --------------------------------------------
+     * 4️⃣ Map domain → DTO
+     * -------------------------------------------- */
+    const mappedUsers = users.map((u) =>
+      RelationshipMapper.NetworkUsers(u, u.role, ConnectionStatus.ACCEPTED)
+    );
 
-    /**
-     * 5️⃣ Apply search AFTER merge
-     */
-    const filtered = search
-      ? combined.filter((u) => u.userName?.toLowerCase().includes(search.toLowerCase()))
-      : combined;
+    const mappedInvestors = investors.map((i) =>
+      RelationshipMapper.NetworkUsers(i, i.role, ConnectionStatus.ACCEPTED)
+    );
 
-    /**
-     * 6️⃣ Pagination AFTER filtering
-     */
-    const totalUsers = filtered.length;
-    const paginated = filtered.slice(skip, skip + limit);
+    const combinedUsers = [...mappedUsers, ...mappedInvestors];
 
-    /**
-     * 7️⃣ Generate signed profile image URLs
-     */
+    /* --------------------------------------------
+     * 5️⃣ Generate signed URLs
+     * -------------------------------------------- */
     const finalUsers = await Promise.all(
-      paginated.map(async (dto) => {
+      combinedUsers.map(async (dto) => {
         if (dto.profileImg) {
           dto.profileImg = await this._storageService.createSignedUrl(dto.profileImg, 600);
         }
@@ -91,9 +81,11 @@ export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleLis
       })
     );
 
-    /**
-     * 8️⃣ Final response
-     */
+    /* --------------------------------------------
+     * 6️⃣ Pagination meta
+     * -------------------------------------------- */
+    const totalUsers = usersCount + investorsCount;
+
     return {
       users: finalUsers,
       totalUsers,

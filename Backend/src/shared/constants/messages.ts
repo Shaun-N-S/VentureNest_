@@ -78,6 +78,8 @@ export const MESSAGES = {
     FETCHED_PERSONAL_REQ_SUCCESSFULLY: "Fetched personal requests successfull",
     CONNECTION_SEND_SUCCESSFULLY: "Connection request send successfully",
     STATUS_UPDATTED_SUCCESSFULLY: "Status updated successfully",
+    CONNECTION_REMOVED_SUCCESSFULLY: "Connection removed successfully",
+    CONNECTIONS_FETCHED_SUCCESSFULLY: "Connections fetched successfully",
   },
 
   COMMENT: {
@@ -100,4 +102,13 @@ export const MESSAGES = {
     PROJECT_REPORTS_FETCHED: "Project reports fetched successfully",
     REPORT_STATUS_UPDATED: "Report status updated successfully",
   },
+
+  PLAN: {
+    CREATED_SUCCESSFULLY: "Plan created successfully",
+    FETCHED_SUCCESSFULLY: "Plans fetched successfully",
+    UPDATED_SUCCESSFULLY: "Plan updated successfully",
+    STATUS_UPDATED_SUCCESSFULLY: "Plan status updated successfully",
+  },
+
+  CHECKOUT_CREATED: "Checkout session created successfully",
 };

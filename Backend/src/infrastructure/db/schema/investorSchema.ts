@@ -57,4 +57,6 @@ const investorSchema = new mongoose.Schema(
   }
 );
 
+investorSchema.index({ userName: 1 });
+
 export default investorSchema;

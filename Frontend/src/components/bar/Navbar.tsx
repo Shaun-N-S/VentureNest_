@@ -3,7 +3,6 @@ import { Bell, MessageCircle, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import type { UserRole } from "../../types/UserRole";
-import saasFounder from "../../assets/saas-founder-portrait.jpg";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
 import { useGetProfileImg, useLogout } from "../../hooks/Auth/AuthHooks";
@@ -35,6 +34,7 @@ const menuItems: Record<UserRole, { name: string; path: string }[]> = {
     { name: "Book a Session", path: "/book-session" },
     { name: "My offers", path: "/offers" },
     { name: "My Sessions", path: "/sessions" },
+    { name: "Plans", path: "/plans" },
   ],
   INVESTOR: [
     { name: "Home", path: "/investor/home" },
@@ -44,6 +44,7 @@ const menuItems: Record<UserRole, { name: string; path: string }[]> = {
     { name: "Schedule session", path: "/investor/schedule" },
     { name: "Dashboard", path: "/investor/dashboard" },
     { name: "My Sessions", path: "/investor/sessions" },
+    { name: "Plans", path: "/investor/plans" },
   ],
 };
 
@@ -51,23 +52,25 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const userData = useSelector((state: Rootstate) => state.authData);
-  const { mutate: logout } = useLogout()
-  const { data: profileData, isLoading, isError } = useGetProfileImg(userData.id)
-  const dispatch = useDispatch()
+  const { mutate: logout } = useLogout();
+  const {
+    data: profileData,
+    isLoading,
+    isError,
+  } = useGetProfileImg(userData.id);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (profileData?.data?.profileImg) {
-      console.log(profileData?.data?.profileImg)
+      console.log(profileData?.data?.profileImg);
       dispatch(updateUserData({ profileImg: profileData.data.profileImg }));
     }
   }, [profileData, dispatch]);
-
 
   const handleNavigation = (path: string) => {
     navigate(path);
     setIsOpen(false);
   };
-
 
   const handleLogout = () => {
     const currentRole = userData.role;
@@ -95,14 +98,13 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
   const handleProfile = () => {
     const currentRole = userData.role;
     if (currentRole === "INVESTOR") {
-      navigate('/investor/profile');
+      navigate("/investor/profile");
       setIsOpen(false);
     } else if (currentRole === "USER") {
-      navigate('/profile');
+      navigate("/profile");
       setIsOpen(false);
-
     }
-  }
+  };
 
   const handleHome = () => {
     const currentRole = userData.role;
@@ -113,7 +115,7 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
     } else {
       navigate("/home");
     }
-  }
+  };
 
   const handleNotificationBell = () => {
     const currentRole = userData.role;
@@ -124,12 +126,11 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
     } else {
       navigate("/home");
     }
-  }
+  };
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-white shadow-sm border-b z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-10 h-14">
-
         {/* Logo */}
         <div
           className="text-xl font-semibold tracking-tight cursor-pointer"
@@ -140,7 +141,6 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
-
           {/* Menu Items */}
           <ul className="flex gap-6 text-[15px] font-medium">
             {menuItems[role].map((item) => (
@@ -159,11 +159,17 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
             {role !== "ADMIN" && (
               <MessageCircle className="w-6 h-6 text-gray-700 hover:text-black cursor-pointer" />
             )}
-            <Bell className="w-6 h-6 text-gray-700 hover:text-black cursor-pointer" onClick={handleNotificationBell} />
+            <Bell
+              className="w-6 h-6 text-gray-700 hover:text-black cursor-pointer"
+              onClick={handleNotificationBell}
+            />
 
             {/* Avatar with menu */}
             <div className="relative">
-              <div onClick={() => setIsOpen((p) => !p)} className="cursor-pointer">
+              <div
+                onClick={() => setIsOpen((p) => !p)}
+                className="cursor-pointer"
+              >
                 {isLoading ? (
                   <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
                 ) : (
@@ -286,7 +292,6 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
       </AnimatePresence>
     </nav>
   );
-
 };
 
 export default Navbar;

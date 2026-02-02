@@ -1,6 +1,7 @@
 import { IGetConnectionReqUseCase } from "@domain/interfaces/useCases/relationship/IGetConnectionReqUseCase";
 import { IGetConnectionsPeopleListUseCase } from "@domain/interfaces/useCases/relationship/IGetConnectionsPeopleListUseCase ";
 import { IGetNetworkUsersUseCase } from "@domain/interfaces/useCases/relationship/IGetNetworkUsersUseCase";
+import { IRemoveConnectionUseCase } from "@domain/interfaces/useCases/relationship/IRemoveConnectionUseCase";
 import { ISendConnectionReqUseCase } from "@domain/interfaces/useCases/relationship/ISendConnectionReqUseCase";
 import { IUpdateConnectionReqStatusUseCase } from "@domain/interfaces/useCases/relationship/IUpdateConnectionReqStatusUseCase";
 import { Errors } from "@shared/constants/error";
@@ -16,7 +17,8 @@ export class RelationshipController {
     private _getNetwrokUsersUseCase: IGetNetworkUsersUseCase,
     private _getConnectionReqUseCase: IGetConnectionReqUseCase,
     private _udpateConnectionReqStatusUseCase: IUpdateConnectionReqStatusUseCase,
-    private _getConnectionsPeopleListUseCase: IGetConnectionsPeopleListUseCase
+    private _getConnectionsPeopleListUseCase: IGetConnectionsPeopleListUseCase,
+    private _removeConnectionUseCase: IRemoveConnectionUseCase
   ) {}
 
   async getNetworkUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -78,7 +80,6 @@ export class RelationshipController {
       const limit = parseInt(req.params.limit as string) || 10;
 
       const results = await this._getConnectionReqUseCase.execute(userId, page, limit);
-      console.log("resulst  ;   : ", results);
       ResponseHelper.success(
         res,
         MESSAGES.RELATIONSHIP.FETCHED_PERSONAL_REQ_SUCCESSFULLY,
@@ -117,7 +118,7 @@ export class RelationshipController {
     }
   }
 
-  async getConnectionsPeopleList(req: Request, res: Response, next: NextFunction) {
+  async getConnectionsPeopleList(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = res.locals.user.userId;
       const page = Number(req.query.page) || 1;
@@ -131,7 +132,34 @@ export class RelationshipController {
         search
       );
 
-      ResponseHelper.success(res, "Connections fetched", result, 200);
+      ResponseHelper.success(
+        res,
+        MESSAGES.RELATIONSHIP.CONNECTIONS_FETCHED_SUCCESSFULLY,
+        result,
+        HTTPSTATUS.OK
+      );
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async removeConnection(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const currentUserId = res.locals.user.userId;
+      const targetUserId = req.params.userId;
+
+      if (!currentUserId || !targetUserId) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const removed = await this._removeConnectionUseCase.execute(currentUserId, targetUserId);
+
+      ResponseHelper.success(
+        res,
+        MESSAGES.RELATIONSHIP.CONNECTION_REMOVED_SUCCESSFULLY,
+        { removed },
+        HTTPSTATUS.OK
+      );
     } catch (err) {
       next(err);
     }

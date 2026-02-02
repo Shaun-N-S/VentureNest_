@@ -53,6 +53,9 @@ export const ROUTES = {
     UPDATE_REPORT_STATUS: "/reports/:reportId/status",
     POST_BY_ID: "/content/posts/:postId",
     PROJECT_BY_ID: "/content/projects/:projectId",
+    PLANS: "/plans",
+    PLAN_BY_ID: "/plans/:planId",
+    PLAN_STATUS: "/plans/:planId/status",
   },
 
   USERS: {
@@ -77,9 +80,11 @@ export const ROUTES = {
   POST: {
     ADD: "/add",
     PERSONAL_POST: "/personal",
+    PERSONAL_POST_BY_ID: "/personal/:userId",
     FEED: "/feed",
     REMOVE: "/remove/:id",
     LIKE: "/likes/:postId",
+    LIKES: "/:postId/likes",
   },
 
   PROJECT: {
@@ -87,6 +92,7 @@ export const ROUTES = {
     UPDATE: "/update/:projectId",
     FETCH_PROJECTS: "/",
     PERSONAL_PROJECTS: "/personal",
+    PERSONAL_PROJECT_BY_ID: "/personal/:userId",
     REMOVE: "/remove/:projectId",
     SINGLE_PROJECT: "/:projectId",
     ADD_MONTHLY_REPORT: "/monthly-report/:projectId",
@@ -100,6 +106,7 @@ export const ROUTES = {
     GET_PERSONAL_CONNECTION_REQ: "/personal/connection-req",
     UPDATE_CONNECTION_REQ: "/update/connection-req/:fromUserId/:status",
     GET_CONNECTIONS_PEOPLE: "/connections-people-list",
+    REMOVE_CONNECTION: "/remove/connection/:userId",
   },
 
   COMMENT: {
@@ -120,5 +127,13 @@ export const ROUTES = {
     CREATE: "/",
     REPORTED_POSTS: "/reported-posts",
     REPORTED_PROJECTS: "/reported-projects",
+  },
+
+  PLANS: {
+    AVAILABLE_PLANS: "/available",
+  },
+
+  SUBSCRIPTION: {
+    CHECKOUT: "/checkout",
   },
 };

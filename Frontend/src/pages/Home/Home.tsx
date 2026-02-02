@@ -15,10 +15,12 @@ import PostSkeleton from "../../components/Skelton/PostSkelton";
 import { ReportModal } from "../../components/modals/ReportModal";
 import { ReportModalSkeleton } from "../../components/Skelton/ReportModalSkelton";
 import { ReportTargetType } from "../../types/reportTargetType";
+import type { UserRole } from "../../types/UserRole";
 
 export interface AllPost {
   _id: string;
   authorId: string;
+  authorRole: UserRole;
   content: string;
   mediaUrls: string[];
   likeCount: number;
@@ -86,7 +88,7 @@ const Home = () => {
           console.error(err);
           toast.error("Failed to save topics");
         },
-      }
+      },
     );
   };
 
@@ -151,9 +153,11 @@ const Home = () => {
               key={post._id}
               id={post._id}
               author={{
+                id: post.authorId,
                 name: post.authorName,
                 avatar: post.authorProfileImg,
                 followers: 0,
+                role: post.authorRole,
               }}
               timestamp={new Date(post.createdAt).toLocaleString()}
               content={post.content}
@@ -194,7 +198,7 @@ const Home = () => {
       {isReportOpen && reportTargetId && (
         <>
           {isReportModalLoading ? (
-            <ReportModalSkeleton/>
+            <ReportModalSkeleton />
           ) : (
             <ReportModal
               open={isReportOpen}

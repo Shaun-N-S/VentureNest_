@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Heart,
   Download,
   Flag,
   MapPin,
@@ -57,8 +56,6 @@ export function ProjectDetailCard({
   name,
   stage,
   image,
-  likes,
-  isLiked = false,
   logo,
   logoAlt,
   founders,
@@ -66,8 +63,6 @@ export function ProjectDetailCard({
   pitchDeckUrl,
   pitchDeckName,
   location,
-  onLike,
-  isLikeLoading = false,
   onReport,
 }: ProjectDetailCardProps) {
   const [isPdfOpen, setIsPdfOpen] = useState(false);
@@ -75,10 +70,6 @@ export function ProjectDetailCard({
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
-  };
-
-  const handleLike = () => {
-    onLike?.(id);
   };
 
   const stageClass =

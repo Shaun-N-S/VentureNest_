@@ -18,15 +18,20 @@ import ProjectFormModal from "../modals/AddProjectModal";
 import { useCreateProject } from "../../hooks/Project/projectHooks";
 import type { PersonalProjectApiResponse } from "../../types/PersonalProjectApiResponse";
 import { PeopleListModal, type PersonItem } from "../modals/PeopleListModal";
-import { useConnectionsPeopleList } from "../../hooks/Relationship/relationshipHooks";
+import {
+  useConnectionsPeopleList,
+  useRemoveConnection,
+} from "../../hooks/Relationship/relationshipHooks";
+import { updateUserData } from "../../store/Slice/authDataSlice";
+import { useDispatch } from "react-redux";
 
 export function ProfileCard(props: ProfileCardProps) {
-  console.log("props", props);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [isCreatePostModal, setIsCreatePostModal] = useState(false);
+  const [connectionSearch, setConnectionSearch] = useState("");
   const role = useSelector((state: Rootstate) => state.authData.role);
   const userId = useSelector((state: Rootstate) => state.authData.id);
   const userData = useSelector((state: Rootstate) => state.authData);
@@ -34,9 +39,10 @@ export function ProfileCard(props: ProfileCardProps) {
   const handleKYCVerification = () => setIsKYCModalOpen(true);
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
   const { mutate: addProject } = useCreateProject();
+  const { mutate: removeConnection } = useRemoveConnection();
+  const dispatch = useDispatch();
   const isInvestor = userData.role === "INVESTOR";
   const profileData = props.userData;
-  console.log("profileData  : ", profileData);
 
   const {
     data: connectionsData,
@@ -44,7 +50,7 @@ export function ProfileCard(props: ProfileCardProps) {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-  } = useConnectionsPeopleList();
+  } = useConnectionsPeopleList(connectionSearch, 5);
 
   const people: PersonItem[] =
     connectionsData?.pages.flatMap((page) =>
@@ -54,7 +60,7 @@ export function ProfileCard(props: ProfileCardProps) {
         subtitle: user.bio || "",
         avatar: user.profileImg,
         actionLabel: "Remove",
-      }))
+      })),
     ) ?? [];
 
   const handleAddProject = () => setIsAddProjectOpen(true);
@@ -91,7 +97,7 @@ export function ProfileCard(props: ProfileCardProps) {
                 },
               },
             };
-          }
+          },
         );
 
         setIsAddProjectOpen(false);
@@ -102,6 +108,25 @@ export function ProfileCard(props: ProfileCardProps) {
 
   const handleOpenConnections = () => {
     setOpen(true);
+  };
+
+  const handleRemoveConnection = (id: string) => {
+    removeConnection(id, {
+      onSuccess: () => {
+        toast.success("Connection removed");
+
+        queryClient.invalidateQueries({
+          queryKey: ["connections-people-list"],
+        });
+
+        dispatch(
+          updateUserData({
+            connectionsCount: Math.max((userData.connectionsCount ?? 1) - 1, 0),
+          }),
+        );
+      },
+      onError: () => toast.error("Failed to remove connection"),
+    });
   };
 
   return (
@@ -118,14 +143,14 @@ export function ProfileCard(props: ProfileCardProps) {
           <div className="flex items-center gap-4 mb-4">
             <Avatar className="h-16 w-16 md:h-20 md:w-20">
               <AvatarImage
-                src={userData.profileImg || "/placeholder.svg"}
-                alt={userData.userName}
+                src={profileData.profileImg || "/placeholder.svg"}
+                alt={profileData.userName}
               />
-              <AvatarFallback>{userData.userName.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{profileData.userName.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex items-center gap-2 mb-1">
               <h2 className="text-xl md:text-2xl font-bold">
-                {userData.userName}
+                {profileData.userName}
               </h2>
 
               {/* APPROVED */}
@@ -139,14 +164,14 @@ export function ProfileCard(props: ProfileCardProps) {
               )}
 
               {/* PENDING / SUBMITTED */}
-              {profileData.kycStatus === "SUBMITTED" && (
+              {props.isOwnProfile && profileData.kycStatus === "SUBMITTED" && (
                 <span className="text-sm text-yellow-600 font-medium">
                   KYC under processing
                 </span>
               )}
 
               {/* NOT SUBMITTED */}
-              {profileData.kycStatus === "PENDING" ? (
+              {props.isOwnProfile && profileData.kycStatus === "PENDING" ? (
                 <button
                   onClick={handleKYCVerification}
                   className="text-sm text-blue-600 hover:underline focus:outline-none"
@@ -162,11 +187,11 @@ export function ProfileCard(props: ProfileCardProps) {
           {/* Bio */}
           <div className="max-w-full md:max-w-[600px] overflow-hidden">
             <p className="text-sm md:text-base text-foreground mb-4 break-words whitespace-pre-line">
-              {userData.bio}
+              {profileData.bio}
             </p>
-            {userData.linkedInUrl && (
+            {profileData.linkedInUrl && (
               <a
-                href={userData.linkedInUrl ? userData.linkedInUrl : ""}
+                href={profileData.linkedInUrl ? profileData.linkedInUrl : ""}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline flex items-center gap-2 pt-2"
@@ -181,31 +206,31 @@ export function ProfileCard(props: ProfileCardProps) {
                 View Profile
               </a>
             )}
-            {userData.website && (
+            {profileData.website && (
               <InfoItem
                 label="Website"
                 value={
                   <a
-                    href={userData.website ? userData.website : ""}
+                    href={profileData.website ? profileData.website : ""}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline truncate block"
                   >
-                    {userData.website}
+                    {profileData.website}
                   </a>
                 }
               />
             )}
           </div>
 
-          {profileData.kycStatus === "REJECTED" && (
+          {props.isOwnProfile && profileData.kycStatus === "REJECTED" && (
             <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
               <p className="text-sm font-semibold text-red-700">
                 KYC Verification Failed
               </p>
 
               <p className="text-sm text-red-600 mt-1">
-                {profileData.kycRejectReason ??
+                {(props.isOwnProfile && profileData.kycRejectReason) ??
                   "Your documents did not meet verification requirements."}
               </p>
 
@@ -223,15 +248,15 @@ export function ProfileCard(props: ProfileCardProps) {
           <div className="flex gap-6 md:gap-8 justify-evenly">
             <div className="text-center">
               <p className="font-bold text-lg md:text-xl">
-                {userData.postsCount ?? 0}
+                {profileData.postCount ?? 0}
               </p>
               <p className="text-xs md:text-sm text-muted-foreground">Posts</p>
             </div>
             <div className="text-center">
               <p className="font-bold text-lg md:text-xl">
                 {isInvestor
-                  ? (userData.investmentCount ?? 0)
-                  : (userData.projectsCount ?? 0)}
+                  ? (profileData.investmentCount ?? 0)
+                  : (profileData.projectCount ?? 0)}
               </p>
               <p className="text-xs md:text-sm text-muted-foreground">
                 {isInvestor ? "Investments" : "Projects"}
@@ -252,47 +277,49 @@ export function ProfileCard(props: ProfileCardProps) {
         </div>
 
         {/* Menu button */}
-        <div className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          >
-            <MoreVertical className="h-4 w-4" />
-          </Button>
+        {props.isOwnProfile && (
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
 
-          <AnimatePresence>
-            {isDropdownOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setIsDropdownOpen(false)}
-                />
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute right-0 top-10 z-50 w-48 rounded-xl bg-white shadow-lg border border-gray-200 p-2"
-                >
-                  <button
-                    onClick={handleEditProfile}
-                    className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors mb-2"
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsDropdownOpen(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="absolute right-0 top-10 z-50 w-48 rounded-xl bg-white shadow-lg border border-gray-200 p-2"
                   >
-                    Edit Profile
-                  </button>
-                  <button
-                    onClick={handleCreatePost}
-                    className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors"
-                  >
-                    Create a New Post
-                  </button>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-        </div>
+                    <button
+                      onClick={handleEditProfile}
+                      className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors mb-2"
+                    >
+                      Edit Profile
+                    </button>
+                    <button
+                      onClick={handleCreatePost}
+                      className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors"
+                    >
+                      Create a New Post
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
 
       {/* Action buttons */}
@@ -300,7 +327,7 @@ export function ProfileCard(props: ProfileCardProps) {
         {/* <Button onClick={onFollow} variant={isFollowing ? "outline" : "default"} className="flex-1">
                     {isFollowing ? "Following" : "Follow"}
                 </Button> */}
-        {role === "USER" ? (
+        {props.isOwnProfile && role === "USER" ? (
           <Button
             onClick={handleAddProject}
             className="flex-1 bg-blue-500 hover:bg-blue-600"
@@ -317,16 +344,16 @@ export function ProfileCard(props: ProfileCardProps) {
                     <Share2 className="h-4 w-4" />
                 </Button> */}
       </div>
-      {role === "INVESTOR" ? (
+      {props.isOwnProfile && role === "INVESTOR" ? (
         <EditInvestorProfileModal
-          data={userData}
+          data={profileData}
           investorId={userId}
           open={isEditModalOpen}
           onOpenChange={setIsEditModalOpen}
         />
       ) : role === "USER" ? (
         <UserEditProfileModal
-          data={userData}
+          data={profileData}
           userId={userId}
           open={isEditModalOpen}
           onOpenChange={setIsEditModalOpen}
@@ -361,7 +388,8 @@ export function ProfileCard(props: ProfileCardProps) {
         loading={isLoading || isFetchingNextPage}
         hasNextPage={hasNextPage}
         fetchNextPage={fetchNextPage}
-        onActionClick={(id) => console.log("Remove connection:", id)}
+        onActionClick={handleRemoveConnection}
+        onSearch={setConnectionSearch}
       />
     </motion.div>
   );

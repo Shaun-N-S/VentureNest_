@@ -10,6 +10,9 @@ export const FRONTEND_ROUTES = {
     PROFILE: "/profile",
     NOTIFICATIONS: "/notifications",
     PROJECT: "/projects",
+    PLANS: "/plans",
+    PAYMENT_SUCCESS: "/payment-success",
+    COMMON_PROFILE: "/profile/:id",
   },
 
   INVESTOR: {
@@ -23,6 +26,8 @@ export const FRONTEND_ROUTES = {
     PROFILE: "/profile",
     NOTIFICATIONS: "/notifications",
     PROJECT: "/projects",
+    PLANS: "/plans",
+    PAYMENT_SUCCESS: "/payment-success",
   },
 
   ADMIN: {
@@ -33,5 +38,6 @@ export const FRONTEND_ROUTES = {
     VERIFICATIONS: "/verifications",
     PROJECTS: "/projects",
     REPORTS: "/reports",
+    SUBCRIPTION: "/subscriptions",
   },
 };

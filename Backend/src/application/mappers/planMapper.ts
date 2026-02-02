@@ -1,0 +1,101 @@
+import mongoose from "mongoose";
+import { PlanEntity } from "@domain/entities/plan/planEntity";
+import { IPlanModel } from "@infrastructure/db/models/planModel";
+import { CreatePlanDTO } from "application/dto/plan/createPlanDTO";
+import { PlanDTO } from "application/dto/plan/planDTO";
+import { PlanStatus } from "@domain/enum/planStatus";
+import { UpdatePlanDTO } from "application/dto/plan/updatePlanDTO";
+
+export class PlanMapper {
+  static toEntity(dto: CreatePlanDTO): PlanEntity {
+    return {
+      _id: new mongoose.Types.ObjectId().toString(),
+      name: dto.name,
+      role: dto.role,
+      description: dto.description,
+      limits: dto.limits,
+      permissions: dto.permissions,
+      billing: dto.billing,
+      status: PlanStatus.ACTIVE,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  }
+
+  static toDTO(entity: PlanEntity): PlanDTO {
+    return {
+      _id: entity._id!,
+      name: entity.name,
+      role: entity.role,
+      description: entity.description,
+      limits: entity.limits,
+      permissions: entity.permissions,
+      billing: entity.billing,
+      status: entity.status,
+      createdAt: entity.createdAt ?? new Date(),
+      updatedAt: entity.updatedAt ?? new Date(),
+    };
+  }
+
+  static toMongooseDocument(entity: PlanEntity) {
+    return {
+      _id: new mongoose.Types.ObjectId(entity._id),
+      name: entity.name,
+      role: entity.role,
+      description: entity.description,
+      limits: entity.limits,
+      permissions: entity.permissions,
+      billing: entity.billing,
+      status: entity.status,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    };
+  }
+
+  static fromMongooseDocument(doc: IPlanModel): PlanEntity {
+    return {
+      _id: doc._id.toString(),
+      name: doc.name,
+      role: doc.role,
+      description: doc.description,
+      limits: doc.limits,
+      permissions: doc.permissions,
+      billing: doc.billing,
+      status: doc.status,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    };
+  }
+
+  static mergeForUpdate(existing: PlanEntity, update: UpdatePlanDTO): PlanEntity {
+    return {
+      ...existing,
+
+      name: update.name ?? existing.name,
+      description: update.description ?? existing.description,
+
+      limits: {
+        ...existing.limits,
+        ...(update.limits
+          ? Object.fromEntries(Object.entries(update.limits).filter(([, v]) => v !== undefined))
+          : {}),
+      },
+
+      permissions: {
+        ...existing.permissions,
+        ...(update.permissions
+          ? Object.fromEntries(
+              Object.entries(update.permissions).filter(([, v]) => v !== undefined)
+            )
+          : {}),
+      },
+
+      billing: {
+        durationDays: update.billing?.durationDays ?? existing.billing.durationDays,
+        price: update.billing?.price ?? existing.billing.price,
+      },
+
+      updatedAt: new Date(),
+    };
+  }
+}

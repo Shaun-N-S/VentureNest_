@@ -1,7 +1,7 @@
 import { InvestorEntity } from "@domain/entities/investor/investorEntity";
 import { BaseRepository } from "./baseRepository";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { InvestorMapper } from "application/mappers/investorMapper";
 import { IInvestorModel } from "@infrastructure/db/models/investorModel";
 import { UserStatus } from "@domain/enum/userStatus";
@@ -106,5 +106,31 @@ export class InvestorRepository
     }
 
     return doc.status;
+  }
+
+  async findByIdsPaginated(ids: string[], skip: number, limit: number, search?: string) {
+    const query: any = {
+      _id: { $in: ids.map((id) => new mongoose.Types.ObjectId(id)) },
+    };
+
+    if (search) {
+      query.userName = { $regex: search, $options: "i" };
+    }
+
+    const docs = await this._model.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });
+
+    return docs.map(InvestorMapper.fromMongooseDocument);
+  }
+
+  async countByIds(ids: string[], search?: string) {
+    const query: any = {
+      _id: { $in: ids.map((id) => new mongoose.Types.ObjectId(id)) },
+    };
+
+    if (search) {
+      query.userName = { $regex: search, $options: "i" };
+    }
+
+    return this._model.countDocuments(query);
   }
 }

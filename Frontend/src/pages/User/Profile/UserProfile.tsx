@@ -42,6 +42,7 @@ import { useDispatch } from "react-redux";
 import { updateUserData } from "../../../store/Slice/authDataSlice";
 import { useInView } from "react-intersection-observer";
 import { Loader2 } from "lucide-react";
+import type { UserRole } from "../../../types/UserRole";
 
 export default function ProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false);
@@ -49,7 +50,7 @@ export default function ProfilePage() {
   const userId = userData.id;
   const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<ProjectType | null>(
-    null
+    null,
   );
   const [isMonthlyReportOpen, setIsMonthlyReportOpen] = useState(false);
   const [reportProjectId, setReportProjectId] = useState<string | null>(null);
@@ -58,11 +59,10 @@ export default function ProfilePage() {
   const { data: profileData } = useFetchUserProfile(userId);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfinitePersonalPosts(5);
-
+  console.log(profileData, "profile data :");
   const posts = data?.pages.flatMap((page) => page.data.data.posts) ?? [];
 
-  const { data: projectData, isLoading: projectIsLoading } =
-    useFetchPersonalProjects(1, 10);
+  const { data: projectData } = useFetchPersonalProjects(1, 10);
   const { mutate: removePost } = useRemovePost();
   const { mutate: removeProject } = useRemoveProject();
   const { mutate: updateProject } = useUpdateProject();
@@ -91,7 +91,7 @@ export default function ProfilePage() {
         projectsCount: p.projectCount,
         connectionsCount: p.connectionsCount,
         investmentCount: p.investmentCount,
-      })
+      }),
     );
   }, [profileData, dispatch]);
 
@@ -105,7 +105,7 @@ export default function ProfilePage() {
         dispatch(
           updateUserData({
             postsCount: Math.max((userData.postsCount ?? 1) - 1, 0),
-          })
+          }),
         );
       },
       onError: (err) => {
@@ -129,10 +129,10 @@ export default function ProfilePage() {
             const copy = structuredClone(oldData);
 
             copy.data.data.projects = copy.data.data.projects.filter(
-              (project) => project._id !== removedId
+              (project) => project._id !== removedId,
             );
             return copy;
-          }
+          },
         );
       },
       onError: (err: Error) => {
@@ -190,12 +190,12 @@ export default function ProfilePage() {
                             ...updatedFields,
                             logoUrl: updatedLogoUrl ?? project.logoUrl,
                           }
-                        : project
+                        : project,
                   ),
                 },
               },
             };
-          }
+          },
         );
 
         setIsEditProjectOpen(false);
@@ -209,7 +209,7 @@ export default function ProfilePage() {
   const handleVerifyProject = (projectId: string) => {
     if (!profileData.data.profileData.adminVerified) {
       toast.error(
-        "Your profile must be verified by admin before verifying a startup."
+        "Your profile must be verified by admin before verifying a startup.",
       );
       return;
     }
@@ -245,12 +245,12 @@ export default function ProfilePage() {
                         ? post.likeCount - 1
                         : post.likeCount + 1,
                     }
-                  : post
+                  : post,
               ),
             },
           },
         };
-      }
+      },
     );
 
     likePost(postId, {
@@ -265,7 +265,7 @@ export default function ProfilePage() {
 
   const handleProjectLike = (
     projectId: string,
-    updateUI: (liked: boolean) => void
+    updateUI: (liked: boolean) => void,
   ) => {
     likeProject(projectId, {
       onSuccess: (res) => {
@@ -289,12 +289,12 @@ export default function ProfilePage() {
                           liked: res.data.liked,
                           likeCount: res.data.likeCount,
                         }
-                      : p
+                      : p,
                   ),
                 },
               },
             };
-          }
+          },
         );
       },
       onError: () => {
@@ -339,6 +339,8 @@ export default function ProfilePage() {
                       key={post._id}
                       id={post._id}
                       author={{
+                        id: userData.id,
+                        role: userData.role as UserRole,
                         name: userData.userName,
                         avatar: userData.profileImg,
                         followers: 0,

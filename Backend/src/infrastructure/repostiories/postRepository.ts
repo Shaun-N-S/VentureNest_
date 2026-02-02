@@ -6,6 +6,8 @@ import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository
 import { Model } from "mongoose";
 import { PostMapper } from "application/mappers/postMapper";
 import { UserRole } from "@domain/enum/userRole";
+import { NotFoundExecption } from "application/constants/exceptions";
+import { POST_ERRORS } from "@shared/constants/error";
 
 export class PostRepository
   extends BaseRepository<PostEntity, IPostModel>
@@ -144,5 +146,37 @@ export class PostRepository
       authorId,
       isDeleted: false,
     });
+  }
+
+  async getPostLikes(postId: string, skip: number, limit: number) {
+    const post = await this._model.findById(postId).select("likes");
+    if (!post) throw new NotFoundExecption(POST_ERRORS.NO_POST_FOUND);
+
+    const total = post.likes.length;
+
+    const likes = post.likes.slice(skip, skip + limit).map((like) => ({
+      likerId: like.likerId.toString(),
+      likerRole: like.likerRole,
+    }));
+
+    return { likes, total };
+  }
+
+  async getPostLikeIds(postId: string) {
+    const post = await this._model.findById(postId, { likes: 1 });
+
+    if (!post) {
+      throw new NotFoundExecption(POST_ERRORS.NO_POST_FOUND);
+    }
+
+    const userIds = post.likes
+      .filter((l) => l.likerRole === UserRole.USER)
+      .map((l) => l.likerId.toString());
+
+    const investorIds = post.likes
+      .filter((l) => l.likerRole === UserRole.INVESTOR)
+      .map((l) => l.likerId.toString());
+
+    return { userIds, investorIds };
   }
 }

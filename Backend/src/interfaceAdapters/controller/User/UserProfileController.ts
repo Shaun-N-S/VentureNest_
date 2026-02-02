@@ -19,9 +19,7 @@ export class UserProfileController {
 
   async getProfileData(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      console.log("reached controller");
       const { id } = req.params;
-      console.log(id);
       if (!id) {
         throw new DataMissingExecption(Errors.INVALID_DATA);
       }

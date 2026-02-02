@@ -3,7 +3,7 @@ import { projectModel } from "@infrastructure/db/models/projectModel";
 import { PostRepository } from "@infrastructure/repostiories/postRepository";
 import { ProjectRepository } from "@infrastructure/repostiories/projectRepository";
 import { StorageService } from "@infrastructure/services/storageService";
-import { GetPostByIdUseCase } from "application/useCases/Admin/post/GetPostByIdUseCase";
+import { GetPostByIdUseCase } from "application/useCases/Admin/post/getPostByIdUseCase";
 import { GetProjectByIdUseCase } from "application/useCases/Admin/project/getProjectByIdUseCase";
 import { AdminContentController } from "interfaceAdapters/controller/Admin/adminContentController";
 

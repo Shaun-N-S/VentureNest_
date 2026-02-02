@@ -16,12 +16,16 @@ import { Project_Router } from "interfaceAdapters/routes/projectRoutes";
 import http from "http";
 import { initSocket } from "@infrastructure/realtime/socketServer";
 import { Report_Router } from "interfaceAdapters/routes/reportRoutes";
+import { Plan_Routes } from "interfaceAdapters/routes/planRoutes";
+import { Webhook_Routes } from "interfaceAdapters/routes/webhookRoutes";
+import { Subscription_Routes } from "interfaceAdapters/routes/subscriptionRoutes";
 
 class Express_app {
   private _app: Express;
   constructor() {
     this._app = express();
     mongoConnect.connect();
+    this._app.use("/api/webhook", new Webhook_Routes().get_router());
     this._setLoggingMiddleware();
     this._setMiddleware();
     this._setRoutes();
@@ -44,7 +48,6 @@ class Express_app {
   }
 
   private _setRoutes() {
-    // Auth routes
     this._app.use("/auth", new User_Router().get_router());
     this._app.use("/auth", new Investor_Router().get_router());
     this._app.use("/auth", new Admin_Routes().get_router());
@@ -65,6 +68,10 @@ class Express_app {
     this._app.use("/replies", new Reply_Router().get_router());
 
     this._app.use("/reports", new Report_Router().get_router());
+
+    this._app.use("/plans", new Plan_Routes().get_router());
+
+    this._app.use("/subscriptions", new Subscription_Routes().get_router());
   }
 
   private _setErrorHandlingMiddleware() {

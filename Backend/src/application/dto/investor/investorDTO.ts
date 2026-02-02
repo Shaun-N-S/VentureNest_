@@ -12,6 +12,8 @@ export interface InvestorDTO {
   kycStatus: KYCStatus;
   adminVerified: boolean;
   profileImg?: string;
+  companyName: string;
+  location: string;
   updatedAt: Date;
   createdAt: Date;
 }

@@ -26,4 +26,6 @@ export interface IRelationshipRepository extends IBaseRepository<RelationshipEnt
   ): Promise<boolean | null>;
 
   countConnections(userId: string): Promise<number>;
+
+  removeConnection(userId1: string, userId2: string): Promise<boolean>;
 }

@@ -8,6 +8,8 @@ import {
   addPost,
   fetchAllPosts,
   fetchPersonalPosts,
+  fetchPersonalPostsById,
+  fetchPostLikes,
   likePost,
   removePost,
 } from "../../services/Post/PostService";
@@ -31,6 +33,18 @@ export const useInfinitePersonalPosts = (limit = 5) => {
       lastPage.data.data.hasNextPage ? allPages.length + 1 : undefined,
 
     staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useInfinitePersonalPostsById = (userId: string, limit = 5) => {
+  return useInfiniteQuery({
+    queryKey: ["personal-post-by-id"],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      fetchPersonalPostsById(userId, pageParam as number, limit),
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.data.data.hasNextPage ? allPages.length + 1 : undefined,
     refetchOnWindowFocus: false,
   });
 };
@@ -92,11 +106,11 @@ export const useLikePost = () => {
                         ? post.likeCount - 1
                         : post.likeCount + 1,
                     }
-                  : post
+                  : post,
               ),
             })),
           };
-        }
+        },
       );
 
       return { previous };
@@ -107,5 +121,20 @@ export const useLikePost = () => {
         queryClient.setQueryData(["posts-feed"], ctx.previous);
       }
     },
+  });
+};
+
+export const usePostLikes = (
+  postId: string,
+  enabled: boolean,
+  search?: string,
+) => {
+  return useInfiniteQuery({
+    queryKey: ["post-likes", postId, search],
+    enabled,
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => fetchPostLikes(postId, pageParam, 5, search),
+    getNextPageParam: (lastPage, pages) =>
+      lastPage.hasNextPage ? pages.length + 1 : undefined,
   });
 };
