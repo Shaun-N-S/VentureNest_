@@ -13,6 +13,8 @@ import type { ProjectType } from "../../types/projectType";
 import { useState } from "react";
 import { ReportModal } from "../../components/modals/ReportModal";
 import { ReportTargetType } from "../../types/reportTargetType";
+import { useSelector } from "react-redux";
+import type { Rootstate } from "../../store/store";
 
 const ProjectDetailedPage = () => {
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -20,6 +22,7 @@ const ProjectDetailedPage = () => {
   const { id } = useParams();
   const { data, isLoading } = useFetchProjectById(id!);
   const { mutate: likeProject, isPending } = useLikeProject();
+  const role = useSelector((state: Rootstate) => state.authData.role);
 
   console.log("data for detailed page  project    : ,", data);
 
@@ -44,7 +47,7 @@ const ProjectDetailedPage = () => {
                 },
               },
             };
-          }
+          },
         );
 
         queryClient.setQueryData(
@@ -57,11 +60,11 @@ const ProjectDetailedPage = () => {
               data: {
                 ...old.data,
                 projects: old.data.projects.map((p) =>
-                  p._id === projectId ? { ...p, liked, likeCount } : p
+                  p._id === projectId ? { ...p, liked, likeCount } : p,
                 ),
               },
             };
-          }
+          },
         );
       },
       onError: () => toast.error("Failed to like project"),
@@ -147,6 +150,7 @@ const ProjectDetailedPage = () => {
           onLike={handleProjectLike}
           isLikeLoading={isPending}
           onReport={handleReport}
+          showScheduleButton={role === "INVESTOR"}
         />
         {/* Report Modal */}
         {isReportOpen && reportTargetId && (

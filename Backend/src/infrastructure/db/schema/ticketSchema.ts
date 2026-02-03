@@ -6,9 +6,26 @@ const ticketSchema = new mongoose.Schema(
   {
     ticketNumber: { type: String, required: true, unique: true },
 
-    investorId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
-    founderId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
-    projectId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
+    investorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Investor",
+      required: true,
+      index: true,
+    },
+
+    founderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+      required: true,
+      index: true,
+    },
 
     companyName: { type: String },
 
@@ -26,6 +43,15 @@ const ticketSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+ticketSchema.virtual("sessions", {
+  ref: "Session",
+  localField: "_id",
+  foreignField: "ticketId",
+});
+
+ticketSchema.set("toObject", { virtuals: true });
+ticketSchema.set("toJSON", { virtuals: true });
 
 ticketSchema.index({ investorId: 1, projectId: 1 });
 

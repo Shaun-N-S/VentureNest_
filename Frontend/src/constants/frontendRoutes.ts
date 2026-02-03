@@ -28,6 +28,8 @@ export const FRONTEND_ROUTES = {
     PROJECT: "/projects",
     PLANS: "/plans",
     PAYMENT_SUCCESS: "/payment-success",
+    BOOK_SESSION: "/schedule-session",
+    SESSIONS:"/sessions"
   },
 
   ADMIN: {

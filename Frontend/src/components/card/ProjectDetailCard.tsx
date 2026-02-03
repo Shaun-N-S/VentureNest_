@@ -9,12 +9,14 @@ import {
   Users,
   Target,
   Sparkles,
+  CalendarDays,
 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Document, Page } from "react-pdf";
+import { Link } from "react-router-dom";
 
 interface Founder {
   id: string;
@@ -41,6 +43,7 @@ interface ProjectDetailCardProps {
   onLike?: (id: string) => void;
   isLikeLoading?: boolean;
   onReport?: (id: string) => void;
+  showScheduleButton?: boolean;
 }
 
 const stageColors: Record<string, string> = {
@@ -64,6 +67,7 @@ export function ProjectDetailCard({
   pitchDeckName,
   location,
   onReport,
+  showScheduleButton,
 }: ProjectDetailCardProps) {
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -111,33 +115,34 @@ export function ProjectDetailCard({
             />
             <span className="text-lg font-bold text-foreground">{likes}</span>
           </motion.button> */}
+        </div>
 
-          {/* Logo Overlay */}
-          <div className="absolute -bottom-12 left-8 z-10">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.4 }}
-              className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-card shadow-lg border-4 border-card overflow-hidden"
-            >
-              <img
-                src={logo || "/placeholder.svg"}
-                alt={logoAlt || name}
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-          </div>
+        <div className="relative z-20 -mt-16 ml-8">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.4 }}
+            className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white shadow-lg border-4 border-white overflow-hidden flex items-center justify-center"
+          >
+            <img
+              src={logo || "/placeholder.svg"}
+              alt={logoAlt || name}
+              className="w-full h-full object-contain"
+            />
+          </motion.div>
         </div>
 
         {/* Content Section */}
-        <div className="pt-16 px-6 pb-8 md:px-8">
+        <div className="pt-40 md:pt-2 px-6 pb-8 md:px-8">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
-            <div className="space-y-3">
+          <div className="flex flex-col gap-3 mb-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              {/* LEFT SIDE */}
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
                   {name}
                 </h1>
+
                 <Badge
                   variant="outline"
                   className={`${stageClass} font-medium`}
@@ -147,13 +152,30 @@ export function ProjectDetailCard({
                 </Badge>
               </div>
 
-              {location && (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="w-4 h-4" />
-                  <span className="text-sm font-medium">{location}</span>
-                </div>
+              {/* RIGHT SIDE */}
+              {showScheduleButton && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <Button className="gap-2 rounded-xl px-6 py-2" asChild>
+                    <Link to={`/investor/schedule-session/${id}`}>
+                      <CalendarDays className="w-4 h-4" />
+                      Schedule Session
+                    </Link>
+                  </Button>
+                </motion.div>
               )}
             </div>
+
+            {/* Location */}
+            {location && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <MapPin className="w-4 h-4" />
+                <span className="text-sm font-medium">{location}</span>
+              </div>
+            )}
           </div>
 
           {/* Founders Section */}

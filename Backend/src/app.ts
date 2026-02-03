@@ -19,6 +19,7 @@ import { Report_Router } from "interfaceAdapters/routes/reportRoutes";
 import { Plan_Routes } from "interfaceAdapters/routes/planRoutes";
 import { Webhook_Routes } from "interfaceAdapters/routes/webhookRoutes";
 import { Subscription_Routes } from "interfaceAdapters/routes/subscriptionRoutes";
+import { Ticket_Router } from "interfaceAdapters/routes/ticketRoutes";
 
 class Express_app {
   private _app: Express;
@@ -72,6 +73,8 @@ class Express_app {
     this._app.use("/plans", new Plan_Routes().get_router());
 
     this._app.use("/subscriptions", new Subscription_Routes().get_router());
+
+    this._app.use("/tickets", new Ticket_Router().get_router());
   }
 
   private _setErrorHandlingMiddleware() {

@@ -121,4 +121,9 @@ export const API_ROUTES = {
   SUBSCRIPTION: {
     CHECKOUT: "/subscriptions/checkout",
   },
+
+  TICKET: {
+    CREATE: "/tickets/investor/tickets",
+    GET_BY_INVESTOR: "/tickets/investor/tickets",
+  },
 };
