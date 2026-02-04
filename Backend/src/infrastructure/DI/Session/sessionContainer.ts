@@ -9,6 +9,7 @@ import { UserRepository } from "@infrastructure/repostiories/userRepository";
 import { SessionCancelledEmailContentGenerator } from "@infrastructure/services/Email/EmailContentGenerator/sessionCancelledEmailContentGenerator";
 import { EmailService } from "@infrastructure/services/Email/emailService";
 import { CancelSessionUseCase } from "application/useCases/Session/cancelSessionUseCase";
+import { CreateSessionFeedbackUseCase } from "application/useCases/Session/createSessionFeedbackUseCase";
 import { SessionController } from "interfaceAdapters/controller/Session/sessionController";
 
 const sessionrepo = new SessionRepository(sessionModel);
@@ -27,4 +28,9 @@ const cancelSessionUseCase = new CancelSessionUseCase(
   cancelEmailTemplate
 );
 
-export const sessionController = new SessionController(cancelSessionUseCase);
+const createSessionFeedbackUseCase = new CreateSessionFeedbackUseCase(sessionrepo);
+
+export const sessionController = new SessionController(
+  cancelSessionUseCase,
+  createSessionFeedbackUseCase
+);

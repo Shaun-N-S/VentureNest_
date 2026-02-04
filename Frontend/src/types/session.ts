@@ -67,3 +67,17 @@ export interface CancelledSessionResponseDTO {
   cancelReason: string;
   updatedAt: string;
 }
+
+export interface AddSessionFeedbackDTO {
+  sessionId: string;
+  feedback: string;
+  decision: string; // TicketStatus
+}
+
+export interface SessionFeedbackResponseDTO {
+  sessionId: string;
+  status: "completed";
+  feedback: string;
+  decision: string;
+  updatedAt: string;
+}

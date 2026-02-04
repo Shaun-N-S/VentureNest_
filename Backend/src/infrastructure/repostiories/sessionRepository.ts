@@ -6,6 +6,7 @@ import { SessionMapper } from "application/mappers/sessionMapper";
 import { SessionCancelledBy } from "@domain/enum/sessionCancelledBy";
 import { BaseRepository } from "./baseRepository";
 import { Model } from "mongoose";
+import { TicketStatus } from "@domain/enum/ticketStatus";
 
 export class SessionRepository
   extends BaseRepository<SessionEntity, ISessionModel>
@@ -31,6 +32,24 @@ export class SessionRepository
         status: SessionStatus.CANCELLED,
         cancelledBy,
         cancelReason: reason,
+      },
+      { new: true }
+    );
+
+    return doc ? SessionMapper.toEntity(doc) : null;
+  }
+
+  async addFeedback(
+    sessionId: string,
+    feedback: string,
+    decision: TicketStatus
+  ): Promise<SessionEntity | null> {
+    const doc = await this._model.findByIdAndUpdate(
+      sessionId,
+      {
+        feedback,
+        decision,
+        status: SessionStatus.COMPLETED,
       },
       { new: true }
     );

@@ -146,5 +146,6 @@ export const ROUTES = {
 
   SESSION: {
     CANCEL_SESSOIN: "/:sessionId/cancel",
+    ADD_FEEDBACK: "/:sessionId/feedback",
   },
 };

@@ -130,5 +130,6 @@ export const API_ROUTES = {
 
   SESSION: {
     CANCEL_SESSION: "/sessions/:sessionId/cancel",
+    ADD_FEEDBACK: "/sessions/:sessionId/feedback",
   },
 };

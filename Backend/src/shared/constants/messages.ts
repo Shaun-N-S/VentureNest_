@@ -119,5 +119,6 @@ export const MESSAGES = {
 
   SESSION: {
     SESSION_CANCELLED: "Session cancelled successfully",
+    SESSION_FEEDBACK_ADDED: "Session feedback added successfully",
   },
 };
