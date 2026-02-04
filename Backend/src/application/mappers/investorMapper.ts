@@ -162,6 +162,7 @@ export class InvestorMapper {
 
   static investorProfileDatatoDTO(data: InvestorEntity): InvestorProfileDTO {
     return {
+      _id: data._id || "",
       userName: data.userName,
       profileImg: data.profileImg || "",
       bio: data.bio || "",

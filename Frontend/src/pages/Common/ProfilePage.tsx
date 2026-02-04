@@ -62,7 +62,7 @@ export default function CommonProfilePage() {
     : userProfileQuery.data;
 
   const profile = profileData?.data?.profileData;
-
+  console.log("Profile data ; ", profile);
   const normalizedUserData = profile ? { ...profile, id: profile._id } : null;
 
   const isOwnProfile = normalizedUserData?.id === loggedInUserId;
@@ -195,6 +195,7 @@ export default function CommonProfilePage() {
               <ProfileCard
                 userData={normalizedUserData}
                 isOwnProfile={isOwnProfile}
+                isInvestorProfile={isInvestorProfile}
                 isFollowing={isFollowing}
                 onFollow={() => setIsFollowing(!isFollowing)}
               />

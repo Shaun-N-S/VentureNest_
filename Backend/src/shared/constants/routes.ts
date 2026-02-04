@@ -148,4 +148,8 @@ export const ROUTES = {
     CANCEL_SESSOIN: "/:sessionId/cancel",
     ADD_FEEDBACK: "/:sessionId/feedback",
   },
+
+  PITCH: {
+    CREATE: "/pitch",
+  },
 };

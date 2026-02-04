@@ -3,6 +3,7 @@ import pitchSchema from "../schema/pitchSchema";
 import { PitchStatus } from "@domain/enum/pitchStatus";
 
 export interface IPitchModel extends Document {
+  _id: string;
   projectId: string;
   founderId: string;
   investorId: string;

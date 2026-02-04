@@ -24,6 +24,7 @@ import {
 } from "../../hooks/Relationship/relationshipHooks";
 import { updateUserData } from "../../store/Slice/authDataSlice";
 import { useDispatch } from "react-redux";
+import { PitchModal } from "../modals/PitchModal";
 
 export function ProfileCard(props: ProfileCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -32,6 +33,7 @@ export function ProfileCard(props: ProfileCardProps) {
   const [open, setOpen] = useState(false);
   const [isCreatePostModal, setIsCreatePostModal] = useState(false);
   const [connectionSearch, setConnectionSearch] = useState("");
+  const [isPitchModalOpen, setIsPitchModalOpen] = useState(false);
   const role = useSelector((state: Rootstate) => state.authData.role);
   const userId = useSelector((state: Rootstate) => state.authData.id);
   const userData = useSelector((state: Rootstate) => state.authData);
@@ -43,6 +45,7 @@ export function ProfileCard(props: ProfileCardProps) {
   const dispatch = useDispatch();
   const isInvestor = userData.role === "INVESTOR";
   const profileData = props.userData;
+  console.log(profileData);
 
   const {
     data: connectionsData,
@@ -327,22 +330,35 @@ export function ProfileCard(props: ProfileCardProps) {
         {/* <Button onClick={onFollow} variant={isFollowing ? "outline" : "default"} className="flex-1">
                     {isFollowing ? "Following" : "Follow"}
                 </Button> */}
-        {props.isOwnProfile && role === "USER" ? (
-          <Button
-            onClick={handleAddProject}
-            className="flex-1 bg-blue-500 hover:bg-blue-600"
-          >
-            Add a project
-          </Button>
-        ) : (
-          // <Button
-          //   onClick={() => console.log(userData.id)}
-          //   className="flex-1 bg-blue-500 hover:bg-blue-600"
-          // >
-          //   Connect
-          // </Button>
-          ""
-        )}
+        <div className="flex gap-3 pt-4 border-t border-border">
+          {/* Own profile → Add project */}
+          {props.isOwnProfile && role === "USER" && (
+            <Button
+              onClick={handleAddProject}
+              className="flex-1 bg-blue-500 hover:bg-blue-600"
+            >
+              Add a project
+            </Button>
+          )}
+
+          {/* Viewing investor profile as founder */}
+          {!props.isOwnProfile &&
+            role === "USER" &&
+            props.isInvestorProfile && (
+              <>
+                <Button variant="outline" className="flex-1">
+                  Connect
+                </Button>
+
+                <Button
+                  onClick={() => setIsPitchModalOpen(true)}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600"
+                >
+                  Send Pitch
+                </Button>
+              </>
+            )}
+        </div>
         {/* <Button variant="outline" size="icon" className="h-10 w-10 bg-transparent">
                     <MessageCircle className="h-4 w-4" />
                 </Button>
@@ -396,6 +412,12 @@ export function ProfileCard(props: ProfileCardProps) {
         fetchNextPage={fetchNextPage}
         onActionClick={handleRemoveConnection}
         onSearch={setConnectionSearch}
+      />
+
+      <PitchModal
+        open={isPitchModalOpen}
+        onOpenChange={setIsPitchModalOpen}
+        investorId={profileData.id}
       />
     </motion.div>
   );
