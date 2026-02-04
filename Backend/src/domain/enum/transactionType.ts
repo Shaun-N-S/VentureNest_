@@ -1,0 +1,5 @@
+export enum TransactionType {
+  SUBSCRIPTION = "SUBSCRIPTION",
+  INVESTMENT = "INVESTMENT",
+  PLATFORM_FEE = "PLATFORM_FEE",
+}
