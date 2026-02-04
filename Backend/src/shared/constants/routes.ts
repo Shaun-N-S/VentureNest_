@@ -139,6 +139,12 @@ export const ROUTES = {
 
   TICKET: {
     CREATE: "/investor/tickets",
-    INVESTOR_TICKETS: "/investor/tickets",
+    INVESTOR_TICKETS: "/investor",
+    FOUNDER_TICKETS: "/founder",
+    TICKET_BY_ID: "/:ticketId",
+  },
+
+  SESSION: {
+    CANCEL_SESSOIN: "/:sessionId/cancel",
   },
 };

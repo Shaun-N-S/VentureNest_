@@ -1,5 +1,6 @@
 import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
+import type { InvestorTicketDTO } from "../../types/session";
 import type { CreateTicketWithSessionPayload } from "../../types/ticket";
 
 export const createTicketWithSession = async (
@@ -14,6 +15,14 @@ export const createTicketWithSession = async (
 
 export const fetchInvestorTickets = async () => {
   const res = await AxiosInstance.get(API_ROUTES.TICKET.GET_BY_INVESTOR, {
+    withCredentials: true,
+  });
+
+  return res.data.data;
+};
+
+export const fetchFounderTickets = async (): Promise<InvestorTicketDTO[]> => {
+  const res = await AxiosInstance.get(API_ROUTES.TICKET.GET_BY_FOUNDER, {
     withCredentials: true,
   });
 

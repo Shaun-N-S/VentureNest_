@@ -9,10 +9,10 @@ export interface TicketEntity {
   founderId: string;
   projectId: string;
 
-  companyName?: string | undefined;
+  companyName?: string;
 
-  stage: TicketStage;
-  status: TicketStatus;
+  currentStage: TicketStage;
+  overallStatus: TicketStatus;
 
   createdAt?: Date;
   updatedAt?: Date;

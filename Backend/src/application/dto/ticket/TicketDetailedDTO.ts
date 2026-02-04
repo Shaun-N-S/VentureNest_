@@ -1,14 +1,21 @@
-export interface InvestorTicketDetailedDTO {
+import { SessionStatus } from "@domain/enum/sessionStatus";
+import { TicketStage } from "@domain/enum/ticketStage";
+import { TicketStatus } from "@domain/enum/ticketStatus";
+
+export interface TicketDetailedDTO {
   ticketId: string;
   ticketNumber: string;
-  stage: string;
-  status: string;
+
+  currentStage: TicketStage;
+  overallStatus: TicketStatus;
+
   createdAt: Date;
 
   project: {
     id: string;
     startupName: string;
     coverImageUrl?: string;
+    logoUrl?: string;
     location?: string;
   };
 
@@ -30,6 +37,9 @@ export interface InvestorTicketDetailedDTO {
     date: Date;
     startTime?: Date;
     duration: number;
-    status: string;
+    status: SessionStatus;
+    stage: TicketStage;
+    decision?: TicketStatus;
+    cancelReason?: string;
   }[];
 }

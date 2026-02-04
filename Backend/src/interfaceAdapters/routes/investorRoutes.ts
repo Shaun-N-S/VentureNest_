@@ -2,7 +2,7 @@ import { investorAuthController } from "@infrastructure/DI/Auth/authContainer";
 import { investorProfileController } from "@infrastructure/DI/Investor/InvestorProfileContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
-import { investorGuard } from "interfaceAdapters/middleware/guards";
+import { investorGuard, userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 import { uploadMulter } from "interfaceAdapters/middleware/multer";
 
 export class Investor_Router {
@@ -74,7 +74,7 @@ export class Investor_Router {
 
     this._route.get(
       ROUTES.INVESTORS.PROFILE.FETCH_DATA,
-      ...investorGuard,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         investorProfileController.getProfileData(req, res, next);
       }

@@ -12,9 +12,9 @@ export class TicketMapper {
       startupName: string;
     };
     investorId: string;
-    discussionLevel: TicketStage;
+    initialStage: TicketStage;
   }): TicketEntity {
-    const { project, investorId, discussionLevel } = params;
+    const { project, investorId, initialStage } = params;
 
     return {
       ticketNumber: `TKT-${Date.now()}`,
@@ -22,8 +22,10 @@ export class TicketMapper {
       founderId: project.userId,
       projectId: project._id,
       companyName: project.startupName,
-      stage: discussionLevel,
-      status: TicketStatus.PROCEED,
+
+      // ✅ NEW FIELDS
+      currentStage: initialStage,
+      overallStatus: TicketStatus.PROCEED,
     };
   }
 
@@ -35,8 +37,10 @@ export class TicketMapper {
       founderId: new mongoose.Types.ObjectId(entity.founderId),
       projectId: new mongoose.Types.ObjectId(entity.projectId),
       companyName: entity.companyName,
-      stage: entity.stage,
-      status: entity.status,
+
+      // ✅ NEW FIELDS
+      currentStage: entity.currentStage,
+      overallStatus: entity.overallStatus,
     };
   }
 
@@ -47,9 +51,11 @@ export class TicketMapper {
       investorId: doc.investorId.toString(),
       founderId: doc.founderId.toString(),
       projectId: doc.projectId.toString(),
-      companyName: doc.companyName,
-      stage: doc.stage as TicketStage,
-      status: doc.status as TicketStatus,
+      companyName: doc.companyName || "",
+
+      currentStage: doc.currentStage as TicketStage,
+      overallStatus: doc.overallStatus as TicketStatus,
+
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     };

@@ -2,7 +2,7 @@ import { userAuthController } from "@infrastructure/DI/Auth/authContainer";
 import { userProfileController } from "@infrastructure/DI/User/UserProfileContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
-import { userGuard } from "interfaceAdapters/middleware/guards";
+import { userGuard, userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 import { uploadMulter } from "interfaceAdapters/middleware/multer";
 
 export class User_Router {
@@ -64,7 +64,7 @@ export class User_Router {
 
     this._route.get(
       USER_AUTH.GET_PROFILE_IMG,
-      // ...userGuard,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         userAuthController.handleProfileImg(req, res, next);
       }
@@ -72,7 +72,7 @@ export class User_Router {
 
     this._route.post(
       USER_AUTH.SET_INTERESTED_TOPICS,
-      // ...userGuard,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         userAuthController.handleInterestedTopics(req, res, next);
       }
@@ -80,7 +80,7 @@ export class User_Router {
 
     this._route.get(
       ROUTES.USERS.PROFILE.FETCH_DATA,
-      // ...userGuard,
+      ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         userProfileController.getProfileData(req, res, next);
       }

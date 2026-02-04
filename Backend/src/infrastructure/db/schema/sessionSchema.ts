@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import { SessionStatus } from "@domain/enum/sessionStatus";
 import { SessionCancelledBy } from "@domain/enum/sessionCancelledBy";
+import { TicketStage } from "@domain/enum/ticketStage";
+import { TicketStatus } from "@domain/enum/ticketStatus";
 
 const sessionSchema = new mongoose.Schema(
   {
@@ -20,17 +22,26 @@ const sessionSchema = new mongoose.Schema(
       default: SessionStatus.SCHEDULED,
     },
 
+    stage: {
+      type: String,
+      enum: Object.values(TicketStage),
+      required: true,
+    },
+
+    decision: {
+      type: String,
+      enum: Object.values(TicketStatus),
+    },
+
     cancelledBy: {
       type: String,
       enum: Object.values(SessionCancelledBy),
     },
-    cancelReason: { type: String },
 
-    feedback: { type: String },
+    cancelReason: String,
+    feedback: String,
   },
   { timestamps: true }
 );
-
-sessionSchema.index({ ticketId: 1, date: 1 });
 
 export default sessionSchema;

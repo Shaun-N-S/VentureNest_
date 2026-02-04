@@ -1,7 +1,7 @@
 import { ITicketRepository } from "@domain/interfaces/repositories/ITicketRepository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IGetTicketsByInvestorUseCase } from "@domain/interfaces/useCases/ticket/IGetTicketsByInvestorUseCase";
-import { InvestorTicketDetailedDTO } from "application/dto/ticket/InvestorTicketDetailedDTO";
+import { TicketDetailedDTO } from "application/dto/ticket/TicketDetailedDTO";
 
 export class GetTicketsByInvestorUseCase implements IGetTicketsByInvestorUseCase {
   constructor(
@@ -9,7 +9,7 @@ export class GetTicketsByInvestorUseCase implements IGetTicketsByInvestorUseCase
     private readonly _storageService: IStorageService
   ) {}
 
-  async execute(investorId: string): Promise<InvestorTicketDetailedDTO[]> {
+  async execute(investorId: string): Promise<TicketDetailedDTO[]> {
     const tickets = await this._ticketRepo.findInvestorTicketsDetailed(investorId);
 
     return Promise.all(
@@ -17,6 +17,13 @@ export class GetTicketsByInvestorUseCase implements IGetTicketsByInvestorUseCase
         if (ticket.project.coverImageUrl) {
           ticket.project.coverImageUrl = await this._storageService.createSignedUrl(
             ticket.project.coverImageUrl,
+            10 * 60
+          );
+        }
+
+        if (ticket.project.logoUrl) {
+          ticket.project.logoUrl = await this._storageService.createSignedUrl(
+            ticket.project.logoUrl,
             10 * 60
           );
         }
@@ -34,7 +41,7 @@ export class GetTicketsByInvestorUseCase implements IGetTicketsByInvestorUseCase
             10 * 60
           );
         }
-
+        console.log(ticket);
         return ticket;
       })
     );

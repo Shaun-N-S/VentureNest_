@@ -1,23 +1,37 @@
 import { useMemo, useState } from "react";
-import { SessionStatus, type SessionDTO } from "../../types/session";
-import { useGetInvestorTickets } from "../../hooks/Ticket/ticketHook";
+import {
+  SessionStatus,
+  type PersonDTO,
+  type SessionDTO,
+} from "../../types/session";
 import { SessionCard } from "../../components/card/SessionCard";
-import { Calendar, CheckCircle2 } from "lucide-react";
+import { Calendar, CheckCircle2, XCircle } from "lucide-react";
+import { useSelector } from "react-redux";
+import type { Rootstate } from "../../store/store";
+import type { UserRole } from "../../types/UserRole";
+import { useMyTickets } from "../../hooks/Ticket/useMyTicket";
 
-type Tab = "UPCOMING" | "COMPLETED";
+type Tab = "UPCOMING" | "COMPLETED" | "CANCELLED";
 
 interface FlattenedSession {
   session: SessionDTO;
-  projectName: string;
-  founder: {
+  project: {
     id: string;
-    name: string;
-    profileImg?: string;
+    startupName: string;
+    logoUrl?: string;
+    coverImageUrl?: string;
+    location?: string;
   };
+  founder: PersonDTO;
+  investor: PersonDTO;
+  stage: string;
 }
 
 export default function MySessionsPage() {
-  const { data, isLoading } = useGetInvestorTickets();
+  const role = useSelector(
+    (state: Rootstate) => state.authData.role,
+  ) as UserRole;
+  const { data, isLoading } = useMyTickets(role);
   const [tab, setTab] = useState<Tab>("UPCOMING");
 
   const sessions = useMemo<FlattenedSession[]>(() => {
@@ -26,17 +40,25 @@ export default function MySessionsPage() {
     return data.flatMap((ticket) =>
       ticket.sessions.map((session) => ({
         session,
-        projectName: ticket.project.startupName,
+        project: ticket.project,
         founder: ticket.founder,
+        investor: ticket.investor,
+        stage: ticket.stage,
       })),
     );
   }, [data]);
 
-  const filtered = sessions.filter(({ session }) =>
-    tab === "UPCOMING"
-      ? session.status === SessionStatus.SCHEDULED
-      : session.status === SessionStatus.COMPLETED,
-  );
+  const filtered = sessions.filter(({ session }) => {
+    if (tab === "UPCOMING") {
+      return session.status === SessionStatus.SCHEDULED;
+    }
+
+    if (tab === "COMPLETED") {
+      return session.status === SessionStatus.COMPLETED;
+    }
+
+    return session.status === SessionStatus.CANCELLED;
+  });
 
   const upcomingCount = sessions.filter(
     ({ session }) => session.status === SessionStatus.SCHEDULED,
@@ -44,6 +66,10 @@ export default function MySessionsPage() {
 
   const completedCount = sessions.filter(
     ({ session }) => session.status === SessionStatus.COMPLETED,
+  ).length;
+
+  const cancelledCount = sessions.filter(
+    ({ session }) => session.status === SessionStatus.CANCELLED,
   ).length;
 
   if (isLoading) {
@@ -73,7 +99,7 @@ export default function MySessionsPage() {
             </div>
 
             {/* STATS CARDS */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="bg-card border rounded-xl p-4 hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-primary/10 rounded-lg">
@@ -97,12 +123,23 @@ export default function MySessionsPage() {
                   </div>
                 </div>
               </div>
+              <div className="bg-card border rounded-xl p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-red-500/10 rounded-lg">
+                    <XCircle className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{cancelledCount}</p>
+                    <p className="text-xs text-muted-foreground">Cancelled</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* TAB SWITCHER */}
             <div className="flex items-center justify-between">
               <div className="inline-flex bg-muted/50 backdrop-blur-sm rounded-full p-1 border shadow-sm">
-                {(["UPCOMING", "COMPLETED"] as Tab[]).map((t) => (
+                {(["UPCOMING", "COMPLETED", "CANCELLED"] as Tab[]).map((t) => (
                   <button
                     key={t}
                     onClick={() => setTab(t)}
@@ -115,7 +152,11 @@ export default function MySessionsPage() {
                       }
                     `}
                   >
-                    {t === "UPCOMING" ? "Upcoming" : "Completed"}
+                    {t === "UPCOMING"
+                      ? "Upcoming"
+                      : t === "COMPLETED"
+                        ? "Completed"
+                        : "Cancelled"}
                     {tab === t && (
                       <span className="absolute inset-0 rounded-full bg-primary/20 animate-pulse" />
                     )}
@@ -144,23 +185,33 @@ export default function MySessionsPage() {
                 <h3 className="text-lg font-semibold text-foreground/80">
                   No {tab.toLowerCase()} sessions
                 </h3>
+
                 <p className="text-sm text-muted-foreground mt-1">
-                  {tab === "UPCOMING"
-                    ? "You don't have any upcoming sessions scheduled"
-                    : "You haven't completed any sessions yet"}
+                  {tab === "UPCOMING" &&
+                    "You don't have any upcoming sessions scheduled"}
+
+                  {tab === "COMPLETED" &&
+                    "You haven't completed any sessions yet"}
+
+                  {tab === "CANCELLED" &&
+                    "You don't have any cancelled sessions"}
                 </p>
               </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-              {filtered.map(({ session, projectName, founder }) => (
-                <SessionCard
-                  key={session.id}
-                  session={session}
-                  projectName={projectName}
-                  founder={founder}
-                />
-              ))}
+              {filtered.map(
+                ({ session, project, founder, investor, stage }) => (
+                  <SessionCard
+                    key={session.id}
+                    session={session}
+                    project={project}
+                    founder={founder}
+                    investor={investor}
+                    stage={session.stage}
+                  />
+                ),
+              )}
             </div>
           )}
         </div>

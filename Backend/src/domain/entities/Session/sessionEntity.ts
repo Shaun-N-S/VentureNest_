@@ -1,3 +1,5 @@
+import { TicketStage } from "@domain/enum/ticketStage";
+import { TicketStatus } from "@domain/enum/ticketStatus";
 import { SessionCancelledBy } from "@domain/enum/sessionCancelledBy";
 import { SessionStatus } from "@domain/enum/sessionStatus";
 
@@ -16,10 +18,13 @@ export interface SessionEntity {
 
   status: SessionStatus;
 
-  cancelledBy?: SessionCancelledBy;
-  cancelReason?: string | undefined;
+  stage: TicketStage;
+  decision?: TicketStatus;
 
-  feedback?: string | undefined;
+  feedback?: string;
+
+  cancelledBy?: SessionCancelledBy;
+  cancelReason?: string;
 
   createdAt?: Date;
   updatedAt?: Date;

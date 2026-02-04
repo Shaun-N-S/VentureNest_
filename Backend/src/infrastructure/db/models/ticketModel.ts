@@ -8,8 +8,8 @@ export interface ITicketModel extends Document {
   founderId: Types.ObjectId;
   projectId: Types.ObjectId;
   companyName?: string;
-  stage: string;
-  status: string;
+  currentStage: string;
+  overallStatus: string;
   createdAt: Date;
   updatedAt: Date;
 }

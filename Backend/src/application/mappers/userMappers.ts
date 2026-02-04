@@ -155,6 +155,7 @@ export class UserMapper {
 
   static userProfileData(data: UserEntity): UserProfileResDTO {
     return {
+      _id: data._id!,
       userName: data.userName,
       bio: data.bio || "",
       profileImg: data.profileImg || "",

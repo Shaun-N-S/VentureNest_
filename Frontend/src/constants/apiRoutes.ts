@@ -124,6 +124,11 @@ export const API_ROUTES = {
 
   TICKET: {
     CREATE: "/tickets/investor/tickets",
-    GET_BY_INVESTOR: "/tickets/investor/tickets",
+    GET_BY_INVESTOR: "/tickets/investor",
+    GET_BY_FOUNDER: "/tickets/founder",
+  },
+
+  SESSION: {
+    CANCEL_SESSION: "/sessions/:sessionId/cancel",
   },
 };

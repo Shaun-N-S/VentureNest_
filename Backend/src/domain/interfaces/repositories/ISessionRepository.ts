@@ -4,6 +4,7 @@ import { SessionCancelledBy } from "@domain/enum/sessionCancelledBy";
 
 export interface ISessionRepository extends IBaseRepository<SessionEntity> {
   findByTicket(ticketId: string): Promise<SessionEntity[]>;
+
   cancelSession(
     sessionId: string,
     cancelledBy: SessionCancelledBy,

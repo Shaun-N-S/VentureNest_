@@ -6,36 +6,19 @@ const ticketSchema = new mongoose.Schema(
   {
     ticketNumber: { type: String, required: true, unique: true },
 
-    investorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Investor",
-      required: true,
-      index: true,
-    },
-
-    founderId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-      index: true,
-    },
-
-    projectId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Project",
-      required: true,
-      index: true,
-    },
+    investorId: { type: mongoose.Schema.Types.ObjectId, ref: "Investor", required: true },
+    founderId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    projectId: { type: mongoose.Schema.Types.ObjectId, ref: "Project", required: true },
 
     companyName: { type: String },
 
-    stage: {
+    currentStage: {
       type: String,
       enum: Object.values(TicketStage),
       default: TicketStage.EXPLORATORY,
     },
 
-    status: {
+    overallStatus: {
       type: String,
       enum: Object.values(TicketStatus),
       default: TicketStatus.PROCEED,
@@ -52,7 +35,5 @@ ticketSchema.virtual("sessions", {
 
 ticketSchema.set("toObject", { virtuals: true });
 ticketSchema.set("toJSON", { virtuals: true });
-
-ticketSchema.index({ investorId: 1, projectId: 1 });
 
 export default ticketSchema;

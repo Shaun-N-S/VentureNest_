@@ -49,6 +49,8 @@ export default function ProfilePage() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfinitePersonalPosts(5);
 
+  const isOwnProfile = profileData?.data?.profileData?._id === userData.id;
+
   const posts = data?.pages.flatMap((page) => page.data.data.posts) ?? [];
 
   const { mutate: likePost } = useLikePost();
@@ -140,6 +142,7 @@ export default function ProfilePage() {
             {profileData?.data?.profileData && (
               <ProfileCard
                 userData={profileData.data.profileData}
+                isOwnProfile={isOwnProfile}
                 isFollowing={isFollowing}
                 onFollow={() => setIsFollowing(!isFollowing)}
               />

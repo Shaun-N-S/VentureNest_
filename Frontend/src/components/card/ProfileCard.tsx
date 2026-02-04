@@ -335,6 +335,12 @@ export function ProfileCard(props: ProfileCardProps) {
             Add a project
           </Button>
         ) : (
+          // <Button
+          //   onClick={() => console.log(userData.id)}
+          //   className="flex-1 bg-blue-500 hover:bg-blue-600"
+          // >
+          //   Connect
+          // </Button>
           ""
         )}
         {/* <Button variant="outline" size="icon" className="h-10 w-10 bg-transparent">

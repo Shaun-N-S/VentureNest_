@@ -7,12 +7,18 @@ import { CreateTicketWithSessionDTO } from "application/dto/ticket/CreateTicketW
 import { TicketMapper } from "application/mappers/ticketMapper";
 import { SessionMapper } from "application/mappers/sessionMapper";
 import { ICreateTicketWithSessionUseCase } from "@domain/interfaces/useCases/ticket/ICreateTicketWithSessionUseCase ";
+import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
+import { IEmailService } from "@domain/interfaces/services/IEmail/IEmailService";
+import { ISessionCreatedEmailContentGenerator } from "@domain/interfaces/services/IEmail/ISessionCreatedEmailTemplate";
 
 export class CreateTicketWithSessionUseCase implements ICreateTicketWithSessionUseCase {
   constructor(
-    private readonly _ticketRepo: ITicketRepository,
-    private readonly _sessionRepo: ISessionRepository,
-    private readonly _projectRepo: IProjectRepository
+    private _ticketRepo: ITicketRepository,
+    private _sessionRepo: ISessionRepository,
+    private _projectRepo: IProjectRepository,
+    private _userRepo: IUserRepository,
+    private _emailService: IEmailService,
+    private _sessionEmailTemplate: ISessionCreatedEmailContentGenerator
   ) {}
 
   async execute(
@@ -23,40 +29,58 @@ export class CreateTicketWithSessionUseCase implements ICreateTicketWithSessionU
       throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);
     }
 
-    const projectRef = {
-      _id: project._id,
-      userId: project.userId,
-      startupName: project.startupName,
-    };
+    let ticket = await this._ticketRepo.findByInvestorAndProject(data.investorId, data.projectId);
 
-    const ticket = await this._ticketRepo.save(
-      TicketMapper.createFromProject({
-        project: projectRef,
-        investorId: data.investorId,
-        discussionLevel: data.discussionLevel,
-      })
-    );
+    if (!ticket) {
+      ticket = await this._ticketRepo.save(
+        TicketMapper.createFromProject({
+          project: {
+            _id: project._id,
+            userId: project.userId,
+            startupName: project.startupName,
+          },
+          investorId: data.investorId,
+          initialStage: data.initialStage,
+        })
+      );
+    }
 
-    const sessionDateTime =
-      data.startTime && data.date
-        ? new Date(`${data.date.toISOString().split("T")[0]}T${data.startTime}:00`)
-        : undefined;
+    const sessionStartTime = data.startTime
+      ? new Date(`${data.date.toISOString().split("T")[0]}T${data.startTime}:00`)
+      : undefined;
 
     const session = await this._sessionRepo.save(
       SessionMapper.createFromTicket({
         ticketId: ticket._id!,
         project: {
-          _id: projectRef._id,
-          userId: projectRef.userId,
+          _id: project._id,
+          userId: project.userId,
         },
         investorId: data.investorId,
         sessionName: data.sessionName,
         date: data.date,
         duration: data.duration,
-        startTime: sessionDateTime,
-        description: data.description,
+        stage: data.initialStage,
+        ...(sessionStartTime && { startTime: sessionStartTime }),
       })
     );
+
+    const founder = await this._userRepo.findById(project.userId);
+    if (founder?.email) {
+      const emailContent = this._sessionEmailTemplate.generateHtml({
+        founderName: founder.userName,
+        projectName: project.startupName,
+        sessionName: data.sessionName,
+        date: data.date,
+        duration: data.duration,
+      });
+
+      await this._emailService.sendEmail({
+        receiverEmail: founder.email,
+        subject: "New Session Scheduled on VentureNest",
+        content: emailContent,
+      });
+    }
 
     return {
       ticketId: ticket._id!,

@@ -1,3 +1,5 @@
+import type { TicketStage } from "./ticket";
+
 export const SessionStatus = {
   SCHEDULED: "scheduled",
   COMPLETED: "completed",
@@ -13,6 +15,8 @@ export interface SessionDTO {
   startTime?: string; // ISO
   duration: number;
   status: SessionStatus;
+  stage: TicketStage;
+  cancelReason?: string;
 }
 
 export interface PersonDTO {
@@ -37,6 +41,7 @@ export interface InvestorTicketDTO {
     id: string;
     startupName: string;
     coverImageUrl?: string;
+    logoUrl?: string;
     location?: string;
   };
 
@@ -44,4 +49,21 @@ export interface InvestorTicketDTO {
   investor: PersonDTO;
 
   sessions: SessionDTO[];
+}
+
+export type CancelledBy = "INVESTOR" | "USER";
+
+export interface CancelSessionDTO {
+  sessionId: string;
+  cancelledBy: CancelledBy;
+  reason: string;
+  userId: string;
+}
+
+export interface CancelledSessionResponseDTO {
+  sessionId: string;
+  status: string;
+  cancelledBy: CancelledBy;
+  cancelReason: string;
+  updatedAt: string;
 }

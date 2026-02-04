@@ -1,6 +1,7 @@
 export interface ProfileCardProps {
-  isOwnProfile?: boolean;
+  isOwnProfile: boolean;
   userData: {
+    id: string;
     userName: string;
     bio?: string;
     website?: string;

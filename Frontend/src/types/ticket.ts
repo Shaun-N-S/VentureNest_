@@ -9,10 +9,10 @@ export type TicketStage = (typeof TicketStage)[keyof typeof TicketStage];
 
 export interface CreateTicketWithSessionPayload {
   projectId: string;
-  discussionLevel: TicketStage;
+  initialStage: TicketStage;
   sessionName: string;
-  date: string; // ISO date string
-  startTime: string; // "HH:mm"
-  duration: number; // minutes
+  date: string;
+  startTime: string;
+  duration: number;
   description?: string;
 }

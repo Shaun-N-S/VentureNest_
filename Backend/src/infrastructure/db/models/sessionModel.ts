@@ -10,13 +10,15 @@ export interface ISessionModel extends Document {
   projectId: Types.ObjectId;
   sessionName: string;
   date: Date;
+  startTime?: Date;
   duration: number;
   status: string;
+  stage: string;
+  decision?: string;
   cancelledBy?: SessionCancelledBy;
   cancelReason?: string;
   feedback?: string;
   createdAt: Date;
   updatedAt: Date;
 }
-
 export const sessionModel = model<ISessionModel>("Session", sessionSchema);

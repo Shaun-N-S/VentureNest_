@@ -6,7 +6,7 @@ export const createTicketWithSessionSchema = z.object({
 
   sessionName: z.string().min(3),
 
-  discussionLevel: z.nativeEnum(TicketStage),
+  initialStage: z.nativeEnum(TicketStage),
 
   date: z.coerce.date(),
 

@@ -6,7 +6,7 @@ export const createTicketSchema = z.object({
 
   sessionName: z.string().min(3, "Session name must be at least 3 characters"),
 
-  discussionLevel: z.nativeEnum(TicketStage),
+  initialStage: z.nativeEnum(TicketStage),
 
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
 

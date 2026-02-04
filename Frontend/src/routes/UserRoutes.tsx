@@ -16,6 +16,7 @@ import ProjectDetailedPage from "../pages/Common/ProjectDetailedPage";
 import PlansPage from "../pages/Common/PlanPage";
 import PaymentSuccess from "../pages/Common/PaymentSuccess";
 import CommonProfilePage from "../pages/Common/ProfilePage";
+import MySessionsPage from "../pages/Common/MySessionPage";
 
 const UserRoutes = () => {
   return (
@@ -71,6 +72,10 @@ const UserRoutes = () => {
           <Route
             path={FRONTEND_ROUTES.USER.COMMON_PROFILE}
             element={<CommonProfilePage />}
+          />
+          <Route
+            path={FRONTEND_ROUTES.USER.SESSIONS}
+            element={<MySessionsPage />}
           />
         </Route>
       </Route>

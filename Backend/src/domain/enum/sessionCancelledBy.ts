@@ -1,4 +1,4 @@
 export enum SessionCancelledBy {
-  USER = "user",
-  INVESTOR = "investor",
+  USER = "USER",
+  INVESTOR = "INVESTOR",
 }

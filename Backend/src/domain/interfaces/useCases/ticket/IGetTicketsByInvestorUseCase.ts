@@ -1,5 +1,5 @@
-import { InvestorTicketDetailedDTO } from "application/dto/ticket/InvestorTicketDetailedDTO";
+import { TicketDetailedDTO } from "application/dto/ticket/TicketDetailedDTO";
 
 export interface IGetTicketsByInvestorUseCase {
-  execute(investorId: string): Promise<InvestorTicketDetailedDTO[]>;
+  execute(investorId: string): Promise<TicketDetailedDTO[]>;
 }

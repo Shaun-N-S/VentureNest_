@@ -13,6 +13,7 @@ export const FRONTEND_ROUTES = {
     PLANS: "/plans",
     PAYMENT_SUCCESS: "/payment-success",
     COMMON_PROFILE: "/profile/:id",
+    SESSIONS: "/sessions",
   },
 
   INVESTOR: {
@@ -29,7 +30,7 @@ export const FRONTEND_ROUTES = {
     PLANS: "/plans",
     PAYMENT_SUCCESS: "/payment-success",
     BOOK_SESSION: "/schedule-session",
-    SESSIONS:"/sessions"
+    SESSIONS: "/sessions",
   },
 
   ADMIN: {

@@ -36,7 +36,7 @@ export default function BookSessionPage() {
 
   const [form, setForm] = useState({
     sessionName: "",
-    discussionLevel: "" as TicketStage,
+    initialStage: "" as TicketStage,
     date: "",
     startTime: "",
     duration: 30,
@@ -58,7 +58,7 @@ export default function BookSessionPage() {
     });
 
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0].message);
+      toast.error("Please fill the form correctly");
       return;
     }
 
@@ -133,9 +133,9 @@ export default function BookSessionPage() {
               />
 
               <Select
-                value={form.discussionLevel}
+                value={form.initialStage}
                 onValueChange={(v) =>
-                  setForm({ ...form, discussionLevel: v as TicketStage })
+                  setForm({ ...form, initialStage: v as TicketStage })
                 }
               >
                 <SelectTrigger>

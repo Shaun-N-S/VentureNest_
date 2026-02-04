@@ -116,4 +116,8 @@ export const MESSAGES = {
     TICKET_SESSION_CREATED_SUCCESSFULLY: "Ticket and Session created successfully",
     TICKET_FETCHED_SUCCESSFULLY: "Tickets fetched successfully",
   },
+
+  SESSION: {
+    SESSION_CANCELLED: "Session cancelled successfully",
+  },
 };

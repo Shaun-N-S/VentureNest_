@@ -2,11 +2,10 @@ import { TicketStage } from "@domain/enum/ticketStage";
 
 export interface CreateTicketWithSessionDTO {
   projectId: string;
-  discussionLevel: TicketStage;
+  initialStage: TicketStage;
   sessionName: string;
   date: Date;
-  startTime?: string | undefined;
+  startTime?: string;
   duration: number;
-  description?: string | undefined;
   investorId: string;
 }
