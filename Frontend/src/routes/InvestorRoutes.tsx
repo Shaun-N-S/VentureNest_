@@ -16,6 +16,8 @@ import ProjectDetailedPage from "../pages/Common/ProjectDetailedPage";
 import PaymentSuccess from "../pages/Common/PaymentSuccess";
 import PlansPage from "../pages/Common/PlanPage";
 import CommonProfilePage from "../pages/Common/ProfilePage";
+import BookSessionPage from "../pages/Investor/BookSessionPage";
+import MySessionsPage from "../pages/Common/MySessionPage";
 
 const InvestorRoutes = () => {
   return (
@@ -75,6 +77,14 @@ const InvestorRoutes = () => {
           <Route
             path={FRONTEND_ROUTES.USER.COMMON_PROFILE}
             element={<CommonProfilePage />}
+          />
+          <Route
+            path={`${FRONTEND_ROUTES.INVESTOR.BOOK_SESSION}/:id`}
+            element={<BookSessionPage />}
+          />
+          <Route
+            path={FRONTEND_ROUTES.INVESTOR.SESSIONS}
+            element={<MySessionsPage />}
           />
         </Route>
       </Route>

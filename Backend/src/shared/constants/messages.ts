@@ -111,4 +111,14 @@ export const MESSAGES = {
   },
 
   CHECKOUT_CREATED: "Checkout session created successfully",
+
+  TICKET: {
+    TICKET_SESSION_CREATED_SUCCESSFULLY: "Ticket and Session created successfully",
+    TICKET_FETCHED_SUCCESSFULLY: "Tickets fetched successfully",
+  },
+
+  SESSION: {
+    SESSION_CANCELLED: "Session cancelled successfully",
+    SESSION_FEEDBACK_ADDED: "Session feedback added successfully",
+  },
 };

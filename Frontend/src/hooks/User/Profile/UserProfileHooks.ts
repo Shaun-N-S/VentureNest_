@@ -1,14 +1,20 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import {
   getUserProfile,
   updateUserProfile,
 } from "../../../services/User/UserProfileService";
+type QueryOptions = {
+  enabled?: boolean;
+};
 
-export const useFetchUserProfile = (id: string) => {
+export const useFetchUserProfile = (
+  id: string,
+  queryOptions?: QueryOptions,
+) => {
   return useQuery({
-    queryKey: ["userProfile",id],
+    queryKey: ["userProfile", id],
     queryFn: () => getUserProfile(id),
-    enabled: !!id,
+    enabled: queryOptions?.enabled ?? Boolean(id),
     staleTime: 5 * 60 * 1000,
   });
 };

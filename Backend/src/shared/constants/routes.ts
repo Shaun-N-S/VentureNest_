@@ -136,4 +136,16 @@ export const ROUTES = {
   SUBSCRIPTION: {
     CHECKOUT: "/checkout",
   },
+
+  TICKET: {
+    CREATE: "/investor/tickets",
+    INVESTOR_TICKETS: "/investor",
+    FOUNDER_TICKETS: "/founder",
+    TICKET_BY_ID: "/:ticketId",
+  },
+
+  SESSION: {
+    CANCEL_SESSOIN: "/:sessionId/cancel",
+    ADD_FEEDBACK: "/:sessionId/feedback",
+  },
 };

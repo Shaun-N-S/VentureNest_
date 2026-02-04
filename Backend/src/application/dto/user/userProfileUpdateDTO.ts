@@ -33,6 +33,7 @@ export interface UserProfileUpdateResDTO {
 }
 
 export interface UserProfileResDTO {
+  _id: string;
   userName?: string;
   bio?: string;
   profileImg?: string;

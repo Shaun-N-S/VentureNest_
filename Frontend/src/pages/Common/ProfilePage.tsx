@@ -11,7 +11,6 @@ import { PostCard } from "../../components/card/PostCard";
 import { ProjectCard } from "../../components/card/ProjectCard";
 import { useFetchUserProfile } from "../../hooks/User/Profile/UserProfileHooks";
 import {
-  useInfinitePersonalPosts,
   useInfinitePersonalPostsById,
   useLikePost,
 } from "../../hooks/Post/PostHooks";
@@ -19,7 +18,6 @@ import type { PersonalPost } from "../Investor/Profile/InvestorProfile/ProfilePa
 import toast from "react-hot-toast";
 import { queryClient } from "../../main";
 import {
-  useFetchPersonalProjects,
   useFetchPersonalProjectsById,
   useLikeProject,
 } from "../../hooks/Project/projectHooks";
@@ -28,27 +26,47 @@ import type {
   ProjectType,
 } from "../../types/projectType";
 import type { PersonalPostCache } from "../../types/personalPostCache";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useInView } from "react-intersection-observer";
 import { Loader2 } from "lucide-react";
 import type { UserRole } from "../../types/UserRole";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import type { Rootstate } from "../../store/store";
 import { ReportTargetType } from "../../types/reportTargetType";
 import { ReportModal } from "../../components/modals/ReportModal";
 import { ReportModalSkeleton } from "../../components/Skelton/ReportModalSkelton";
+import { useFetchInvestorProfile } from "../../hooks/Investor/Profile/InvestorProfileHooks";
 
 export default function CommonProfilePage() {
   const { id } = useParams<{ id?: string }>();
+  const location = useLocation();
   const loggedInUserId = useSelector((s: Rootstate) => s.authData.id);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTargetId, setReportTargetId] = useState<string | null>(null);
   const [isReportModalLoading, setIsReportModalLoading] = useState(false);
-  const isOwnProfile = !id || id === loggedInUserId;
-  const profileUserId = isOwnProfile ? loggedInUserId : id!;
   const [isFollowing, setIsFollowing] = useState(false);
-  const { data: profileData } = useFetchUserProfile(profileUserId!);
-  console.log("profile data 998798987987  :", profileData);
+  const isInvestorProfile = location.pathname.startsWith("/investor/profile");
+
+  const profileUserId = id;
+
+  const userProfileQuery = useFetchUserProfile(profileUserId!, {
+    enabled: !!profileUserId && !isInvestorProfile,
+  });
+
+  const investorProfileQuery = useFetchInvestorProfile(profileUserId!, {
+    enabled: !!profileUserId && isInvestorProfile,
+  });
+
+  const profileData = isInvestorProfile
+    ? investorProfileQuery.data
+    : userProfileQuery.data;
+
+  const profile = profileData?.data?.profileData;
+
+  const normalizedUserData = profile ? { ...profile, id: profile._id } : null;
+
+  const isOwnProfile = normalizedUserData?.id === loggedInUserId;
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfinitePersonalPostsById(profileUserId!, 5);
   const posts = data?.pages.flatMap((page) => page.data.data.posts) ?? [];
@@ -175,7 +193,7 @@ export default function CommonProfilePage() {
           <div className="mb-8 md:mb-12">
             {profileData?.data?.profileData && (
               <ProfileCard
-                userData={profileData.data.profileData}
+                userData={normalizedUserData}
                 isOwnProfile={isOwnProfile}
                 isFollowing={isFollowing}
                 onFollow={() => setIsFollowing(!isFollowing)}

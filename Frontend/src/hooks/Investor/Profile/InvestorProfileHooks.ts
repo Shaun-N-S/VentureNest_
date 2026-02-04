@@ -5,11 +5,18 @@ import {
   investorProfileUpdate,
 } from "../../../services/Investor/InvestorProfileService";
 
-export const useFetchInvestorProfile = (id: string) => {
+type QueryOptions = {
+  enabled?: boolean;
+};
+
+export const useFetchInvestorProfile = (
+  id: string,
+  queryOptions?: QueryOptions,
+) => {
   return useQuery({
     queryKey: ["investorProfile", id],
     queryFn: () => getInvestorProfile(id),
-    enabled: !!id,
+    enabled: queryOptions?.enabled ?? Boolean(id),
     staleTime: 5 * 60 * 1000,
   });
 };
