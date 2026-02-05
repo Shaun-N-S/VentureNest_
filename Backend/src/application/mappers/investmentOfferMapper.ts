@@ -4,6 +4,8 @@ import { IInvestmentOfferModel } from "@infrastructure/db/models/investmentOffer
 import { InvestmentOfferResponseDTO } from "application/dto/investor/investmentOfferDTO/investmentOfferResponseDTO";
 import { CreateInvestmentOfferDTO } from "application/dto/investor/investmentOfferDTO/createInvestmentOfferDTO";
 import { OfferStatus } from "@domain/enum/offerStatus";
+import { SentInvestmentOfferPopulated } from "application/dto/investor/investmentOfferDTO/investmentOfferPopulatedTypes";
+import { SentInvestmentOfferListItemDTO } from "application/dto/investor/investmentOfferDTO/sentInvestmentOfferListItemDTO";
 
 export class InvestmentOfferMapper {
   /* -------------------- DTO → Entity -------------------- */
@@ -105,5 +107,30 @@ export class InvestmentOfferMapper {
 
       createdAt: entity.createdAt!,
     };
+  }
+
+  static toSentOfferListDTO(
+    offers: SentInvestmentOfferPopulated[]
+  ): SentInvestmentOfferListItemDTO[] {
+    return offers.map((o) => ({
+      offerId: o._id,
+
+      projectId: o.projectId._id,
+      projectName: o.projectId.startupName,
+      ...(o.projectId.logoUrl && { projectLogoUrl: o.projectId.logoUrl }),
+
+      founderId: o.founderId._id,
+      founderName: o.founderId.userName,
+      ...(o.founderId.profileImg && {
+        founderProfileImg: o.founderId.profileImg,
+      }),
+
+      amount: o.amount,
+      equityPercentage: o.equityPercentage,
+      ...(o.valuation !== undefined && { valuation: o.valuation }),
+
+      status: o.status,
+      createdAt: o.createdAt.toISOString(),
+    }));
   }
 }

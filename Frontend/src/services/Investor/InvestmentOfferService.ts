@@ -3,6 +3,7 @@ import { API_ROUTES } from "../../constants/apiRoutes";
 import type {
   CreateInvestmentOfferPayload,
   InvestmentOfferResponse,
+  SentInvestmentOfferListItem,
 } from "../../types/investmentOfferType";
 
 export const createInvestmentOffer = async (
@@ -13,4 +14,14 @@ export const createInvestmentOffer = async (
   });
 
   return data.data;
+};
+
+export const fetchSentInvestmentOffers = async (): Promise<
+  SentInvestmentOfferListItem[]
+> => {
+  const response = await AxiosInstance.get(API_ROUTES.OFFERS.SENT, {
+    withCredentials: true,
+  });
+
+  return response.data.data;
 };

@@ -2,17 +2,25 @@ import { investmentOfferModel } from "@infrastructure/db/models/investmentOfferM
 import { pitchModel } from "@infrastructure/db/models/pitchModel";
 import { InvestmentOfferRepository } from "@infrastructure/repostiories/investmentOfferRepository";
 import { PitchRepository } from "@infrastructure/repostiories/pitchRepository";
+import { StorageService } from "@infrastructure/services/storageService";
 import { CreateInvestmentOfferUseCase } from "application/useCases/Investor/InvestmentOffer/createInvestmentOfferUseCase";
+import { GetSentInvestmentOffersUseCase } from "application/useCases/Investor/InvestmentOffer/getSentInvestmentOffersUseCase";
 import { InvestmentOfferController } from "interfaceAdapters/controller/Investor/InvestmentOfferController";
 
 const investmentOfferRepo = new InvestmentOfferRepository(investmentOfferModel);
 const pitchRepo = new PitchRepository(pitchModel);
+const storageService = new StorageService();
 
 const createInvestmentOfferUseCase = new CreateInvestmentOfferUseCase(
   investmentOfferRepo,
   pitchRepo
 );
+const getSentInvestmentOfferUseCase = new GetSentInvestmentOffersUseCase(
+  investmentOfferRepo,
+  storageService
+);
 
 export const investmentOfferController = new InvestmentOfferController(
-  createInvestmentOfferUseCase
+  createInvestmentOfferUseCase,
+  getSentInvestmentOfferUseCase
 );

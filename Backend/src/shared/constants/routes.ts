@@ -159,5 +159,7 @@ export const ROUTES = {
 
   OFFER: {
     CREATE: "/investment-offer",
+    SENT: "/sent",
+    RECEIVED: "/received",
   },
 };

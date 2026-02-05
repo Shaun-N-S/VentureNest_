@@ -4,23 +4,30 @@ import { investorGuard } from "interfaceAdapters/middleware/guards";
 import { investmentOfferController } from "@infrastructure/DI/Investor/InvestmentOfferContainer";
 
 export class InvestmentOffer_Router {
-  private readonly _router: Router;
+  private _route: Router;
 
   constructor() {
-    this._router = Router();
+    this._route = Router();
     this._setRoutes();
   }
 
   private _setRoutes() {
-    this._router.post(
+    this._route.post(
       ROUTES.OFFER.CREATE,
       ...investorGuard,
       (req: Request, res: Response, next: NextFunction) =>
         investmentOfferController.createOffer(req, res, next)
     );
+
+    this._route.get(
+      ROUTES.OFFER.SENT,
+      ...investorGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        investmentOfferController.getSentOffers(req, res, next)
+    );
   }
 
   get_router(): Router {
-    return this._router;
+    return this._route;
   }
 }
