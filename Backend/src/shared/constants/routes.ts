@@ -151,5 +151,13 @@ export const ROUTES = {
 
   PITCH: {
     CREATE: "/pitch",
+    RECEIVED: "/received",
+    SENT: "/sent",
+    GET_BY_ID: "/:id",
+    RESPOND: "/:id/respond",
+  },
+
+  OFFER: {
+    CREATE: "/investment-offer",
   },
 };

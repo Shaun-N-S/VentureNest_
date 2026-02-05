@@ -10,6 +10,10 @@ export interface IPitchModel extends Document {
   subject: string;
   message: string;
   status: PitchStatus;
+  investorReply?: {
+    message: string;
+    repliedAt: Date;
+  };
   createdAt: Date;
   updatedAt: Date;
 }

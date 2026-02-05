@@ -106,3 +106,8 @@ export const SESSION_ERRORS = {
   CANNOT_FEEDBACK_CANCELLED_SESSION: "Adding feedback cancelled!",
   FEEDBACK_ALREADY_SUBMITTED: "Feedback already added!",
 };
+
+export const PITCH_ERRORS = {
+  NOT_FOUND: "Pitch not found!",
+  ALREADY_RESPONDED: "Already responded",
+};

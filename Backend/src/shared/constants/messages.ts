@@ -124,5 +124,12 @@ export const MESSAGES = {
 
   PITCH: {
     PITCH_SENT: "Pitch sent successfully!",
+    PITCHES_FETCHED: "Pitches fetched successfully",
+    PITCH_FETCHED: "Pitch details fetched successfully",
+    PITCH_RESPONDED: "Responded successfully",
+  },
+
+  OFFER: {
+    OFFER_SENT: "Investment offer sent successfully",
   },
 };

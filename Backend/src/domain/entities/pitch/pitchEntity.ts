@@ -12,6 +12,11 @@ export interface PitchEntity {
 
   status: PitchStatus;
 
+  investorReply?: {
+    message: string;
+    repliedAt: Date;
+  };
+
   createdAt?: Date;
   updatedAt?: Date;
 }

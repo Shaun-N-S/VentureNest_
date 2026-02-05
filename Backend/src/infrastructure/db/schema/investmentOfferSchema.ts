@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { OfferStatus } from "@domain/enum/offerStatus";
+import { UserRole } from "@domain/enum/userRole";
 
 const investmentOfferSchema = new mongoose.Schema(
   {
@@ -28,12 +29,23 @@ const investmentOfferSchema = new mongoose.Schema(
 
     amount: { type: Number, required: true },
     equityPercentage: { type: Number, required: true },
+    valuation: { type: Number },
+
     terms: { type: String, required: true },
+    note: { type: String },
 
     status: {
       type: String,
       enum: Object.values(OfferStatus),
       default: OfferStatus.PENDING,
+      index: true,
+    },
+
+    expiresAt: { type: Date },
+    respondedAt: { type: Date },
+    respondedBy: {
+      type: String,
+      enum: Object.values(UserRole),
     },
   },
   { timestamps: true }

@@ -22,6 +22,7 @@ import { Subscription_Routes } from "interfaceAdapters/routes/subscriptionRoutes
 import { Ticket_Router } from "interfaceAdapters/routes/ticketRoutes";
 import { Session_Router } from "interfaceAdapters/routes/sessionRoute";
 import { Pitch_Router } from "interfaceAdapters/routes/pitchRoutes";
+import { InvestmentOffer_Router } from "interfaceAdapters/routes/investmentOfferRoutes";
 
 class Express_app {
   private _app: Express;
@@ -81,6 +82,8 @@ class Express_app {
     this._app.use("/sessions", new Session_Router().get_router());
 
     this._app.use("/pitches", new Pitch_Router().get_router());
+
+    this._app.use("/offers", new InvestmentOffer_Router().get_router());
   }
 
   private _setErrorHandlingMiddleware() {

@@ -135,5 +135,12 @@ export const API_ROUTES = {
 
   PITCH: {
     CREATE: "/pitches/pitch",
+    RECEIVED: "/pitches/received",
+    SENT: "/pitches/sent",
+    RESPOND: "/pitches/:pitchId/respond",
+  },
+
+  OFFERS: {
+    CREATE: "/offers/investment-offer",
   },
 };

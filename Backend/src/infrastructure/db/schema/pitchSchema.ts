@@ -23,6 +23,11 @@ const pitchSchema = new mongoose.Schema(
     subject: { type: String, required: true },
     message: { type: String, required: true },
 
+    investorReply: {
+      message: { type: String },
+      repliedAt: { type: Date },
+    },
+
     status: {
       type: String,
       enum: Object.values(PitchStatus),
