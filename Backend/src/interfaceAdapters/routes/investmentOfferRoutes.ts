@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { ROUTES } from "@shared/constants/routes";
-import { investorGuard, userGuard } from "interfaceAdapters/middleware/guards";
+import { investorGuard, userGuard, userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 import { investmentOfferController } from "@infrastructure/DI/Investor/InvestmentOfferContainer";
 
 export class InvestmentOffer_Router {
@@ -31,6 +31,14 @@ export class InvestmentOffer_Router {
       ...userGuard,
       (req: Request, res: Response, next: NextFunction) => {
         investmentOfferController.getReceivedOffers(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ROUTES.OFFER.GET_BY_ID,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        investmentOfferController.getOfferDetails(req, res, next);
       }
     );
   }

@@ -6,6 +6,7 @@ import { OfferStatus } from "@domain/enum/offerStatus";
 import { InvestmentOfferEntity } from "@domain/entities/investor/investmentOfferEntity";
 import { InvestmentOfferMapper } from "application/mappers/investmentOfferMapper";
 import {
+  InvestmentOfferDetailsPopulated,
   ReceivedInvestmentOfferPopulated,
   SentInvestmentOfferPopulated,
 } from "application/dto/investor/investmentOfferDTO/investmentOfferPopulatedTypes";
@@ -34,6 +35,15 @@ export class InvestmentOfferRepository
       .populate("investorId", "companyName profileImg")
       .sort({ createdAt: -1 })
       .lean<ReceivedInvestmentOfferPopulated[]>();
+  }
+
+  async findDetailsById(offerId: string): Promise<InvestmentOfferDetailsPopulated | null> {
+    return this._model
+      .findById(offerId)
+      .populate("projectId", "startupName logoUrl")
+      .populate("investorId", "companyName profileImg")
+      .populate("founderId", "userName profileImg")
+      .lean<InvestmentOfferDetailsPopulated | null>();
   }
 
   async updateStatus(offerId: string, status: OfferStatus): Promise<InvestmentOfferEntity | null> {

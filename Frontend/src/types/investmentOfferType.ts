@@ -75,3 +75,35 @@ export interface ReceivedInvestmentOfferListItem {
   status: OfferStatus;
   createdAt: string;
 }
+
+export interface InvestmentOfferDetails {
+  offerId: string;
+
+  project: {
+    id: string;
+    name: string;
+    logoUrl?: string;
+  };
+
+  founder: {
+    id: string;
+    name: string;
+    profileImg?: string;
+  };
+
+  investor: {
+    id: string;
+    companyName: string;
+    profileImg?: string;
+  };
+
+  amount: number;
+  equityPercentage: number;
+  valuation?: number;
+  terms: string;
+  note?: string;
+
+  status: OfferStatus;
+  expiresAt?: string;
+  createdAt: string;
+}

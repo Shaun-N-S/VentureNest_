@@ -161,5 +161,6 @@ export const ROUTES = {
     CREATE: "/investment-offer",
     SENT: "/sent",
     RECEIVED: "/received",
+    GET_BY_ID: "/:offerId",
   },
 };

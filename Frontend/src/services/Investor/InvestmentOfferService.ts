@@ -2,6 +2,7 @@ import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
 import type {
   CreateInvestmentOfferPayload,
+  InvestmentOfferDetails,
   InvestmentOfferResponse,
   ReceivedInvestmentOfferListItem,
   SentInvestmentOfferListItem,
@@ -33,6 +34,17 @@ export const fetchReceivedInvestmentOffers = async (): Promise<
   const { data } = await AxiosInstance.get(API_ROUTES.OFFERS.RECEIVED, {
     withCredentials: true,
   });
+
+  return data.data;
+};
+
+export const fetchInvestmentOfferDetails = async (
+  offerId: string,
+): Promise<InvestmentOfferDetails> => {
+  const { data } = await AxiosInstance.get(
+    API_ROUTES.OFFERS.GET_BY_ID.replace(":offerId", offerId),
+    { withCredentials: true },
+  );
 
   return data.data;
 };

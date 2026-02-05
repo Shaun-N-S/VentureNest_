@@ -5,11 +5,13 @@ import { InvestmentOfferResponseDTO } from "application/dto/investor/investmentO
 import { CreateInvestmentOfferDTO } from "application/dto/investor/investmentOfferDTO/createInvestmentOfferDTO";
 import { OfferStatus } from "@domain/enum/offerStatus";
 import {
+  InvestmentOfferDetailsPopulated,
   ReceivedInvestmentOfferPopulated,
   SentInvestmentOfferPopulated,
 } from "application/dto/investor/investmentOfferDTO/investmentOfferPopulatedTypes";
 import { SentInvestmentOfferListItemDTO } from "application/dto/investor/investmentOfferDTO/sentInvestmentOfferListItemDTO";
 import { ReceivedInvestmentOfferListItemDTO } from "application/dto/investor/investmentOfferDTO/receivedInvestmentOfferListItemDTO";
+import { InvestmentOfferDetailsResponseDTO } from "application/dto/investor/investmentOfferDTO/investmentOfferDetailsResponseDTO";
 
 export class InvestmentOfferMapper {
   /* -------------------- DTO → Entity -------------------- */
@@ -161,5 +163,47 @@ export class InvestmentOfferMapper {
       status: o.status,
       createdAt: o.createdAt.toISOString(),
     }));
+  }
+
+  static toDetailsDTO(offer: InvestmentOfferDetailsPopulated): InvestmentOfferDetailsResponseDTO {
+    return {
+      offerId: offer._id,
+      pitchId: offer.pitchId,
+
+      amount: offer.amount,
+      equityPercentage: offer.equityPercentage,
+      ...(offer.valuation !== undefined && { valuation: offer.valuation }),
+
+      terms: offer.terms,
+      ...(offer.note !== undefined && { note: offer.note }),
+
+      status: offer.status,
+      ...(offer.expiresAt && { expiresAt: offer.expiresAt }),
+      ...(offer.respondedAt && { respondedAt: offer.respondedAt }),
+
+      createdAt: offer.createdAt.toISOString(),
+
+      project: {
+        id: offer.projectId._id,
+        name: offer.projectId.startupName,
+        ...(offer.projectId.logoUrl && { logoUrl: offer.projectId.logoUrl }),
+      },
+
+      investor: {
+        id: offer.investorId._id,
+        name: offer.investorId.companyName,
+        ...(offer.investorId.profileImg && {
+          profileImg: offer.investorId.profileImg,
+        }),
+      },
+
+      founder: {
+        id: offer.founderId._id,
+        name: offer.founderId.userName,
+        ...(offer.founderId.profileImg && {
+          profileImg: offer.founderId.profileImg,
+        }),
+      },
+    };
   }
 }

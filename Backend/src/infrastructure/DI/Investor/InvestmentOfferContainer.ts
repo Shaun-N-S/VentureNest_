@@ -4,6 +4,7 @@ import { InvestmentOfferRepository } from "@infrastructure/repostiories/investme
 import { PitchRepository } from "@infrastructure/repostiories/pitchRepository";
 import { StorageService } from "@infrastructure/services/storageService";
 import { CreateInvestmentOfferUseCase } from "application/useCases/Investor/InvestmentOffer/createInvestmentOfferUseCase";
+import { GetInvestmentOfferDetailsUseCase } from "application/useCases/Investor/InvestmentOffer/getInvestmentOfferDetailsUseCase";
 import { GetReceivedInvestmentOffersUseCase } from "application/useCases/Investor/InvestmentOffer/getReceivedInvestmentOffersUseCase";
 import { GetSentInvestmentOffersUseCase } from "application/useCases/Investor/InvestmentOffer/getSentInvestmentOffersUseCase";
 import { InvestmentOfferController } from "interfaceAdapters/controller/Investor/InvestmentOfferController";
@@ -24,9 +25,14 @@ const getReceivedOfferUseCase = new GetReceivedInvestmentOffersUseCase(
   investmentOfferRepo,
   storageService
 );
+const getOfferDetailsUseCase = new GetInvestmentOfferDetailsUseCase(
+  investmentOfferRepo,
+  storageService
+);
 
 export const investmentOfferController = new InvestmentOfferController(
   createInvestmentOfferUseCase,
   getSentInvestmentOfferUseCase,
-  getReceivedOfferUseCase
+  getReceivedOfferUseCase,
+  getOfferDetailsUseCase
 );

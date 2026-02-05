@@ -1,12 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   CreateInvestmentOfferPayload,
+  InvestmentOfferDetails,
   InvestmentOfferResponse,
   ReceivedInvestmentOfferListItem,
   SentInvestmentOfferListItem,
 } from "../../../types/investmentOfferType";
 import {
   createInvestmentOffer,
+  fetchInvestmentOfferDetails,
   fetchReceivedInvestmentOffers,
   fetchSentInvestmentOffers,
 } from "../../../services/Investor/InvestmentOfferService";
@@ -37,5 +39,16 @@ export const useFetchReceivedInvestmentOffers = () => {
   return useQuery<ReceivedInvestmentOfferListItem[]>({
     queryKey: ["received-investment-offers"],
     queryFn: fetchReceivedInvestmentOffers,
+  });
+};
+
+export const useFetchInvestmentOfferDetails = (
+  offerId: string,
+  enabled = true,
+) => {
+  return useQuery<InvestmentOfferDetails>({
+    queryKey: ["investment-offer-details", offerId],
+    queryFn: () => fetchInvestmentOfferDetails(offerId),
+    enabled: Boolean(offerId) && enabled,
   });
 };

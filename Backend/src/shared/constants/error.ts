@@ -111,3 +111,7 @@ export const PITCH_ERRORS = {
   NOT_FOUND: "Pitch not found!",
   ALREADY_RESPONDED: "Already responded",
 };
+
+export const OFFER_ERRORS = {
+  NOT_FOUND: "Investment offer not found !",
+};

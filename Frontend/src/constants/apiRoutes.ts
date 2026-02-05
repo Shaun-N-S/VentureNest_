@@ -144,5 +144,6 @@ export const API_ROUTES = {
     CREATE: "/offers/investment-offer",
     SENT: "/offers/sent",
     RECEIVED: "/offers/received",
+    GET_BY_ID: "/offers/:offerId",
   },
 };
