@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { ROUTES } from "@shared/constants/routes";
-import { investorGuard } from "interfaceAdapters/middleware/guards";
+import { investorGuard, userGuard } from "interfaceAdapters/middleware/guards";
 import { investmentOfferController } from "@infrastructure/DI/Investor/InvestmentOfferContainer";
 
 export class InvestmentOffer_Router {
@@ -24,6 +24,14 @@ export class InvestmentOffer_Router {
       ...investorGuard,
       (req: Request, res: Response, next: NextFunction) =>
         investmentOfferController.getSentOffers(req, res, next)
+    );
+
+    this._route.get(
+      ROUTES.OFFER.RECEIVED,
+      ...userGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        investmentOfferController.getReceivedOffers(req, res, next);
+      }
     );
   }
 

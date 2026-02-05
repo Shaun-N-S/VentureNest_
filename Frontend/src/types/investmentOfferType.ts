@@ -56,3 +56,22 @@ export interface SentInvestmentOfferListItem {
   status: OfferStatus;
   createdAt: string;
 }
+
+export interface ReceivedInvestmentOfferListItem {
+  offerId: string;
+
+  projectId: string;
+  projectName: string;
+  projectLogoUrl?: string;
+
+  investorId: string;
+  investorName: string;
+  investorProfileImg?: string;
+
+  amount: number;
+  equityPercentage: number;
+  valuation?: number;
+
+  status: OfferStatus;
+  createdAt: string;
+}

@@ -5,11 +5,13 @@ import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { MESSAGES } from "@shared/constants/messages";
 import { createInvestmentOfferSchema } from "@shared/validations/investmentOfferValidation";
 import { IGetSentInvestmentOffersUseCase } from "@domain/interfaces/useCases/investor/investmentOffer/IGetSentInvestmentOffersUseCase";
+import { IGetReceivedInvestmentOffersUseCase } from "@domain/interfaces/useCases/investor/investmentOffer/IGetReceivedInvestmentOffersUseCase";
 
 export class InvestmentOfferController {
   constructor(
     private _createInvestmentOfferUseCase: ICreateInvestmentOfferUseCase,
-    private _getSentOffersUseCase: IGetSentInvestmentOffersUseCase
+    private _getSentOffersUseCase: IGetSentInvestmentOffersUseCase,
+    private _getReceivedOffersUseCase: IGetReceivedInvestmentOffersUseCase
   ) {}
 
   async createOffer(req: Request, res: Response, next: NextFunction) {
@@ -31,6 +33,18 @@ export class InvestmentOfferController {
       const investorId = res.locals.user.userId;
 
       const result = await this._getSentOffersUseCase.execute(investorId);
+
+      ResponseHelper.success(res, MESSAGES.OFFER.OFFERS_FETCHED, result, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getReceivedOffers(req: Request, res: Response, next: NextFunction) {
+    try {
+      const founderId = res.locals.user.userId;
+
+      const result = await this._getReceivedOffersUseCase.execute(founderId);
 
       ResponseHelper.success(res, MESSAGES.OFFER.OFFERS_FETCHED, result, HTTPSTATUS.OK);
     } catch (error) {

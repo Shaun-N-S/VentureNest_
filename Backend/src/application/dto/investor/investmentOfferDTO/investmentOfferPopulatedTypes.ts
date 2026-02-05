@@ -20,3 +20,24 @@ export interface SentInvestmentOfferPopulated {
     profileImg?: string;
   };
 }
+
+export interface ReceivedInvestmentOfferPopulated {
+  _id: string;
+  amount: number;
+  equityPercentage: number;
+  valuation?: number;
+  status: OfferStatus;
+  createdAt: Date;
+
+  projectId: {
+    _id: string;
+    startupName: string;
+    logoUrl?: string;
+  };
+
+  investorId: {
+    _id: string;
+    companyName: string;
+    profileImg?: string;
+  };
+}

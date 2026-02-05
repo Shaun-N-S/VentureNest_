@@ -5,7 +5,10 @@ import { IInvestmentOfferModel } from "@infrastructure/db/models/investmentOffer
 import { OfferStatus } from "@domain/enum/offerStatus";
 import { InvestmentOfferEntity } from "@domain/entities/investor/investmentOfferEntity";
 import { InvestmentOfferMapper } from "application/mappers/investmentOfferMapper";
-import { SentInvestmentOfferPopulated } from "application/dto/investor/investmentOfferDTO/investmentOfferPopulatedTypes";
+import {
+  ReceivedInvestmentOfferPopulated,
+  SentInvestmentOfferPopulated,
+} from "application/dto/investor/investmentOfferDTO/investmentOfferPopulatedTypes";
 
 export class InvestmentOfferRepository
   extends BaseRepository<InvestmentOfferEntity, IInvestmentOfferModel>
@@ -24,10 +27,13 @@ export class InvestmentOfferRepository
       .lean<SentInvestmentOfferPopulated[]>();
   }
 
-  async findReceivedByFounder(founderId: string): Promise<InvestmentOfferEntity[]> {
-    const docs = await this._model.find({ founderId }).sort({ createdAt: -1 });
-
-    return docs.map(InvestmentOfferMapper.fromMongooseDocument);
+  async findReceivedByFounder(founderId: string): Promise<ReceivedInvestmentOfferPopulated[]> {
+    return this._model
+      .find({ founderId })
+      .populate("projectId", "startupName logoUrl")
+      .populate("investorId", "companyName profileImg")
+      .sort({ createdAt: -1 })
+      .lean<ReceivedInvestmentOfferPopulated[]>();
   }
 
   async updateStatus(offerId: string, status: OfferStatus): Promise<InvestmentOfferEntity | null> {

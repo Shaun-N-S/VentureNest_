@@ -143,5 +143,6 @@ export const API_ROUTES = {
   OFFERS: {
     CREATE: "/offers/investment-offer",
     SENT: "/offers/sent",
+    RECEIVED: "/offers/received",
   },
 };

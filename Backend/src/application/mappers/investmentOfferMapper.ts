@@ -4,8 +4,12 @@ import { IInvestmentOfferModel } from "@infrastructure/db/models/investmentOffer
 import { InvestmentOfferResponseDTO } from "application/dto/investor/investmentOfferDTO/investmentOfferResponseDTO";
 import { CreateInvestmentOfferDTO } from "application/dto/investor/investmentOfferDTO/createInvestmentOfferDTO";
 import { OfferStatus } from "@domain/enum/offerStatus";
-import { SentInvestmentOfferPopulated } from "application/dto/investor/investmentOfferDTO/investmentOfferPopulatedTypes";
+import {
+  ReceivedInvestmentOfferPopulated,
+  SentInvestmentOfferPopulated,
+} from "application/dto/investor/investmentOfferDTO/investmentOfferPopulatedTypes";
 import { SentInvestmentOfferListItemDTO } from "application/dto/investor/investmentOfferDTO/sentInvestmentOfferListItemDTO";
+import { ReceivedInvestmentOfferListItemDTO } from "application/dto/investor/investmentOfferDTO/receivedInvestmentOfferListItemDTO";
 
 export class InvestmentOfferMapper {
   /* -------------------- DTO → Entity -------------------- */
@@ -123,6 +127,31 @@ export class InvestmentOfferMapper {
       founderName: o.founderId.userName,
       ...(o.founderId.profileImg && {
         founderProfileImg: o.founderId.profileImg,
+      }),
+
+      amount: o.amount,
+      equityPercentage: o.equityPercentage,
+      ...(o.valuation !== undefined && { valuation: o.valuation }),
+
+      status: o.status,
+      createdAt: o.createdAt.toISOString(),
+    }));
+  }
+
+  static toReceivedOfferListDTO(
+    offers: ReceivedInvestmentOfferPopulated[]
+  ): ReceivedInvestmentOfferListItemDTO[] {
+    return offers.map((o) => ({
+      offerId: o._id,
+
+      projectId: o.projectId._id,
+      projectName: o.projectId.startupName,
+      ...(o.projectId.logoUrl && { projectLogoUrl: o.projectId.logoUrl }),
+
+      investorId: o.investorId._id,
+      investorName: o.investorId.companyName,
+      ...(o.investorId.profileImg && {
+        investorProfileImg: o.investorId.profileImg,
       }),
 
       amount: o.amount,
