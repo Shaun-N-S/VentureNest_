@@ -107,3 +107,9 @@ export interface InvestmentOfferDetails {
   expiresAt?: string;
   createdAt: string;
 }
+
+export interface AcceptInvestmentOfferResponse {
+  offerId: string;
+  status: OfferStatus;
+  respondedAt: string;
+}

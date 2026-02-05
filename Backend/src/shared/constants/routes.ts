@@ -162,5 +162,6 @@ export const ROUTES = {
     SENT: "/sent",
     RECEIVED: "/received",
     GET_BY_ID: "/:offerId",
+    ACCEPT: "/:offerId/accept",
   },
 };

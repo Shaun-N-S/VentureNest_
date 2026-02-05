@@ -9,13 +9,15 @@ import { IGetReceivedInvestmentOffersUseCase } from "@domain/interfaces/useCases
 import { IGetInvestmentOfferDetailsUseCase } from "@domain/interfaces/useCases/investor/investmentOffer/IGetInvestmentOfferDetailsUseCase";
 import { InvalidDataException } from "application/constants/exceptions";
 import { Errors } from "@shared/constants/error";
+import { IAcceptInvestmentOfferUseCase } from "@domain/interfaces/useCases/investor/investmentOffer/IAcceptInvestmentOfferUseCase";
 
 export class InvestmentOfferController {
   constructor(
     private _createInvestmentOfferUseCase: ICreateInvestmentOfferUseCase,
     private _getSentOffersUseCase: IGetSentInvestmentOffersUseCase,
     private _getReceivedOffersUseCase: IGetReceivedInvestmentOffersUseCase,
-    private _getOfferDetailsUseCase: IGetInvestmentOfferDetailsUseCase
+    private _getOfferDetailsUseCase: IGetInvestmentOfferDetailsUseCase,
+    private _acceptInvestmentOfferUseCase: IAcceptInvestmentOfferUseCase
   ) {}
 
   async createOffer(req: Request, res: Response, next: NextFunction) {
@@ -68,6 +70,23 @@ export class InvestmentOfferController {
       const result = await this._getOfferDetailsUseCase.execute(offerId, viewerId);
 
       ResponseHelper.success(res, MESSAGES.OFFER.OFFERS_FETCHED, result, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async acceptOffer(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { offerId } = req.params;
+      const founderId = res.locals.user.userId;
+
+      if (!offerId) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const result = await this._acceptInvestmentOfferUseCase.execute(offerId, founderId);
+
+      ResponseHelper.success(res, MESSAGES.OFFER.OFFER_ACCEPTED, result, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

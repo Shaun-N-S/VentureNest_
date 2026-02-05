@@ -145,5 +145,6 @@ export const API_ROUTES = {
     SENT: "/offers/sent",
     RECEIVED: "/offers/received",
     GET_BY_ID: "/offers/:offerId",
+    ACCEPT: "/offers/:offerId/accept",
   },
 };

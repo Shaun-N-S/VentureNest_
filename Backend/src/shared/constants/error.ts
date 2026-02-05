@@ -114,4 +114,7 @@ export const PITCH_ERRORS = {
 
 export const OFFER_ERRORS = {
   NOT_FOUND: "Investment offer not found !",
+  ALREADY_PROCESSED: "Offer already processed",
+  EXPIRED: "Offer expired",
+  UNABLE_TO_ACCEPT: "Unable to accept offer",
 };

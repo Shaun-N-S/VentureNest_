@@ -132,5 +132,6 @@ export const MESSAGES = {
   OFFER: {
     OFFER_SENT: "Investment offer sent successfully",
     OFFERS_FETCHED: "Investment offers fetched successfully",
+    OFFER_ACCEPTED: "Offer accepted successfully",
   },
 };

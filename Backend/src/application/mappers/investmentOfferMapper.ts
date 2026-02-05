@@ -12,6 +12,7 @@ import {
 import { SentInvestmentOfferListItemDTO } from "application/dto/investor/investmentOfferDTO/sentInvestmentOfferListItemDTO";
 import { ReceivedInvestmentOfferListItemDTO } from "application/dto/investor/investmentOfferDTO/receivedInvestmentOfferListItemDTO";
 import { InvestmentOfferDetailsResponseDTO } from "application/dto/investor/investmentOfferDTO/investmentOfferDetailsResponseDTO";
+import { AcceptInvestmentOfferResponseDTO } from "application/dto/investor/investmentOfferDTO/acceptInvestmentOfferResponseDTO";
 
 export class InvestmentOfferMapper {
   /* -------------------- DTO → Entity -------------------- */
@@ -204,6 +205,14 @@ export class InvestmentOfferMapper {
           profileImg: offer.founderId.profileImg,
         }),
       },
+    };
+  }
+
+  static toAcceptResponseDTO(entity: InvestmentOfferEntity): AcceptInvestmentOfferResponseDTO {
+    return {
+      offerId: entity._id!,
+      status: entity.status,
+      respondedAt: entity.respondedAt!,
     };
   }
 }

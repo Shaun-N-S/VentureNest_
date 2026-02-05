@@ -41,6 +41,13 @@ export class InvestmentOffer_Router {
         investmentOfferController.getOfferDetails(req, res, next);
       }
     );
+
+    this._route.patch(
+      ROUTES.OFFER.ACCEPT,
+      ...userGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        investmentOfferController.acceptOffer(req, res, next)
+    );
   }
 
   get_router(): Router {
