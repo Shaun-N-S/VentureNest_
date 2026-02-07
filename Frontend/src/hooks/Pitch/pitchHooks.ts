@@ -1,6 +1,7 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import {
   createPitch,
+  fetchPitchById,
   fetchReceivedPitches,
   fetchSentPitches,
   respondToPitch,
@@ -9,9 +10,7 @@ import type {
   CreatePitchPayload,
   PitchDetailsResponse,
   PitchResponse,
-  ReceivedPitchListItem,
   RespondPitchPayload,
-  SentPitchListItem,
 } from "../../types/pitchType";
 import { queryClient } from "../../main";
 
@@ -21,17 +20,29 @@ export const useCreatePitch = () => {
   });
 };
 
-export const useFetchReceivedPitches = () => {
-  return useQuery<ReceivedPitchListItem[]>({
-    queryKey: ["received-pitches"],
-    queryFn: fetchReceivedPitches,
+export const useFetchReceivedPitches = (
+  page = 1,
+  limit = 10,
+  status?: string,
+  search?: string,
+) => {
+  return useQuery({
+    queryKey: ["received-pitches", page, limit, status, search],
+    queryFn: () => fetchReceivedPitches(page, limit, status, search),
+    placeholderData: keepPreviousData,
   });
 };
 
-export const useFetchSentPitches = () => {
-  return useQuery<SentPitchListItem[]>({
-    queryKey: ["sent-pitches"],
-    queryFn: fetchSentPitches,
+export const useFetchSentPitches = (
+  page = 1,
+  limit = 10,
+  status?: string,
+  search?: string,
+) => {
+  return useQuery({
+    queryKey: ["sent-pitches", page, limit, status, search],
+    queryFn: () => fetchSentPitches(page, limit, status, search),
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -47,3 +58,10 @@ export const useRespondToPitch = () => {
     },
   });
 };
+
+export const useFetchPitchDetails = (pitchId?: string) =>
+  useQuery<PitchDetailsResponse>({
+    queryKey: ["pitch-details", pitchId],
+    queryFn: () => fetchPitchById(pitchId!),
+    enabled: !!pitchId,
+  });

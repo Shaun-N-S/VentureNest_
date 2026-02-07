@@ -17,22 +17,16 @@ import {
 } from "../ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Send } from "lucide-react";
+import toast from "react-hot-toast";
 
 import { useFetchPersonalProjects } from "../../hooks/Project/projectHooks";
-import type { ProjectType } from "../../types/projectType";
-import toast from "react-hot-toast";
-import { Loader2 } from "lucide-react";
 import { useCreatePitch } from "../../hooks/Pitch/pitchHooks";
+import type { ProjectType } from "../../types/projectType";
 import {
   pitchFormSchema,
   type PitchFormValues,
 } from "../../lib/validations/pitchValidation";
-
-interface PitchModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  investorId: string;
-}
 
 /* ---------------- Project Select Item ---------------- */
 
@@ -45,25 +39,27 @@ function ProjectSelectItem({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="h-7 w-7 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+      <div className="h-8 w-8 rounded-full bg-muted overflow-hidden flex items-center justify-center">
         {logoUrl ? (
-          <img
-            src={logoUrl}
-            alt={name}
-            className="h-full w-full object-cover"
-          />
+          <img src={logoUrl} alt={name} className="h-full w-full object-cover" />
         ) : (
-          <span className="text-xs font-semibold text-gray-600">
+          <span className="text-xs font-semibold">
             {name.charAt(0)}
           </span>
         )}
       </div>
-      <span className="text-sm truncate">{name}</span>
+      <span className="text-sm font-medium truncate">{name}</span>
     </div>
   );
 }
 
 /* ---------------- Pitch Modal ---------------- */
+
+interface PitchModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  investorId: string;
+}
 
 export function PitchModal({
   open,
@@ -72,9 +68,10 @@ export function PitchModal({
 }: PitchModalProps) {
   const { data: projectData, isLoading } = useFetchPersonalProjects(1, 10);
   const { mutate: createPitch } = useCreatePitch();
-  let isSubmitting: boolean = false;
   const projects: ProjectType[] = projectData?.data?.data?.projects ?? [];
-  console.log("investor id : ", investorId);
+
+  let isSubmitting = false;
+
   const {
     register,
     handleSubmit,
@@ -92,10 +89,7 @@ export function PitchModal({
 
   const onSubmit = (values: PitchFormValues) => {
     createPitch(
-      {
-        ...values,
-        investorId,
-      },
+      { ...values, investorId },
       {
         onSuccess: () => {
           isSubmitting = true;
@@ -103,10 +97,8 @@ export function PitchModal({
           reset();
           onOpenChange(false);
         },
-        onError: () => {
-          toast.error("Failed to send pitch");
-        },
-      },
+        onError: () => toast.error("Failed to send pitch"),
+      }
     );
   };
 
@@ -114,42 +106,38 @@ export function PitchModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-lg rounded-2xl p-6 sm:p-8">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">
-            Send Pitch
+      <DialogContent className="w-[95vw] max-w-xl rounded-2xl p-6 sm:p-8">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-2xl font-bold">
+            Send Pitch 🚀
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            Introduce your startup and start a conversation with the investor.
+            Pitch your startup clearly and concisely to start a conversation.
           </DialogDescription>
         </DialogHeader>
 
         {hasNoProjects ? (
-          <div className="rounded-xl border border-dashed p-6 text-center">
+          <div className="mt-6 rounded-xl border border-dashed p-6 text-center">
             <p className="text-sm text-muted-foreground">
-              You need to create a project before sending a pitch.
+              You need at least one project to send a pitch.
             </p>
             <Button className="mt-4" onClick={() => onOpenChange(false)}>
               Create Project
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-4">
-            {/* -------- Project Select -------- */}
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-6">
+            {/* -------- Project -------- */}
             <div className="space-y-1">
               <label className="text-sm font-medium">Project</label>
-
               <Select
                 onValueChange={(value) =>
-                  setValue("projectId", value, {
-                    shouldValidate: true,
-                  })
+                  setValue("projectId", value, { shouldValidate: true })
                 }
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your project" />
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder="Select a project" />
                 </SelectTrigger>
-
                 <SelectContent>
                   {projects.map((project) => (
                     <SelectItem key={project._id} value={project._id}>
@@ -161,7 +149,6 @@ export function PitchModal({
                   ))}
                 </SelectContent>
               </Select>
-
               {errors.projectId && (
                 <p className="text-xs text-red-500">
                   {errors.projectId.message}
@@ -173,12 +160,14 @@ export function PitchModal({
             <div className="space-y-1">
               <label className="text-sm font-medium">Subject</label>
               <Input
-                className="w-full"
+                className="h-11"
                 placeholder="Investment opportunity in my startup"
                 {...register("subject")}
               />
               {errors.subject && (
-                <p className="text-xs text-red-500">{errors.subject.message}</p>
+                <p className="text-xs text-red-500">
+                  {errors.subject.message}
+                </p>
               )}
             </div>
 
@@ -186,25 +175,27 @@ export function PitchModal({
             <div className="space-y-1">
               <label className="text-sm font-medium">Message</label>
               <Textarea
-                className="w-116 resize-none "
-                rows={5}
-                placeholder="Briefly explain what your startup does, your traction, and what you’re looking for..."
+                rows={6}
+                className="resize-none leading-relaxed"
+                placeholder="Briefly explain what your startup does, traction, revenue, and what you're looking for..."
                 {...register("message")}
               />
               <p className="text-xs text-muted-foreground">
-                Tip: Mention traction, revenue, or what makes you different.
+                Tip: Mention traction, users, revenue, or why you stand out.
               </p>
               {errors.message && (
-                <p className="text-xs text-red-500">{errors.message.message}</p>
+                <p className="text-xs text-red-500">
+                  {errors.message.message}
+                </p>
               )}
             </div>
 
             {/* -------- Actions -------- */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 w-50">
+            <div className="flex gap-3 pt-4">
               <Button
                 type="button"
                 variant="outline"
-                className="w-full"
+                className="flex-1"
                 onClick={() => onOpenChange(false)}
               >
                 Cancel
@@ -212,13 +203,16 @@ export function PitchModal({
 
               <Button
                 type="submit"
-                className="w-full bg-blue-500 hover:bg-blue-600"
+                className="flex-1 bg-blue-500 hover:bg-blue-600 gap-2"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  "Send Pitch"
+                  <>
+                    <Send className="h-4 w-4" />
+                    Send Pitch
+                  </>
                 )}
               </Button>
             </div>

@@ -15,7 +15,7 @@ export class RespondToPitchUseCase implements IRespondToPitchUseCase {
       throw new NotFoundExecption(PITCH_ERRORS.NOT_FOUND);
     }
 
-    if (pitch.investorId._id !== investorId) {
+    if (pitch.investorId._id.toString() !== investorId) {
       throw new ForbiddenException(Errors.NOT_ALLOWED);
     }
 

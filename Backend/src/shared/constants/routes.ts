@@ -153,7 +153,7 @@ export const ROUTES = {
     CREATE: "/pitch",
     RECEIVED: "/received",
     SENT: "/sent",
-    GET_BY_ID: "/:id",
+    GET_BY_ID: "/:pitchId",
     RESPOND: "/:id/respond",
   },
 
@@ -163,5 +163,6 @@ export const ROUTES = {
     RECEIVED: "/received",
     GET_BY_ID: "/:offerId",
     ACCEPT: "/:offerId/accept",
+    REJECT: "/:offerId/reject",
   },
 };

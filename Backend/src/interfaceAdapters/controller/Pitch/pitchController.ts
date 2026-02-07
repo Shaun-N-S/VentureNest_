@@ -11,6 +11,7 @@ import { InvalidDataException } from "application/constants/exceptions";
 import { Errors } from "@shared/constants/error";
 import { IRespondToPitchUseCase } from "@domain/interfaces/useCases/pitch/IRespondToPitchUseCase";
 import { respondPitchSchema } from "@shared/validations/respondValidation";
+import { PitchStatus } from "@domain/enum/pitchStatus";
 
 export class PitchController {
   constructor(
@@ -38,11 +39,22 @@ export class PitchController {
     }
   }
 
-  async getReceivedPitches(req: Request, res: Response, next: NextFunction) {
+  async getSentPitches(req: Request, res: Response, next: NextFunction) {
     try {
-      const investorId = res.locals.user.userId;
+      const founderId = res.locals.user.userId;
 
-      const result = await this._getReceivedPitchesUseCase.execute(investorId);
+      const page = Number(req.query.page ?? 1);
+      const limit = Number(req.query.limit ?? 10);
+      const status = req.query.status as PitchStatus | undefined;
+      const search = req.query.search as string | undefined;
+
+      const result = await this._getSentPitchesUseCase.execute(
+        founderId,
+        page,
+        limit,
+        status,
+        search
+      );
 
       ResponseHelper.success(res, MESSAGES.PITCH.PITCHES_FETCHED, result, HTTPSTATUS.OK);
     } catch (error) {
@@ -50,11 +62,22 @@ export class PitchController {
     }
   }
 
-  async getSentPitches(req: Request, res: Response, next: NextFunction) {
+  async getReceivedPitches(req: Request, res: Response, next: NextFunction) {
     try {
-      const founderId = res.locals.user.userId;
+      const investorId = res.locals.user.userId;
 
-      const result = await this._getSentPitchesUseCase.execute(founderId);
+      const page = Number(req.query.page ?? 1);
+      const limit = Number(req.query.limit ?? 10);
+      const status = req.query.status as PitchStatus | undefined;
+      const search = req.query.search as string | undefined;
+
+      const result = await this._getReceivedPitchesUseCase.execute(
+        investorId,
+        page,
+        limit,
+        status,
+        search
+      );
 
       ResponseHelper.success(res, MESSAGES.PITCH.PITCHES_FETCHED, result, HTTPSTATUS.OK);
     } catch (error) {
@@ -64,14 +87,14 @@ export class PitchController {
 
   async getPitchDetails(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const { pitchId } = req.params;
       const viewerId = res.locals.user.userId;
 
-      if (!id) {
+      if (!pitchId) {
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
 
-      const result = await this._getPitchDetailsUseCase.execute(id, viewerId);
+      const result = await this._getPitchDetailsUseCase.execute(pitchId, viewerId);
 
       ResponseHelper.success(res, MESSAGES.PITCH.PITCH_FETCHED, result, HTTPSTATUS.OK);
     } catch (error) {

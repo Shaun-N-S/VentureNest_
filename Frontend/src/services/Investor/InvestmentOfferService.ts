@@ -6,8 +6,10 @@ import type {
   InvestmentOfferDetails,
   InvestmentOfferResponse,
   ReceivedInvestmentOfferListItem,
+  RejectInvestmentOfferResponse,
   SentInvestmentOfferListItem,
 } from "../../types/investmentOfferType";
+import type { PaginatedResponses } from "../../types/pagination";
 
 export const createInvestmentOffer = async (
   payload: CreateInvestmentOfferPayload,
@@ -19,20 +21,28 @@ export const createInvestmentOffer = async (
   return data.data;
 };
 
-export const fetchSentInvestmentOffers = async (): Promise<
-  SentInvestmentOfferListItem[]
-> => {
-  const response = await AxiosInstance.get(API_ROUTES.OFFERS.SENT, {
+export const fetchSentInvestmentOffers = async (
+  page = 1,
+  limit = 10,
+  status?: string,
+  search?: string,
+): Promise<PaginatedResponses<SentInvestmentOfferListItem>> => {
+  const { data } = await AxiosInstance.get(API_ROUTES.OFFERS.SENT, {
+    params: { page, limit, status, search },
     withCredentials: true,
   });
 
-  return response.data.data;
+  return data.data;
 };
 
-export const fetchReceivedInvestmentOffers = async (): Promise<
-  ReceivedInvestmentOfferListItem[]
-> => {
+export const fetchReceivedInvestmentOffers = async (
+  page = 1,
+  limit = 10,
+  status?: string,
+  search?: string,
+): Promise<PaginatedResponses<ReceivedInvestmentOfferListItem>> => {
   const { data } = await AxiosInstance.get(API_ROUTES.OFFERS.RECEIVED, {
+    params: { page, limit, status, search },
     withCredentials: true,
   });
 
@@ -56,6 +66,19 @@ export const acceptInvestmentOffer = async (
   const { data } = await AxiosInstance.patch(
     API_ROUTES.OFFERS.ACCEPT.replace(":offerId", offerId),
     {},
+    { withCredentials: true },
+  );
+
+  return data.data;
+};
+
+export const rejectInvestmentOffer = async (
+  offerId: string,
+  reason: string,
+): Promise<RejectInvestmentOfferResponse> => {
+  const { data } = await AxiosInstance.patch(
+    API_ROUTES.OFFERS.REJECT.replace(":offerId", offerId),
+    { reason },
     { withCredentials: true },
   );
 

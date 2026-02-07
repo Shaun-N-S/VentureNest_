@@ -4,8 +4,8 @@ import type {
   CreateInvestmentOfferPayload,
   InvestmentOfferDetails,
   InvestmentOfferResponse,
-  ReceivedInvestmentOfferListItem,
-  SentInvestmentOfferListItem,
+  RejectInvestmentOfferPayload,
+  RejectInvestmentOfferResponse,
 } from "../../../types/investmentOfferType";
 import {
   acceptInvestmentOffer,
@@ -13,6 +13,7 @@ import {
   fetchInvestmentOfferDetails,
   fetchReceivedInvestmentOffers,
   fetchSentInvestmentOffers,
+  rejectInvestmentOffer,
 } from "../../../services/Investor/InvestmentOfferService";
 import { queryClient } from "../../../main";
 
@@ -30,17 +31,27 @@ export const useCreateInvestmentOffer = () => {
   });
 };
 
-export const useFetchSentInvestmentOffers = () => {
-  return useQuery<SentInvestmentOfferListItem[]>({
-    queryKey: ["sent-investment-offers"],
-    queryFn: fetchSentInvestmentOffers,
+export const useFetchSentInvestmentOffers = (
+  page = 1,
+  limit = 10,
+  status?: string,
+  search?: string,
+) => {
+  return useQuery({
+    queryKey: ["sent-investment-offers", page, limit, status, search],
+    queryFn: () => fetchSentInvestmentOffers(page, limit, status, search),
   });
 };
 
-export const useFetchReceivedInvestmentOffers = () => {
-  return useQuery<ReceivedInvestmentOfferListItem[]>({
-    queryKey: ["received-investment-offers"],
-    queryFn: fetchReceivedInvestmentOffers,
+export const useFetchReceivedInvestmentOffers = (
+  page = 1,
+  limit = 10,
+  status?: string,
+  search?: string,
+) => {
+  return useQuery({
+    queryKey: ["received-investment-offers", page, limit, status, search],
+    queryFn: () => fetchReceivedInvestmentOffers(page, limit, status, search),
   });
 };
 
@@ -64,6 +75,28 @@ export const useAcceptInvestmentOffer = () => {
       });
       queryClient.invalidateQueries({ queryKey: ["sent-investment-offers"] });
       queryClient.invalidateQueries({ queryKey: ["investment-offer-details"] });
+    },
+  });
+};
+
+export const useRejectInvestmentOffer = () => {
+  return useMutation<
+    RejectInvestmentOfferResponse,
+    Error,
+    RejectInvestmentOfferPayload
+  >({
+    mutationFn: ({ offerId, reason }) => rejectInvestmentOffer(offerId, reason),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["received-investment-offers"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["sent-investment-offers"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["investment-offer-details"],
+      });
     },
   });
 };

@@ -11,8 +11,22 @@ import {
 } from "application/dto/pitch/PitchDetailsResponseDTO";
 
 export interface IPitchRepository extends IBaseRepository<PitchEntity> {
-  findSentByFounder(founderId: string): Promise<SentPitchPopulated[]>;
-  findReceivedByInvestor(investorId: string): Promise<ReceivedPitchPopulated[]>;
+  findSentByFounder(
+    founderId: string,
+    skip: number,
+    limit: number,
+    status?: PitchStatus,
+    search?: string
+  ): Promise<{ items: SentPitchPopulated[]; total: number }>;
+
+  findReceivedByInvestor(
+    investorId: string,
+    skip: number,
+    limit: number,
+    status?: PitchStatus,
+    search?: string
+  ): Promise<{ items: ReceivedPitchPopulated[]; total: number }>;
+
   findDetailsById(pitchId: string): Promise<PitchDetailsPopulated | null>;
   updateStatus(pitchId: string, status: PitchStatus): Promise<PitchEntity | null>;
   respondToPitch(pitchId: string, reply: InvestorReplyDTO): Promise<PitchDetailsPopulated | null>;

@@ -18,8 +18,8 @@ export class GetInvestmentOfferDetailsUseCase implements IGetInvestmentOfferDeta
       throw new NotFoundExecption(OFFER_ERRORS.NOT_FOUND);
     }
 
-    const isInvestor = offer.investorId._id === viewerId;
-    const isFounder = offer.founderId._id === viewerId;
+    const isInvestor = offer.investorId._id.toString() === viewerId;
+    const isFounder = offer.founderId._id.toString() === viewerId;
 
     if (!isInvestor && !isFounder) {
       throw new ForbiddenException(Errors.NOT_ALLOWED);

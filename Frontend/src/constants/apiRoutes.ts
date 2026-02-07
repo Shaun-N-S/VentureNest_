@@ -138,6 +138,7 @@ export const API_ROUTES = {
     RECEIVED: "/pitches/received",
     SENT: "/pitches/sent",
     RESPOND: "/pitches/:pitchId/respond",
+    GET_BY_ID: "/pitches/:pitchId",
   },
 
   OFFERS: {
@@ -146,5 +147,6 @@ export const API_ROUTES = {
     RECEIVED: "/offers/received",
     GET_BY_ID: "/offers/:offerId",
     ACCEPT: "/offers/:offerId/accept",
+    REJECT: "/offers/:offerId/reject",
   },
 };

@@ -8,8 +8,21 @@ import {
 } from "application/dto/investor/investmentOfferDTO/investmentOfferPopulatedTypes";
 
 export interface IInvestmentOfferRepository extends IBaseRepository<InvestmentOfferEntity> {
-  findSentByInvestor(investorId: string): Promise<SentInvestmentOfferPopulated[]>;
-  findReceivedByFounder(founderId: string): Promise<ReceivedInvestmentOfferPopulated[]>;
+  findSentByInvestor(
+    investorId: string,
+    skip: number,
+    limit: number,
+    status?: OfferStatus,
+    search?: string
+  ): Promise<{ items: SentInvestmentOfferPopulated[]; total: number }>;
+
+  findReceivedByFounder(
+    founderId: string,
+    skip: number,
+    limit: number,
+    status?: OfferStatus,
+    search?: string
+  ): Promise<{ items: ReceivedInvestmentOfferPopulated[]; total: number }>;
   findDetailsById(offerId: string): Promise<InvestmentOfferDetailsPopulated | null>;
   updateStatus(offerId: string, status: OfferStatus): Promise<InvestmentOfferEntity | null>;
 }

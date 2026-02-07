@@ -55,6 +55,7 @@ export interface InvestmentOfferDetailsPopulated {
   status: OfferStatus;
   expiresAt?: Date;
   respondedAt?: Date;
+  rejectionReason?: string;
 
   createdAt: Date;
 

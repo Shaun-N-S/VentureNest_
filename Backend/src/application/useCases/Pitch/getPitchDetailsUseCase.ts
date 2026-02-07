@@ -18,14 +18,19 @@ export class GetPitchDetailsUseCase implements IGetPitchDetailsUseCase {
     if (!pitch) {
       throw new NotFoundExecption(PITCH_ERRORS.NOT_FOUND);
     }
+    console.log("investorid : ", pitch.investorId._id);
+    console.log("foundid : ", pitch.founderId._id);
+    console.log("viewerId", viewerId);
 
-    const isInvestor = pitch.investorId._id === viewerId;
-    const isFounder = pitch.founderId._id === viewerId;
+    const isInvestor = pitch.investorId._id.toString() === viewerId;
+
+    const isFounder = pitch.founderId._id.toString() === viewerId;
+
+    console.log("helloooooooo  ", isInvestor, isFounder);
 
     if (!isInvestor && !isFounder) {
       throw new ForbiddenException(Errors.NOT_ALLOWED);
     }
-
     if (isInvestor && pitch.status === PitchStatus.SENT) {
       await this._pitchRepo.updateStatus(pitchId, PitchStatus.VIEWED);
       pitch.status = PitchStatus.VIEWED;

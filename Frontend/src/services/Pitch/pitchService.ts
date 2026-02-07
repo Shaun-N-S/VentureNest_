@@ -1,5 +1,6 @@
 import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
+import type { PaginatedResponses } from "../../types/pagination";
 import type {
   CreatePitchPayload,
   PitchDetailsResponse,
@@ -19,18 +20,28 @@ export const createPitch = async (
   return response.data.data;
 };
 
-export const fetchReceivedPitches = async (): Promise<
-  ReceivedPitchListItem[]
-> => {
+export const fetchReceivedPitches = async (
+  page = 1,
+  limit = 10,
+  status?: string,
+  search?: string,
+): Promise<PaginatedResponses<ReceivedPitchListItem>> => {
   const response = await AxiosInstance.get(API_ROUTES.PITCH.RECEIVED, {
+    params: { page, limit, status, search },
     withCredentials: true,
   });
 
   return response.data.data;
 };
 
-export const fetchSentPitches = async (): Promise<SentPitchListItem[]> => {
+export const fetchSentPitches = async (
+  page = 1,
+  limit = 10,
+  status?: string,
+  search?: string,
+): Promise<PaginatedResponses<SentPitchListItem>> => {
   const response = await AxiosInstance.get(API_ROUTES.PITCH.SENT, {
+    params: { page, limit, status, search },
     withCredentials: true,
   });
 
@@ -47,4 +58,14 @@ export const respondToPitch = async (
   );
 
   return response.data.data;
+};
+
+export const fetchPitchById = async (
+  pitchId: string,
+): Promise<PitchDetailsResponse> => {
+  const res = await AxiosInstance.get(
+    API_ROUTES.PITCH.GET_BY_ID.replace(":pitchId", pitchId),
+    { withCredentials: true },
+  );
+  return res.data.data;
 };

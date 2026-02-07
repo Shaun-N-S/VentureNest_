@@ -63,6 +63,9 @@ export class InvestmentOfferMapper {
       ...(entity.expiresAt !== undefined && { expiresAt: entity.expiresAt }),
       ...(entity.respondedAt !== undefined && { respondedAt: entity.respondedAt }),
       ...(entity.respondedBy !== undefined && { respondedBy: entity.respondedBy }),
+      ...(entity.rejectionReason !== undefined && {
+        rejectionReason: entity.rejectionReason,
+      }),
 
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
@@ -88,6 +91,9 @@ export class InvestmentOfferMapper {
       ...(doc.expiresAt !== undefined && { expiresAt: doc.expiresAt }),
       ...(doc.respondedAt !== undefined && { respondedAt: doc.respondedAt }),
       ...(doc.respondedBy !== undefined && { respondedBy: doc.respondedBy }),
+      ...(doc.rejectionReason !== undefined && {
+        rejectionReason: doc.rejectionReason,
+      }),
 
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
@@ -181,6 +187,9 @@ export class InvestmentOfferMapper {
       status: offer.status,
       ...(offer.expiresAt && { expiresAt: offer.expiresAt }),
       ...(offer.respondedAt && { respondedAt: offer.respondedAt }),
+      ...(offer.rejectionReason && {
+        rejectionReason: offer.rejectionReason,
+      }),
 
       createdAt: offer.createdAt.toISOString(),
 

@@ -22,6 +22,8 @@ export interface InvestmentOfferEntity {
   respondedAt?: Date;
   respondedBy?: UserRole;
 
+  rejectionReason?: string;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

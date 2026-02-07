@@ -47,6 +47,8 @@ const investmentOfferSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(UserRole),
     },
+
+    rejectionReason: { type: String },
   },
   { timestamps: true }
 );

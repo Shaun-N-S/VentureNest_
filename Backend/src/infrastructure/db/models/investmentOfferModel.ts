@@ -21,6 +21,8 @@ export interface IInvestmentOfferModel extends Document {
   respondedAt?: Date;
   respondedBy?: UserRole;
 
+  rejectionReason?: string;
+
   createdAt: Date;
   updatedAt: Date;
 }

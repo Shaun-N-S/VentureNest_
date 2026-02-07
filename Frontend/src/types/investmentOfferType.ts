@@ -17,7 +17,7 @@ export interface CreateInvestmentOfferPayload {
 
   valuation?: number;
   note?: string;
-  expiresAt?: string; // ISO string from frontend
+  expiresAt?: string;
 }
 
 export interface InvestmentOfferResponse {
@@ -104,6 +104,7 @@ export interface InvestmentOfferDetails {
   note?: string;
 
   status: OfferStatus;
+  rejectionReason?: string;
   expiresAt?: string;
   createdAt: string;
 }
@@ -112,4 +113,16 @@ export interface AcceptInvestmentOfferResponse {
   offerId: string;
   status: OfferStatus;
   respondedAt: string;
+}
+
+export interface RejectInvestmentOfferPayload {
+  offerId: string;
+  reason: string;
+}
+
+export interface RejectInvestmentOfferResponse {
+  offerId: string;
+  status: OfferStatus;
+  respondedAt: string;
+  rejectionReason: string;
 }

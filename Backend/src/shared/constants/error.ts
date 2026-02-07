@@ -117,4 +117,6 @@ export const OFFER_ERRORS = {
   ALREADY_PROCESSED: "Offer already processed",
   EXPIRED: "Offer expired",
   UNABLE_TO_ACCEPT: "Unable to accept offer",
+  INVALID_STATUS: "Invalid Status!",
+  REJECTION_REASON_REQUIRED: "Rejection reason required!",
 };

@@ -34,6 +34,7 @@ export interface InvestmentOfferDetailsResponseDTO {
 
   expiresAt?: Date;
   respondedAt?: Date;
+  rejectionReason?: string;
 
   createdAt: string;
 }

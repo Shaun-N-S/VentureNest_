@@ -48,6 +48,14 @@ export class InvestmentOffer_Router {
       (req: Request, res: Response, next: NextFunction) =>
         investmentOfferController.acceptOffer(req, res, next)
     );
+
+    this._route.patch(
+      ROUTES.OFFER.REJECT,
+      ...userGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        investmentOfferController.rejectOffer(req, res, next);
+      }
+    );
   }
 
   get_router(): Router {
