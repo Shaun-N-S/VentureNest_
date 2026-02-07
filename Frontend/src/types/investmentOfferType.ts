@@ -93,7 +93,7 @@ export interface InvestmentOfferDetails {
 
   investor: {
     id: string;
-    companyName: string;
+    name: string;
     profileImg?: string;
   };
 

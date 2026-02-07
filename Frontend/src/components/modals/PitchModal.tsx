@@ -8,6 +8,7 @@ import {
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
@@ -17,7 +18,7 @@ import {
 } from "../ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, Sparkles, AlertCircle, Briefcase } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { useFetchPersonalProjects } from "../../hooks/Project/projectHooks";
@@ -28,7 +29,7 @@ import {
   type PitchFormValues,
 } from "../../lib/validations/pitchValidation";
 
-/* ---------------- Project Select Item ---------------- */
+/* ---------------- Project Select Item Component ---------------- */
 
 function ProjectSelectItem({
   name,
@@ -38,13 +39,17 @@ function ProjectSelectItem({
   logoUrl?: string | null;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="h-8 w-8 rounded-full bg-muted overflow-hidden flex items-center justify-center">
+    <div className="flex items-center gap-3 py-1">
+      <div className="h-8 w-8 rounded-lg bg-slate-100 overflow-hidden flex items-center justify-center shrink-0 border border-slate-200">
         {logoUrl ? (
-          <img src={logoUrl} alt={name} className="h-full w-full object-cover" />
+          <img
+            src={logoUrl}
+            alt={name}
+            className="h-full w-full object-cover"
+          />
         ) : (
-          <span className="text-xs font-semibold">
-            {name.charAt(0)}
+          <span className="text-xs font-bold text-slate-500">
+            {name.charAt(0).toUpperCase()}
           </span>
         )}
       </div>
@@ -66,17 +71,18 @@ export function PitchModal({
   onOpenChange,
   investorId,
 }: PitchModalProps) {
-  const { data: projectData, isLoading } = useFetchPersonalProjects(1, 10);
-  const { mutate: createPitch } = useCreatePitch();
-  const projects: ProjectType[] = projectData?.data?.data?.projects ?? [];
+  const { data: projectData, isLoading: loadingProjects } =
+    useFetchPersonalProjects(1, 10);
+  const { mutate: createPitch, isPending } = useCreatePitch(); // Corrected: use isPending from hook
 
-  let isSubmitting = false;
+  const projects: ProjectType[] = projectData?.data?.data?.projects ?? [];
 
   const {
     register,
     handleSubmit,
     setValue,
     reset,
+    watch,
     formState: { errors },
   } = useForm<PitchFormValues>({
     resolver: zodResolver(pitchFormSchema),
@@ -87,137 +93,208 @@ export function PitchModal({
     },
   });
 
+  const selectedProjectId = watch("projectId");
+
   const onSubmit = (values: PitchFormValues) => {
     createPitch(
       { ...values, investorId },
       {
         onSuccess: () => {
-          isSubmitting = true;
-          toast.success("Pitch sent successfully");
+          toast.success("Pitch delivered to investor!");
           reset();
           onOpenChange(false);
         },
-        onError: () => toast.error("Failed to send pitch"),
-      }
+        onError: () => toast.error("Failed to send pitch. Please try again."),
+      },
     );
   };
 
-  const hasNoProjects = !isLoading && projects.length === 0;
+  const hasNoProjects = !loadingProjects && projects.length === 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-xl rounded-2xl p-6 sm:p-8">
-        <DialogHeader className="space-y-2">
-          <DialogTitle className="text-2xl font-bold">
-            Send Pitch 🚀
-          </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
-            Pitch your startup clearly and concisely to start a conversation.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="w-[95vw] sm:max-w-[550px] gap-0 p-0 overflow-hidden rounded-2xl border-none shadow-2xl">
+        {/* Decorative Header Gradient */}
+        <div className="h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
-        {hasNoProjects ? (
-          <div className="mt-6 rounded-xl border border-dashed p-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              You need at least one project to send a pitch.
-            </p>
-            <Button className="mt-4" onClick={() => onOpenChange(false)}>
-              Create Project
-            </Button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-6">
-            {/* -------- Project -------- */}
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Project</label>
-              <Select
-                onValueChange={(value) =>
-                  setValue("projectId", value, { shouldValidate: true })
-                }
-              >
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Select a project" />
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map((project) => (
-                    <SelectItem key={project._id} value={project._id}>
-                      <ProjectSelectItem
-                        name={project.startupName}
-                        logoUrl={project.logoUrl}
-                      />
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.projectId && (
-                <p className="text-xs text-red-500">
-                  {errors.projectId.message}
-                </p>
-              )}
+        <div className="p-6 sm:p-10">
+          <DialogHeader className="space-y-3 text-left">
+            <div className="flex items-center gap-2 text-blue-600">
+              <Sparkles className="w-5 h-5 fill-current" />
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-500">
+                Investor Outreach
+              </span>
             </div>
+            <DialogTitle className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+              Deliver Your Pitch
+            </DialogTitle>
+            <DialogDescription className="text-slate-500 text-sm sm:text-base leading-relaxed">
+              Make a great first impression. High-quality pitches focus on
+              traction, problem-solving, and vision.
+            </DialogDescription>
+          </DialogHeader>
 
-            {/* -------- Subject -------- */}
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Subject</label>
-              <Input
-                className="h-11"
-                placeholder="Investment opportunity in my startup"
-                {...register("subject")}
-              />
-              {errors.subject && (
-                <p className="text-xs text-red-500">
-                  {errors.subject.message}
-                </p>
-              )}
-            </div>
-
-            {/* -------- Message -------- */}
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Message</label>
-              <Textarea
-                rows={6}
-                className="resize-none leading-relaxed"
-                placeholder="Briefly explain what your startup does, traction, revenue, and what you're looking for..."
-                {...register("message")}
-              />
-              <p className="text-xs text-muted-foreground">
-                Tip: Mention traction, users, revenue, or why you stand out.
+          {loadingProjects ? (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+              <p className="text-sm text-slate-400 font-medium">
+                Fetching your projects...
               </p>
-              {errors.message && (
-                <p className="text-xs text-red-500">
-                  {errors.message.message}
-                </p>
-              )}
             </div>
-
-            {/* -------- Actions -------- */}
-            <div className="flex gap-3 pt-4">
+          ) : hasNoProjects ? (
+            <div className="mt-8 rounded-2xl border-2 border-dashed border-slate-200 p-8 text-center bg-slate-50">
+              <div className="mx-auto w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                <Briefcase className="w-6 h-6 text-slate-400" />
+              </div>
+              <h3 className="font-semibold text-slate-900">
+                No Projects Found
+              </h3>
+              <p className="mt-2 text-sm text-slate-500 max-w-[250px] mx-auto">
+                You need an active project to pitch to investors.
+              </p>
               <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
+                variant="default"
+                className="mt-6 bg-slate-900 hover:bg-slate-800"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
-              </Button>
-
-              <Button
-                type="submit"
-                className="flex-1 bg-blue-500 hover:bg-blue-600 gap-2"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    <Send className="h-4 w-4" />
-                    Send Pitch
-                  </>
-                )}
+                Create a Project First
               </Button>
             </div>
-          </form>
-        )}
+          ) : (
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
+              {/* Project Selection */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="project"
+                  className="text-xs font-bold uppercase text-slate-500 ml-1"
+                >
+                  Select Project
+                </Label>
+                <Select
+                  value={selectedProjectId}
+                  onValueChange={(value) =>
+                    setValue("projectId", value, { shouldValidate: true })
+                  }
+                >
+                  <SelectTrigger
+                    className={`h-12 bg-slate-50 border-slate-200 transition-all focus:ring-2 focus:ring-blue-500/20 ${
+                      errors.projectId ? "border-red-500 bg-red-50" : ""
+                    }`}
+                  >
+                    <SelectValue placeholder="Which startup are you pitching?" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    {projects.map((project) => (
+                      <SelectItem
+                        key={project._id}
+                        value={project._id}
+                        className="cursor-pointer"
+                      >
+                        <ProjectSelectItem
+                          name={project.startupName}
+                          logoUrl={project.logoUrl}
+                        />
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.projectId && (
+                  <div className="flex items-center gap-1.5 mt-1 text-red-500">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <p className="text-xs font-medium">
+                      {errors.projectId.message}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Subject Line */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="subject"
+                  className="text-xs font-bold uppercase text-slate-500 ml-1"
+                >
+                  Subject Line
+                </Label>
+                <Input
+                  id="subject"
+                  className={`h-12 bg-slate-50 border-slate-200 transition-all focus:ring-2 focus:ring-blue-500/20 ${
+                    errors.subject ? "border-red-500 bg-red-50" : ""
+                  }`}
+                  placeholder="e.g., Revolutionizing Fintech - [Startup Name]"
+                  {...register("subject")}
+                />
+                {errors.subject && (
+                  <div className="flex items-center gap-1.5 mt-1 text-red-500">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <p className="text-xs font-medium">
+                      {errors.subject.message}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Message Content */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="message"
+                  className="text-xs font-bold uppercase text-slate-500 ml-1"
+                >
+                  Your Pitch
+                </Label>
+                <Textarea
+                  id="message"
+                  rows={5}
+                  className={`bg-slate-50 border-slate-200 transition-all focus:ring-2 focus:ring-blue-500/20 resize-none leading-relaxed p-4 ${
+                    errors.message ? "border-red-500 bg-red-50" : ""
+                  }`}
+                  placeholder="Describe your traction, team, and the specific problem you are solving..."
+                  {...register("message")}
+                />
+                <div className="flex items-start justify-between px-1">
+                  <p className="text-[11px] text-slate-400 italic max-w-[80%]">
+                    Pro-tip: Investors love data. Mention your Monthly Recurring
+                    Revenue (MRR) or user growth.
+                  </p>
+                </div>
+                {errors.message && (
+                  <div className="flex items-center gap-1.5 mt-1 text-red-500">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <p className="text-xs font-medium">
+                      {errors.message.message}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Actions */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-6">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="flex-1 order-2 sm:order-1 text-slate-500 hover:bg-slate-100"
+                  onClick={() => onOpenChange(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 order-1 sm:order-2 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all h-11 text-white"
+                  disabled={isPending}
+                >
+                  {isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Send Pitch
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

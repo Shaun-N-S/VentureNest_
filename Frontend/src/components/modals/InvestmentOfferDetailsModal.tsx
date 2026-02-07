@@ -101,7 +101,6 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-
         <DialogContent className="w-[95vw] md:w-full sm:max-w-3xl max-h-[90vh] p-0 gap-0 flex flex-col overflow-hidden rounded-xl">
           {isLoading ? (
             <Loader />
