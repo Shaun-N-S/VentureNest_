@@ -30,8 +30,6 @@ export class AdminAuthController {
 
       setRefreshTokenCookie(res, token.refreshToken);
 
-      // await this._cacheUserUseCaes.cacheUser(user);
-
       ResponseHelper.success(
         res,
         MESSAGES.USERS.LOGIN_SUCCESS,

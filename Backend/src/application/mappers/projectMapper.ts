@@ -247,7 +247,6 @@ export class ProjectMapper {
       ...(existing.walletId && { walletId: existing.walletId }),
     };
 
-    // ✅ Optional fields – only add if value exists
     if (dto.projectWebsite !== undefined) {
       updated.projectWebsite = dto.projectWebsite;
     }

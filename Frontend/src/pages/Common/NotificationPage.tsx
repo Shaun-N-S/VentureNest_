@@ -13,8 +13,6 @@ export default function NotificationPage() {
     const { data, isLoading } = useGetConnectionReq(page, limit);
     const { mutate: updateConnectionReqStatus } = useConnectionStatusUpdate();
     console.log(data, isLoading);
-    // const { mutate: acceptReq } = useAcceptRequest();
-    // const { mutate: rejectReq } = useRejectRequest();
 
     const requests: NetworkUser[] = data?.data?.users || [];
 
@@ -23,18 +21,6 @@ export default function NotificationPage() {
             { fromUserId: userId, status: "accepted" },
             {
                 onSuccess: (res) => {
-                    // queryClient.setQueriesData(
-                    //     ["peronal-connection-req", page, limit],
-                    //     (oldData: any) => {
-                    //         if (!oldData) return oldData;
-
-                    //         const newData = structuredClone(oldData);
-
-                    //         newData.data.users = newData.data.users.filter(
-                    //             (user: NetworkUser) => user.id !== toUserId
-                    //         )
-                    //     }
-                    // )
                     queryClient.invalidateQueries({
                         queryKey: ["personal-connection-req", page, limit]
                     })

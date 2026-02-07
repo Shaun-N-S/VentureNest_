@@ -135,7 +135,6 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
                 {
                     onSuccess: () => {
                         toast.success("Investor KYC rejected successfully");
-                        // queryClient.invalidateQueries({ queryKey: ["investors-kyc"] });
                         setRejectReasonModalOpen(false);
                         onClose();
                     },
@@ -152,7 +151,6 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
                 {
                     onSuccess: () => {
                         toast.success("User KYC rejected successfully");
-                        // queryClient.invalidateQueries({ queryKey: ["users-kyc"] });
                         setRejectReasonModalOpen(false);
                         onClose();
                     },

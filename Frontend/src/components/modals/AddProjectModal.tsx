@@ -31,8 +31,6 @@ const projectFormSchema = z.object({
     startupStage: z.string().min(1, "Please select a stage"),
     logo: z.instanceof(File).optional(),
     coverImage: z.instanceof(File).optional(),
-    // enableDonation: z.boolean(),
-    // donationAmount: z.number().min(0).max(100000).optional(),
     location: z.string().min(1, "Location is required"),
 })
 
@@ -65,7 +63,6 @@ export default function AddProjectModal({ open, onOpenChange, onSubmit, isEditin
             teamSize: "",
             startupCategory: "",
             startupStage: "",
-            // enableDonation: false,
             location: "",
             websiteUrl: "",
         },
@@ -178,10 +175,6 @@ export default function AddProjectModal({ open, onOpenChange, onSubmit, isEditin
             formData.append("stage", data.startupStage)
             formData.append("location", data.location)
             formData.append("projectWebsite", data.websiteUrl || "")
-            // formData.append("enableDonation", String(data.enableDonation))
-            // if (data.enableDonation && data.donationAmount) {
-            //     formData.append("donationAmount", String(data.donationAmount))
-            // }
 
             if (data.pitchDeck) formData.append("pitchDeckUrl", data.pitchDeck)
             if (data.logo) formData.append("logoUrl", data.logo)

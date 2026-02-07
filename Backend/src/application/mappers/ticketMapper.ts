@@ -23,7 +23,6 @@ export class TicketMapper {
       projectId: project._id,
       companyName: project.startupName,
 
-      // ✅ NEW FIELDS
       currentStage: initialStage,
       overallStatus: TicketStatus.PROCEED,
     };
@@ -38,7 +37,6 @@ export class TicketMapper {
       projectId: new mongoose.Types.ObjectId(entity.projectId),
       companyName: entity.companyName,
 
-      // ✅ NEW FIELDS
       currentStage: entity.currentStage,
       overallStatus: entity.overallStatus,
     };

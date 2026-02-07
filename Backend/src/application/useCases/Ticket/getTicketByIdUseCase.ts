@@ -32,7 +32,6 @@ export class GetTicketByIdUseCase implements IGetTicketByIdUseCase {
       );
     }
 
-    // Founder image
     if (ticket.founder.profileImg) {
       ticket.founder.profileImg = await this._storageService.createSignedUrl(
         ticket.founder.profileImg,
@@ -40,7 +39,6 @@ export class GetTicketByIdUseCase implements IGetTicketByIdUseCase {
       );
     }
 
-    // Investor image
     if (ticket.investor.profileImg) {
       ticket.investor.profileImg = await this._storageService.createSignedUrl(
         ticket.investor.profileImg,
