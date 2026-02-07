@@ -106,3 +106,17 @@ export const SESSION_ERRORS = {
   CANNOT_FEEDBACK_CANCELLED_SESSION: "Adding feedback cancelled!",
   FEEDBACK_ALREADY_SUBMITTED: "Feedback already added!",
 };
+
+export const PITCH_ERRORS = {
+  NOT_FOUND: "Pitch not found!",
+  ALREADY_RESPONDED: "Already responded",
+};
+
+export const OFFER_ERRORS = {
+  NOT_FOUND: "Investment offer not found !",
+  ALREADY_PROCESSED: "Offer already processed",
+  EXPIRED: "Offer expired",
+  UNABLE_TO_ACCEPT: "Unable to accept offer",
+  INVALID_STATUS: "Invalid Status!",
+  REJECTION_REASON_REQUIRED: "Rejection reason required!",
+};

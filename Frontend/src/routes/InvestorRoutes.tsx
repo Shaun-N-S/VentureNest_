@@ -18,6 +18,8 @@ import PlansPage from "../pages/Common/PlanPage";
 import CommonProfilePage from "../pages/Common/ProfilePage";
 import BookSessionPage from "../pages/Investor/BookSessionPage";
 import MySessionsPage from "../pages/Common/MySessionPage";
+import InvestorInboxPage from "../pages/Investor/InvestorInboxPage";
+import SendInvestmentOfferPage from "../pages/Investor/SentInvestmentOfferPage";
 
 const InvestorRoutes = () => {
   return (
@@ -85,6 +87,14 @@ const InvestorRoutes = () => {
           <Route
             path={FRONTEND_ROUTES.INVESTOR.SESSIONS}
             element={<MySessionsPage />}
+          />
+          <Route
+            path={FRONTEND_ROUTES.INVESTOR.OFFERS}
+            element={<InvestorInboxPage />}
+          />
+          <Route
+            path={`${FRONTEND_ROUTES.INVESTOR.SEND_OFFER}/:projectId/:pitchId`}
+            element={<SendInvestmentOfferPage />}
           />
         </Route>
       </Route>

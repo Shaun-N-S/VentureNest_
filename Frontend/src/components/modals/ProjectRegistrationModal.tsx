@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import toast from "react-hot-toast";
 import ImageCropper from "../cropper/ImageCropper";
 import { useVerifyProject } from "../../hooks/Project/projectHooks";
-import { queryClient } from "../../main"; // Adjust path if needed
 import type { AxiosError } from "axios";
 
 interface VerifyStartupModalProps {

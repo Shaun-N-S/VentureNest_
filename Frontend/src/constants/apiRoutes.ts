@@ -132,4 +132,21 @@ export const API_ROUTES = {
     CANCEL_SESSION: "/sessions/:sessionId/cancel",
     ADD_FEEDBACK: "/sessions/:sessionId/feedback",
   },
+
+  PITCH: {
+    CREATE: "/pitches/pitch",
+    RECEIVED: "/pitches/received",
+    SENT: "/pitches/sent",
+    RESPOND: "/pitches/:pitchId/respond",
+    GET_BY_ID: "/pitches/:pitchId",
+  },
+
+  OFFERS: {
+    CREATE: "/offers/investment-offer",
+    SENT: "/offers/sent",
+    RECEIVED: "/offers/received",
+    GET_BY_ID: "/offers/:offerId",
+    ACCEPT: "/offers/:offerId/accept",
+    REJECT: "/offers/:offerId/reject",
+  },
 };

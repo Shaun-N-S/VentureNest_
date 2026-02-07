@@ -24,7 +24,7 @@ export class FetchInvestorProfileUseCase implements IFetchInvestorProfileUseCase
     }
 
     const profileData = InvestorMapper.investorProfileDatatoDTO(investor);
-
+    profileData._id = id;
     if (profileData.profileImg) {
       profileData.profileImg = await this._storageService.createSignedUrl(
         profileData.profileImg,

@@ -1,6 +1,7 @@
 import { KYCStatus } from "@domain/enum/kycStatus";
 
 export interface InvestorProfileDTO {
+  _id: string;
   userName?: string;
   profileImg?: string;
   bio?: string;

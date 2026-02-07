@@ -31,7 +31,7 @@ export class SessionMapper {
       status: SessionStatus.SCHEDULED,
       stage,
 
-      ...(startTime && { startTime }), // ✅ FIX
+      ...(startTime && { startTime }),
     };
   }
 
@@ -51,7 +51,7 @@ export class SessionMapper {
       stage: doc.stage as TicketStage,
       decision: doc.decision as TicketStatus,
 
-      ...(doc.startTime && { startTime: doc.startTime }), // ✅ FIX
+      ...(doc.startTime && { startTime: doc.startTime }),
       ...(doc.cancelledBy && { cancelledBy: doc.cancelledBy }),
       ...(doc.cancelReason && { cancelReason: doc.cancelReason }),
       ...(doc.feedback && { feedback: doc.feedback }),
@@ -76,7 +76,7 @@ export class SessionMapper {
       stage: entity.stage,
       decision: entity.decision,
 
-      ...(entity.startTime && { startTime: entity.startTime }), // ✅ FIX
+      ...(entity.startTime && { startTime: entity.startTime }),
       ...(entity.cancelledBy && { cancelledBy: entity.cancelledBy }),
       ...(entity.cancelReason && { cancelReason: entity.cancelReason }),
       ...(entity.feedback && { feedback: entity.feedback }),

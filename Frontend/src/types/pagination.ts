@@ -3,3 +3,10 @@ export interface PaginatedResponse<T> {
   total: number;
   hasNextPage: boolean;
 }
+
+export interface PaginatedResponses<T> {
+  data: T[];
+  total: number;
+  hasNextPage: boolean;
+}
+

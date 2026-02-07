@@ -14,7 +14,6 @@ export class GetTicketsByFounderUseCase implements IGetTicketsByFounderUseCase {
     console.log(tickets);
     return Promise.all(
       tickets.map(async (ticket) => {
-        // Project cover image
         if (ticket.project.coverImageUrl) {
           ticket.project.coverImageUrl = await this._storageService.createSignedUrl(
             ticket.project.coverImageUrl,
@@ -29,7 +28,6 @@ export class GetTicketsByFounderUseCase implements IGetTicketsByFounderUseCase {
           );
         }
 
-        // Founder profile image
         if (ticket.founder.profileImg) {
           ticket.founder.profileImg = await this._storageService.createSignedUrl(
             ticket.founder.profileImg,
@@ -37,7 +35,6 @@ export class GetTicketsByFounderUseCase implements IGetTicketsByFounderUseCase {
           );
         }
 
-        // Investor profile image
         if (ticket.investor.profileImg) {
           ticket.investor.profileImg = await this._storageService.createSignedUrl(
             ticket.investor.profileImg,

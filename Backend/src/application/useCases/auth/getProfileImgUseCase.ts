@@ -26,8 +26,7 @@ export class GetProfileImgUseCase implements IGetProfileImg {
     const profileKey = userData?.profileImg || investorData?.profileImg || "";
 
     if (!profileKey) {
-      return { profileImg: "https://example.com/default-profile.png" };
-      // throw new NotFoundExecption(USER_ERRORS.NO_PROFILE_FOUND);
+      throw new NotFoundExecption(USER_ERRORS.NO_PROFILE_FOUND);
     }
 
     const signedUrl = await this._storageService.createSignedUrl(profileKey, 10 * 60);

@@ -2,19 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Bell, MessageCircle, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import type { UserRole } from "../../types/UserRole";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import type { Rootstate } from "../../store/store";
+import type { UserRole } from "../../types/UserRole";
 import { useGetProfileImg, useLogout } from "../../hooks/Auth/AuthHooks";
-import { useDispatch } from "react-redux";
 import { clearData, updateUserData } from "../../store/Slice/authDataSlice";
 import { deleteToken } from "../../store/Slice/tokenSlice";
 import toast from "react-hot-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-
-interface NavbarProps {
-  role: UserRole;
-}
 
 const menuItems: Record<UserRole, { name: string; path: string }[]> = {
   ADMIN: [
@@ -41,190 +36,156 @@ const menuItems: Record<UserRole, { name: string; path: string }[]> = {
     { name: "Projects", path: "/investor/projects" },
     { name: "Wallet", path: "/investor/wallet" },
     { name: "Dashboard", path: "/investor/dashboard" },
+    { name: "My offers", path: "/investor/offers" },
     { name: "My Sessions", path: "/investor/sessions" },
     { name: "Plans", path: "/investor/plans" },
   ],
 };
 
-const Navbar: React.FC<NavbarProps> = ({ role }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const userData = useSelector((state: Rootstate) => state.authData);
-  const { mutate: logout } = useLogout();
-  const {
-    data: profileData,
-    isLoading,
-    isError,
-  } = useGetProfileImg(userData.id);
   const dispatch = useDispatch();
 
+  const userData = useSelector((state: Rootstate) => state.authData);
+  const role = userData.role as UserRole;
+
+  const [isAvatarOpen, setIsAvatarOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navItems = role ? menuItems[role] : [];
+
+  const { mutate: logout } = useLogout();
+
+  const shouldFetchProfile = !userData.profileImg;
+  const { data, isLoading, isError } = useGetProfileImg(userData.id);
+
   useEffect(() => {
-    if (profileData?.data?.profileImg) {
-      console.log(profileData?.data?.profileImg);
-      dispatch(updateUserData({ profileImg: profileData.data.profileImg }));
+    if (data?.data?.profileImg) {
+      dispatch(updateUserData({ profileImg: data.data.profileImg }));
     }
-  }, [profileData, dispatch]);
+  }, [data, dispatch]);
+
+  const closeAll = () => {
+    setIsAvatarOpen(false);
+    setIsMobileMenuOpen(false);
+  };
 
   const handleNavigation = (path: string) => {
     navigate(path);
-    setIsOpen(false);
+    closeAll();
   };
 
   const handleLogout = () => {
-    const currentRole = userData.role;
+    const roleSnapshot = role;
 
     logout(undefined, {
       onSuccess: () => {
         dispatch(clearData());
         dispatch(deleteToken());
-        toast.success("Logged out successfully!");
 
-        if (currentRole === "INVESTOR") {
-          navigate("/investor/login");
-        } else if (currentRole === "ADMIN") {
-          navigate("/admin/login");
-        } else {
-          navigate("/login");
-        }
+        if (roleSnapshot === "INVESTOR") navigate("/investor/login");
+        else if (roleSnapshot === "ADMIN") navigate("/admin/login");
+        else navigate("/login");
+
+        toast.success("Logged out successfully!");
       },
-      onError: () => {
-        toast.error("Logout failed. Please try again.");
-      },
+      onError: () => toast.error("Logout failed"),
     });
   };
 
   const handleProfile = () => {
-    const currentRole = userData.role;
-    if (currentRole === "INVESTOR") {
-      navigate("/investor/profile");
-      setIsOpen(false);
-    } else if (currentRole === "USER") {
-      navigate("/profile");
-      setIsOpen(false);
-    }
+    if (role === "INVESTOR") navigate("/investor/profile");
+    else if (role === "USER") navigate("/profile");
+    closeAll();
   };
 
   const handleHome = () => {
-    const currentRole = userData.role;
-    if (currentRole === "INVESTOR") {
-      navigate("/investor/home");
-    } else if (currentRole === "ADMIN") {
-      navigate("/admin/dashboard");
-    } else {
-      navigate("/home");
-    }
+    if (role === "INVESTOR") navigate("/investor/home");
+    else if (role === "ADMIN") navigate("/admin/dashboard");
+    else navigate("/home");
   };
 
   const handleNotificationBell = () => {
-    const currentRole = userData.role;
-    if (currentRole === "INVESTOR") {
-      navigate("/investor/notifications");
-    } else if (currentRole === "USER") {
-      navigate("/notifications");
-    } else {
-      navigate("/home");
-    }
+    if (role === "INVESTOR") navigate("/investor/notifications");
+    else if (role === "USER") navigate("/notifications");
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white shadow-sm border-b z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-10 h-14">
-        {/* Logo */}
+    <nav className="fixed top-0 left-0 w-full bg-white border-b shadow-sm z-50">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 h-14">
         <div
-          className="text-xl font-semibold tracking-tight cursor-pointer"
+          className="text-xl font-semibold cursor-pointer"
           onClick={handleHome}
         >
           VentureNest
         </div>
 
-        {/* Desktop Navigation */}
+        {/* Desktop */}
         <div className="hidden md:flex items-center gap-6">
-          {/* Menu Items */}
-          <ul className="flex gap-6 text-[15px] font-medium">
-            {menuItems[role].map((item) => (
+          <ul className="flex gap-6 text-sm font-medium">
+            {navItems.map((item) => (
               <li
                 key={item.path}
                 onClick={() => handleNavigation(item.path)}
-                className="cursor-pointer text-gray-600 hover:text-black transition"
+                className="cursor-pointer text-gray-600 hover:text-black"
               >
                 {item.name}
               </li>
             ))}
           </ul>
 
-          {/* Actions */}
-          <div className="flex items-center gap-5 ml-6">
-            {role !== "ADMIN" && (
-              <MessageCircle className="w-6 h-6 text-gray-700 hover:text-black cursor-pointer" />
-            )}
+          <div className="flex items-center gap-5">
+            {role !== "ADMIN" && <MessageCircle className="w-5 h-5" />}
             <Bell
-              className="w-6 h-6 text-gray-700 hover:text-black cursor-pointer"
+              className="w-5 h-5 cursor-pointer"
               onClick={handleNotificationBell}
             />
 
-            {/* Avatar with menu */}
             <div className="relative">
               <div
-                onClick={() => setIsOpen((p) => !p)}
                 className="cursor-pointer"
+                onClick={() => setIsAvatarOpen((p) => !p)}
               >
                 {isLoading ? (
-                  <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
+                  <div className="w-9 h-9 rounded-full bg-gray-200 animate-pulse" />
                 ) : (
-                  <Avatar className="w-10 h-10">
+                  <Avatar className="w-9 h-9">
                     <AvatarImage
                       src={
                         isError
                           ? "/default-avatar.png"
-                          : userData?.profileImg || "/placeholder.svg"
+                          : userData.profileImg || "/placeholder.svg"
                       }
-                      className="object-cover"
                     />
                     <AvatarFallback>
-                      {userData?.userName?.charAt(0)}
+                      {userData.userName?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                 )}
               </div>
 
-              {/* ▼ Dropdown Menu (Instagram Style) */}
               <AnimatePresence>
-                {isOpen && (
+                {isAvatarOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
-                    transition={{ duration: 0.18 }}
-                    className="absolute right-0 mt-3 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-50"
+                    className="absolute right-0 mt-3 w-48 bg-white border rounded-xl shadow-lg"
                   >
-                    {/* Triangle */}
-                    <div className="absolute -top-2 right-4 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200" />
-
-                    <ul className="text-sm py-2">
-                      {userData?.role !== "ADMIN" && (
-                        <li
-                          onClick={handleProfile}
-                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-3"
-                        >
-                          <Avatar className="w-6 h-6">
-                            <AvatarImage
-                              src={userData?.profileImg || "/placeholder.svg"}
-                            />
-                            <AvatarFallback>
-                              {userData?.userName?.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          Profile
-                        </li>
-                      )}
-
-                      <li
-                        onClick={handleLogout}
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-500"
+                    {role !== "ADMIN" && (
+                      <button
+                        onClick={handleProfile}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100"
                       >
-                        Logout
-                      </li>
-                    </ul>
+                        Profile
+                      </button>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -232,56 +193,34 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
           </div>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile */}
         <button
-          className="md:hidden p-2 rounded-md hover:bg-gray-100 transition"
-          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden"
+          onClick={() => setIsMobileMenuOpen((p) => !p)}
         >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
+          {isMobileMenuOpen ? <X /> : <Menu />}
         </button>
       </div>
 
-      {/* Mobile Slide Menu */}
       <AnimatePresence>
-        {isOpen && (
+        {isMobileMenuOpen && (
           <motion.div
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
             exit={{ height: 0 }}
-            transition={{ duration: 0.25 }}
-            className="md:hidden bg-white border-t shadow-inner"
+            className="md:hidden bg-white border-t"
           >
-            <ul className="flex flex-col gap-4 px-6 py-4 text-[16px] font-medium">
-              {menuItems[role].map((item) => (
+            <ul className="p-4 space-y-4">
+              {navItems.map((item) => (
                 <li
                   key={item.path}
                   onClick={() => handleNavigation(item.path)}
-                  className="cursor-pointer text-gray-700 hover:text-black transition"
+                  className="cursor-pointer"
                 >
                   {item.name}
                 </li>
               ))}
-
-              <div className="flex items-center gap-4 border-t pt-4">
-                {role !== "ADMIN" && (
-                  <MessageCircle className="w-6 h-6 text-gray-600" />
-                )}
-                <Bell className="w-6 h-6 text-gray-600" />
-
-                <Avatar className="w-10 h-10" onClick={handleProfile}>
-                  <AvatarImage
-                    src={userData?.profileImg || "/placeholder.svg"}
-                  />
-                  <AvatarFallback>
-                    {userData?.userName?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-
-              <button
-                onClick={handleLogout}
-                className="mt-2 text-left text-red-500 hover:underline"
-              >
+              <button onClick={handleLogout} className="text-red-500">
                 Logout
               </button>
             </ul>

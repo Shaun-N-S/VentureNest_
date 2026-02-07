@@ -31,10 +31,6 @@ export class AdminKYCController {
       const result = await this._getAllUserKycUseCase.getAllUsersKyc(page, limit, status, search);
       console.log(result);
 
-      // if (!result || result.usersKyc?.length === 0) {
-      //   throw new InvalidDataException(Errors.NO_KYC_FOUND);
-      // }
-
       ResponseHelper.success(
         res,
         MESSAGES.KYC.FETCHED_SUCCESSFULLY,
@@ -64,10 +60,6 @@ export class AdminKYCController {
         search
       );
       console.log(result);
-
-      // if (!result || result.investorsKyc?.length === 0) {
-      //   throw new InvalidDataException(Errors.NO_KYC_FOUND);
-      // }
 
       ResponseHelper.success(
         res,

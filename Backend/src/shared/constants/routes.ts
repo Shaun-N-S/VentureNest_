@@ -148,4 +148,21 @@ export const ROUTES = {
     CANCEL_SESSOIN: "/:sessionId/cancel",
     ADD_FEEDBACK: "/:sessionId/feedback",
   },
+
+  PITCH: {
+    CREATE: "/pitch",
+    RECEIVED: "/received",
+    SENT: "/sent",
+    GET_BY_ID: "/:pitchId",
+    RESPOND: "/:id/respond",
+  },
+
+  OFFER: {
+    CREATE: "/investment-offer",
+    SENT: "/sent",
+    RECEIVED: "/received",
+    GET_BY_ID: "/:offerId",
+    ACCEPT: "/:offerId/accept",
+    REJECT: "/:offerId/reject",
+  },
 };

@@ -121,4 +121,18 @@ export const MESSAGES = {
     SESSION_CANCELLED: "Session cancelled successfully",
     SESSION_FEEDBACK_ADDED: "Session feedback added successfully",
   },
+
+  PITCH: {
+    PITCH_SENT: "Pitch sent successfully!",
+    PITCHES_FETCHED: "Pitches fetched successfully",
+    PITCH_FETCHED: "Pitch details fetched successfully",
+    PITCH_RESPONDED: "Responded successfully",
+  },
+
+  OFFER: {
+    OFFER_SENT: "Investment offer sent successfully",
+    OFFERS_FETCHED: "Investment offers fetched successfully",
+    OFFER_ACCEPTED: "Offer accepted successfully",
+    OFFER_REJECTED: "Offer rejected successfully",
+  },
 };

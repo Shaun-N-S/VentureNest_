@@ -10,8 +10,6 @@ interface ProjectCardProps {
   name: string;
   description: string;
   stage: string;
-  // minFunding: number
-  // maxFunding: number
   image: string;
   likes: number;
   liked?: boolean;
@@ -25,8 +23,6 @@ export function ProjectPageCard({
   name,
   description,
   stage,
-  // minFunding,
-  // maxFunding,
   image,
   likes,
   liked = false,

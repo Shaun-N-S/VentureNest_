@@ -17,6 +17,7 @@ export interface ProfileCardProps {
     connectionsCount?: number;
     investmentCount?: number;
   };
+  isInvestorProfile?: boolean;
   isFollowing: boolean;
   onFollow: () => void;
 }
