@@ -59,6 +59,22 @@ export class Relationship_Router {
         relationshipController.removeConnection(req, res, next);
       }
     );
+
+    this._route.get(
+      ROUTES.RELATIONSHIP.GET_RELATIONSHIP_STATUS,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        relationshipController.getRelationshipStatus(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ROUTES.RELATIONSHIP.GET_USER_CONNECTIONS_PEOPLE,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        relationshipController.getUserConnectionsPeopleList(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

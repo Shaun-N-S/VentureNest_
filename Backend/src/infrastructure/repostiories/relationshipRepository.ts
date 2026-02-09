@@ -128,4 +128,15 @@ export class RelationshipRepository
 
     return result.deletedCount === 1;
   }
+
+  async findBetweenUsers(userId1: string, userId2: string): Promise<RelationshipEntity | null> {
+    const doc = await this._model.findOne({
+      $or: [
+        { fromUserId: userId1, toUserId: userId2 },
+        { fromUserId: userId2, toUserId: userId1 },
+      ],
+    });
+
+    return doc ? RelationshipMapper.fromMongooseDocument(doc) : null;
+  }
 }

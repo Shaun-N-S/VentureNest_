@@ -1,3 +1,5 @@
+import type { ConnectionStatus, RelationshipType } from "./connectionStatus";
+
 export interface ConnectionsUserDTO {
   id: string;
   userName: string;
@@ -15,3 +17,12 @@ export interface ConnectionsPeopleResponse {
   totalPages: number;
   currentPage: number;
 }
+
+
+export interface RelationshipStatus {
+  isConnected: boolean;
+  type: RelationshipType | null;
+  status: ConnectionStatus | null;
+}
+
+

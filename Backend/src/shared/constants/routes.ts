@@ -107,6 +107,8 @@ export const ROUTES = {
     UPDATE_CONNECTION_REQ: "/update/connection-req/:fromUserId/:status",
     GET_CONNECTIONS_PEOPLE: "/connections-people-list",
     REMOVE_CONNECTION: "/remove/connection/:userId",
+    GET_RELATIONSHIP_STATUS: "/status/:userId",
+    GET_USER_CONNECTIONS_PEOPLE: "/users/:userId/connections",
   },
 
   COMMENT: {

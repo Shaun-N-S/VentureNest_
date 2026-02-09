@@ -80,6 +80,7 @@ export const MESSAGES = {
     STATUS_UPDATTED_SUCCESSFULLY: "Status updated successfully",
     CONNECTION_REMOVED_SUCCESSFULLY: "Connection removed successfully",
     CONNECTIONS_FETCHED_SUCCESSFULLY: "Connections fetched successfully",
+    RELATIONSHIP_STATUS_FETCHED: "Relationship status fetched successfully",
   },
 
   COMMENT: {

@@ -19,12 +19,16 @@ import { useCreateProject } from "../../hooks/Project/projectHooks";
 import { PeopleListModal, type PersonItem } from "../modals/PeopleListModal";
 import {
   useConnectionsPeopleList,
+  useRelationshipStatus,
   useRemoveConnection,
+  useSendConnectionReq,
+  useUserConnectionsPeopleList,
 } from "../../hooks/Relationship/relationshipHooks";
 import { updateUserData } from "../../store/Slice/authDataSlice";
 import { useDispatch } from "react-redux";
 import { PitchModal } from "../modals/PitchModal";
 import type { PersonalProjectApiResponse } from "../../types/projectType";
+import type { NetworkUser } from "../../types/networkType";
 
 export function ProfileCard(props: ProfileCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -47,22 +51,53 @@ export function ProfileCard(props: ProfileCardProps) {
   const profileData = props.userData;
   console.log(profileData);
 
+  const { mutate: sendConnection } = useSendConnectionReq();
+
+  const profileUserId = profileData.id;
+
+  const { data: relationshipStatus } = useRelationshipStatus(
+    !props.isOwnProfile ? profileUserId : undefined,
+  );
+
+  const ownConnections = useConnectionsPeopleList(connectionSearch, 5);
+  const otherUserConnections = useUserConnectionsPeopleList(
+    profileUserId,
+    connectionSearch,
+    5,
+  );
+
+  const connectionsSource = props.isOwnProfile
+    ? ownConnections
+    : otherUserConnections;
+
   const {
     data: connectionsData,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-  } = useConnectionsPeopleList(connectionSearch, 5);
+  } = connectionsSource;
+
+  const isConnectedToProfile =
+    !props.isOwnProfile && relationshipStatus?.status === "accepted";
+
+  const handleOpenConnections = () => {
+    if (props.isOwnProfile || isConnectedToProfile) {
+      setOpen(true);
+      return;
+    }
+
+    toast.error("You are not connected to this user");
+  };
 
   const people: PersonItem[] =
     connectionsData?.pages.flatMap((page) =>
-      page.users.map((user) => ({
+      page.users.map((user: NetworkUser) => ({
         id: user.id,
         name: user.userName,
         subtitle: user.bio || "",
         avatar: user.profileImg,
-        actionLabel: "Remove",
+        actionLabel: props.isOwnProfile ? "Remove" : undefined,
       })),
     ) ?? [];
 
@@ -117,10 +152,6 @@ export function ProfileCard(props: ProfileCardProps) {
     });
   };
 
-  const handleOpenConnections = () => {
-    setOpen(true);
-  };
-
   const handleRemoveConnection = (id: string) => {
     removeConnection(id, {
       onSuccess: () => {
@@ -138,6 +169,64 @@ export function ProfileCard(props: ProfileCardProps) {
       },
       onError: () => toast.error("Failed to remove connection"),
     });
+  };
+
+  const handleSendConnection = (id: string) => {
+    sendConnection(id, {
+      onSuccess: () => {
+        toast.success("Connection request sent");
+        queryClient.invalidateQueries({
+          queryKey: ["relationship-status", id],
+        });
+      },
+      onError: () => toast.error("Failed to send request"),
+    });
+  };
+
+  const renderRelationshipButton = () => {
+    if (!relationshipStatus) return null;
+
+    switch (relationshipStatus.status) {
+      case "none":
+        return (
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => handleSendConnection(profileUserId)}
+          >
+            Connect
+          </Button>
+        );
+
+      case "pending":
+        return (
+          <Button variant="outline" className="flex-1" disabled>
+            Pending
+          </Button>
+        );
+
+      case "rejected":
+      case "cancelled":
+        return (
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => handleSendConnection(profileUserId)}
+          >
+            Reconnect
+          </Button>
+        );
+
+      case "accepted":
+        return (
+          <Button variant="outline" className="flex-1">
+            Message
+          </Button>
+        );
+
+      default:
+        return null;
+    }
   };
 
   return (
@@ -350,22 +439,20 @@ export function ProfileCard(props: ProfileCardProps) {
           )}
 
           {/* Viewing investor profile as founder */}
-          {!props.isOwnProfile &&
-            role === "USER" &&
-            props.isInvestorProfile && (
-              <>
-                <Button variant="outline" className="flex-1">
-                  Connect
-                </Button>
+          {!props.isOwnProfile && role === "USER" && (
+            <>
+              {renderRelationshipButton()}
 
+              {props.isInvestorProfile && (
                 <Button
                   onClick={() => setIsPitchModalOpen(true)}
                   className="flex-1 bg-blue-500 hover:bg-blue-600"
                 >
                   Send Pitch
                 </Button>
-              </>
-            )}
+              )}
+            </>
+          )}
         </div>
         {/* <Button variant="outline" size="icon" className="h-10 w-10 bg-transparent">
                     <MessageCircle className="h-4 w-4" />

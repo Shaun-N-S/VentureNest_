@@ -3,12 +3,15 @@ import {
   getConnectionReq,
   getConnectionsPeopleList,
   getNetworkUsers,
+  getRelationshipStatus,
+  getUserConnectionsPeopleList,
   removeConnection,
   sendConnectionReq,
   updateConnectionReqStatus,
   type GetNetworkUsersResponse,
 } from "../../services/Relationships/relationshipService";
 import type { UpdateConnectionPayload } from "../../types/updateConnectionPayload";
+import type { RelationshipStatus } from "../../types/ConnectionsPeopleResponseType";
 
 export const useGetNetworkUsers = (
   page: number,
@@ -59,5 +62,33 @@ export const useConnectionsPeopleList = (search?: string, limit = 10) => {
 export const useRemoveConnection = () => {
   return useMutation({
     mutationFn: (userId: string) => removeConnection(userId),
+  });
+};
+
+export const useRelationshipStatus = (userId?: string) => {
+  return useQuery<RelationshipStatus>({
+    queryKey: ["relationship-status", userId],
+    queryFn: () => getRelationshipStatus(userId!),
+    enabled: !!userId,
+  });
+};
+
+export const useUserConnectionsPeopleList = (
+  userId: string,
+  search?: string,
+  limit = 10,
+) => {
+  return useInfiniteQuery({
+    queryKey: ["user-connections-people-list", userId, search],
+    enabled: !!userId,
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      getUserConnectionsPeopleList(userId, pageParam as number, limit, search),
+    getNextPageParam: (lastPage) => {
+      if (lastPage.currentPage < lastPage.totalPages) {
+        return lastPage.currentPage + 1;
+      }
+      return undefined;
+    },
   });
 };

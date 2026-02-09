@@ -96,6 +96,8 @@ export const API_ROUTES = {
     CONNECTION_STATUS_UPDATE: "/relations/update/connection-req",
     GET_CONNECTIONS_PEOPLE: "/relations/connections-people-list",
     REMOVE_CONNECTION: "/relations/remove/connection/:userId",
+    GET_RELATIONSHIP_STATUS: "/relations/status/:userId",
+    GET_USER_CONNECTIONS_PEOPLE: "/relations/users/:userId/connections",
   },
 
   COMMENT: {

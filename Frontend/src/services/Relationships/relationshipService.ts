@@ -1,7 +1,10 @@
 import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
 import { type ApiResponse } from "../../types/apiResponseType";
-import type { ConnectionsPeopleResponse } from "../../types/ConnectionsPeopleResponseType";
+import type {
+  ConnectionsPeopleResponse,
+  RelationshipStatus,
+} from "../../types/ConnectionsPeopleResponseType";
 import type { NetworkUser } from "../../types/networkType";
 
 export interface GetNetworkUsersResponse {
@@ -81,4 +84,33 @@ export const removeConnection = async (userId: string) => {
     { withCredentials: true },
   );
   return response.data;
+};
+
+export const getRelationshipStatus = async (userId: string) => {
+  const response = await AxiosInstance.get<ApiResponse<RelationshipStatus>>(
+    API_ROUTES.RELATIONSHIP.GET_RELATIONSHIP_STATUS.replace(":userId", userId),
+    { withCredentials: true },
+  );
+
+  return response.data.data;
+};
+
+export const getUserConnectionsPeopleList = async (
+  userId: string,
+  page: number,
+  limit: number,
+  search?: string,
+) => {
+  const response = await AxiosInstance.get(
+    API_ROUTES.RELATIONSHIP.GET_USER_CONNECTIONS_PEOPLE.replace(
+      ":userId",
+      userId,
+    ),
+    {
+      params: { page, limit, search },
+      withCredentials: true,
+    },
+  );
+
+  return response.data.data;
 };
