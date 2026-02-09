@@ -36,6 +36,9 @@ import { InvestorGoogleLoginUseCase } from "application/useCases/auth/investor/i
 import { GetProfileImgUseCase } from "application/useCases/auth/getProfileImgUseCase";
 import { StorageService } from "@infrastructure/services/storageService";
 import { InterestedTopicsUseCase } from "application/useCases/auth/interestedTopicsUseCase";
+import { CreateWalletUseCase } from "application/useCases/Wallet/createWalletUseCase";
+import { WalletRepository } from "@infrastructure/repostiories/walletRepository";
+import { walletModel } from "@infrastructure/db/models/walletModel";
 
 //Repositories & Services
 const userRepository = new UserRepository(userModel);
@@ -49,10 +52,20 @@ const investorRepository = new InvestorRepository(investorModel);
 const tokenSerivce = new TokenSerivce();
 const googleAuthService = new GoogleAuthService();
 const storageService = new StorageService();
+const walletRepo = new WalletRepository(walletModel);
 
 //UseCases
-const registerUserUseCase = new RegisterUserUseCase(userRepository, cacheStorage);
-const registerInvestorUseCase = new RegisterInvestorUseCase(investorRepository, cacheStorage);
+const createWalletUseCase = new CreateWalletUseCase(walletRepo);
+const registerUserUseCase = new RegisterUserUseCase(
+  userRepository,
+  cacheStorage,
+  createWalletUseCase
+);
+const registerInvestorUseCase = new RegisterInvestorUseCase(
+  investorRepository,
+  cacheStorage,
+  createWalletUseCase
+);
 const sendOtpUseCase = new SignUpSendOtpUseCase(
   otpService,
   otpContentGenerator,
@@ -115,13 +128,15 @@ const googleLoginUseCase = new UserGoogleLoginUseCase(
   userRepository,
   googleAuthService,
   storageService,
-  cacheStorage
+  cacheStorage,
+  createWalletUseCase
 );
 const investorGoogleLoginUseCase = new InvestorGoogleLoginUseCase(
   investorRepository,
   googleAuthService,
   storageService,
-  cacheStorage
+  cacheStorage,
+  createWalletUseCase
 );
 const getProfileImgUseCase = new GetProfileImgUseCase(
   userRepository,

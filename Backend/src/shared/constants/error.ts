@@ -40,6 +40,7 @@ export const Errors = {
   INVALID_STATUS_TRANSITION: "Invalid status transition",
   INVALID_STRIPE_WEBHOOK_SIGNATURE: "Invalid Stripe webhook signature",
   NOT_ALLOWED: "Not allowed!",
+  KYC_NOT_VERIFIED: "Your kyc verification is not completed!",
 };
 
 export const USER_ERRORS = {
@@ -119,4 +120,8 @@ export const OFFER_ERRORS = {
   UNABLE_TO_ACCEPT: "Unable to accept offer",
   INVALID_STATUS: "Invalid Status!",
   REJECTION_REASON_REQUIRED: "Rejection reason required!",
+};
+
+export const WALLET_ERRORS = {
+  NOT_FOUND: "Wallet not found",
 };

@@ -1,6 +1,8 @@
+import { WalletOwnerType } from "@domain/enum/walletOwnerType";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 import { ICreateInvestorUseCase } from "@domain/interfaces/useCases/auth/investor/ICreateInvestorUseCase";
+import { ICreateWalletUseCase } from "@domain/interfaces/useCases/wallet/ICreateWalletUseCase";
 import { INVESTOR_ERRORS } from "@shared/constants/error";
 import { redisRegisterSchema } from "@shared/validations/userRegisterValidator";
 import { AlreadyExisitingExecption } from "application/constants/exceptions";
@@ -9,7 +11,8 @@ import { InvestorMapper } from "application/mappers/investorMapper";
 export class RegisterInvestorUseCase implements ICreateInvestorUseCase {
   constructor(
     private _investorRepository: IInvestorRepository,
-    private _cacheStorage: IKeyValueTTLCaching
+    private _cacheStorage: IKeyValueTTLCaching,
+    private _createWalletUseCase: ICreateWalletUseCase
   ) {}
 
   async createInvestor(email: string): Promise<void> {
@@ -23,6 +26,8 @@ export class RegisterInvestorUseCase implements ICreateInvestorUseCase {
 
     const investorEntity = InvestorMapper.toEntity(investorData.data!);
 
-    await this._investorRepository.save(investorEntity);
+    const savedInvestor = await this._investorRepository.save(investorEntity);
+
+    await this._createWalletUseCase.execute(WalletOwnerType.INVESTOR, savedInvestor._id!);
   }
 }

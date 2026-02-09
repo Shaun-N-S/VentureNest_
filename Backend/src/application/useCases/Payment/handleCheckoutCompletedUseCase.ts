@@ -1,3 +1,4 @@
+import { PaymentPurpose } from "@domain/enum/paymentPurpose";
 import { SubscriptionStatus } from "@domain/enum/subscriptionStatus";
 import { UserRole } from "@domain/enum/userRole";
 import { IPaymentRepository } from "@domain/interfaces/repositories/IPaymentRepository";
@@ -44,6 +45,7 @@ export class HandleCheckoutCompletedUseCase implements IHandleCheckoutCompletedU
       ownerId: data.ownerId,
       ownerRole: data.ownerRole,
       planId: data.planId,
+      purpose: PaymentPurpose.SUBSCRIPTION,
       amount: plan.billing.price,
       createdAt: new Date(),
     });

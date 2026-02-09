@@ -135,4 +135,10 @@ export const MESSAGES = {
     OFFER_ACCEPTED: "Offer accepted successfully",
     OFFER_REJECTED: "Offer rejected successfully",
   },
+
+  WALLET: {
+    WALLET_FETCHED: "Wallet fetched successfully",
+    WALLET_TOPUP_CREATED: "Wallet topup created",
+    WALLET_TRANSACTION: "Wallet transactions fetched",
+  },
 };

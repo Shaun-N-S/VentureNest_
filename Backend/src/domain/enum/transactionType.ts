@@ -10,4 +10,5 @@ export enum TransactionReason {
   PLATFORM_FEE = "PLATFORM_FEE",
   WITHDRAWAL = "WITHDRAWAL",
   REFUND = "REFUND",
+  WALLET_TOPUP = "WALLET_TOPUP",
 }

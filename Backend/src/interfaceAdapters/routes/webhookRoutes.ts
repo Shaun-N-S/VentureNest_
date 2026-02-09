@@ -1,4 +1,3 @@
-// interfaceAdapters/routes/webhookRoutes.ts
 import { webhookController } from "@infrastructure/DI/webhook/webhookContainer";
 import { Router } from "express";
 import express from "express";

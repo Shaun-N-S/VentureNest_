@@ -16,7 +16,6 @@ import toast from "react-hot-toast";
 import { queryClient } from "../../main";
 import ProjectFormModal from "../modals/AddProjectModal";
 import { useCreateProject } from "../../hooks/Project/projectHooks";
-import type { PersonalProjectApiResponse } from "../../types/PersonalProjectApiResponse";
 import { PeopleListModal, type PersonItem } from "../modals/PeopleListModal";
 import {
   useConnectionsPeopleList,
@@ -25,6 +24,7 @@ import {
 import { updateUserData } from "../../store/Slice/authDataSlice";
 import { useDispatch } from "react-redux";
 import { PitchModal } from "../modals/PitchModal";
+import type { PersonalProjectApiResponse } from "../../types/projectType";
 
 export function ProfileCard(props: ProfileCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -65,6 +65,14 @@ export function ProfileCard(props: ProfileCardProps) {
         actionLabel: "Remove",
       })),
     ) ?? [];
+
+  const requireKYC = (action: () => void) => {
+    if (profileData.kycStatus !== "APPROVED") {
+      toast.error("Please verify your account to continue");
+      return;
+    }
+    action();
+  };
 
   const handleAddProject = () => setIsAddProjectOpen(true);
   const handleCreatePost = () => {
@@ -334,7 +342,7 @@ export function ProfileCard(props: ProfileCardProps) {
           {/* Own profile → Add project */}
           {props.isOwnProfile && role === "USER" && (
             <Button
-              onClick={handleAddProject}
+              onClick={() => requireKYC(handleAddProject)}
               className="flex-1 bg-blue-500 hover:bg-blue-600"
             >
               Add a project

@@ -149,4 +149,14 @@ export const API_ROUTES = {
     ACCEPT: "/offers/:offerId/accept",
     REJECT: "/offers/:offerId/reject",
   },
+
+  WALLET: {
+    GET_MY_WALLET: "/wallet/me",
+    GET_PROJECT_WALLET: "/wallet/project/:projectId",
+    TOPUP_CHECKOUT: "/wallet/topup/checkout",
+  },
+
+  TRANSACTION: {
+    MY_WALLET: "/transactions",
+  },
 };

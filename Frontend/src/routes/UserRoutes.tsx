@@ -18,6 +18,7 @@ import PaymentSuccess from "../pages/Common/PaymentSuccess";
 import CommonProfilePage from "../pages/Common/ProfilePage";
 import MySessionsPage from "../pages/Common/MySessionPage";
 import PitchesPage from "../pages/Common/PitchesPage";
+import WalletPage from "../pages/Common/WalletPage";
 
 const UserRoutes = () => {
   return (
@@ -79,6 +80,8 @@ const UserRoutes = () => {
             element={<MySessionsPage />}
           />
           <Route path={FRONTEND_ROUTES.USER.OFFERS} element={<PitchesPage />} />
+
+          <Route path={FRONTEND_ROUTES.USER.WALLET} element={<WalletPage />} />
         </Route>
       </Route>
     </Routes>

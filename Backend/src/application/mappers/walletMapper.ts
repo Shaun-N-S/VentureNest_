@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { WalletEntity } from "@domain/entities/wallet/walletEntity";
 import { IWalletModel } from "@infrastructure/db/models/walletModel";
 import { WalletDTO } from "application/dto/wallet/walletDTO";
+import { GetWalletDetailsResponseDTO } from "application/dto/wallet/getWalletDetailsDTO";
 
 export class WalletMapper {
   static toMongooseDocument(entity: WalletEntity) {
@@ -37,6 +38,17 @@ export class WalletMapper {
       lockedBalance: entity.lockedBalance,
       createdAt: entity.createdAt!,
       updatedAt: entity.updatedAt!,
+    };
+  }
+
+  static toWalletDetailsDTO(entity: WalletEntity): GetWalletDetailsResponseDTO {
+    return {
+      walletId: entity._id!,
+      ownerType: entity.ownerType,
+      ownerId: entity.ownerId,
+      balance: entity.balance,
+      lockedBalance: entity.lockedBalance,
+      availableBalance: entity.balance - entity.lockedBalance,
     };
   }
 }

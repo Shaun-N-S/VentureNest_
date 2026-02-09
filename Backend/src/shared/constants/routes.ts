@@ -165,4 +165,14 @@ export const ROUTES = {
     ACCEPT: "/:offerId/accept",
     REJECT: "/:offerId/reject",
   },
+
+  WALLET: {
+    ME: "/me",
+    PROJECT: "/project/:projectId",
+    TOPUP_CHECKOUT: "/topup/checkout",
+  },
+
+  TRANSACTION: {
+    MY_WALLET: "/",
+  },
 };

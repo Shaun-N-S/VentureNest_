@@ -4,13 +4,14 @@ import { ResponseHelper } from "@shared/utils/responseHelper";
 import { InvalidDataException } from "application/constants/exceptions";
 import { PLAN_ERRORS } from "@shared/constants/error";
 import { MESSAGES } from "@shared/constants/messages";
+import { HTTPSTATUS } from "@shared/constants/httpStatus";
 
 export class SubscriptionController {
   constructor(private _checkoutUC: ICreateCheckoutSessionUseCase) {}
 
   createCheckout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const ownerId = res.locals.user.id;
+      const ownerId = res.locals.user.userId;
       const ownerRole = res.locals.user.role;
       const { planId } = req.body;
 
@@ -20,7 +21,7 @@ export class SubscriptionController {
 
       const url = await this._checkoutUC.execute(ownerId, ownerRole, planId);
 
-      ResponseHelper.success(res, MESSAGES.CHECKOUT_CREATED, { url });
+      ResponseHelper.success(res, MESSAGES.CHECKOUT_CREATED, { url }, HTTPSTATUS.OK);
     } catch (err) {
       next(err);
     }
