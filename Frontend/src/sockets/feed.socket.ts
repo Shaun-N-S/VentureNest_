@@ -1,52 +1,43 @@
-import { getSocket } from "../lib/socket";
+import type { Socket } from "socket.io-client";
 import { queryClient } from "../main";
+import type {
+  PostLikeUpdatedEvent,
+  PostCommentUpdatedEvent,
+} from "../types/socketEvents";
+import type { AllPost, PostsPage } from "../types/postFeed";
 
-let registered = false;
-
-export const registerFeedSocket = () => {
-  if (registered) return;
-  registered = true;
-
-  const socket = getSocket();
-  if (!socket) return;
-
-  socket.on("post:like-updated", ({ postId, likeCount }) => {
-    queryClient.setQueriesData(
-      {
-        predicate: (query) =>
-          Array.isArray(query.queryKey) && query.queryKey[0] === "posts-feed",
-      },
-      (old: any) => {
-        if (!old?.posts) return old;
+export const registerFeedSocket = (socket: Socket) => {
+  socket.on(
+    "post:like-updated",
+    ({ postId, likeCount }: PostLikeUpdatedEvent) => {
+      queryClient.setQueryData<PostsPage>(["posts-feed"], (old) => {
+        if (!old) return old;
 
         return {
           ...old,
-          posts: old.posts.map((post: any) =>
-            post._id === postId ? { ...post, likeCount } : post
+          posts: old.posts.map((post: AllPost) =>
+            post._id === postId ? { ...post, likeCount } : post,
           ),
         };
-      }
-    );
-  });
+      });
+    },
+  );
 
-  socket.on("post:comment-updated", ({ postId, commentCount }) => {
-    queryClient.setQueriesData(
-      {
-        predicate: (query) =>
-          Array.isArray(query.queryKey) && query.queryKey[0] === "posts-feed",
-      },
-      (old: any) => {
-        if (!old?.posts) return old;
+  socket.on(
+    "post:comment-updated",
+    ({ postId, commentCount }: PostCommentUpdatedEvent) => {
+      queryClient.setQueryData<PostsPage>(["posts-feed"], (old) => {
+        if (!old) return old;
 
         return {
           ...old,
-          posts: old.posts.map((post: any) =>
+          posts: old.posts.map((post: AllPost) =>
             post._id === postId
               ? { ...post, commentsCount: commentCount }
-              : post
+              : post,
           ),
         };
-      }
-    );
-  });
+      });
+    },
+  );
 };

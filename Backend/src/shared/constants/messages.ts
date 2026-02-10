@@ -16,6 +16,7 @@ export const MESSAGES = {
     INTERESTED_TOPICS_SET_SUCCESSFULL: "Interested topics added successfully !",
     PROFILE_DATA_SUCCESS: "Profile data fetched successfully",
     PROFILE_UPDATED_SUCCESS: "Profile updated successfully",
+    PASSWORD_UPDATED_SUCCESS: "Password updated successfully",
   },
 
   ADMIN: {
@@ -141,5 +142,9 @@ export const MESSAGES = {
     WALLET_FETCHED: "Wallet fetched successfully",
     WALLET_TOPUP_CREATED: "Wallet topup created",
     WALLET_TRANSACTION: "Wallet transactions fetched",
+  },
+
+  SUBSCRIPTION: {
+    FETCHED_SUCCESSFULLY: "Current subscription fetched successfully",
   },
 };

@@ -19,6 +19,14 @@ export class Subscription_Routes {
         subscriptionController.createCheckout(req, res, next);
       }
     );
+
+    this._route.get(
+      ROUTES.SUBSCRIPTION.CURRENT,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        subscriptionController.getCurrentSubscription(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

@@ -24,6 +24,19 @@ export const API_ROUTES = {
     GET_PROFILEIMG: "/auth/users/get-profileImg/:id",
 
     USERS_LOGOUT: "/auth/users/logout",
+
+    CHANGE_PASSWORD: {
+      USER: {
+        REQUEST_OTP: "/auth/user/change-password/request-otp",
+        VERIFY_OTP: "/auth/user/change-password/verify-otp",
+        RESET: "/auth/user/change-password/reset",
+      },
+      INVESTOR: {
+        REQUEST_OTP: "/auth/investor/change-password/request-otp",
+        VERIFY_OTP: "/auth/investor/change-password/verify-otp",
+        RESET: "/auth/investor/change-password/reset",
+      },
+    },
   },
 
   ADMIN: {
@@ -122,6 +135,7 @@ export const API_ROUTES = {
 
   SUBSCRIPTION: {
     CHECKOUT: "/subscriptions/checkout",
+    CURRENT: "/subscriptions/current",
   },
 
   TICKET: {

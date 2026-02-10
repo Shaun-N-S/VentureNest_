@@ -154,7 +154,6 @@ export const userAuthController = new UserAuthController(
   userLoginUseCase,
   tokenCreationUseCase,
   cacheUserUseCase,
-  cacheStorage,
   resendOtpUseCase,
   forgetPasswordSendOtpUseCase,
   forgetPasswordVerifyOtpUseCase,
@@ -164,7 +163,9 @@ export const userAuthController = new UserAuthController(
   jwtService,
   googleLoginUseCase,
   getProfileImgUseCase,
-  interestedTopicsUseCase
+  interestedTopicsUseCase,
+  investorRepository,
+  userRepository
 );
 
 export const investorAuthController = new InvestorAuthController(

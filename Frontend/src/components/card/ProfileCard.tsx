@@ -1,4 +1,16 @@
-import { MoreVertical } from "lucide-react";
+import {
+  MoreHorizontal,
+  Briefcase,
+  CheckCircle2,
+  AlertCircle,
+  Share2,
+  Globe,
+  MessageCircle,
+  UserPlus,
+  Clock,
+  XCircle,
+  type LucideIcon,
+} from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -10,7 +22,6 @@ import type { Rootstate } from "../../store/store";
 import EditInvestorProfileModal from "../modals/InvestorEditProfileModal";
 import UserEditProfileModal from "../modals/UserEditProfileModal";
 import KYCVerificationModal from "../modals/KYCVerificationModal";
-import { InfoItem } from "../modals/ProfileVerificationModal";
 import CreatePostModal from "../modals/CreatePostModal";
 import toast from "react-hot-toast";
 import { queryClient } from "../../main";
@@ -29,8 +40,16 @@ import { useDispatch } from "react-redux";
 import { PitchModal } from "../modals/PitchModal";
 import type { PersonalProjectApiResponse } from "../../types/projectType";
 import type { NetworkUser } from "../../types/networkType";
+import type { ConnectionStatus } from "../../types/connectionStatus";
+import {
+  useRequestChangePasswordOtp,
+  useVerifyChangePasswordOtp,
+} from "../../hooks/Auth/AuthHooks";
+import OtpModal from "../modals/OtpModal";
+import { ChangePasswordModal } from "../modals/ChangePasswordModal";
 
 export function ProfileCard(props: ProfileCardProps) {
+  // State management - unchanged
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
@@ -38,23 +57,23 @@ export function ProfileCard(props: ProfileCardProps) {
   const [isCreatePostModal, setIsCreatePostModal] = useState(false);
   const [connectionSearch, setConnectionSearch] = useState("");
   const [isPitchModalOpen, setIsPitchModalOpen] = useState(false);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [resetToken, setResetToken] = useState<string | null>(null);
+
   const role = useSelector((state: Rootstate) => state.authData.role);
   const userId = useSelector((state: Rootstate) => state.authData.id);
   const userData = useSelector((state: Rootstate) => state.authData);
-  const handleEditProfile = () => setIsEditModalOpen(true);
-  const handleKYCVerification = () => setIsKYCModalOpen(true);
-  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
-  const { mutate: addProject } = useCreateProject();
-  const { mutate: removeConnection } = useRemoveConnection();
   const dispatch = useDispatch();
+
   const isInvestor = userData.role === "INVESTOR";
   const profileData = props.userData;
-  console.log(profileData);
-
-  const { mutate: sendConnection } = useSendConnectionReq();
-
   const profileUserId = profileData.id;
 
+  // Hooks - unchanged
+  const { mutate: addProject } = useCreateProject();
+  const { mutate: removeConnection } = useRemoveConnection();
+  const { mutate: sendConnection } = useSendConnectionReq();
   const { data: relationshipStatus } = useRelationshipStatus(
     !props.isOwnProfile ? profileUserId : undefined,
   );
@@ -81,12 +100,25 @@ export function ProfileCard(props: ProfileCardProps) {
   const isConnectedToProfile =
     !props.isOwnProfile && relationshipStatus?.status === "accepted";
 
+  const { mutate: requestOtp } = useRequestChangePasswordOtp();
+  const { mutate: verifyOtp } = useVerifyChangePasswordOtp();
+
+  // Handlers - unchanged
+  const handleEditProfile = () => setIsEditModalOpen(true);
+  const handleKYCVerification = () => setIsKYCModalOpen(true);
+  const handleAddProject = () => setIsAddProjectOpen(true);
+  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
+
+  const handleCreatePost = () => {
+    setIsCreatePostModal(true);
+    setIsDropdownOpen(false);
+  };
+
   const handleOpenConnections = () => {
     if (props.isOwnProfile || isConnectedToProfile) {
       setOpen(true);
       return;
     }
-
     toast.error("You are not connected to this user");
   };
 
@@ -107,12 +139,6 @@ export function ProfileCard(props: ProfileCardProps) {
       return;
     }
     action();
-  };
-
-  const handleAddProject = () => setIsAddProjectOpen(true);
-  const handleCreatePost = () => {
-    setIsCreatePostModal(true);
-    setIsDropdownOpen(false);
   };
 
   const handleSubmitProject = async (formData: FormData) => {
@@ -156,11 +182,9 @@ export function ProfileCard(props: ProfileCardProps) {
     removeConnection(id, {
       onSuccess: () => {
         toast.success("Connection removed");
-
         queryClient.invalidateQueries({
           queryKey: ["connections-people-list"],
         });
-
         dispatch(
           updateUserData({
             connectionsCount: Math.max((userData.connectionsCount ?? 1) - 1, 0),
@@ -183,284 +207,340 @@ export function ProfileCard(props: ProfileCardProps) {
     });
   };
 
+  const handleChangePassword = () => {
+    requestOtp(undefined, {
+      onSuccess: () => {
+        toast.success("OTP sent to your email");
+        setIsOtpModalOpen(true);
+      },
+      onError: () => toast.error("Failed to send OTP"),
+    });
+  };
+
   const renderRelationshipButton = () => {
-    if (!relationshipStatus) return null;
+    if (!relationshipStatus || !relationshipStatus.status) return null;
 
-    switch (relationshipStatus.status) {
-      case "none":
-        return (
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={() => handleSendConnection(profileUserId)}
-          >
-            Connect
-          </Button>
-        );
+    const buttonConfig: Record<
+      ConnectionStatus,
+      {
+        icon: LucideIcon;
+        label: string;
+        className: string;
+        onClick?: () => void;
+        disabled: boolean;
+      }
+    > = {
+      none: {
+        icon: UserPlus,
+        label: "Connect",
+        className: "bg-slate-900 hover:bg-slate-800 text-white",
+        onClick: () => handleSendConnection(profileUserId),
+        disabled: false,
+      },
+      pending: {
+        icon: Clock,
+        label: "Pending",
+        className:
+          "bg-slate-100 text-slate-500 cursor-not-allowed border border-slate-200",
+        disabled: true,
+      },
+      rejected: {
+        icon: UserPlus,
+        label: "Connect",
+        className:
+          "bg-white hover:bg-slate-50 text-slate-900 border border-slate-300",
+        onClick: () => handleSendConnection(profileUserId),
+        disabled: false,
+      },
+      cancelled: {
+        icon: UserPlus,
+        label: "Connect",
+        className:
+          "bg-white hover:bg-slate-50 text-slate-900 border border-slate-300",
+        onClick: () => handleSendConnection(profileUserId),
+        disabled: false,
+      },
+      accepted: {
+        icon: MessageCircle,
+        label: "Message",
+        className:
+          "bg-white hover:bg-slate-50 text-slate-900 border border-slate-300",
+        disabled: false,
+      },
+    };
 
-      case "pending":
-        return (
-          <Button variant="outline" className="flex-1" disabled>
-            Pending
-          </Button>
-        );
+    const config = buttonConfig[relationshipStatus.status];
+    const Icon = config.icon;
 
-      case "rejected":
-      case "cancelled":
-        return (
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={() => handleSendConnection(profileUserId)}
-          >
-            Reconnect
-          </Button>
-        );
-
-      case "accepted":
-        return (
-          <Button variant="outline" className="flex-1">
-            Message
-          </Button>
-        );
-
-      default:
-        return null;
-    }
+    return (
+      <Button
+        className={`flex-1 sm:flex-none sm:px-5 rounded-lg font-medium h-10 text-sm ${config.className}`}
+        onClick={config.onClick}
+        disabled={config.disabled}
+      >
+        <Icon className="w-4 h-4 mr-2" />
+        {config.label}
+      </Button>
+    );
   };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="w-full max-w-2xl mx-auto bg-card rounded-2xl border border-border p-6 md:p-8"
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="w-full max-w-2xl mx-auto"
     >
-      {/* Header with menu */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex-1">
-          {/* Avatar and Name */}
-          <div className="flex items-center gap-4 mb-4">
-            <Avatar className="h-16 w-16 md:h-20 md:w-20">
+      {/* Main Card Container */}
+      <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
+        {/* Header Section */}
+        <div className="px-5 sm:px-8 pt-6 sm:pt-8">
+          <div className="flex items-start justify-between mb-6">
+            {/* Avatar */}
+            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border border-slate-200 shadow-sm rounded-2xl bg-white">
               <AvatarImage
                 src={profileData.profileImg || "/placeholder.svg"}
                 alt={profileData.userName}
+                className="object-cover"
               />
-              <AvatarFallback>{profileData.userName.charAt(0)}</AvatarFallback>
+              <AvatarFallback className="text-2xl font-semibold bg-slate-100 text-slate-600">
+                {profileData.userName.charAt(0).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
-            <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-xl md:text-2xl font-bold">
-                {profileData.userName}
-              </h2>
 
-              {/* APPROVED */}
-              {profileData.kycStatus === "APPROVED" && (
-                <Badge
-                  variant="secondary"
-                  className="bg-blue-100 text-blue-700 flex items-center gap-1"
+            {/* Actions Menu (Own Profile) */}
+            {props.isOwnProfile && (
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
-                  <span>✓</span> Verified
+                  <MoreHorizontal className="h-5 w-5" />
+                </Button>
+
+                <AnimatePresence>
+                  {isDropdownOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setIsDropdownOpen(false)}
+                      />
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 top-12 z-50 w-52 rounded-xl bg-white shadow-lg border border-slate-200 py-1 overflow-hidden"
+                      >
+                        <button
+                          onClick={handleEditProfile}
+                          className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-3"
+                        >
+                          <Briefcase className="w-4 h-4 text-slate-400" />
+                          Edit Profile
+                        </button>
+                        <button
+                          onClick={handleCreatePost}
+                          className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-3"
+                        >
+                          <Share2 className="w-4 h-4 text-slate-400" />
+                          Create Post
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            handleChangePassword();
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+                        >
+                          <AlertCircle className="w-4 h-4 text-slate-400" />
+                          Change Password
+                        </button>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="px-5 sm:px-8 pb-6 sm:pb-8">
+          {/* Name & Verification */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-1.5">
+              <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">
+                {profileData.userName}
+              </h1>
+
+              {profileData.kycStatus === "APPROVED" && (
+                <div
+                  title="Verified Account"
+                  className="inline-flex items-center justify-center"
+                >
+                  <CheckCircle2 className="w-5 h-5 text-blue-600 fill-blue-50" />
+                </div>
+              )}
+
+              {props.isOwnProfile && profileData.kycStatus === "SUBMITTED" && (
+                <Badge
+                  variant="outline"
+                  className="border-amber-200 text-amber-700 bg-amber-50/50 rounded-full px-2 py-0.5 text-xs font-medium"
+                >
+                  Pending
                 </Badge>
               )}
-
-              {/* PENDING / SUBMITTED */}
-              {props.isOwnProfile && profileData.kycStatus === "SUBMITTED" && (
-                <span className="text-sm text-yellow-600 font-medium">
-                  KYC under processing
-                </span>
-              )}
-
-              {/* NOT SUBMITTED */}
-              {props.isOwnProfile && profileData.kycStatus === "PENDING" ? (
-                <button
-                  onClick={handleKYCVerification}
-                  className="text-sm text-blue-600 hover:underline focus:outline-none"
-                >
-                  Verify your account?
-                </button>
-              ) : (
-                ""
-              )}
             </div>
+
+            <p className="text-sm font-medium text-slate-500">
+              {userData.role === "INVESTOR"
+                ? "Angel Investor"
+                : "Founder & Entrepreneur"}
+            </p>
           </div>
 
           {/* Bio */}
-          <div className="max-w-full md:max-w-[600px] overflow-hidden">
-            <p className="text-sm md:text-base text-foreground mb-4 break-words whitespace-pre-line">
+          {profileData.bio && (
+            <p className="text-sm text-slate-600 leading-relaxed mb-4">
               {profileData.bio}
             </p>
+          )}
+
+          {/* Links Row */}
+          <div className="flex flex-wrap gap-4 mb-5">
             {profileData.linkedInUrl && (
               <a
-                href={profileData.linkedInUrl ? profileData.linkedInUrl : ""}
+                href={profileData.linkedInUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:underline flex items-center gap-2 pt-2"
+                className="group inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                </svg>
-                View Profile
+                <Briefcase className="w-4 h-4" />
+                LinkedIn
               </a>
             )}
+
             {profileData.website && (
-              <InfoItem
-                label="Website"
-                value={
-                  <a
-                    href={profileData.website ? profileData.website : ""}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline truncate block"
-                  >
-                    {profileData.website}
-                  </a>
-                }
-              />
+              <a
+                href={profileData.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+              >
+                <Globe className="w-4 h-4" />
+                Website
+              </a>
+            )}
+
+            {props.isOwnProfile && profileData.kycStatus === "PENDING" && (
+              <button
+                onClick={handleKYCVerification}
+                className="group inline-flex items-center gap-1.5 text-sm font-semibold text-slate-900 hover:text-slate-700 transition-colors"
+              >
+                <AlertCircle className="w-4 h-4" />
+                Verify Account
+              </button>
             )}
           </div>
 
+          {/* KYC Rejection Alert */}
           {props.isOwnProfile && profileData.kycStatus === "REJECTED" && (
-            <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
-              <p className="text-sm font-semibold text-red-700">
-                KYC Verification Failed
-              </p>
-
-              <p className="text-sm text-red-600 mt-1">
-                {(props.isOwnProfile && profileData.kycRejectReason) ??
-                  "Your documents did not meet verification requirements."}
-              </p>
-
-              <Button
-                size="sm"
-                className="mt-3 bg-red-600 hover:bg-red-700"
-                onClick={handleKYCVerification}
-              >
-                Re-submit KYC
-              </Button>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4"
+            >
+              <div className="flex items-start gap-3">
+                <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-red-900 mb-1">
+                    Verification Failed
+                  </p>
+                  <p className="text-sm text-red-700">
+                    {profileData.kycRejectReason ??
+                      "Please check your documents and try again."}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={handleKYCVerification}
+                  className="bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-xs flex-shrink-0"
+                >
+                  Resubmit
+                </Button>
+              </div>
+            </motion.div>
           )}
 
-          {/* Stats */}
-          <div className="flex gap-6 md:gap-8 justify-evenly">
-            <div className="text-center">
-              <p className="font-bold text-lg md:text-xl">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-3 gap-6 sm:gap-8 py-5 border-y border-slate-100 mb-6">
+            <button className="text-center group transition-all">
+              <div className="text-xl font-semibold text-slate-900 mb-0.5">
                 {profileData.postCount ?? 0}
-              </p>
-              <p className="text-xs md:text-sm text-muted-foreground">Posts</p>
-            </div>
-            <div className="text-center">
-              <p className="font-bold text-lg md:text-xl">
+              </div>
+              <div className="text-xs font-medium text-slate-500">Posts</div>
+            </button>
+
+            <button className="text-center group transition-all border-x border-slate-100">
+              <div className="text-xl font-semibold text-slate-900 mb-0.5">
                 {isInvestor
                   ? (profileData.investmentCount ?? 0)
                   : (profileData.projectCount ?? 0)}
-              </p>
-              <p className="text-xs md:text-sm text-muted-foreground">
+              </div>
+              <div className="text-xs font-medium text-slate-500">
                 {isInvestor ? "Investments" : "Projects"}
-              </p>
-            </div>
-            <div
-              className="text-center cursor-pointer hover:opacity-80 transition"
+              </div>
+            </button>
+
+            <button
               onClick={handleOpenConnections}
+              className="text-center group transition-all"
             >
-              <p className="font-bold text-lg md:text-xl">
+              <div className="text-xl font-semibold text-slate-900 group-hover:text-slate-600 transition-colors mb-0.5">
                 {profileData.connectionsCount ?? 0}
-              </p>
-              <p className="text-xs md:text-sm text-muted-foreground">
+              </div>
+              <div className="text-xs font-medium text-slate-500 group-hover:text-slate-600 transition-colors">
                 Connections
-              </p>
-            </div>
+              </div>
+            </button>
           </div>
-        </div>
 
-        {/* Menu button */}
-        {props.isOwnProfile && (
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <MoreVertical className="h-4 w-4" />
-            </Button>
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-2.5">
+            {/* Own Profile Actions */}
+            {props.isOwnProfile && role === "USER" && (
+              <Button
+                onClick={() => requireKYC(handleAddProject)}
+                className="w-full sm:flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg h-10 text-sm font-medium transition-all"
+              >
+                Add New Project
+              </Button>
+            )}
 
-            <AnimatePresence>
-              {isDropdownOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setIsDropdownOpen(false)}
-                  />
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                    transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute right-0 top-10 z-50 w-48 rounded-xl bg-white shadow-lg border border-gray-200 p-2"
+            {/* Visitor Actions */}
+            {!props.isOwnProfile && role === "USER" && (
+              <>
+                {renderRelationshipButton()}
+
+                {props.isInvestorProfile && (
+                  <Button
+                    onClick={() => setIsPitchModalOpen(true)}
+                    className="flex-1 sm:flex-none sm:px-5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg h-10 text-sm font-medium transition-all"
                   >
-                    <button
-                      onClick={handleEditProfile}
-                      className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors mb-2"
-                    >
-                      Edit Profile
-                    </button>
-                    <button
-                      onClick={handleCreatePost}
-                      className="w-full text-center text-sm font-medium text-gray-900 border border-blue-400 rounded-lg py-2.5 hover:bg-blue-50 transition-colors"
-                    >
-                      Create a New Post
-                    </button>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
+                    Send Pitch
+                  </Button>
+                )}
+              </>
+            )}
           </div>
-        )}
-      </div>
-
-      {/* Action buttons */}
-      <div className="flex gap-3 pt-4 border-t border-border">
-        {/* <Button onClick={onFollow} variant={isFollowing ? "outline" : "default"} className="flex-1">
-                    {isFollowing ? "Following" : "Follow"}
-                </Button> */}
-        <div className="flex gap-3 pt-4 border-t border-border">
-          {/* Own profile → Add project */}
-          {props.isOwnProfile && role === "USER" && (
-            <Button
-              onClick={() => requireKYC(handleAddProject)}
-              className="flex-1 bg-blue-500 hover:bg-blue-600"
-            >
-              Add a project
-            </Button>
-          )}
-
-          {/* Viewing investor profile as founder */}
-          {!props.isOwnProfile && role === "USER" && (
-            <>
-              {renderRelationshipButton()}
-
-              {props.isInvestorProfile && (
-                <Button
-                  onClick={() => setIsPitchModalOpen(true)}
-                  className="flex-1 bg-blue-500 hover:bg-blue-600"
-                >
-                  Send Pitch
-                </Button>
-              )}
-            </>
-          )}
         </div>
-        {/* <Button variant="outline" size="icon" className="h-10 w-10 bg-transparent">
-                    <MessageCircle className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon" className="h-10 w-10 bg-transparent">
-                    <Share2 className="h-4 w-4" />
-                </Button> */}
       </div>
+
+      {/* Modals */}
       {props.isOwnProfile && role === "INVESTOR" ? (
         <EditInvestorProfileModal
           data={profileData}
@@ -514,6 +594,37 @@ export function ProfileCard(props: ProfileCardProps) {
         onOpenChange={setIsPitchModalOpen}
         investorId={profileData.id}
       />
+
+      <OtpModal
+        isOpen={isOtpModalOpen}
+        onClose={() => setIsOtpModalOpen(false)}
+        onVerify={(otp) => {
+          verifyOtp(otp, {
+            onSuccess: (res) => {
+              setResetToken(res.data.token);
+              setIsOtpModalOpen(false);
+              setIsPasswordModalOpen(true);
+            },
+            onError: () => toast.error("Invalid OTP"),
+          });
+        }}
+        onResend={() => {
+          requestOtp(undefined, {
+            onSuccess: () => toast.success("OTP resent"),
+          });
+        }}
+      />
+
+      {resetToken && (
+        <ChangePasswordModal
+          open={isPasswordModalOpen}
+          token={resetToken}
+          onClose={() => {
+            setIsPasswordModalOpen(false);
+            setResetToken(null);
+          }}
+        />
+      )}
     </motion.div>
   );
 }

@@ -2,7 +2,7 @@ import { ISignUpSendOtpUseCase } from "@domain/interfaces/useCases/auth/user/ISi
 import { IVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IVerifyOtp";
 import { ICreateUserUseCase } from "@domain/interfaces/useCases/auth/user/ICreateUserUseCase";
 import { HTTPSTATUS } from "@shared/constants/httpStatus";
-import { Errors } from "@shared/constants/error";
+import { Errors, INVESTOR_ERRORS, USER_ERRORS } from "@shared/constants/error";
 import { NextFunction, Request, Response } from "express";
 import { MESSAGES } from "@shared/constants/messages";
 import { emailSchema } from "@shared/validations/emailValidator";
@@ -14,7 +14,6 @@ import { loginSchema } from "@shared/validations/loginValidator";
 import { UserRole } from "@domain/enum/userRole";
 import { setRefreshTokenCookie } from "@shared/utils/setRefreshTokenCookie";
 import { otpSchema } from "@shared/validations/otpValidator";
-import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 import { IResendOtpUseCase } from "@domain/interfaces/useCases/auth/IResendOtp";
 import { IForgetPasswordSendOtpUseCaes } from "@domain/interfaces/useCases/auth/IForgetPasswordSendOtp";
 import { forgetPasswordVerifyOtpSchema } from "@shared/validations/forgetPasswordVerifyOtpValidator";
@@ -28,6 +27,7 @@ import { ResponseHelper } from "@shared/utils/responseHelper";
 import {
   InvalidDataException,
   InvalidOTPExecption,
+  NotFoundExecption,
   TokenExpiredException,
 } from "application/constants/exceptions";
 import { googleLoginSchema } from "@shared/validations/googleLoginValidator";
@@ -35,6 +35,8 @@ import { IJWTService } from "@domain/interfaces/services/IJWTService";
 import { IGoogleLoginUseCase } from "@domain/interfaces/useCases/auth/IGoogleLoginUseCase";
 import { IGetProfileImg } from "@domain/interfaces/useCases/auth/IGetProfileImg";
 import { IInterestedTopicsUseCase } from "@domain/interfaces/useCases/auth/IInterestedTopicsUseCase";
+import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
+import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 
 export class UserAuthController {
   constructor(
@@ -44,7 +46,6 @@ export class UserAuthController {
     private _userLoginUseCase: IUserLoginUseCase,
     private _tokenCreationUseCase: ITokenCreationUseCase,
     private _cacheUserUseCase: ICacheUserUseCase,
-    private _cacheStorage: IKeyValueTTLCaching,
     private _resendOtpUseCase: IResendOtpUseCase,
     private _forgetPasswordSendOtpUseCase: IForgetPasswordSendOtpUseCaes,
     private _forgetPasswordVerifyOtpUseCase: IForgetPasswordVerifyOtpUseCase,
@@ -54,8 +55,26 @@ export class UserAuthController {
     private _jwtService: IJWTService,
     private _googleLoginUseCase: IGoogleLoginUseCase,
     private _getProfileImgUseCase: IGetProfileImg,
-    private _interestedTopics: IInterestedTopicsUseCase
+    private _interestedTopics: IInterestedTopicsUseCase,
+    private _investorRepository: IInvestorRepository,
+    private _userRepository: IUserRepository
   ) {}
+
+  private async getEmailFromDB(userId: string, role: UserRole): Promise<string> {
+    if (role === UserRole.INVESTOR) {
+      const investor = await this._investorRepository.findById(userId);
+      if (!investor?.email) {
+        throw new NotFoundExecption(INVESTOR_ERRORS.NO_INVESTORS_FOUND);
+      }
+      return investor.email;
+    }
+
+    const user = await this._userRepository.findById(userId);
+    if (!user?.email) {
+      throw new NotFoundExecption(USER_ERRORS.USER_NOT_FOUND);
+    }
+    return user.email;
+  }
 
   async signUpSendOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -297,6 +316,57 @@ export class UserAuthController {
       await this._interestedTopics.setTopics(id, interestedTopics);
 
       ResponseHelper.success(res, MESSAGES.USERS.INTERESTED_TOPICS_SET_SUCCESSFULL, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async requestChangePasswordOtp(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId, role } = res.locals.user;
+
+      const email = await this.getEmailFromDB(userId, role);
+
+      await this._forgetPasswordSendOtpUseCase.sendOtp(email);
+
+      ResponseHelper.success(res, MESSAGES.OTP.OTP_SUCCESSFULL, null, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async verifyChangePasswordOtp(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { otp } = req.body;
+      const { userId, role } = res.locals.user;
+
+      const email = await this.getEmailFromDB(userId, role);
+
+      const token = await this._forgetPasswordVerifyOtpUseCase.verify({
+        email,
+        otp,
+      });
+
+      ResponseHelper.success(res, MESSAGES.OTP.OTP_VERIFIED_SUCCESSFULL, { token }, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async changePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { password, token } = req.body;
+      const { userId, role } = res.locals.user;
+
+      const email = await this.getEmailFromDB(userId, role);
+
+      await this._forgetPasswordResetPasswordUseCase.reset({
+        email,
+        password,
+        token,
+      });
+
+      ResponseHelper.success(res, MESSAGES.USERS.PASSWORD_UPDATED_SUCCESS, null, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

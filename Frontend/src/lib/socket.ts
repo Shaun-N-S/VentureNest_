@@ -1,22 +1,22 @@
+import { store } from "../store/store";
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
 
 export const initSocket = () => {
-  if (socket) return socket;
+  if (!socket) {
+    const token = store.getState().token.token;
 
-  socket = io(import.meta.env.VITE_API_BASE_URL, {
-    withCredentials: true,
-    transports: ["websocket"],
-  });
+    if (!token) {
+      console.warn("⛔ Socket init skipped: no token");
+      return null;
+    }
 
-  socket.on("connect", () => {
-    console.log("🟢 Socket connected:", socket?.id);
-  });
-
-  socket.on("connect_error", (err) => {
-    console.error("🔴 Socket error:", err.message);
-  });
+    socket = io(import.meta.env.VITE_API_BASE_URL, {
+      auth: { token },
+      transports: ["websocket"],
+    });
+  }
 
   return socket;
 };

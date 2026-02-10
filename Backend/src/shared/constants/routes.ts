@@ -1,5 +1,10 @@
 export const ROUTES = {
   AUTH: {
+    CHANGE_PASSWORD: {
+      REQUEST_OTP: "/change-password/request-otp",
+      VERIFY_OTP: "/change-password/verify-otp",
+      RESET: "/change-password/reset",
+    },
     USER: {
       BASE: "/users",
       VERIFY_OTP: "/users/verify-otp",
@@ -15,6 +20,11 @@ export const ROUTES = {
       },
       GET_PROFILE_IMG: "/users/get-profileImg/:id",
       SET_INTERESTED_TOPICS: "/users/interested-topics",
+      CHANGE_PASSWORD: {
+        REQUEST_OTP: "/users/change-password/request-otp",
+        VERIFY_OTP: "/users/change-password/verify-otp",
+        RESET: "/users/change-password/reset",
+      },
     },
     INVESTOR: {
       BASE: "/investors",
@@ -26,6 +36,11 @@ export const ROUTES = {
         REQUEST: "/investors/forget-password",
         VERIFY_OTP: "/investors/forget-password/verify-otp",
         RESET_PASSWORD: "/investors/forget-password/reset-password",
+      },
+      CHANGE_PASSWORD: {
+        REQUEST_OTP: "/auth/investors/change-password/request-otp",
+        VERIFY_OTP: "/auth/investors/change-password/verify-otp",
+        RESET: "/auth/investors/change-password/reset",
       },
     },
     ADMIN: {
@@ -137,6 +152,7 @@ export const ROUTES = {
 
   SUBSCRIPTION: {
     CHECKOUT: "/checkout",
+    CURRENT: "/current",
   },
 
   TICKET: {

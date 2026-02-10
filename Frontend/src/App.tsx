@@ -12,7 +12,7 @@ function App() {
     (state: Rootstate) => !!state.authData.id
   );
 
-  useSocketInit(isAuthenticated);
+  useSocketInit();
   return (
     <>
       <Toaster />

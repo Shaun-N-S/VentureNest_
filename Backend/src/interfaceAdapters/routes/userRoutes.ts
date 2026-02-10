@@ -94,6 +94,27 @@ export class User_Router {
         userProfileController.updateProfileData(req, res, next);
       }
     );
+
+    this._route.post(
+      ROUTES.AUTH.USER.CHANGE_PASSWORD.REQUEST_OTP,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        userAuthController.requestChangePasswordOtp(req, res, next)
+    );
+
+    this._route.post(
+      ROUTES.AUTH.USER.CHANGE_PASSWORD.VERIFY_OTP,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        userAuthController.verifyChangePasswordOtp(req, res, next)
+    );
+
+    this._route.post(
+      ROUTES.AUTH.USER.CHANGE_PASSWORD.RESET,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        userAuthController.changePassword(req, res, next)
+    );
   }
 
   public get_router(): Router {
