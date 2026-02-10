@@ -5,11 +5,14 @@ import { ICreateUserUseCase } from "@domain/interfaces/useCases/auth/user/ICreat
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 import { redisRegisterSchema } from "@shared/validations/userRegisterValidator";
 import { AlreadyExisitingExecption } from "application/constants/exceptions";
+import { ICreateWalletUseCase } from "@domain/interfaces/useCases/wallet/ICreateWalletUseCase";
+import { WalletOwnerType } from "@domain/enum/walletOwnerType";
 
 export class RegisterUserUseCase implements ICreateUserUseCase {
   constructor(
     private _userRepository: IUserRepository,
-    private _cacheStorage: IKeyValueTTLCaching
+    private _cacheStorage: IKeyValueTTLCaching,
+    private _createWalletUseCase: ICreateWalletUseCase
   ) {}
 
   async createUser(email: string): Promise<void> {
@@ -26,6 +29,8 @@ export class RegisterUserUseCase implements ICreateUserUseCase {
 
     const userEntity = UserMapper.toEntity(userData.data!);
 
-    await this._userRepository.save(userEntity);
+    const savedUser = await this._userRepository.save(userEntity);
+
+    await this._createWalletUseCase.execute(WalletOwnerType.USER, savedUser._id!);
   }
 }

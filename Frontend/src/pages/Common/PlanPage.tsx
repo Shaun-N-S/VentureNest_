@@ -5,10 +5,13 @@ import PlanCard from "../../components/card/PlanCard";
 import PurchasePlanModal from "../../components/modals/PurchasePlanModal";
 import { useGetAvailablePlans } from "../../hooks/Plan/PlanHooks";
 import type { Plan } from "../../types/planType";
+import { useCurrentSubscription } from "../../hooks/Subscription/subscriptionHooks";
 
 export default function PlansPage() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const { data, isLoading } = useGetAvailablePlans();
+  const { data: currentSubscription } = useCurrentSubscription();
+  const currentPlanId = currentSubscription?.plan?._id ?? null;
 
   if (isLoading) {
     return (
@@ -118,17 +121,67 @@ export default function PlansPage() {
           </motion.div>
         </motion.div>
 
+        {currentSubscription?.plan && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12 rounded-3xl border border-green-200 bg-green-50 p-6 sm:p-8"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+              <div>
+                <p className="text-sm font-semibold text-green-700 mb-2">
+                  Your Current Plan
+                </p>
+
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {currentSubscription.plan.name}
+                </h2>
+
+                <p className="text-gray-600 mt-1">
+                  {currentSubscription.plan.description}
+                </p>
+
+                <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-700">
+                  <span>
+                    💳 ₹{currentSubscription.plan.billing.price} /{" "}
+                    {currentSubscription.plan.billing.durationDays} days
+                  </span>
+                  <span>
+                    ⏳ Expires on{" "}
+                    {new Date(
+                      currentSubscription.expiresAt,
+                    ).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-white border px-4 py-3 text-green-700 font-semibold">
+                Active
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* PLANS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {data?.plans.map((plan, index) => (
-            <PlanCard
-              key={plan._id}
-              plan={plan}
-              index={index}
-              isTrending={index === 1}
-              onSelect={() => setSelectedPlan(plan)}
-            />
-          ))}
+          {data?.plans.map((plan, index) => {
+            const isCurrent = plan._id === currentPlanId;
+
+            return (
+              <PlanCard
+                key={plan._id}
+                plan={plan}
+                index={index}
+                isTrending={index === 1}
+                isCurrent={isCurrent}
+                onSelect={() => {
+                  if (!isCurrent) {
+                    setSelectedPlan(plan);
+                  }
+                }}
+              />
+            );
+          })}
         </div>
       </div>
 

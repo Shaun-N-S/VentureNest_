@@ -17,9 +17,6 @@ export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleLis
   async execute(userId: string, page: number, limit: number, search?: string) {
     const skip = (page - 1) * limit;
 
-    /* --------------------------------------------
-     * 1️⃣ Get accepted connections
-     * -------------------------------------------- */
     const connections = await this._relationshipRepository.findConnections(userId);
 
     if (!connections.length) {
@@ -31,9 +28,6 @@ export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleLis
       };
     }
 
-    /* --------------------------------------------
-     * 2️⃣ Extract connected user IDs
-     * -------------------------------------------- */
     const connectedIdsSet = new Set<string>();
 
     for (const connection of connections) {
@@ -46,9 +40,6 @@ export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleLis
 
     const connectedIds = Array.from(connectedIdsSet);
 
-    /* --------------------------------------------
-     * 3️⃣ Fetch users & investors WITH DB SEARCH
-     * -------------------------------------------- */
     const [users, investors, usersCount, investorsCount] = await Promise.all([
       this._userRepository.findByIdsPaginated(connectedIds, skip, limit, search),
       this._investorRepository.findByIdsPaginated(connectedIds, skip, limit, search),
@@ -56,9 +47,6 @@ export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleLis
       this._investorRepository.countByIds(connectedIds, search),
     ]);
 
-    /* --------------------------------------------
-     * 4️⃣ Map domain → DTO
-     * -------------------------------------------- */
     const mappedUsers = users.map((u) =>
       RelationshipMapper.NetworkUsers(u, u.role, ConnectionStatus.ACCEPTED)
     );
@@ -69,9 +57,6 @@ export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleLis
 
     const combinedUsers = [...mappedUsers, ...mappedInvestors];
 
-    /* --------------------------------------------
-     * 5️⃣ Generate signed URLs
-     * -------------------------------------------- */
     const finalUsers = await Promise.all(
       combinedUsers.map(async (dto) => {
         if (dto.profileImg) {
@@ -81,9 +66,6 @@ export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleLis
       })
     );
 
-    /* --------------------------------------------
-     * 6️⃣ Pagination meta
-     * -------------------------------------------- */
     const totalUsers = usersCount + investorsCount;
 
     return {

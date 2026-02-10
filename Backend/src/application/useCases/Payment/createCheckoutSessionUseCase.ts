@@ -1,3 +1,4 @@
+import { PaymentPurpose } from "@domain/enum/paymentPurpose";
 import { PlanStatus } from "@domain/enum/planStatus";
 import { UserRole } from "@domain/enum/userRole";
 import { IPlanRepository } from "@domain/interfaces/repositories/IPlanRepository";
@@ -21,11 +22,12 @@ export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCa
     return this._paymentService.createCheckoutSession({
       ownerId,
       ownerRole,
-      planId,
+      planId: plan._id!,
       planName: plan.name,
       description: plan.description,
       amount: plan.billing.price,
       durationDays: plan.billing.durationDays,
+      purpose: PaymentPurpose.SUBSCRIPTION,
     });
   }
 }

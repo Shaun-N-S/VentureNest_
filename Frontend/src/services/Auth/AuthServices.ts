@@ -1,6 +1,7 @@
 import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
 import type { LoginPayload, SignupPayload } from "../../types/AuthPayloads";
+import type { UserRole } from "../../types/UserRole";
 
 // Users
 export const signupUser = async (data: SignupPayload) => {
@@ -32,7 +33,7 @@ export const userResendOtp = async (email: string) => {
 export const userForgetPassword = async (email: string) => {
   const response = await AxiosInstance.post(
     API_ROUTES.AUTH.USER_FORGET_PASSWORD,
-    { email }
+    { email },
   );
   return response.data;
 };
@@ -49,7 +50,7 @@ export const userForgetPasswordVerifyOtp = async ({
     {
       email,
       otp,
-    }
+    },
   );
   return response.data;
 };
@@ -69,7 +70,7 @@ export const userResetPassword = async ({
       email,
       password,
       token,
-    }
+    },
   );
   return response.data;
 };
@@ -85,7 +86,7 @@ export const investorResetPassword = async ({
 }) => {
   const respones = await AxiosInstance.post(
     API_ROUTES.AUTH.INVESTOR_RESET_PASSWORD,
-    { email, password, token }
+    { email, password, token },
   );
   return respones;
 };
@@ -100,7 +101,7 @@ export const loginUser = async (data: LoginPayload) => {
 export const signupInvestor = async (data: SignupPayload) => {
   const response = await AxiosInstance.post(
     API_ROUTES.AUTH.INVESTOR_SIGNUP,
-    data
+    data,
   );
   return response.data;
 };
@@ -117,7 +118,7 @@ export const investorVerifyOtp = async ({
     {
       otp,
       ...values,
-    }
+    },
   );
   return response.data;
 };
@@ -125,7 +126,7 @@ export const investorVerifyOtp = async ({
 export const investorResendOtp = async (email: string) => {
   const response = await AxiosInstance.post(
     API_ROUTES.AUTH.INVESTOR_RESEND_OTP,
-    { email }
+    { email },
   );
   return response.data;
 };
@@ -133,7 +134,7 @@ export const investorResendOtp = async (email: string) => {
 export const loginInvestor = async (data: LoginPayload) => {
   const response = await AxiosInstance.post(
     API_ROUTES.AUTH.INVESTOR_LOGIN,
-    data
+    data,
   );
   console.log(response);
   return response.data;
@@ -150,7 +151,7 @@ export const userGoogleLogin = async (data: {
 }) => {
   const response = await AxiosInstance.post(
     API_ROUTES.AUTH.USER_GOOGLE_LOGIN,
-    data
+    data,
   );
   return response.data;
 };
@@ -161,14 +162,14 @@ export const investorGoogleLogin = async (data: {
 }) => {
   const response = await AxiosInstance.post(
     API_ROUTES.AUTH.INVESTOR_GOOGLE_LOGIN,
-    data
+    data,
   );
   return response.data;
 };
 
 export const getProfileImg = async (id: string) => {
   const response = await AxiosInstance.get(
-    API_ROUTES.AUTH.GET_PROFILEIMG.replace(":id", id)
+    API_ROUTES.AUTH.GET_PROFILEIMG.replace(":id", id),
   );
   return response.data;
 };
@@ -186,4 +187,37 @@ export const setInterestedTopics = async ({
     interestedTopics,
   });
   return response;
+};
+
+export const requestChangePasswordOtp = async (role: UserRole) => {
+  const url =
+    role === "INVESTOR"
+      ? API_ROUTES.AUTH.CHANGE_PASSWORD.INVESTOR.REQUEST_OTP
+      : API_ROUTES.AUTH.CHANGE_PASSWORD.USER.REQUEST_OTP;
+
+  const res = await AxiosInstance.post(url);
+  return res.data;
+};
+
+export const verifyChangePasswordOtp = async (role: UserRole, otp: string) => {
+  const url =
+    role === "INVESTOR"
+      ? API_ROUTES.AUTH.CHANGE_PASSWORD.INVESTOR.VERIFY_OTP
+      : API_ROUTES.AUTH.CHANGE_PASSWORD.USER.VERIFY_OTP;
+
+  const res = await AxiosInstance.post(url, { otp });
+  return res.data;
+};
+
+export const changePassword = async (
+  role: UserRole,
+  { password, token }: { password: string; token: string },
+) => {
+  const url =
+    role === "INVESTOR"
+      ? API_ROUTES.AUTH.CHANGE_PASSWORD.INVESTOR.RESET
+      : API_ROUTES.AUTH.CHANGE_PASSWORD.USER.RESET;
+
+  const res = await AxiosInstance.post(url, { password, token });
+  return res.data;
 };

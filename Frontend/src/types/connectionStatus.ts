@@ -1,1 +1,8 @@
-export type ConnectionStatus = "none" | "pending" | "accepted" | "rejected";
+export type ConnectionStatus =
+  | "none"
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "cancelled";
+
+export type RelationshipType = "follow" | "connection";

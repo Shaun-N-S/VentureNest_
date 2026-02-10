@@ -4,11 +4,13 @@ import { IEngagementEventPublisher } from "@domain/interfaces/services/IEngageme
 
 export class SocketEngagementPublisher implements IEngagementEventPublisher {
   async publishPostLikeUpdated(data: { postId: string; likeCount: number; actorId: string }) {
+    if (!io) return;
     io.to(SocketRooms.feed()).emit("post:like-updated", data);
     io.to(SocketRooms.post(data.postId)).emit("post:like-updated", data);
   }
 
   async publishPostCommentUpdated(data: { postId: string; commentCount: number }) {
+    if (!io) return;
     io.to(SocketRooms.feed()).emit("post:comment-updated", data);
     io.to(SocketRooms.post(data.postId)).emit("post:comment-updated", data);
   }

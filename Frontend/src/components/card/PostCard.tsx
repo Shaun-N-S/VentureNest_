@@ -20,11 +20,11 @@ import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
 import toast from "react-hot-toast";
 import { CommentSkeleton } from "../Skelton/CommentSkelton";
-import { getSocket } from "../../lib/socket";
 import { PeopleListModal } from "../modals/PeopleListModal";
 import { usePostLikes } from "../../hooks/Post/PostHooks";
 import type { PostLikeUser } from "../../types/postLikes";
 import { useNavigate } from "react-router";
+import { getSocket } from "../../lib/socket";
 
 export function PostCard({
   id,

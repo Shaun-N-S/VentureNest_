@@ -12,6 +12,7 @@ import {
   verifyStartup,
 } from "../../services/Project/projectService";
 import type {
+  PersonalProjectApiResponse,
   ProjectLikeResponse,
   ProjectsPage,
 } from "../../types/projectType";
@@ -29,7 +30,7 @@ export const useUpdateProject = () => {
 };
 
 export const useFetchPersonalProjects = (page: number, limit: number) => {
-  return useQuery({
+  return useQuery<PersonalProjectApiResponse>({
     queryKey: ["personal-project", page, limit],
     queryFn: () => fetchPersonalProjects(page, limit),
   });

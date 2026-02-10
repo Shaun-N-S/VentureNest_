@@ -2,11 +2,13 @@ import { KYCStatus } from "@domain/enum/kycStatus";
 import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
+import { WalletOwnerType } from "@domain/enum/walletOwnerType";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 import { IGoogleAuthService } from "@domain/interfaces/services/IGoogleAuthService";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IGoogleLoginUseCase } from "@domain/interfaces/useCases/auth/IGoogleLoginUseCase";
+import { ICreateWalletUseCase } from "@domain/interfaces/useCases/wallet/ICreateWalletUseCase";
 import { INVESTOR_ERRORS } from "@shared/constants/error";
 import { fetchImageAsBuffer } from "@shared/utils/fetchImageAsBuffer";
 import { IsBlockedExecption } from "application/constants/exceptions";
@@ -21,7 +23,8 @@ export class InvestorGoogleLoginUseCase implements IGoogleLoginUseCase {
     private _investorRepository: IInvestorRepository,
     private _googleAuthService: IGoogleAuthService,
     private _storageService: IStorageService,
-    private _cacheService: IKeyValueTTLCaching
+    private _cacheService: IKeyValueTTLCaching,
+    private _createWalletUseCase: ICreateWalletUseCase
   ) {}
 
   async execute({
@@ -68,6 +71,9 @@ export class InvestorGoogleLoginUseCase implements IGoogleLoginUseCase {
 
       const id = await this._investorRepository.googleSignUp(investor);
       investor._id = id;
+
+      await this._createWalletUseCase.execute(WalletOwnerType.INVESTOR, investor._id!);
+
       const profileKey = profileImageKey || investor.profileImg;
       investor.profileImg = await this._storageService.createSignedUrl(profileKey!, 10 * 60);
     }

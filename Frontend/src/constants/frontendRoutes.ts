@@ -15,6 +15,7 @@ export const FRONTEND_ROUTES = {
     COMMON_PROFILE: "/profile/:id",
     SESSIONS: "/sessions",
     OFFERS: "/offers",
+    WALLET: "/wallet",
   },
 
   INVESTOR: {

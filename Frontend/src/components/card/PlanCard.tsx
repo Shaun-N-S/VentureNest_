@@ -7,6 +7,7 @@ interface Props {
   plan: Plan;
   index: number;
   isTrending?: boolean;
+  isCurrent?: boolean;
   onSelect: () => void;
 }
 
@@ -14,13 +15,17 @@ export default function PlanCard({
   plan,
   index,
   isTrending = false,
+  isCurrent = false,
   onSelect,
 }: Props) {
   const features =
     plan.role === "USER"
       ? [
           { label: "Projects", value: plan.limits.projects },
-          { label: "Proposals per month", value: plan.limits.proposalsPerMonth },
+          {
+            label: "Proposals per month",
+            value: plan.limits.proposalsPerMonth,
+          },
           { label: "Meeting requests", value: plan.limits.meetingRequests },
         ]
       : [
@@ -119,9 +124,7 @@ export default function PlanCard({
                 <Check
                   size={12}
                   className={`transition-colors ${
-                    isTrending
-                      ? "text-indigo-600"
-                      : "text-gray-600"
+                    isTrending ? "text-indigo-600" : "text-gray-600"
                   }`}
                 />
               </div>
@@ -134,25 +137,30 @@ export default function PlanCard({
         </div>
 
         {/* CTA BUTTON */}
-        <Button
-          onClick={onSelect}
-          className={`w-full h-12 sm:h-14 text-base font-bold rounded-xl sm:rounded-2xl transition-all duration-300 group/btn relative overflow-hidden ${
-            isTrending
-              ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40"
-              : "bg-gray-900 hover:bg-gray-800 shadow-lg shadow-gray-900/20"
-          }`}
-        >
-          <span className="relative z-10 flex items-center justify-center gap-2">
-            View Details
-            <ArrowRight
-              className="transition-transform group-hover/btn:translate-x-1"
-              size={18}
-            />
-          </span>
+        {isCurrent ? (
+          <div className="w-full h-12 sm:h-14 flex items-center justify-center rounded-xl sm:rounded-2xl bg-green-100 text-green-700 font-bold">
+            Current Plan
+          </div>
+        ) : (
+          <Button
+            onClick={onSelect}
+            className={`w-full h-12 sm:h-14 text-base font-bold rounded-xl sm:rounded-2xl transition-all duration-300 group/btn relative overflow-hidden ${
+              isTrending
+                ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40"
+                : "bg-gray-900 hover:bg-gray-800 shadow-lg shadow-gray-900/20"
+            }`}
+          >
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              View Details
+              <ArrowRight
+                className="transition-transform group-hover/btn:translate-x-1"
+                size={18}
+              />
+            </span>
 
-          {/* Button shine effect */}
-          <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-        </Button>
+            <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          </Button>
+        )}
 
         {/* Decorative corner accent */}
         {isTrending && (

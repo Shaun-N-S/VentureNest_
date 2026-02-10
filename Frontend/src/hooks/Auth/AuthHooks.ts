@@ -17,9 +17,14 @@ import {
   userGoogleLogin,
   investorGoogleLogin,
   setInterestedTopics,
+  changePassword,
+  verifyChangePasswordOtp,
+  requestChangePasswordOtp,
 } from "../../services/Auth/AuthServices";
 import { profileCompletion } from "../../services/Investor/InvestorProfileService";
 import { getProfileImg } from "../../services/Auth/AuthServices";
+import { useSelector } from "react-redux";
+import type { Rootstate } from "../../store/store";
 
 //users
 export const useUserSignUp = () => {
@@ -156,5 +161,34 @@ export const useIntrestedTopics = () => {
       id: string;
       interestedTopics: string[];
     }) => setInterestedTopics({ id, interestedTopics }),
+  });
+};
+
+export const useRequestChangePasswordOtp = () => {
+  const role = useSelector((s: Rootstate) => s.authData.role);
+
+  return useMutation({
+    mutationFn: () => requestChangePasswordOtp(role as "USER" | "INVESTOR"),
+  });
+};
+
+export const useVerifyChangePasswordOtp = () => {
+  const role = useSelector((s: Rootstate) => s.authData.role);
+
+  return useMutation({
+    mutationFn: (otp: string) =>
+      verifyChangePasswordOtp(role as "USER" | "INVESTOR", otp),
+  });
+};
+
+export const useChangePassword = () => {
+  const role = useSelector((s: Rootstate) => s.authData.role);
+
+  return useMutation({
+    mutationFn: ({ password, token }: { password: string; token: string }) =>
+      changePassword(role as "USER" | "INVESTOR", {
+        password,
+        token,
+      }),
   });
 };

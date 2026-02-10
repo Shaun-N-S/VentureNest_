@@ -24,6 +24,19 @@ export const API_ROUTES = {
     GET_PROFILEIMG: "/auth/users/get-profileImg/:id",
 
     USERS_LOGOUT: "/auth/users/logout",
+
+    CHANGE_PASSWORD: {
+      USER: {
+        REQUEST_OTP: "/auth/user/change-password/request-otp",
+        VERIFY_OTP: "/auth/user/change-password/verify-otp",
+        RESET: "/auth/user/change-password/reset",
+      },
+      INVESTOR: {
+        REQUEST_OTP: "/auth/investor/change-password/request-otp",
+        VERIFY_OTP: "/auth/investor/change-password/verify-otp",
+        RESET: "/auth/investor/change-password/reset",
+      },
+    },
   },
 
   ADMIN: {
@@ -96,6 +109,8 @@ export const API_ROUTES = {
     CONNECTION_STATUS_UPDATE: "/relations/update/connection-req",
     GET_CONNECTIONS_PEOPLE: "/relations/connections-people-list",
     REMOVE_CONNECTION: "/relations/remove/connection/:userId",
+    GET_RELATIONSHIP_STATUS: "/relations/status/:userId",
+    GET_USER_CONNECTIONS_PEOPLE: "/relations/users/:userId/connections",
   },
 
   COMMENT: {
@@ -120,6 +135,7 @@ export const API_ROUTES = {
 
   SUBSCRIPTION: {
     CHECKOUT: "/subscriptions/checkout",
+    CURRENT: "/subscriptions/current",
   },
 
   TICKET: {
@@ -148,5 +164,15 @@ export const API_ROUTES = {
     GET_BY_ID: "/offers/:offerId",
     ACCEPT: "/offers/:offerId/accept",
     REJECT: "/offers/:offerId/reject",
+  },
+
+  WALLET: {
+    GET_MY_WALLET: "/wallet/me",
+    GET_PROJECT_WALLET: "/wallet/project/:projectId",
+    TOPUP_CHECKOUT: "/wallet/topup/checkout",
+  },
+
+  TRANSACTION: {
+    MY_WALLET: "/transactions",
   },
 };

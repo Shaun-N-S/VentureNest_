@@ -1,6 +1,7 @@
 import { IGetConnectionReqUseCase } from "@domain/interfaces/useCases/relationship/IGetConnectionReqUseCase";
 import { IGetConnectionsPeopleListUseCase } from "@domain/interfaces/useCases/relationship/IGetConnectionsPeopleListUseCase ";
 import { IGetNetworkUsersUseCase } from "@domain/interfaces/useCases/relationship/IGetNetworkUsersUseCase";
+import { IGetRelationshipStatusUseCase } from "@domain/interfaces/useCases/relationship/IGetRelationshipStatusUseCase";
 import { IRemoveConnectionUseCase } from "@domain/interfaces/useCases/relationship/IRemoveConnectionUseCase";
 import { ISendConnectionReqUseCase } from "@domain/interfaces/useCases/relationship/ISendConnectionReqUseCase";
 import { IUpdateConnectionReqStatusUseCase } from "@domain/interfaces/useCases/relationship/IUpdateConnectionReqStatusUseCase";
@@ -18,7 +19,8 @@ export class RelationshipController {
     private _getConnectionReqUseCase: IGetConnectionReqUseCase,
     private _udpateConnectionReqStatusUseCase: IUpdateConnectionReqStatusUseCase,
     private _getConnectionsPeopleListUseCase: IGetConnectionsPeopleListUseCase,
-    private _removeConnectionUseCase: IRemoveConnectionUseCase
+    private _removeConnectionUseCase: IRemoveConnectionUseCase,
+    private _getRelationshipStatusUseCase: IGetRelationshipStatusUseCase
   ) {}
 
   async getNetworkUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -158,6 +160,62 @@ export class RelationshipController {
         res,
         MESSAGES.RELATIONSHIP.CONNECTION_REMOVED_SUCCESSFULLY,
         { removed },
+        HTTPSTATUS.OK
+      );
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getRelationshipStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const currentUserId = res.locals.user.userId;
+      const targetUserId = req.params.userId;
+
+      if (!currentUserId || !targetUserId) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const result = await this._getRelationshipStatusUseCase.execute(currentUserId, targetUserId);
+
+      ResponseHelper.success(
+        res,
+        MESSAGES.RELATIONSHIP.RELATIONSHIP_STATUS_FETCHED,
+        result,
+        HTTPSTATUS.OK
+      );
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getUserConnectionsPeopleList(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const targetUserId = req.params.userId;
+
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const search = req.query.search?.toString();
+
+      if (!targetUserId) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const result = await this._getConnectionsPeopleListUseCase.execute(
+        targetUserId,
+        page,
+        limit,
+        search
+      );
+
+      ResponseHelper.success(
+        res,
+        MESSAGES.RELATIONSHIP.CONNECTIONS_FETCHED_SUCCESSFULLY,
+        result,
         HTTPSTATUS.OK
       );
     } catch (err) {

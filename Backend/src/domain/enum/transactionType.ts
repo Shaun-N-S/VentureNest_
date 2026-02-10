@@ -1,5 +1,14 @@
-export enum TransactionType {
+export enum TransactionAction {
+  CREDIT = "CREDIT",
+  DEBIT = "DEBIT",
+  TRANSFER = "TRANSFER",
+}
+
+export enum TransactionReason {
   SUBSCRIPTION = "SUBSCRIPTION",
   INVESTMENT = "INVESTMENT",
   PLATFORM_FEE = "PLATFORM_FEE",
+  WITHDRAWAL = "WITHDRAWAL",
+  REFUND = "REFUND",
+  WALLET_TOPUP = "WALLET_TOPUP",
 }

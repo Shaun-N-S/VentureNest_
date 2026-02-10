@@ -22,10 +22,7 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
     const authorInterestPosts =
       await this._postRepository.findPostsByAuthorsWithCommonInterests(interests);
 
-    console.log("authorInterestPosts:", authorInterestPosts);
-
     const contentInterestPosts = await this._postRepository.findPostsMatchingInterests(interests);
-    console.log("contentInterestPosts:", contentInterestPosts);
     const { posts: fallbackPosts } = await this._postRepository.findAllPosts(0, limit * 4);
 
     const merged = [
@@ -37,7 +34,6 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
           !contentInterestPosts.some((x) => x._id === p._id)
       ),
     ];
-    console.log("mergedPosts:", merged);
     const start = (page - 1) * limit;
     const end = page * limit;
     const pageData = merged.slice(start, end);

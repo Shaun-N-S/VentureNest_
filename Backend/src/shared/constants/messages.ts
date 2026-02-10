@@ -16,6 +16,7 @@ export const MESSAGES = {
     INTERESTED_TOPICS_SET_SUCCESSFULL: "Interested topics added successfully !",
     PROFILE_DATA_SUCCESS: "Profile data fetched successfully",
     PROFILE_UPDATED_SUCCESS: "Profile updated successfully",
+    PASSWORD_UPDATED_SUCCESS: "Password updated successfully",
   },
 
   ADMIN: {
@@ -80,6 +81,7 @@ export const MESSAGES = {
     STATUS_UPDATTED_SUCCESSFULLY: "Status updated successfully",
     CONNECTION_REMOVED_SUCCESSFULLY: "Connection removed successfully",
     CONNECTIONS_FETCHED_SUCCESSFULLY: "Connections fetched successfully",
+    RELATIONSHIP_STATUS_FETCHED: "Relationship status fetched successfully",
   },
 
   COMMENT: {
@@ -134,5 +136,15 @@ export const MESSAGES = {
     OFFERS_FETCHED: "Investment offers fetched successfully",
     OFFER_ACCEPTED: "Offer accepted successfully",
     OFFER_REJECTED: "Offer rejected successfully",
+  },
+
+  WALLET: {
+    WALLET_FETCHED: "Wallet fetched successfully",
+    WALLET_TOPUP_CREATED: "Wallet topup created",
+    WALLET_TRANSACTION: "Wallet transactions fetched",
+  },
+
+  SUBSCRIPTION: {
+    FETCHED_SUCCESSFULLY: "Current subscription fetched successfully",
   },
 };

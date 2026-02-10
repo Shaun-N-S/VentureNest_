@@ -9,5 +9,3 @@ export interface PersonalProjectApiResponse {
     };
   };
 }
-
-

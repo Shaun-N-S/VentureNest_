@@ -28,4 +28,6 @@ export interface IRelationshipRepository extends IBaseRepository<RelationshipEnt
   countConnections(userId: string): Promise<number>;
 
   removeConnection(userId1: string, userId2: string): Promise<boolean>;
+
+  findBetweenUsers(userId1: string, userId2: string): Promise<RelationshipEntity | null>;
 }

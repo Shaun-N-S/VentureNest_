@@ -9,8 +9,9 @@ export class PaymentMapper {
       sessionId: entity.sessionId,
       ownerId: new mongoose.Types.ObjectId(entity.ownerId),
       ownerRole: entity.ownerRole,
-      planId: new mongoose.Types.ObjectId(entity.planId),
+      planId: entity.planId ? new mongoose.Types.ObjectId(entity.planId) : undefined,
       amount: entity.amount,
+      purpose: entity.purpose,
     };
   }
 
@@ -20,7 +21,8 @@ export class PaymentMapper {
       sessionId: doc.sessionId,
       ownerId: doc.ownerId.toString(),
       ownerRole: doc.ownerRole,
-      planId: doc.planId.toString(),
+      ...(doc.planId && { planId: doc.planId.toString() }),
+      purpose: doc.purpose,
       amount: doc.amount,
       createdAt: doc.createdAt,
     };
@@ -30,8 +32,9 @@ export class PaymentMapper {
   static toDTO(entity: PaymentEntity): PaymentDTO {
     return {
       id: entity.id!,
-      planId: entity.planId,
+      ...(entity.planId && { planId: entity.planId }),
       amount: entity.amount,
+      purpose: entity.purpose,
       createdAt: entity.createdAt!,
     };
   }

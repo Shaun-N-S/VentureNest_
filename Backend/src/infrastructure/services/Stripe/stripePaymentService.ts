@@ -2,16 +2,18 @@ import { CONFIG } from "@config/config";
 import { stripe } from "./stripeClient";
 import { IPaymentService } from "@domain/interfaces/services/IPaymentService";
 import { UserRole } from "@domain/enum/userRole";
+import { PaymentPurpose } from "@domain/enum/paymentPurpose";
 
 export class StripePaymentService implements IPaymentService {
   async createCheckoutSession(data: {
     ownerId: string;
     ownerRole: UserRole;
-    planId: string;
+    planId?: string;
     planName: string;
     description: string;
     amount: number;
-    durationDays: number;
+    durationDays?: number;
+    purpose: PaymentPurpose;
   }): Promise<string> {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -29,10 +31,13 @@ export class StripePaymentService implements IPaymentService {
         },
       ],
       metadata: {
+        purpose: data.purpose,
         ownerId: data.ownerId,
         role: data.ownerRole,
-        planId: data.planId,
-        durationDays: data.durationDays.toString(),
+        ...(data.purpose === PaymentPurpose.SUBSCRIPTION && {
+          planId: data.planId!,
+          durationDays: String(data.durationDays!),
+        }),
       },
       success_url: `${CONFIG.FRONTEND_URL}/payment-success`,
       cancel_url: `${CONFIG.FRONTEND_URL}/payment-cancel`,

@@ -3,13 +3,14 @@ import { Bell, MessageCircle, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import type { Rootstate } from "../../store/store";
+import { persistor, type Rootstate } from "../../store/store";
 import type { UserRole } from "../../types/UserRole";
 import { useGetProfileImg, useLogout } from "../../hooks/Auth/AuthHooks";
 import { clearData, updateUserData } from "../../store/Slice/authDataSlice";
 import { deleteToken } from "../../store/Slice/tokenSlice";
 import toast from "react-hot-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { queryClient } from "../../main";
 
 const menuItems: Record<UserRole, { name: string; path: string }[]> = {
   ADMIN: [
@@ -56,7 +57,6 @@ const Navbar: React.FC = () => {
 
   const { mutate: logout } = useLogout();
 
-  const shouldFetchProfile = !userData.profileImg;
   const { data, isLoading, isError } = useGetProfileImg(userData.id);
 
   useEffect(() => {
@@ -79,9 +79,13 @@ const Navbar: React.FC = () => {
     const roleSnapshot = role;
 
     logout(undefined, {
-      onSuccess: () => {
+      onSuccess: async () => {
         dispatch(clearData());
         dispatch(deleteToken());
+
+        await persistor.purge();
+
+        queryClient.clear();
 
         if (roleSnapshot === "INVESTOR") navigate("/investor/login");
         else if (roleSnapshot === "ADMIN") navigate("/admin/login");

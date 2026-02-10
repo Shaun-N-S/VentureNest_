@@ -1,18 +1,18 @@
 import mongoose from "mongoose";
-import { TransactionType } from "@domain/enum/transactionType";
 import { TransactionStatus } from "@domain/enum/transactionStatus";
+import { TransactionAction, TransactionReason } from "@domain/enum/transactionType";
 
 const transactionSchema = new mongoose.Schema(
   {
     fromWalletId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Wallet",
-      required: true,
+      required: false,
     },
     toWalletId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Wallet",
-      required: true,
+      required: false,
     },
 
     relatedDealId: {
@@ -20,12 +20,28 @@ const transactionSchema = new mongoose.Schema(
       ref: "Deal",
     },
 
-    amount: { type: Number, required: true },
-    type: {
-      type: String,
-      enum: Object.values(TransactionType),
+    relatedPaymentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Payment",
+    },
+
+    amount: {
+      type: Number,
       required: true,
     },
+
+    action: {
+      type: String,
+      enum: Object.values(TransactionAction),
+      required: true,
+    },
+
+    reason: {
+      type: String,
+      enum: Object.values(TransactionReason),
+      required: true,
+    },
+
     status: {
       type: String,
       enum: Object.values(TransactionStatus),

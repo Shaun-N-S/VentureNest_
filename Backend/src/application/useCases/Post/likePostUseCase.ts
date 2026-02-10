@@ -2,6 +2,8 @@ import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository
 import { ILikePostUseCase } from "@domain/interfaces/useCases/post/ILikePostUseCase";
 import { UserRole } from "@domain/enum/userRole";
 import { IEngagementEventPublisher } from "@domain/interfaces/services/IEngagementEventPublisher";
+import { SocketRooms } from "@infrastructure/realtime/socketRooms";
+import { io } from "@infrastructure/realtime/socketServer";
 
 export class LikePostUseCase implements ILikePostUseCase {
   constructor(
@@ -30,13 +32,6 @@ export class LikePostUseCase implements ILikePostUseCase {
     }
 
     const updated = await this.postRepo.findById(postId);
-
-    const result = {
-      postId,
-      likerId,
-      liked: !alreadyLiked,
-      likeCount: updated?.likeCount!,
-    };
 
     await this.engagementPublisher.publishPostLikeUpdated({
       postId,

@@ -1,6 +1,9 @@
 import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
-import type { ProjectLikeResponse } from "../../types/projectType";
+import type {
+  PersonalProjectApiResponse,
+  ProjectLikeResponse,
+} from "../../types/projectType";
 
 export const addProject = async (formData: FormData) => {
   const response = await AxiosInstance.post(API_ROUTES.PROJECT.ADD, formData, {
@@ -26,7 +29,10 @@ export const updateProject = async (formData: FormData) => {
   return response.data;
 };
 
-export const fetchPersonalProjects = async (page: number, limit: number) => {
+export const fetchPersonalProjects = async (
+  page: number,
+  limit: number,
+): Promise<PersonalProjectApiResponse> => {
   const response = await AxiosInstance.get(
     API_ROUTES.PROJECT.FETCH_PERSONAL_PROJECT,
     {

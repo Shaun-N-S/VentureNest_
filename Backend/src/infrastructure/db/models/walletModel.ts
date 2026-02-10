@@ -3,6 +3,7 @@ import walletSchema from "../schema/walletSchema";
 import { WalletOwnerType } from "@domain/enum/walletOwnerType";
 
 export interface IWalletModel extends Document {
+  _id: string;
   ownerType: WalletOwnerType;
   ownerId: string;
   balance: number;
