@@ -18,14 +18,6 @@ export class UpdateUserProfileUseCase implements IUpdateUserProfileUseCase {
 
   async updateUserProfile(data: UserProfileUpdateReqDTO): Promise<UserProfileUpdateResDTO | null> {
     const { id, formData, profileImg } = data;
-    console.log(
-      "data reached on backend ID",
-      id,
-      "formdata : : ,",
-      formData,
-      "profielIMg : : : ,",
-      profileImg
-    );
 
     const user = await this._userRepository.findById(id);
 
@@ -47,8 +39,6 @@ export class UpdateUserProfileUseCase implements IUpdateUserProfileUseCase {
       profileImg: profileImgKey ?? "",
       updatedAt: new Date(),
     };
-
-    console.log("update user data :: :   ,", updatedData);
 
     const updatedUser = await this._userRepository.update(id, updatedData);
 

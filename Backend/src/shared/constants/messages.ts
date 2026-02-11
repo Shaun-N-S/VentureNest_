@@ -147,4 +147,10 @@ export const MESSAGES = {
   SUBSCRIPTION: {
     FETCHED_SUCCESSFULLY: "Current subscription fetched successfully",
   },
+
+  NOTIFICATION: {
+    NOTIFICATIONS_FETCHED: "Notifications fetched successfully",
+    ALL_MARKED_READ: "Marked all as read",
+    NOTIFICATION_MARKED_READ: "Marked as read",
+  },
 };

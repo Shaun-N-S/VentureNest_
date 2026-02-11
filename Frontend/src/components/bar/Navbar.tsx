@@ -11,6 +11,9 @@ import { deleteToken } from "../../store/Slice/tokenSlice";
 import toast from "react-hot-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { queryClient } from "../../main";
+import { useGetNotifications } from "../../hooks/Notification/notificationHooks";
+import { initSocket } from "../../lib/socket";
+import NotificationModal from "../modals/NotificationModal";
 
 const menuItems: Record<UserRole, { name: string; path: string }[]> = {
   ADMIN: [
@@ -58,6 +61,10 @@ const Navbar: React.FC = () => {
   const { mutate: logout } = useLogout();
 
   const { data, isLoading, isError } = useGetProfileImg(userData.id);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  const { data: notificationData } = useGetNotifications();
+  const unreadCount = notificationData?.unreadCount ?? 0;
 
   useEffect(() => {
     if (data?.data?.profileImg) {
@@ -109,9 +116,13 @@ const Navbar: React.FC = () => {
     else navigate("/home");
   };
 
+  // const handleNotificationBell = () => {
+  //   if (role === "INVESTOR") navigate("/investor/notifications");
+  //   else if (role === "USER") navigate("/notifications");
+  // };
+
   const handleNotificationBell = () => {
-    if (role === "INVESTOR") navigate("/investor/notifications");
-    else if (role === "USER") navigate("/notifications");
+    setIsNotificationOpen(true);
   };
 
   return (
@@ -140,10 +151,18 @@ const Navbar: React.FC = () => {
 
           <div className="flex items-center gap-5">
             {role !== "ADMIN" && <MessageCircle className="w-5 h-5" />}
-            <Bell
-              className="w-5 h-5 cursor-pointer"
-              onClick={handleNotificationBell}
-            />
+            <div className="relative">
+              <Bell
+                className="w-5 h-5 cursor-pointer"
+                onClick={handleNotificationBell}
+              />
+
+              {unreadCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
 
             <div className="relative">
               <div
@@ -231,6 +250,10 @@ const Navbar: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <NotificationModal
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+      />
     </nav>
   );
 };

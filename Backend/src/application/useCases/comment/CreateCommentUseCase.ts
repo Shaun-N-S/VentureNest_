@@ -7,6 +7,7 @@ import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageSe
 import { CommentMapper } from "application/mappers/commentMapper";
 import { CreateCommentDTO, CommentFeedDTO } from "application/dto/comment/commentDTO";
 import { UserRole } from "@domain/enum/userRole";
+import { ICreateNotificationUseCase } from "@domain/interfaces/useCases/notification/ICreateNotificationUseCase";
 
 export class CreateCommentUseCase implements ICreateCommentUseCase {
   constructor(
@@ -14,7 +15,8 @@ export class CreateCommentUseCase implements ICreateCommentUseCase {
     private _postRepository: IPostRepository,
     private _userRepository: IUserRepository,
     private _investorRepository: IInvestorRepository,
-    private _storageService: IStorageService
+    private _storageService: IStorageService,
+    private _notificationUseCase: ICreateNotificationUseCase
   ) {}
 
   async addComment(data: CreateCommentDTO): Promise<CommentFeedDTO> {
@@ -24,6 +26,19 @@ export class CreateCommentUseCase implements ICreateCommentUseCase {
     await this._postRepository.update(saved.postId, {
       $inc: { commentsCount: 1 },
     } as any);
+
+    // if (comment.userId !== data.replierId) {
+    //   await this._notificationUseCase.createNotification({
+    //     recipientId: comment.userId,
+    //     recipientRole: comment.userRole,
+    //     actorId: data.replierId,
+    //     actorRole: data.replierRole,
+    //     type: NotificationType.POST_COMMENTED,
+    //     entityId: comment._id!,
+    //     entityType: NotificationEntityType.COMMENT,
+    //     message: "replied to your comment",
+    //   });
+    // }
 
     const user =
       saved.userRole === UserRole.USER

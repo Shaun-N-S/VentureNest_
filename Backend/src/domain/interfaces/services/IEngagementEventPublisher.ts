@@ -3,6 +3,7 @@ export interface IEngagementEventPublisher {
     postId: string;
     likeCount: number;
     actorId: string;
+    liked: boolean;
   }): Promise<void>;
 
   publishPostCommentUpdated(data: { postId: string; commentCount: number }): Promise<void>;

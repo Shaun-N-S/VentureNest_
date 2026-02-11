@@ -175,4 +175,10 @@ export const API_ROUTES = {
   TRANSACTION: {
     MY_WALLET: "/transactions",
   },
+
+  NOTIFICATION: {
+    GET_MY_NOTIFICATIONS: "/notifications/me",
+    MARK_AS_READ: "/notifications/:id/read",
+    MARK_ALL_AS_READ: "/notifications/read-all",
+  },
 };

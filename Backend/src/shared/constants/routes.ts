@@ -193,4 +193,10 @@ export const ROUTES = {
   TRANSACTION: {
     MY_WALLET: "/",
   },
+
+  NOTIFICATION: {
+    ME: "/me",
+    MARK_READ: "/:id/read",
+    MARK_ALL_READ: "/read-all",
+  },
 };

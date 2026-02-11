@@ -2,13 +2,15 @@ import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository
 import { ILikePostUseCase } from "@domain/interfaces/useCases/post/ILikePostUseCase";
 import { UserRole } from "@domain/enum/userRole";
 import { IEngagementEventPublisher } from "@domain/interfaces/services/IEngagementEventPublisher";
-import { SocketRooms } from "@infrastructure/realtime/socketRooms";
-import { io } from "@infrastructure/realtime/socketServer";
+import { ICreateNotificationUseCase } from "@domain/interfaces/useCases/notification/ICreateNotificationUseCase";
+import { NotificationType } from "@domain/enum/notificationType";
+import { NotificationEntityType } from "@domain/enum/notificationEntityType";
 
 export class LikePostUseCase implements ILikePostUseCase {
   constructor(
-    private postRepo: IPostRepository,
-    private engagementPublisher: IEngagementEventPublisher
+    private _postRepo: IPostRepository,
+    private _engagementPublisher: IEngagementEventPublisher,
+    private _notificationUseCase: ICreateNotificationUseCase
   ) {}
 
   async execute(
@@ -20,23 +22,37 @@ export class LikePostUseCase implements ILikePostUseCase {
     likeCount: number;
     postId: string;
   }> {
-    const post = await this.postRepo.findById(postId);
+    const post = await this._postRepo.findById(postId);
     if (!post) throw new Error("Post not found");
 
     const alreadyLiked = post.likes.some((l) => l.likerId === likerId);
 
     if (alreadyLiked) {
-      await this.postRepo.removeLike(postId, likerId);
+      await this._postRepo.removeLike(postId, likerId);
     } else {
-      await this.postRepo.addLike(postId, likerId, likerRole);
+      await this._postRepo.addLike(postId, likerId, likerRole);
+
+      if (post.authorId !== likerId) {
+        await this._notificationUseCase.createNotification({
+          recipientId: post.authorId,
+          recipientRole: post.authorRole,
+          actorId: likerId,
+          actorRole: likerRole,
+          type: NotificationType.POST_LIKED,
+          entityId: postId,
+          entityType: NotificationEntityType.POST,
+          message: "liked your post",
+        });
+      }
     }
 
-    const updated = await this.postRepo.findById(postId);
+    const updated = await this._postRepo.findById(postId);
 
-    await this.engagementPublisher.publishPostLikeUpdated({
+    await this._engagementPublisher.publishPostLikeUpdated({
       postId,
       likeCount: updated!.likeCount,
       actorId: likerId,
+      liked: !alreadyLiked,
     });
 
     return {

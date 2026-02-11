@@ -1,11 +1,14 @@
 import { investorModel } from "@infrastructure/db/models/investorModel";
+import { notificationModel } from "@infrastructure/db/models/notificationModel";
 import { postModel } from "@infrastructure/db/models/postModel";
 import { userModel } from "@infrastructure/db/models/userModel";
 import { SocketEngagementPublisher } from "@infrastructure/realtime/Publishers/socketEngagementEventPublisher";
 import { InvestorRepository } from "@infrastructure/repostiories/investorRepository";
+import { NotificationRepository } from "@infrastructure/repostiories/notificationRepository";
 import { PostRepository } from "@infrastructure/repostiories/postRepository";
 import { UserRepository } from "@infrastructure/repostiories/userRepository";
 import { StorageService } from "@infrastructure/services/storageService";
+import { CreateNotificationUseCase } from "application/useCases/Notification/createNotificationUseCase";
 import { CreatePostUseCase } from "application/useCases/Post/createPostUseCase";
 import { FetchAllPostsUseCase } from "application/useCases/Post/fetchAllPostsUseCase";
 import { FetchPersonalPostUseCase } from "application/useCases/Post/fetchPersonalPostUseCase";
@@ -19,7 +22,9 @@ const userRepository = new UserRepository(userModel);
 const investorRepository = new InvestorRepository(investorModel);
 const storageService = new StorageService();
 const engagementPublisher = new SocketEngagementPublisher();
+const notificationRepo = new NotificationRepository(notificationModel);
 
+const createNotificationUseCase = new CreateNotificationUseCase(notificationRepo);
 const createPostUseCase = new CreatePostUseCase(postRespository, storageService);
 const fetchPersonalPostUseCase = new FetchPersonalPostUseCase(postRespository, storageService);
 const fetchAllPostsUseCase = new FetchAllPostsUseCase(
@@ -29,7 +34,11 @@ const fetchAllPostsUseCase = new FetchAllPostsUseCase(
   storageService
 );
 const removePostUseCase = new RemovePostUseCase(postRespository, storageService);
-const likePostUseCase = new LikePostUseCase(postRespository, engagementPublisher);
+const likePostUseCase = new LikePostUseCase(
+  postRespository,
+  engagementPublisher,
+  createNotificationUseCase
+);
 const fetchPostLikesUseCase = new FetchPostLikesUseCase(
   postRespository,
   userRepository,
