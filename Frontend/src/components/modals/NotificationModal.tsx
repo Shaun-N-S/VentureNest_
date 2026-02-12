@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { X, Bell } from "lucide-react";
+import { X, Bell, CheckCheck, Inbox } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion"; // Added for smooth slide-in
 import {
   useGetNotifications,
   useMarkAllNotificationsRead,
@@ -21,14 +22,14 @@ interface Props {
 
 const NotificationModal = ({ isOpen, onClose }: Props) => {
   const [tab, setTab] = useState<"UNREAD" | "ALL">("UNREAD");
-
   const { data, isLoading } = useGetNotifications();
   const markAllMutation = useMarkAllNotificationsRead();
-
   const { data: connectionData } = useGetConnectionReq(1, 10);
   const { mutate: updateConnectionStatus } = useConnectionStatusUpdate();
 
   const connectionRequests: NetworkUser[] = connectionData?.data?.users ?? [];
+  const notifications = data?.notifications ?? [];
+  const unreadCount = data?.unreadCount ?? 0;
 
   const handleAccept = (userId: string) => {
     updateConnectionStatus(
@@ -58,101 +59,137 @@ const NotificationModal = ({ isOpen, onClose }: Props) => {
     );
   };
 
-  if (!isOpen) return null;
-
-  const notifications = data?.notifications ?? [];
-
-  const unreadCount = data?.unreadCount ?? 0;
-
   const filtered =
     tab === "UNREAD" ? notifications.filter((n) => !n.isRead) : notifications;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/30">
-      <div className="w-[380px] h-full bg-white shadow-xl flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center gap-2">
-            <Bell size={20} />
-            <div>
-              <h2 className="font-semibold text-lg">Notification</h2>
-              <p className="text-sm text-gray-500">
-                {unreadCount} unread notifications
-              </p>
-            </div>
-          </div>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex justify-end">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"
+          />
 
-          <button onClick={onClose}>
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex items-center justify-between px-4 py-3 border-b">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setTab("UNREAD")}
-              className={`px-3 py-1 rounded-full text-sm ${
-                tab === "UNREAD" ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
-            >
-              Unread {unreadCount}
-            </button>
-
-            <button
-              onClick={() => setTab("ALL")}
-              className={`px-3 py-1 rounded-full text-sm ${
-                tab === "ALL" ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
-            >
-              All
-            </button>
-          </div>
-
-          <button
-            onClick={() => markAllMutation.mutate()}
-            className="text-blue-500 text-sm font-medium"
+          {/* Sidebar Drawer */}
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="relative w-full max-w-[400px] h-full bg-slate-50 shadow-2xl flex flex-col"
           >
-            Mark all as read
-          </button>
+            {/* Header */}
+            <div className="p-5 bg-white border-b border-slate-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                    <Bell size={22} />
+                  </div>
+                  <h2 className="font-bold text-xl text-slate-800 tracking-tight">
+                    Notifications
+                  </h2>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                >
+                  <X size={20} className="text-slate-500" />
+                </button>
+              </div>
+
+              {/* Action Tabs */}
+              <div className="flex items-center justify-between">
+                <div className="flex p-1 bg-slate-100 rounded-xl">
+                  {(["UNREAD", "ALL"] as const).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setTab(t)}
+                      className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        tab === t
+                          ? "bg-white text-blue-600 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      {t === "UNREAD"
+                        ? `Unread (${unreadCount})`
+                        : "All Activity"}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => markAllMutation.mutate()}
+                  className="flex items-center gap-1.5 text-blue-600 text-xs font-bold hover:underline"
+                >
+                  <CheckCheck size={14} />
+                  Mark all read
+                </button>
+              </div>
+            </div>
+
+            {/* Content Body */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center h-40 space-y-2">
+                  <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-sm text-slate-400">
+                    Loading your updates...
+                  </p>
+                </div>
+              ) : filtered.length === 0 && connectionRequests.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                  <div className="mb-4 p-4 bg-slate-100 rounded-full text-slate-400">
+                    <Inbox size={40} />
+                  </div>
+                  <p className="text-slate-900 font-semibold">All caught up!</p>
+                  <p className="text-sm text-slate-500">
+                    No new notifications to show here.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Connection Section */}
+                  {tab === "UNREAD" && connectionRequests.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 px-1">
+                        <span className="w-1.5 h-1.5 bg-blue-600 rounded-full" />
+                        <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">
+                          Pending Requests
+                        </h3>
+                      </div>
+                      {connectionRequests.map((user) => (
+                        <ConnectionRequestCard
+                          key={user.id}
+                          user={user}
+                          onAccept={handleAccept}
+                          onReject={handleReject}
+                        />
+                      ))}
+                      <div className="pt-2 border-b border-slate-200" />
+                    </div>
+                  )}
+
+                  {/* Notifications List */}
+                  <div className="space-y-3">
+                    {filtered.map((notification) => (
+                      <NotificationItem
+                        key={notification._id}
+                        notification={notification}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </motion.div>
         </div>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {isLoading && <p className="text-center">Loading...</p>}
-
-          {!isLoading && filtered.length === 0 && (
-            <p className="text-center text-gray-500">No notifications</p>
-          )}
-
-          {tab === "UNREAD" && connectionRequests.length > 0 && (
-            <>
-              <h3 className="text-sm font-semibold text-gray-600 mb-2">
-                Connection Requests
-              </h3>
-
-              {connectionRequests.map((user) => (
-                <ConnectionRequestCard
-                  key={user.id}
-                  user={user}
-                  onAccept={handleAccept}
-                  onReject={handleReject}
-                />
-              ))}
-
-              <div className="border-t my-4" />
-            </>
-          )}
-
-          {filtered.map((notification) => (
-            <NotificationItem
-              key={notification._id}
-              notification={notification}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 };
 

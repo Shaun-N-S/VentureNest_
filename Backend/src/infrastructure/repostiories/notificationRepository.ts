@@ -13,12 +13,22 @@ export class NotificationRepository
     super(_model, NotificationMapper);
   }
 
-  async findByRecipient(recipientId: string, skip: number, limit: number) {
+  async findByRecipient(
+    recipientId: string,
+    skip: number,
+    limit: number
+  ): Promise<NotificationEntity[]> {
     const docs = await this._model
-      .find({ recipientId: new mongoose.Types.ObjectId(recipientId) })
+      .find({
+        recipientId: new mongoose.Types.ObjectId(recipientId),
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .populate({
+        path: "actorId",
+        select: "userName companyName profileImg",
+      });
 
     return docs.map((doc) => NotificationMapper.fromMongooseDocument(doc));
   }

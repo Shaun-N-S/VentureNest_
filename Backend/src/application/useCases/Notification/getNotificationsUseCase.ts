@@ -5,9 +5,13 @@ import {
   NotificationResponseDTO,
 } from "application/dto/notification/notificationResponseDTO";
 import { NotificationMapper } from "application/mappers/notificationMapper";
+import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 
 export class GetNotificationsUseCase implements IGetNotificationsUseCase {
-  constructor(private _notificationRepo: INotificationRepository) {}
+  constructor(
+    private _notificationRepo: INotificationRepository,
+    private _storageService: IStorageService
+  ) {}
 
   async getNotifications(data: GetNotificationsReqDTO): Promise<NotificationResponseDTO[]> {
     const notifications = await this._notificationRepo.findByRecipient(
@@ -16,6 +20,23 @@ export class GetNotificationsUseCase implements IGetNotificationsUseCase {
       data.limit
     );
 
-    return notifications.map(NotificationMapper.toResponseDTO);
+    const result: NotificationResponseDTO[] = [];
+
+    for (const notification of notifications) {
+      if (notification.actor?.profileImg) {
+        const signedUrl = await this._storageService.createSignedUrl(
+          notification.actor.profileImg,
+          10 * 60
+        );
+
+        notification.actor.profileImg = signedUrl;
+      }
+
+      const dto = NotificationMapper.toResponseDTO(notification);
+
+      result.push(dto);
+    }
+
+    return result;
   }
 }

@@ -19,7 +19,15 @@ const notificationSchema = new mongoose.Schema(
     actorId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      refPath: "actorModel",
     },
+
+    actorModel: {
+      type: String,
+      enum: ["User", "Investor"],
+      required: true,
+    },
+
     actorRole: {
       type: String,
       enum: Object.values(UserRole),

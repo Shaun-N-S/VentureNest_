@@ -4,26 +4,15 @@ import type { UserRole } from "./UserRole";
 export interface Notification {
   _id: string;
 
-  recipientId: string;
-  recipientRole: UserRole;
-
-  actorId: string;
-  actorRole: UserRole;
-
   type: NotificationType;
-
-  entityId: string;
-  entityType: NotificationEntityType;
-
   message: string;
-
   isRead: boolean;
-
   createdAt: string;
 
-  sender?: {
+  sender: {
     id: string;
     userName: string;
+    role: UserRole;
     profileImg?: string;
   };
 }
