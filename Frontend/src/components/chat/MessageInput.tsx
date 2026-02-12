@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSendMessage } from "../../hooks/Chat/chatHooks";
 import { MESSAGE_TYPE } from "../../types/messageType";
 import { getSocket } from "../../lib/socket";
-import { SendHorizontal, Paperclip, Smile } from "lucide-react";
+import { SendHorizontal } from "lucide-react";
 
 interface Props {
   conversationId: string;
