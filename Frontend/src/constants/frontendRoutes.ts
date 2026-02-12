@@ -16,6 +16,8 @@ export const FRONTEND_ROUTES = {
     SESSIONS: "/sessions",
     OFFERS: "/offers",
     WALLET: "/wallet",
+    CHAT: "/chat",
+    CHAT_CONVERSATION: "/chat/:conversationId",
   },
 
   INVESTOR: {
@@ -35,6 +37,8 @@ export const FRONTEND_ROUTES = {
     BOOK_SESSION: "/schedule-session",
     SESSIONS: "/sessions",
     SEND_OFFER: "/send-offer",
+    CHAT: "/chat",
+    CHAT_CONVERSATION: "/chat/:conversationId",
   },
 
   ADMIN: {

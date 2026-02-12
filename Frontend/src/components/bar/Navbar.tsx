@@ -12,7 +12,6 @@ import toast from "react-hot-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { queryClient } from "../../main";
 import { useGetNotifications } from "../../hooks/Notification/notificationHooks";
-import { initSocket } from "../../lib/socket";
 import NotificationModal from "../modals/NotificationModal";
 
 const menuItems: Record<UserRole, { name: string; path: string }[]> = {
@@ -125,6 +124,14 @@ const Navbar: React.FC = () => {
     setIsNotificationOpen(true);
   };
 
+  const handleMessages = () => {
+    if (role === "INVESTOR") {
+      navigate("/investor/chat");
+    } else if (role === "USER") {
+      navigate("/chat");
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 w-full bg-white border-b shadow-sm z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 h-14">
@@ -150,7 +157,12 @@ const Navbar: React.FC = () => {
           </ul>
 
           <div className="flex items-center gap-5">
-            {role !== "ADMIN" && <MessageCircle className="w-5 h-5" />}
+            {role !== "ADMIN" && (
+              <MessageCircle
+                className="w-5 h-5 cursor-pointer hover:text-black transition"
+                onClick={handleMessages}
+              />
+            )}
             <div className="relative">
               <Bell
                 className="w-5 h-5 cursor-pointer"

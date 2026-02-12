@@ -166,6 +166,7 @@ export class InvestorMapper {
       userName: data.userName,
       profileImg: data.profileImg || "",
       bio: data.bio || "",
+      role: data.role,
       website: data.website || "",
       companyName: data.companyName,
       experience: data.experience,

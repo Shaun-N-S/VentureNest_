@@ -4,4 +4,5 @@ export enum NotificationEntityType {
   PROJECT = "PROJECT",
   SESSION = "SESSION",
   INVESTMENT_OFFER = "INVESTMENT_OFFER",
+  USER = "USER",
 }

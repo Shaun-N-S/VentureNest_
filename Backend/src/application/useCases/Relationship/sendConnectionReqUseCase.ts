@@ -55,11 +55,15 @@ export class SendConnectionReqUseCase implements ISendConnectionReqUseCase {
     await this._notificationUseCase.createNotification({
       recipientId: toUserId,
       recipientRole: UserRole.USER,
+
       actorId: fromUserId,
       actorRole: UserRole.USER,
-      type: NotificationType.FOLLOWED,
+
+      type: NotificationType.CONNECTION_REQUEST,
+
       entityId: fromUserId,
-      entityType: NotificationEntityType.PROJECT,
+      entityType: NotificationEntityType.USER,
+
       message: "sent you a connection request",
     });
 

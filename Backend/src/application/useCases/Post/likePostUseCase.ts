@@ -5,6 +5,8 @@ import { IEngagementEventPublisher } from "@domain/interfaces/services/IEngageme
 import { ICreateNotificationUseCase } from "@domain/interfaces/useCases/notification/ICreateNotificationUseCase";
 import { NotificationType } from "@domain/enum/notificationType";
 import { NotificationEntityType } from "@domain/enum/notificationEntityType";
+import { NotFoundExecption } from "application/constants/exceptions";
+import { POST_ERRORS } from "@shared/constants/error";
 
 export class LikePostUseCase implements ILikePostUseCase {
   constructor(
@@ -23,7 +25,7 @@ export class LikePostUseCase implements ILikePostUseCase {
     postId: string;
   }> {
     const post = await this._postRepo.findById(postId);
-    if (!post) throw new Error("Post not found");
+    if (!post) throw new NotFoundExecption(POST_ERRORS.NO_POST_FOUND);
 
     const alreadyLiked = post.likes.some((l) => l.likerId === likerId);
 

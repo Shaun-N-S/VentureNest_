@@ -359,7 +359,7 @@ export class UserAuthController {
       const { userId, role } = res.locals.user;
 
       const email = await this.getEmailFromDB(userId, role);
-
+      console.log("password : ", password);
       await this._forgetPasswordResetPasswordUseCase.reset({
         email,
         password,

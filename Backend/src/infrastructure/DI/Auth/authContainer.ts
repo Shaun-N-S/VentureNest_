@@ -180,7 +180,9 @@ export const investorAuthController = new InvestorAuthController(
   forgetPasswordVerifyOtpUseCase,
   forgetPasswordInvestorResetPasswordUseCase,
   investorGoogleLoginUseCase,
-  jwtService
+  jwtService,
+  userRepository,
+  investorRepository
 );
 
 export const adminAuthController = new AdminAuthController(

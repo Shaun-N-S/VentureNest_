@@ -8,7 +8,7 @@ export const initSocket = () => {
     const token = store.getState().token.token;
 
     if (!token) {
-      console.warn("⛔ Socket init skipped: no token");
+      console.warn(" Socket init skipped: no token");
       return null;
     }
 

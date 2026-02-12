@@ -1,8 +1,18 @@
 import { useState } from "react";
 import { X, Bell } from "lucide-react";
-import type { Notification } from "../../types/notification";
-import { useGetNotifications, useMarkAllNotificationsRead } from "../../hooks/Notification/notificationHooks";
+import {
+  useGetNotifications,
+  useMarkAllNotificationsRead,
+} from "../../hooks/Notification/notificationHooks";
 import NotificationItem from "./NotificationItem";
+import {
+  useGetConnectionReq,
+  useConnectionStatusUpdate,
+} from "../../hooks/Relationship/relationshipHooks";
+import toast from "react-hot-toast";
+import { queryClient } from "../../main";
+import type { NetworkUser } from "../../types/networkType";
+import { ConnectionRequestCard } from "../card/ConnectionRequestCard ";
 
 interface Props {
   isOpen: boolean;
@@ -15,9 +25,43 @@ const NotificationModal = ({ isOpen, onClose }: Props) => {
   const { data, isLoading } = useGetNotifications();
   const markAllMutation = useMarkAllNotificationsRead();
 
+  const { data: connectionData } = useGetConnectionReq(1, 10);
+  const { mutate: updateConnectionStatus } = useConnectionStatusUpdate();
+
+  const connectionRequests: NetworkUser[] = connectionData?.data?.users ?? [];
+
+  const handleAccept = (userId: string) => {
+    updateConnectionStatus(
+      { fromUserId: userId, status: "accepted" },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["personal-connection-req", 1, 10],
+          });
+          toast.success("Connection accepted");
+        },
+      },
+    );
+  };
+
+  const handleReject = (userId: string) => {
+    updateConnectionStatus(
+      { fromUserId: userId, status: "rejected" },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["personal-connection-req", 1, 10],
+          });
+          toast.success("Connection rejected");
+        },
+      },
+    );
+  };
+
   if (!isOpen) return null;
 
-  const notifications: Notification[] = data?.notifications ?? [];
+  const notifications = data?.notifications ?? [];
+
   const unreadCount = data?.unreadCount ?? 0;
 
   const filtered =
@@ -79,6 +123,25 @@ const NotificationModal = ({ isOpen, onClose }: Props) => {
 
           {!isLoading && filtered.length === 0 && (
             <p className="text-center text-gray-500">No notifications</p>
+          )}
+
+          {tab === "UNREAD" && connectionRequests.length > 0 && (
+            <>
+              <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                Connection Requests
+              </h3>
+
+              {connectionRequests.map((user) => (
+                <ConnectionRequestCard
+                  key={user.id}
+                  user={user}
+                  onAccept={handleAccept}
+                  onReject={handleReject}
+                />
+              ))}
+
+              <div className="border-t my-4" />
+            </>
           )}
 
           {filtered.map((notification) => (

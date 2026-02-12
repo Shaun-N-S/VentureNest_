@@ -12,6 +12,7 @@ const NotificationItem = ({ notification }: Props) => {
     markMutation.mutate(notification._id);
   };
 
+  /* 🔹 Default notification */
   return (
     <div
       className={`p-4 rounded-xl border ${

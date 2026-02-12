@@ -1,9 +1,12 @@
+import type { UserRole } from "./UserRole";
+
 export interface ProfileCardProps {
   isOwnProfile: boolean;
   userData: {
     id: string;
     userName: string;
     bio?: string;
+    role: UserRole;
     website?: string;
     profileImg?: string;
     linkedInUrl?: string;
