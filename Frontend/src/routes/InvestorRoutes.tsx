@@ -20,6 +20,7 @@ import BookSessionPage from "../pages/Investor/BookSessionPage";
 import MySessionsPage from "../pages/Common/MySessionPage";
 import InvestorInboxPage from "../pages/Investor/InvestorInboxPage";
 import SendInvestmentOfferPage from "../pages/Investor/SentInvestmentOfferPage";
+import ChatPage from "../pages/Common/ChatPage";
 
 const InvestorRoutes = () => {
   return (
@@ -96,6 +97,9 @@ const InvestorRoutes = () => {
             path={`${FRONTEND_ROUTES.INVESTOR.SEND_OFFER}/:projectId/:pitchId`}
             element={<SendInvestmentOfferPage />}
           />
+
+          <Route path={FRONTEND_ROUTES.INVESTOR.CHAT} element={<ChatPage />} />
+          <Route path={FRONTEND_ROUTES.INVESTOR.CHAT_CONVERSATION} element={<ChatPage />} />
         </Route>
       </Route>
     </Routes>

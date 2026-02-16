@@ -9,6 +9,7 @@ const dealSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+
     offerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "InvestmentOffer",
@@ -21,17 +22,23 @@ const dealSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     investorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Investor",
       required: true,
     },
 
-    amount: { type: Number, required: true },
-    equityPercentage: { type: Number, required: true },
+    totalAmount: { type: Number, required: true },
 
-    platformFee: { type: Number, required: true },
-    founderReceives: { type: Number, required: true },
+    amountPaid: {
+      type: Number,
+      default: 0,
+    },
+
+    remainingAmount: { type: Number, required: true },
+
+    equityPercentage: { type: Number, required: true },
 
     status: {
       type: String,

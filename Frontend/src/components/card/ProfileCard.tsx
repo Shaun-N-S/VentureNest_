@@ -10,6 +10,7 @@ import {
   Clock,
   XCircle,
   type LucideIcon,
+  Smile,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
@@ -42,11 +43,15 @@ import type { PersonalProjectApiResponse } from "../../types/projectType";
 import type { NetworkUser } from "../../types/networkType";
 import type { ConnectionStatus } from "../../types/connectionStatus";
 import {
+  useIntrestedTopics,
   useRequestChangePasswordOtp,
   useVerifyChangePasswordOtp,
 } from "../../hooks/Auth/AuthHooks";
 import OtpModal from "../modals/OtpModal";
 import { ChangePasswordModal } from "../modals/ChangePasswordModal";
+import { useNavigate } from "react-router-dom";
+import { useCreateConversation } from "../../hooks/Chat/chatHooks";
+import TopicSelectionModal from "../modals/InterestedTopics";
 
 export function ProfileCard(props: ProfileCardProps) {
   // State management - unchanged
@@ -60,6 +65,7 @@ export function ProfileCard(props: ProfileCardProps) {
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [resetToken, setResetToken] = useState<string | null>(null);
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
   const role = useSelector((state: Rootstate) => state.authData.role);
   const userId = useSelector((state: Rootstate) => state.authData.id);
@@ -103,11 +109,16 @@ export function ProfileCard(props: ProfileCardProps) {
   const { mutate: requestOtp } = useRequestChangePasswordOtp();
   const { mutate: verifyOtp } = useVerifyChangePasswordOtp();
 
+  const navigate = useNavigate();
+  const createConversation = useCreateConversation();
+  const { mutate: setInterestedTopics } = useIntrestedTopics();
+
   // Handlers - unchanged
   const handleEditProfile = () => setIsEditModalOpen(true);
   const handleKYCVerification = () => setIsKYCModalOpen(true);
   const handleAddProject = () => setIsAddProjectOpen(true);
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
+  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
 
   const handleCreatePost = () => {
     setIsCreatePostModal(true);
@@ -266,6 +277,23 @@ export function ProfileCard(props: ProfileCardProps) {
         className:
           "bg-white hover:bg-slate-50 text-slate-900 border border-slate-300",
         disabled: false,
+        onClick: () => {
+          createConversation.mutate(
+            {
+              targetUserId: profileUserId,
+              targetUserRole: profileData.role,
+            },
+            {
+              onSuccess: (res) => {
+                if (role === "INVESTOR") {
+                  navigate(`/investor/chat/${res.conversationId}`);
+                } else {
+                  navigate(`/chat/${res.conversationId}`);
+                }
+              },
+            },
+          );
+        },
       },
     };
 
@@ -358,6 +386,17 @@ export function ProfileCard(props: ProfileCardProps) {
                         >
                           <AlertCircle className="w-4 h-4 text-slate-400" />
                           Change Password
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            setIsTopicModalOpen(true);
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+                        >
+                          <Smile className="w-4 h-4 text-slate-400" />
+                          Update Interested Topics
                         </button>
                       </motion.div>
                     </>
@@ -512,7 +551,7 @@ export function ProfileCard(props: ProfileCardProps) {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-2.5">
             {/* Own Profile Actions */}
-            {props.isOwnProfile && role === "USER" && (
+            {props.isOwnProfile && profileData.role === "USER" && (
               <Button
                 onClick={() => requireKYC(handleAddProject)}
                 className="w-full sm:flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg h-10 text-sm font-medium transition-all"
@@ -522,11 +561,11 @@ export function ProfileCard(props: ProfileCardProps) {
             )}
 
             {/* Visitor Actions */}
-            {!props.isOwnProfile && role === "USER" && (
+            {!props.isOwnProfile && (
               <>
                 {renderRelationshipButton()}
 
-                {props.isInvestorProfile && (
+                {profileData.role === "INVESTOR" && role === "USER" && (
                   <Button
                     onClick={() => setIsPitchModalOpen(true)}
                     className="flex-1 sm:flex-none sm:px-5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg h-10 text-sm font-medium transition-all"
@@ -625,6 +664,28 @@ export function ProfileCard(props: ProfileCardProps) {
           }}
         />
       )}
+
+      <TopicSelectionModal
+        isOpen={isTopicModalOpen}
+        onClose={() => setIsTopicModalOpen(false)}
+        initialTopics={selectedTopics}
+        onSubmit={(selected) => {
+          setInterestedTopics(
+            {
+              id: userId,
+              interestedTopics: selected,
+            },
+            {
+              onSuccess: () => {
+                toast.success("Topics updated successfully!");
+                setSelectedTopics(selected);
+                queryClient.invalidateQueries({ queryKey: ["posts"] });
+                setIsTopicModalOpen(false);
+              },
+            },
+          );
+        }}
+      />
     </motion.div>
   );
 }

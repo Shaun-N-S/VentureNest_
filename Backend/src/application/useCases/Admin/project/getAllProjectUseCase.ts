@@ -20,8 +20,6 @@ export class GetAllProjectsUseCase implements IGetAllProjectsUseCase {
   }> {
     const skip = (page - 1) * limit;
 
-    console.log("stages : ", stage);
-
     const [projects, totalProjects] = await Promise.all([
       this._projectRepository.findAllAdmin(skip, limit, status, stage, sector, search),
       this._projectRepository.countAdmin(status, search),

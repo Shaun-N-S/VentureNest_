@@ -38,9 +38,9 @@ export const ROUTES = {
         RESET_PASSWORD: "/investors/forget-password/reset-password",
       },
       CHANGE_PASSWORD: {
-        REQUEST_OTP: "/auth/investors/change-password/request-otp",
-        VERIFY_OTP: "/auth/investors/change-password/verify-otp",
-        RESET: "/auth/investors/change-password/reset",
+        REQUEST_OTP: "/investors/change-password/request-otp",
+        VERIFY_OTP: "/investors/change-password/verify-otp",
+        RESET: "/investors/change-password/reset",
       },
     },
     ADMIN: {
@@ -192,5 +192,20 @@ export const ROUTES = {
 
   TRANSACTION: {
     MY_WALLET: "/",
+  },
+
+  NOTIFICATION: {
+    ME: "/me",
+    MARK_READ: "/:id/read",
+    MARK_ALL_READ: "/read-all",
+  },
+
+  CHAT: {
+    CREATE_CONVERSATION: "/conversation",
+    GET_CONVERSATIONS: "/conversations",
+    GET_MESSAGES: "/messages/:conversationId",
+    SEND_MESSAGE: "/message",
+    MARK_READ: "/read/:conversationId",
+    UNREAD_COUNT: "/unread-count",
   },
 };

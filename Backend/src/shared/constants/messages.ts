@@ -147,4 +147,20 @@ export const MESSAGES = {
   SUBSCRIPTION: {
     FETCHED_SUCCESSFULLY: "Current subscription fetched successfully",
   },
+
+  NOTIFICATION: {
+    NOTIFICATIONS_FETCHED: "Notifications fetched successfully",
+    ALL_MARKED_READ: "Marked all as read",
+    NOTIFICATION_MARKED_READ: "Marked as read",
+    CREATE_INVESTMENT_NOTIFICATION_SENT: "sent you an investment offer",
+  },
+
+  CHAT: {
+    CONVERSTION_CREATED: "Conversation created",
+    MESSAGE_SENT: "Message sent",
+    CONVERSATION_FETCHED: "Conversations fetched",
+    MESSAGES_FETCHED: "Messages fetched",
+    CONVERSATIONS_MARKED_AS_READ: "Conversation marked as read",
+    UNREAD_MESSAGE_COUNT: "Unread count fetched",
+  },
 };

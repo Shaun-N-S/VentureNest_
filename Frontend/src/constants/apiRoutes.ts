@@ -27,14 +27,14 @@ export const API_ROUTES = {
 
     CHANGE_PASSWORD: {
       USER: {
-        REQUEST_OTP: "/auth/user/change-password/request-otp",
-        VERIFY_OTP: "/auth/user/change-password/verify-otp",
-        RESET: "/auth/user/change-password/reset",
+        REQUEST_OTP: "/auth/users/change-password/request-otp",
+        VERIFY_OTP: "/auth/users/change-password/verify-otp",
+        RESET: "/auth/users/change-password/reset",
       },
       INVESTOR: {
-        REQUEST_OTP: "/auth/investor/change-password/request-otp",
-        VERIFY_OTP: "/auth/investor/change-password/verify-otp",
-        RESET: "/auth/investor/change-password/reset",
+        REQUEST_OTP: "/auth/investors/change-password/request-otp",
+        VERIFY_OTP: "/auth/investors/change-password/verify-otp",
+        RESET: "/auth/investors/change-password/reset",
       },
     },
   },
@@ -174,5 +174,20 @@ export const API_ROUTES = {
 
   TRANSACTION: {
     MY_WALLET: "/transactions",
+  },
+
+  NOTIFICATION: {
+    GET_MY_NOTIFICATIONS: "/notifications/me",
+    MARK_AS_READ: "/notifications/:id/read",
+    MARK_ALL_AS_READ: "/notifications/read-all",
+  },
+
+  CHAT: {
+    CREATE_CONVERSATION: "/chat/conversation",
+    GET_CONVERSATIONS: "/chat/conversations",
+    GET_MESSAGES: "/chat/messages/:conversationId",
+    SEND_MESSAGE: "/chat/message",
+    MARK_READ: "/chat/read/:conversationId",
+    UNREAD_COUNT: "/chat/unread-count",
   },
 };

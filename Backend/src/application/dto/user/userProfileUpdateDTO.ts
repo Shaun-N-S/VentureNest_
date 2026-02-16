@@ -1,4 +1,5 @@
 import { KYCStatus } from "@domain/enum/kycStatus";
+import { UserRole } from "@domain/enum/userRole";
 
 export interface UserProfileUpdateDTO {
   userName?: string;
@@ -36,6 +37,7 @@ export interface UserProfileResDTO {
   _id: string;
   userName?: string;
   bio?: string;
+  role: UserRole;
   profileImg?: string;
   website?: string;
   linkedInUrl?: string;

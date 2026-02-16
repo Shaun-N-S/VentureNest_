@@ -22,7 +22,7 @@ export class UpdateInvestorStatusUseCase implements IUpdateInvestorStatusUseCase
 
     if (!updatedInvestor) throw new Error(USER_ERRORS.USER_NOT_FOUND);
 
-    await this._cacheService.deleteData(`USER_STATUS:${UserRole.INVESTOR}:${investorId}`);
+    await this._cacheService.deleteData(`USER_STATUS:${investorId}`);
 
     return { investor: updatedInvestor as InvestorDTO };
   }

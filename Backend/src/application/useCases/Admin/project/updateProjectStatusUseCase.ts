@@ -1,6 +1,5 @@
 import { UserStatus } from "@domain/enum/userStatus";
 import { IProjectRepository } from "@domain/interfaces/repositories/IProjectRepository";
-import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
 import { IUpdateProjectStatusUseCase } from "@domain/interfaces/useCases/admin/project/IUpdateProjectStatusUseCase";
 import { PROJECT_ERRORS } from "@shared/constants/error";
 import { NotFoundExecption } from "application/constants/exceptions";

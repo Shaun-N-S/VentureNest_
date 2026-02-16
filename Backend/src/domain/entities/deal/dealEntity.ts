@@ -9,11 +9,11 @@ export interface DealEntity {
   founderId: string;
   investorId: string;
 
-  amount: number;
-  equityPercentage: number;
+  totalAmount: number;
+  amountPaid: number;
+  remainingAmount: number;
 
-  platformFee: number;
-  founderReceives: number;
+  equityPercentage: number;
 
   status: DealStatus;
 

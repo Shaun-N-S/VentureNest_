@@ -102,24 +102,24 @@ export class Investor_Router {
     );
 
     this._route.post(
-      ROUTES.AUTH.INVESTOR.CHANGE_PASSWORD.REQUEST_OTP,
+      INVESTOR_AUTH.CHANGE_PASSWORD.REQUEST_OTP,
       ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) =>
-        userAuthController.requestChangePasswordOtp(req, res, next)
+        investorAuthController.requestChangePasswordOtp(req, res, next)
     );
 
     this._route.post(
-      ROUTES.AUTH.INVESTOR.CHANGE_PASSWORD.VERIFY_OTP,
+      INVESTOR_AUTH.CHANGE_PASSWORD.VERIFY_OTP,
       ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) =>
-        userAuthController.verifyChangePasswordOtp(req, res, next)
+        investorAuthController.verifyChangePasswordOtp(req, res, next)
     );
 
     this._route.post(
-      ROUTES.AUTH.INVESTOR.CHANGE_PASSWORD.RESET,
+      INVESTOR_AUTH.CHANGE_PASSWORD.RESET,
       ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) =>
-        userAuthController.changePassword(req, res, next)
+        investorAuthController.changePassword(req, res, next)
     );
   }
 

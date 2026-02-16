@@ -1,4 +1,3 @@
-import { UserRole } from "@domain/enum/userRole";
 import { UserStatus } from "@domain/enum/userStatus";
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";

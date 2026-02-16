@@ -25,6 +25,8 @@ import { Pitch_Router } from "interfaceAdapters/routes/pitchRoutes";
 import { InvestmentOffer_Router } from "interfaceAdapters/routes/investmentOfferRoutes";
 import { Wallet_Router } from "interfaceAdapters/routes/walletRoutes";
 import { Transaction_Routes } from "interfaceAdapters/routes/transactionRoutes";
+import { Notification_Router } from "interfaceAdapters/routes/notificationRoutes";
+import { Chat_Router } from "interfaceAdapters/routes/chatRoutes";
 
 class Express_app {
   private _app: Express;
@@ -90,6 +92,10 @@ class Express_app {
     this._app.use("/wallet", new Wallet_Router().get_router());
 
     this._app.use("/transactions", new Transaction_Routes().get_router());
+
+    this._app.use("/notifications", new Notification_Router().get_router());
+
+    this._app.use("/chat", new Chat_Router().get_router());
   }
 
   private _setErrorHandlingMiddleware() {

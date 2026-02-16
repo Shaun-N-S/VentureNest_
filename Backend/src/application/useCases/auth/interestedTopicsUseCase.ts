@@ -12,7 +12,6 @@ export class InterestedTopicsUseCase implements IInterestedTopicsUseCase {
   ) {}
 
   async setTopics(id: string, topics: PreferredSector[]): Promise<void> {
-    console.log("data in the usecase h aha ahaha h : ,", id, topics);
     const [userData, investorData] = await Promise.all([
       this._userRepository.findById(id),
       this._investorRepository.findById(id),

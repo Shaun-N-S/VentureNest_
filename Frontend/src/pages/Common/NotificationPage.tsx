@@ -20,7 +20,7 @@ export default function NotificationPage() {
         updateConnectionReqStatus(
             { fromUserId: userId, status: "accepted" },
             {
-                onSuccess: (res) => {
+                onSuccess: () => {
                     queryClient.invalidateQueries({
                         queryKey: ["personal-connection-req", page, limit]
                     })

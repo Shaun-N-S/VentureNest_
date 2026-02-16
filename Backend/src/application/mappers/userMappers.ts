@@ -158,6 +158,7 @@ export class UserMapper {
       _id: data._id!,
       userName: data.userName,
       bio: data.bio || "",
+      role: data.role,
       profileImg: data.profileImg || "",
       website: data.website || "",
       linkedInUrl: data.linkedInUrl || "",

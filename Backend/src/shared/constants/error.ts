@@ -125,3 +125,7 @@ export const OFFER_ERRORS = {
 export const WALLET_ERRORS = {
   NOT_FOUND: "Wallet not found",
 };
+
+export const CHAT_ERRORS = {
+  CONVERSATION_NOT_FOUND: "Conversation not found",
+};

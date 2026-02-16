@@ -23,7 +23,6 @@ export class GetAllUsersKycUseCases implements IGetAllUserKycUseCase {
     currentPage: number;
   }> {
     const skip = (page - 1) * limit;
-    console.log(skip, limit, search, status);
     const query: Record<string, unknown> = {};
     query.kycStatus = status ? status : { $ne: KYCStatus.PENDING };
     const [usersKyc, totalUsersKyc] = await Promise.all([
