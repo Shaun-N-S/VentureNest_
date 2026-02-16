@@ -1,12 +1,8 @@
 import { DealStatus } from "@domain/enum/dealStatus";
 
-export interface DealEntity {
-  _id?: string;
-
+export interface DealResponseDTO {
+  dealId: string;
   projectId: string;
-  offerId: string;
-
-  founderId: string;
   investorId: string;
 
   totalAmount: number;
@@ -14,9 +10,7 @@ export interface DealEntity {
   remainingAmount: number;
 
   equityPercentage: number;
-
   status: DealStatus;
 
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: Date;
 }

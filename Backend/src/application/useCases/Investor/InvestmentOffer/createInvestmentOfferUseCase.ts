@@ -11,6 +11,7 @@ import { ICreateNotificationUseCase } from "@domain/interfaces/useCases/notifica
 import { UserRole } from "@domain/enum/userRole";
 import { NotificationType } from "@domain/enum/notificationType";
 import { NotificationEntityType } from "@domain/enum/notificationEntityType";
+import { MESSAGES } from "@shared/constants/messages";
 
 export class CreateInvestmentOfferUseCase implements ICreateInvestmentOfferUseCase {
   constructor(
@@ -54,7 +55,7 @@ export class CreateInvestmentOfferUseCase implements ICreateInvestmentOfferUseCa
       type: NotificationType.INVESTMENT_RECEIVED,
       entityId: savedOffer._id!,
       entityType: NotificationEntityType.INVESTMENT_OFFER,
-      message: "sent you an investment offer",
+      message: MESSAGES.NOTIFICATION.CREATE_INVESTMENT_NOTIFICATION_SENT,
     });
 
     return InvestmentOfferMapper.toResponseDTO(savedOffer);

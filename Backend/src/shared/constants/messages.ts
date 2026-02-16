@@ -152,6 +152,7 @@ export const MESSAGES = {
     NOTIFICATIONS_FETCHED: "Notifications fetched successfully",
     ALL_MARKED_READ: "Marked all as read",
     NOTIFICATION_MARKED_READ: "Marked as read",
+    CREATE_INVESTMENT_NOTIFICATION_SENT: "sent you an investment offer",
   },
 
   CHAT: {

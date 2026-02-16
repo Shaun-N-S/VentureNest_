@@ -8,7 +8,6 @@ export class CreatePlanUseCase implements ICreatePlanUseCase {
   constructor(private _planRepository: IPlanRepository) {}
 
   async execute(data: CreatePlanDTO): Promise<PlanDTO> {
-    console.log("usecase", data);
     const planEntity = PlanMapper.toEntity(data);
 
     const savedPlan = await this._planRepository.save(planEntity);
