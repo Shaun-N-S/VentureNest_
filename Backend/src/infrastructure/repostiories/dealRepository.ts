@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import { ClientSession, Model } from "mongoose";
 import { BaseRepository } from "./baseRepository";
 import { IDealRepository } from "@domain/interfaces/repositories/IDealRepository";
 import { IDealModel } from "@infrastructure/db/models/dealModel";
@@ -18,15 +18,22 @@ export class DealRepository
     return doc ? DealMapper.fromMongooseDocument(doc) : null;
   }
 
-  async incrementPaidAmount(dealId: string, amount: number): Promise<void> {
-    await this._model.updateOne(
-      { _id: dealId },
-      {
-        $inc: {
-          amountPaid: amount,
-          remainingAmount: -amount,
-        },
-      }
-    );
+  async incrementPaidAmount(
+    dealId: string,
+    amount: number,
+    session?: ClientSession
+  ): Promise<void> {
+    const update = {
+      $inc: {
+        amountPaid: amount,
+        remainingAmount: -amount,
+      },
+    };
+
+    if (session) {
+      await this._model.updateOne({ _id: dealId }, update, { session });
+    } else {
+      await this._model.updateOne({ _id: dealId }, update);
+    }
   }
 }

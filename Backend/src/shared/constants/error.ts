@@ -124,8 +124,21 @@ export const OFFER_ERRORS = {
 
 export const WALLET_ERRORS = {
   NOT_FOUND: "Wallet not found",
+  INVALID_TOPUP_AMOUNT: "Invalid topup amount!",
 };
 
 export const CHAT_ERRORS = {
   CONVERSATION_NOT_FOUND: "Conversation not found",
+};
+
+export const DEAL_ERRORS = {
+  DEAL_NOT_FOUND: "Deal not found!",
+  DEAL_ALREADY_COMPLETED: "Deal is already completed!",
+  INVALID_INSTALLMENT_AMOUNT: "Invalid installment amount!",
+  UNAUTHORIZED_DEAL_ACCESS: "You are not authorized to access this deal!",
+  UNSUPPORTED_PAYMENT_METHOD: "Unsupported payment method!",
+};
+
+export const INSTALLMENT_ERRORS = {
+  INSUFFICIENT_BALANCE: "Insufficient wallet balance!",
 };

@@ -7,11 +7,13 @@ import { UserRole } from "@domain/enum/userRole";
 import { PaymentPurpose } from "@domain/enum/paymentPurpose";
 import { IHandleCheckoutCompletedUseCase } from "@domain/interfaces/useCases/payment/IHandleCheckoutCompletedUseCase";
 import { IHandleWalletTopupCompletedUseCase } from "@domain/interfaces/useCases/wallet/IHandleWalletTopupCompletedUseCase";
+import { IHandleDealInstallmentStripeCompletedUseCase } from "@domain/interfaces/useCases/deal/IHandleDealInstallmentStripeCompletedUseCase";
 
 export class WebhookController {
   constructor(
     private _handleCheckoutCompletedUC: IHandleCheckoutCompletedUseCase,
-    private _handleWalletTopupCompletedUC: IHandleWalletTopupCompletedUseCase
+    private _handleWalletTopupCompletedUC: IHandleWalletTopupCompletedUseCase,
+    private _handleDealInstallmentCompletedUC: IHandleDealInstallmentStripeCompletedUseCase
   ) {}
 
   handleStripeWebhook = async (req: Request, res: Response): Promise<void> => {
@@ -60,6 +62,16 @@ export class WebhookController {
           ownerId,
           ownerRole: role,
           amount: session.amount_total! / 100,
+        });
+      }
+
+      if (purpose === PaymentPurpose.DEAL_INSTALLMENT) {
+        await this._handleDealInstallmentCompletedUC.execute({
+          sessionId: session.id,
+          ownerId,
+          ownerRole: role,
+          dealId: session.metadata!.dealId!,
+          amount: Number(session.metadata!.installmentAmount),
         });
       }
     }

@@ -22,12 +22,14 @@ export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCa
     return this._paymentService.createCheckoutSession({
       ownerId,
       ownerRole,
-      planId: plan._id!,
+      amount: plan.billing.price,
+      purpose: PaymentPurpose.SUBSCRIPTION,
       planName: plan.name,
       description: plan.description,
-      amount: plan.billing.price,
-      durationDays: plan.billing.durationDays,
-      purpose: PaymentPurpose.SUBSCRIPTION,
+      metadata: {
+        planId: plan._id!,
+        durationDays: plan.billing.durationDays.toString(),
+      },
     });
   }
 }

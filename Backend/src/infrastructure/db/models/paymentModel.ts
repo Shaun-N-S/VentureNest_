@@ -7,6 +7,7 @@ import { PaymentPurpose } from "@domain/enum/paymentPurpose";
 export interface IPaymentModel extends Document {
   id: string;
   sessionId: string;
+  dealId?: string;
   ownerId: string;
   ownerRole: UserRole;
   planId?: string;

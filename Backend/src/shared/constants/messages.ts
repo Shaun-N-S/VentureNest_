@@ -163,4 +163,8 @@ export const MESSAGES = {
     CONVERSATIONS_MARKED_AS_READ: "Conversation marked as read",
     UNREAD_MESSAGE_COUNT: "Unread count fetched",
   },
+
+  PAYMENT: {
+    CHECKOUT_CREATED: "Payment checkout created!",
+  },
 };

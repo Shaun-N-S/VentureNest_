@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import { ClientSession, Model } from "mongoose";
 import { BaseRepository } from "./baseRepository";
 import { WalletEntity } from "@domain/entities/wallet/walletEntity";
 import { IWalletRepository } from "@domain/interfaces/repositories/IWalletRepository";
@@ -19,19 +19,51 @@ export class WalletRepository
     return doc ? WalletMapper.fromMongooseDocument(doc) : null;
   }
 
-  async incrementBalance(walletId: string, amount: number): Promise<void> {
-    await this._model.updateOne({ _id: walletId }, { $inc: { balance: amount } });
+  async incrementBalance(walletId: string, amount: number, session?: ClientSession): Promise<void> {
+    const update = { $inc: { balance: amount } };
+
+    if (session) {
+      await this._model.updateOne({ _id: walletId }, update, { session });
+    } else {
+      await this._model.updateOne({ _id: walletId }, update);
+    }
   }
 
-  async decrementBalance(walletId: string, amount: number): Promise<void> {
-    await this._model.updateOne({ _id: walletId }, { $inc: { balance: -amount } });
+  async decrementBalance(walletId: string, amount: number, session?: ClientSession): Promise<void> {
+    const update = { $inc: { balance: -amount } };
+
+    if (session) {
+      await this._model.updateOne({ _id: walletId }, update, { session });
+    } else {
+      await this._model.updateOne({ _id: walletId }, update);
+    }
   }
 
-  async incrementLockedBalance(walletId: string, amount: number): Promise<void> {
-    await this._model.updateOne({ _id: walletId }, { $inc: { lockedBalance: amount } });
+  async incrementLockedBalance(
+    walletId: string,
+    amount: number,
+    session?: ClientSession
+  ): Promise<void> {
+    const update = { $inc: { lockedBalance: amount } };
+
+    if (session) {
+      await this._model.updateOne({ _id: walletId }, update, { session });
+    } else {
+      await this._model.updateOne({ _id: walletId }, update);
+    }
   }
 
-  async decrementLockedBalance(walletId: string, amount: number): Promise<void> {
-    await this._model.updateOne({ _id: walletId }, { $inc: { lockedBalance: -amount } });
+  async decrementLockedBalance(
+    walletId: string,
+    amount: number,
+    session?: ClientSession
+  ): Promise<void> {
+    const update = { $inc: { lockedBalance: -amount } };
+
+    if (session) {
+      await this._model.updateOne({ _id: walletId }, update, { session });
+    } else {
+      await this._model.updateOne({ _id: walletId }, update);
+    }
   }
 }

@@ -10,6 +10,13 @@ const PaymentSchema = new mongoose.Schema(
       unique: true,
     },
 
+    dealId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Deal",
+      required: false,
+      index: true,
+    },
+
     ownerId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,

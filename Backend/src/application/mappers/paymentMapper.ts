@@ -7,6 +7,7 @@ export class PaymentMapper {
   static toMongooseDocument(entity: PaymentEntity) {
     return {
       sessionId: entity.sessionId,
+      dealId: entity.dealId ? new mongoose.Types.ObjectId(entity.dealId) : undefined,
       ownerId: new mongoose.Types.ObjectId(entity.ownerId),
       ownerRole: entity.ownerRole,
       planId: entity.planId ? new mongoose.Types.ObjectId(entity.planId) : undefined,
@@ -19,6 +20,7 @@ export class PaymentMapper {
     return {
       id: doc.id.toString(),
       sessionId: doc.sessionId,
+      ...(doc.dealId && { dealId: doc.dealId.toString() }),
       ownerId: doc.ownerId.toString(),
       ownerRole: doc.ownerRole,
       ...(doc.planId && { planId: doc.planId.toString() }),
