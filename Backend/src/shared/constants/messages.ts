@@ -167,4 +167,8 @@ export const MESSAGES = {
   PAYMENT: {
     CHECKOUT_CREATED: "Payment checkout created!",
   },
+
+  DEAL: {
+    DEALS_FETCHED: "Deals fetched successfully",
+  },
 };

@@ -190,4 +190,8 @@ export const API_ROUTES = {
     MARK_READ: "/chat/read/:conversationId",
     UNREAD_COUNT: "/chat/unread-count",
   },
+
+  DEAL: {
+    GET_MY_DEALS: "/deals/my",
+  },
 };

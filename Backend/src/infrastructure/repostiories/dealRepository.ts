@@ -36,4 +36,16 @@ export class DealRepository
       await this._model.updateOne({ _id: dealId }, update);
     }
   }
+
+  async findByInvestorId(investorId: string): Promise<DealEntity[]> {
+    const docs = await this._model.find({ investorId }).sort({ createdAt: -1 });
+
+    return docs.map(DealMapper.fromMongooseDocument);
+  }
+
+  async findByFounderId(founderId: string): Promise<DealEntity[]> {
+    const docs = await this._model.find({ founderId }).sort({ createdAt: -1 });
+
+    return docs.map(DealMapper.fromMongooseDocument);
+  }
 }

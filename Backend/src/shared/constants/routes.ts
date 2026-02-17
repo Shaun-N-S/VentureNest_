@@ -208,4 +208,8 @@ export const ROUTES = {
     MARK_READ: "/read/:conversationId",
     UNREAD_COUNT: "/unread-count",
   },
+
+  DEAL: {
+    MY: "/deals/my",
+  },
 };

@@ -1,0 +1,27 @@
+import { Router, Request, Response, NextFunction } from "express";
+import { userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
+import { ROUTES } from "@shared/constants/routes";
+import { dealController } from "@infrastructure/DI/Deal/dealContainer";
+
+export class Deal_Router {
+  private _route: Router;
+
+  constructor() {
+    this._route = Router();
+    this._setRoutes();
+  }
+
+  private _setRoutes() {
+    this._route.get(
+      ROUTES.DEAL.MY,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        dealController.getMyDeals(req, res, next);
+      }
+    );
+  }
+
+  public get_router(): Router {
+    return this._route;
+  }
+}

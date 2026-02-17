@@ -14,3 +14,19 @@ export interface DealResponseDTO {
 
   createdAt: Date;
 }
+
+export interface DealSummaryDTO {
+  dealId: string;
+
+  projectId: string;
+
+  totalAmount: number;
+  amountPaid: number;
+  remainingAmount: number;
+
+  equityPercentage: number;
+
+  status: DealStatus;
+
+  createdAt: Date;
+}
