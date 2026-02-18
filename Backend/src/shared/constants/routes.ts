@@ -213,5 +213,6 @@ export const ROUTES = {
     MY: "/my",
     GET_BY_ID: "/:dealId",
     GET_INSTALLMENTS: "/:dealId/installments",
+    INSTALLMENT_CHECKOUT: "/deals/:dealId/installment-checkout",
   },
 };

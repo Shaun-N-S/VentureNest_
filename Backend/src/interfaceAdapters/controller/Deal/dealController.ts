@@ -4,18 +4,25 @@ import { CreateDealInstallmentCheckoutDTO } from "application/dto/deal/createDea
 import { ResponseHelper } from "@shared/utils/responseHelper";
 import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { MESSAGES } from "@shared/constants/messages";
-import { ForbiddenException, NotFoundExecption } from "application/constants/exceptions";
+import {
+  ForbiddenException,
+  InvalidDataException,
+  NotFoundExecption,
+} from "application/constants/exceptions";
 import { Errors } from "@shared/constants/error";
 import { GetMyDealsUseCase } from "application/useCases/Deal/getMyDealsUseCase";
 import { GetDealDetailsUseCase } from "application/useCases/Deal/getDealDetailsUseCase";
 import { IGetDealInstallmentsUseCase } from "@domain/interfaces/useCases/deal/IGetDealInstallmentsUseCase";
+import { IReleaseDealInstallmentUseCase } from "@domain/interfaces/useCases/deal/IReleaseDealInstallmentUseCase";
+import { PaymentMethod } from "@domain/enum/paymentMethod";
 
 export class DealController {
   constructor(
     private _createDealInstallmentCheckoutUseCase: ICreateDealInstallmentCheckoutUseCase,
     private _getMyDealsUseCase: GetMyDealsUseCase,
     private _getDealDetailsUseCase: GetDealDetailsUseCase,
-    private _getDealInstallmentsUseCase: IGetDealInstallmentsUseCase
+    private _getDealInstallmentsUseCase: IGetDealInstallmentsUseCase,
+    private _releaseDealInstallmentUseCase: IReleaseDealInstallmentUseCase
   ) {}
 
   async createInstallmentCheckout(req: Request, res: Response, next: NextFunction) {
@@ -77,6 +84,32 @@ export class DealController {
       const result = await this._getDealInstallmentsUseCase.execute(userId, role, dealId);
 
       ResponseHelper.success(res, MESSAGES.DEAL.INSTALLMENTS_FETCHED, result, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async releaseInstallment(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = res.locals.user;
+      const { dealId } = req.params;
+      const { amount } = req.body;
+
+      if (!userId) {
+        throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
+      }
+
+      if (!dealId || !amount || amount <= 0) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      await this._releaseDealInstallmentUseCase.execute(userId, {
+        dealId,
+        amount,
+        paymentMethod: PaymentMethod.WALLET,
+      });
+
+      ResponseHelper.success(res, MESSAGES.DEAL.INSTALLMENT_RELEASED, null, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

@@ -5,6 +5,7 @@ import {
   getProjectWallet,
 } from "../../services/Wallet/walletService";
 import type { Wallet } from "../../types/wallet";
+import toast from "react-hot-toast";
 
 export const useWalletTopup = () => {
   return useMutation({
@@ -16,7 +17,7 @@ export const useWalletTopup = () => {
 
     onError: (error) => {
       console.error("Wallet top-up failed", error);
-      alert("Unable to add money. Please try again.");
+      toast.error("Unable to add money. Please try again.");
     },
   });
 };

@@ -33,31 +33,22 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
       throw new InvalidDataException(DEAL_ERRORS.UNSUPPORTED_PAYMENT_METHOD);
     }
 
-    // 2️⃣ Validate Deal
     const deal = await this._dealRepo.findById(dto.dealId);
+    if (!deal) throw new NotFoundExecption(DEAL_ERRORS.DEAL_NOT_FOUND);
 
-    if (!deal) {
-      throw new NotFoundExecption(DEAL_ERRORS.DEAL_NOT_FOUND);
-    }
-
-    if (deal.investorId !== investorId) {
+    if (deal.investorId !== investorId)
       throw new ForbiddenException(DEAL_ERRORS.UNAUTHORIZED_DEAL_ACCESS);
-    }
 
-    if (deal.status === DealStatus.COMPLETED) {
+    if (deal.status === DealStatus.COMPLETED)
       throw new InvalidDataException(DEAL_ERRORS.DEAL_ALREADY_COMPLETED);
-    }
 
-    if (dto.amount <= 0 || dto.amount > deal.remainingAmount) {
+    if (dto.amount <= 0 || dto.amount > deal.remainingAmount)
       throw new InvalidDataException(DEAL_ERRORS.INVALID_INSTALLMENT_AMOUNT);
-    }
 
-    // 3️⃣ Start Transaction (via UnitOfWork)
     await this._unitOfWork.start();
     const session = this._unitOfWork.getSession();
 
     try {
-      // 4️⃣ Fetch Wallets
       const investorWallet = await this._walletRepo.findByOwner(
         WalletOwnerType.INVESTOR,
         investorId
@@ -73,26 +64,19 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
         "PLATFORM_MAIN"
       );
 
-      if (!investorWallet || !projectWallet || !platformWallet) {
+      if (!investorWallet || !projectWallet || !platformWallet)
         throw new NotFoundExecption(WALLET_ERRORS.NOT_FOUND);
-      }
 
-      if (investorWallet.balance < dto.amount) {
+      if (investorWallet.balance < dto.amount)
         throw new InvalidDataException(INSTALLMENT_ERRORS.INSUFFICIENT_BALANCE);
-      }
 
-      // 5️⃣ Commission Calculation
       const platformFee = dto.amount * PLATFORM_COMMISSION_RATE;
       const founderReceives = dto.amount - platformFee;
 
-      // 6️⃣ Wallet Movements
-      await this._walletRepo.decrementBalance(investorWallet._id!, dto.amount, session!);
+      await this._walletRepo.decrementBalance(investorWallet._id!, dto.amount, session);
+      await this._walletRepo.incrementBalance(projectWallet._id!, founderReceives, session);
+      await this._walletRepo.incrementBalance(platformWallet._id!, platformFee, session);
 
-      await this._walletRepo.incrementBalance(projectWallet._id!, founderReceives, session!);
-
-      await this._walletRepo.incrementBalance(platformWallet._id!, platformFee, session!);
-
-      // 7️⃣ Create Installment Record
       await this._installmentRepo.save(
         {
           dealId: deal._id!,
@@ -102,23 +86,10 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
           status: DealInstallmentStatus.PAID,
           createdAt: new Date(),
         },
-        session!
+        session
       );
 
-      // 8️⃣ Update Deal Totals
-      await this._dealRepo.incrementPaidAmount(deal._id!, dto.amount, session!);
-
-      const newRemaining = deal.remainingAmount - dto.amount;
-
-      await this._dealRepo.update(
-        deal._id!,
-        {
-          status: newRemaining === 0 ? DealStatus.COMPLETED : DealStatus.PARTIALLY_PAID,
-        },
-        session!
-      );
-
-      // 9️⃣ Ledger Entries
+      await this._dealRepo.incrementPaidAmount(deal._id!, dto.amount, session);
 
       await this._transactionRepo.save(
         {
@@ -130,36 +101,9 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
           relatedDealId: deal._id!,
           createdAt: new Date(),
         },
-        session!
+        session
       );
 
-      await this._transactionRepo.save(
-        {
-          toWalletId: projectWallet._id!,
-          amount: founderReceives,
-          action: TransactionAction.CREDIT,
-          reason: TransactionReason.INVESTMENT,
-          status: TransactionStatus.SUCCESS,
-          relatedDealId: deal._id!,
-          createdAt: new Date(),
-        },
-        session!
-      );
-
-      await this._transactionRepo.save(
-        {
-          toWalletId: platformWallet._id!,
-          amount: platformFee,
-          action: TransactionAction.CREDIT,
-          reason: TransactionReason.PLATFORM_FEE,
-          status: TransactionStatus.SUCCESS,
-          relatedDealId: deal._id!,
-          createdAt: new Date(),
-        },
-        session!
-      );
-
-      // 🔟 Commit
       await this._unitOfWork.commit();
     } catch (error) {
       await this._unitOfWork.rollback();

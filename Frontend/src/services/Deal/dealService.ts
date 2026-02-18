@@ -25,3 +25,25 @@ export const getDealInstallments = async (
 
   return response.data.data;
 };
+
+export const createDealInstallmentCheckout = async (
+  dealId: string,
+  amount: number,
+): Promise<string> => {
+  const response = await AxiosInstance.post(
+    API_ROUTES.DEAL.INSTALLMENT_CHECKOUT.replace(":dealId", dealId),
+    { amount },
+  );
+
+  return response.data.data.url as string;
+};
+
+export const releaseDealInstallment = async (
+  dealId: string,
+  amount: number,
+): Promise<void> => {
+  await AxiosInstance.post(
+    API_ROUTES.DEAL.RELEASE_INSTALLMENT.replace(":dealId", dealId),
+    { amount },
+  );
+};

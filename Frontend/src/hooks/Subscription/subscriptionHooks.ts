@@ -3,6 +3,7 @@ import {
   createCheckoutSession,
   getCurrentSubscription,
 } from "../../services/Subscription/subscriptionService";
+import toast from "react-hot-toast";
 
 export const useCreateCheckout = () => {
   return useMutation({
@@ -12,7 +13,7 @@ export const useCreateCheckout = () => {
     },
     onError: (error) => {
       console.error("Checkout failed", error);
-      alert("Unable to start checkout. Please try again.");
+      toast.error("Unable to start checkout. Please try again.");
     },
   });
 };

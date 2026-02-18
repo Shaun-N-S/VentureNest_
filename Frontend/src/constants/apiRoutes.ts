@@ -195,5 +195,7 @@ export const API_ROUTES = {
     GET_MY_DEALS: "/deals/my",
     GET_BY_ID: "/deals/:dealId",
     GET_INSTALLMENTS: "/deals/:dealId/installments",
+    INSTALLMENT_CHECKOUT: "/deals/:dealId/installment-checkout",
+    RELEASE_INSTALLMENT: "",
   },
 };
