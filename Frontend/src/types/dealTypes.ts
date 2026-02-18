@@ -11,3 +11,13 @@ export interface DealSummary {
   status: DealStatus;
   createdAt: string;
 }
+
+export interface DealInstallment {
+  installmentId: string;
+  dealId: string;
+  amount: number;
+  platformFee: number;
+  founderReceives: number;
+  status: string;
+  createdAt: string;
+}

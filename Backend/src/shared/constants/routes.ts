@@ -210,6 +210,8 @@ export const ROUTES = {
   },
 
   DEAL: {
-    MY: "/deals/my",
+    MY: "/my",
+    GET_BY_ID: "/:dealId",
+    GET_INSTALLMENTS: "/:dealId/installments",
   },
 };

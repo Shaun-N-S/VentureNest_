@@ -193,5 +193,7 @@ export const API_ROUTES = {
 
   DEAL: {
     GET_MY_DEALS: "/deals/my",
+    GET_BY_ID: "/deals/:dealId",
+    GET_INSTALLMENTS: "/deals/:dealId/installments",
   },
 };

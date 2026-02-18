@@ -170,5 +170,7 @@ export const MESSAGES = {
 
   DEAL: {
     DEALS_FETCHED: "Deals fetched successfully",
+    DEAL_FETCHED: "Deal details fetched successfully",
+    INSTALLMENTS_FETCHED: "Installment details fetched",
   },
 };

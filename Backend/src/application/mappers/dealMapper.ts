@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import { DealEntity } from "@domain/entities/deal/dealEntity";
 import { IDealModel } from "@infrastructure/db/models/dealModel";
 import { DealResponseDTO } from "application/dto/deal/dealResponseDTO";
+import { DealInstallmentEntity } from "@domain/entities/deal/dealInstallmentEntity";
+import { DealDetailsResponseDTO } from "application/dto/deal/dealDetailsResponseDTO";
 
 export class DealMapper {
   static toMongooseDocument(entity: DealEntity) {
@@ -49,6 +51,41 @@ export class DealMapper {
       equityPercentage: entity.equityPercentage,
       status: entity.status,
       createdAt: entity.createdAt!,
+    };
+  }
+  static toDetailsResponseDTO(
+    deal: DealEntity,
+    installments: DealInstallmentEntity[]
+  ): DealDetailsResponseDTO {
+    const totalPlatformEarned = installments.reduce((acc, item) => acc + item.platformFee, 0);
+
+    const totalFounderReceived = installments.reduce((acc, item) => acc + item.founderReceives, 0);
+
+    return {
+      dealId: deal._id!,
+      projectId: deal.projectId,
+      founderId: deal.founderId,
+      investorId: deal.investorId,
+
+      totalAmount: deal.totalAmount,
+      amountPaid: deal.amountPaid,
+      remainingAmount: deal.remainingAmount,
+      equityPercentage: deal.equityPercentage,
+
+      status: deal.status,
+      createdAt: deal.createdAt!,
+
+      installments: installments.map((i) => ({
+        installmentId: i._id!,
+        amount: i.amount,
+        platformFee: i.platformFee,
+        founderReceives: i.founderReceives,
+        status: i.status,
+        createdAt: i.createdAt!,
+      })),
+
+      totalPlatformEarned,
+      totalFounderReceived,
     };
   }
 }

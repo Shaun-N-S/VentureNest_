@@ -19,6 +19,21 @@ export class Deal_Router {
         dealController.getMyDeals(req, res, next);
       }
     );
+
+    this._route.get(
+      ROUTES.DEAL.GET_BY_ID,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        dealController.getDealDetails(req, res, next)
+    );
+
+    this._route.get(
+      ROUTES.DEAL.GET_INSTALLMENTS,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        dealController.getDealInstallments(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

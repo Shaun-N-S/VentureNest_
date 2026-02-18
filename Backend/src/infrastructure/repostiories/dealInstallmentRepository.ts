@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { BaseRepository } from "./baseRepository";
 import { IDealInstallmentRepository } from "@domain/interfaces/repositories/IDealInstallmentRepository";
 import { DealInstallmentEntity } from "@domain/entities/deal/dealInstallmentEntity";
@@ -14,7 +14,9 @@ export class DealInstallmentRepository
   }
 
   async findByDealId(dealId: string): Promise<DealInstallmentEntity[]> {
-    const docs = await this._model.find({ dealId }).sort({ createdAt: -1 });
+    const docs = await this._model
+      .find({ dealId: new mongoose.Types.ObjectId(dealId) })
+      .sort({ createdAt: -1 });
 
     return docs.map(DealInstallmentMapper.fromMongooseDocument);
   }

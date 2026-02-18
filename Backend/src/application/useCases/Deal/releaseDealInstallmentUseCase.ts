@@ -29,7 +29,6 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
   ) {}
 
   async execute(investorId: string, dto: ReleaseDealInstallmentDTO): Promise<void> {
-    // 1️⃣ Validate Payment Method
     if (dto.paymentMethod !== PaymentMethod.WALLET) {
       throw new InvalidDataException(DEAL_ERRORS.UNSUPPORTED_PAYMENT_METHOD);
     }
