@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { PitchStatus } from "@domain/enum/pitchStatus";
 import { IPitchRepository } from "@domain/interfaces/repositories/IPitchRepository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
@@ -28,13 +29,13 @@ export class GetReceivedPitchesUseCase implements IGetReceivedPitchesUseCase {
         if (pitch.projectLogoUrl) {
           pitch.projectLogoUrl = await this._storageService.createSignedUrl(
             pitch.projectLogoUrl,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
         }
         if (pitch.founderProfileImg) {
           pitch.founderProfileImg = await this._storageService.createSignedUrl(
             pitch.founderProfileImg,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
         }
         return pitch;

@@ -129,4 +129,12 @@ export class UserRepository
 
     return this._model.countDocuments(query);
   }
+
+  async findByRole(role: UserRole): Promise<UserEntity | null> {
+    const doc = await this._model.findOne({ role });
+
+    if (!doc) return null;
+
+    return UserMapper.fromMongooseDocument(doc);
+  }
 }

@@ -28,14 +28,20 @@ import { Transaction_Routes } from "interfaceAdapters/routes/transactionRoutes";
 import { Notification_Router } from "interfaceAdapters/routes/notificationRoutes";
 import { Chat_Router } from "interfaceAdapters/routes/chatRoutes";
 import { Deal_Router } from "interfaceAdapters/routes/dealRoutes";
+import { platformInitializationService } from "@infrastructure/DI/Wallet/walletContainer";
 
 class Express_app {
   private _app: Express;
+
   constructor() {
     this._app = express();
-    mongoConnect.connect();
-    this._app.use("/api/webhook", new Webhook_Routes().get_router());
+
     this._setLoggingMiddleware();
+    this._app.use(
+      "/api/webhook",
+      express.raw({ type: "application/json" }),
+      new Webhook_Routes().get_router()
+    );
     this._setMiddleware();
     this._setRoutes();
     this._setErrorHandlingMiddleware();
@@ -48,6 +54,7 @@ class Express_app {
         credentials: true,
       })
     );
+
     this._app.use(express.json());
     this._app.use(cookieParser());
   }
@@ -63,42 +70,33 @@ class Express_app {
 
     this._app.use("/investor", new Investor_Router().get_router());
     this._app.use("/user", new User_Router().get_router());
-
     this._app.use("/admin", new Admin_Routes().get_router());
 
     this._app.use("/posts", new Post_Router().get_router());
-
     this._app.use("/projects", new Project_Router().get_router());
-
     this._app.use("/relations", new Relationship_Router().get_router());
-
     this._app.use("/comment", new Comment_Router().get_router());
-
     this._app.use("/replies", new Reply_Router().get_router());
-
     this._app.use("/reports", new Report_Router().get_router());
-
     this._app.use("/plans", new Plan_Routes().get_router());
-
     this._app.use("/subscriptions", new Subscription_Routes().get_router());
-
     this._app.use("/tickets", new Ticket_Router().get_router());
-
     this._app.use("/sessions", new Session_Router().get_router());
-
     this._app.use("/pitches", new Pitch_Router().get_router());
-
     this._app.use("/offers", new InvestmentOffer_Router().get_router());
-
     this._app.use("/wallet", new Wallet_Router().get_router());
-
     this._app.use("/transactions", new Transaction_Routes().get_router());
-
     this._app.use("/notifications", new Notification_Router().get_router());
-
     this._app.use("/chat", new Chat_Router().get_router());
-
     this._app.use("/deals", new Deal_Router().get_router());
+
+    // ✅ 404 handler
+    this._app.use((req: Request, res: Response) => {
+      res.status(404).json({
+        success: false,
+        message: "Route not found",
+      });
+    });
   }
 
   private _setErrorHandlingMiddleware() {
@@ -107,12 +105,16 @@ class Express_app {
     });
   }
 
-  listen() {
+  async listen() {
+    await mongoConnect.connect();
+
+    await platformInitializationService.ensurePlatformWallet();
+
     const server = http.createServer(this._app);
     initSocket(server);
 
-    server.listen(CONFIG.PORT, (err?: any) => {
-      console.log(`Server is running on PORT : ${CONFIG.PORT}`);
+    server.listen(CONFIG.PORT, () => {
+      console.log(`🚀 Server running on PORT: ${CONFIG.PORT}`);
     });
   }
 }

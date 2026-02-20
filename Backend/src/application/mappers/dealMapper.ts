@@ -88,4 +88,16 @@ export class DealMapper {
       totalFounderReceived,
     };
   }
+
+  static toOfferEmbeddedDTO(deal: DealEntity) {
+    return {
+      dealId: deal._id!,
+      totalAmount: deal.totalAmount,
+      amountPaid: deal.amountPaid,
+      remainingAmount: deal.remainingAmount,
+      equityPercentage: deal.equityPercentage,
+      status: deal.status,
+      ...(deal.createdAt && { createdAt: deal.createdAt }),
+    };
+  }
 }

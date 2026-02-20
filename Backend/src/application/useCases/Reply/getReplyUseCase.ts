@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { IReplyRepository } from "@domain/interfaces/repositories/IReplyRepository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IGetReplyUseCase } from "@domain/interfaces/useCases/reply/IGetReplyUseCase";
@@ -37,7 +38,7 @@ export class GetReplyUseCase implements IGetReplyUseCase {
         if (reply.replierProfileImg) {
           reply.replierProfileImg = await this._storageService.createSignedUrl(
             reply.replierProfileImg,
-            600
+            CONFIG.SIGNED_URL_EXPIRY
           );
         }
         return reply;

@@ -11,6 +11,7 @@ import { CreateProjectDTO } from "application/dto/project/projectDTO";
 import { ProjectMapper } from "application/mappers/projectMapper";
 import { ForbiddenException } from "application/constants/exceptions";
 import { Errors, USER_ERRORS } from "@shared/constants/error";
+import { CONFIG } from "@config/config";
 
 export class CreateProjectUseCase implements ICreateProjectUseCase {
   constructor(
@@ -70,7 +71,7 @@ export class CreateProjectUseCase implements ICreateProjectUseCase {
     await this._createWalletUseCase.execute(WalletOwnerType.PROJECT, savedProject._id!);
 
     const signedLogoUrl = uploadedLogoUrl
-      ? await this._storageService.createSignedUrl(uploadedLogoUrl, 600)
+      ? await this._storageService.createSignedUrl(uploadedLogoUrl, CONFIG.SIGNED_URL_EXPIRY)
       : undefined;
 
     return {

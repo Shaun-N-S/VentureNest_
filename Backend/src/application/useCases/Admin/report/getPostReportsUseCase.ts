@@ -7,6 +7,7 @@ import { IGetPostReportsUseCase } from "@domain/interfaces/useCases/admin/report
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { AdminPostReportDetailDTO } from "application/dto/report/adminReportDTO";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
+import { CONFIG } from "@config/config";
 
 export class GetPostReportsUseCase implements IGetPostReportsUseCase {
   constructor(
@@ -48,7 +49,7 @@ export class GetPostReportsUseCase implements IGetPostReportsUseCase {
         if (reporter?.profileImg) {
           reporter.profileImg = await this._storageService.createSignedUrl(
             reporter.profileImg,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
         } else if (reporter) {
           reporter.profileImg = "";

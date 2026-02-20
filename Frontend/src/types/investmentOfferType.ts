@@ -1,3 +1,5 @@
+import type { DealStatus } from "./dealTypes";
+
 export const OfferStatus = {
   PENDING: "PENDING",
   ACCEPTED: "ACCEPTED",
@@ -78,6 +80,7 @@ export interface ReceivedInvestmentOfferListItem {
 
 export interface InvestmentOfferDetails {
   offerId: string;
+  pitchId: string;
 
   project: {
     id: string;
@@ -105,9 +108,38 @@ export interface InvestmentOfferDetails {
 
   status: OfferStatus;
   rejectionReason?: string;
+
   expiresAt?: string;
+  respondedAt?: string;
   createdAt: string;
+
+  deal?: {
+    dealId: string;
+    projectId: string;
+    founderId: string;
+    investorId: string;
+
+    totalAmount: number;
+    amountPaid: number;
+    remainingAmount: number;
+    equityPercentage: number;
+    status: DealStatus;
+    createdAt: string;
+
+    installments: {
+      installmentId: string;
+      amount: number;
+      platformFee: number;
+      founderReceives: number;
+      status: string;
+      createdAt: string;
+    }[];
+
+    totalPlatformEarned: number;
+    totalFounderReceived: number;
+  };
 }
+
 
 export interface AcceptInvestmentOfferResponse {
   offerId: string;

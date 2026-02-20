@@ -2,6 +2,7 @@ import { UserEntity } from "domain/entities/user/userEntity";
 import { IBaseRepository } from "./IBaseRepository";
 import { UserStatus } from "@domain/enum/userStatus";
 import { KYCStatus } from "@domain/enum/kycStatus";
+import { UserRole } from "@domain/enum/userRole";
 
 export interface IUserRepository extends IBaseRepository<UserEntity> {
   findByEmail(email: string): Promise<UserEntity | null>;
@@ -18,4 +19,5 @@ export interface IUserRepository extends IBaseRepository<UserEntity> {
     search?: string
   ): Promise<UserEntity[]>;
   countByIds(ids: string[], search?: string): Promise<number>;
+  findByRole(role: UserRole): Promise<UserEntity | null>;
 }

@@ -17,7 +17,9 @@ import {
   InvalidDataException,
   NotFoundExecption,
 } from "application/constants/exceptions";
-import { DEAL_ERRORS, INSTALLMENT_ERRORS, WALLET_ERRORS } from "@shared/constants/error";
+import { DEAL_ERRORS, Errors, INSTALLMENT_ERRORS, WALLET_ERRORS } from "@shared/constants/error";
+import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
+import { UserRole } from "@domain/enum/userRole";
 
 export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUseCase {
   constructor(
@@ -25,7 +27,8 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
     private _walletRepo: IWalletRepository,
     private _installmentRepo: IDealInstallmentRepository,
     private _transactionRepo: ITransactionRepository,
-    private _unitOfWork: IUnitOfWork
+    private _unitOfWork: IUnitOfWork,
+    private _userRepo: IUserRepository
   ) {}
 
   async execute(investorId: string, dto: ReleaseDealInstallmentDTO): Promise<void> {
@@ -59,9 +62,12 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
         deal.projectId
       );
 
+      const admin = await this._userRepo.findByRole(UserRole.ADMIN);
+      if (!admin) throw new NotFoundExecption(Errors.ADMIN_NOT_FOUND);
+
       const platformWallet = await this._walletRepo.findByOwner(
         WalletOwnerType.PLATFORM,
-        "PLATFORM_MAIN"
+        admin._id!
       );
 
       if (!investorWallet || !projectWallet || !platformWallet)

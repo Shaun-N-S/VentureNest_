@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IUpdateProjectUseCase } from "@domain/interfaces/useCases/project/IUpdateProjectUseCase";
@@ -55,7 +56,10 @@ export class UpdateProjectUseCase implements IUpdateProjectUseCase {
 
     let signedLogoUrl: string | undefined;
     if (uploadedLogoUrl) {
-      signedLogoUrl = await this._storageService.createSignedUrl(uploadedLogoUrl, 600);
+      signedLogoUrl = await this._storageService.createSignedUrl(
+        uploadedLogoUrl,
+        CONFIG.SIGNED_URL_EXPIRY
+      );
     }
 
     return { projectId, logoUrl: signedLogoUrl! };

@@ -3,6 +3,7 @@ import { IGetCommentsUseCase } from "@domain/interfaces/useCases/comment/IGetCom
 import { CommentMapper } from "application/mappers/commentMapper";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { CommentFeedDTO } from "application/dto/comment/commentDTO";
+import { CONFIG } from "@config/config";
 
 export class GetCommentsUseCase implements IGetCommentsUseCase {
   constructor(
@@ -37,7 +38,7 @@ export class GetCommentsUseCase implements IGetCommentsUseCase {
         if (comment.userProfileImg) {
           comment.userProfileImg = await this._storageService.createSignedUrl(
             comment.userProfileImg,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
         }
         return comment;

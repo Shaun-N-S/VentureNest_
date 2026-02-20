@@ -36,6 +36,7 @@ export const FRONTEND_ROUTES = {
     PAYMENT_SUCCESS: "/payment-success",
     BOOK_SESSION: "/schedule-session",
     SESSIONS: "/sessions",
+    WALLET: "/wallet",
     SEND_OFFER: "/send-offer",
     CHAT: "/chat",
     CHAT_CONVERSATION: "/chat/:conversationId",

@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { KYCStatus } from "@domain/enum/kycStatus";
 import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { UserRole } from "@domain/enum/userRole";
@@ -64,7 +65,10 @@ export class UserGoogleLoginUseCase implements IGoogleLoginUseCase {
       await this._createWalletUseCase.execute(WalletOwnerType.USER, user._id!);
 
       const profileKey = profileImageKey || user.profileImg;
-      user.profileImg = await this._storageService.createSignedUrl(profileKey!, 10 * 60);
+      user.profileImg = await this._storageService.createSignedUrl(
+        profileKey!,
+        CONFIG.SIGNED_URL_EXPIRY
+      );
     }
 
     if (user.status === UserStatus.BLOCKED) {

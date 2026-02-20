@@ -5,6 +5,7 @@ import { PaymentModel } from "@infrastructure/db/models/paymentModel";
 import { planModel } from "@infrastructure/db/models/planModel";
 import { SubscriptionModel } from "@infrastructure/db/models/subscriptionModel";
 import { transactionModel } from "@infrastructure/db/models/transactionModel";
+import { userModel } from "@infrastructure/db/models/userModel";
 import { walletModel } from "@infrastructure/db/models/walletModel";
 import { DealInstallmentRepository } from "@infrastructure/repostiories/dealInstallmentRepository";
 import { DealRepository } from "@infrastructure/repostiories/dealRepository";
@@ -12,6 +13,7 @@ import { PaymentRepository } from "@infrastructure/repostiories/paymentRepositor
 import { PlanRepository } from "@infrastructure/repostiories/planRepository";
 import { SubscriptionRepository } from "@infrastructure/repostiories/subscriptionRepository";
 import { TransactionRepository } from "@infrastructure/repostiories/transactionRepository";
+import { UserRepository } from "@infrastructure/repostiories/userRepository";
 import { WalletRepository } from "@infrastructure/repostiories/walletRepository";
 import { HandleDealInstallmentStripeCompletedUseCase } from "application/useCases/Deal/handleDealInstallmentStripeCompletedUseCase";
 import { HandleCheckoutCompletedUseCase } from "application/useCases/Payment/handleCheckoutCompletedUseCase";
@@ -26,6 +28,7 @@ const transactionRepo = new TransactionRepository(transactionModel);
 const dealRepo = new DealRepository(dealModel);
 const dealInstallmentRepo = new DealInstallmentRepository(dealInstallmentModel);
 const unitOfWork = new MongooseUnitOfWork();
+const userRepo = new UserRepository(userModel);
 
 const handleCheckoutCompletedUC = new HandleCheckoutCompletedUseCase(
   paymentRepo,
@@ -43,7 +46,8 @@ const handleDealInstallmentStripeCompleteUseCase = new HandleDealInstallmentStri
   dealInstallmentRepo,
   transactionRepo,
   paymentRepo,
-  unitOfWork
+  unitOfWork,
+  userRepo
 );
 
 export const webhookController = new WebhookController(

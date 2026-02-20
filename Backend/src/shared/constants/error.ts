@@ -41,6 +41,7 @@ export const Errors = {
   INVALID_STRIPE_WEBHOOK_SIGNATURE: "Invalid Stripe webhook signature",
   NOT_ALLOWED: "Not allowed!",
   KYC_NOT_VERIFIED: "Your kyc verification is not completed!",
+  ADMIN_NOT_FOUND: "Platform admin not found",
 };
 
 export const USER_ERRORS = {

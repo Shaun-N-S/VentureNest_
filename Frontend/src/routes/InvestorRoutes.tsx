@@ -21,6 +21,7 @@ import MySessionsPage from "../pages/Common/MySessionPage";
 import InvestorInboxPage from "../pages/Investor/InvestorInboxPage";
 import SendInvestmentOfferPage from "../pages/Investor/SentInvestmentOfferPage";
 import ChatPage from "../pages/Common/ChatPage";
+import WalletPage from "../pages/Common/WalletPage";
 
 const InvestorRoutes = () => {
   return (
@@ -99,7 +100,11 @@ const InvestorRoutes = () => {
           />
 
           <Route path={FRONTEND_ROUTES.INVESTOR.CHAT} element={<ChatPage />} />
-          <Route path={FRONTEND_ROUTES.INVESTOR.CHAT_CONVERSATION} element={<ChatPage />} />
+          <Route path={FRONTEND_ROUTES.INVESTOR.WALLET} element={<WalletPage />} />
+          <Route
+            path={FRONTEND_ROUTES.INVESTOR.CHAT_CONVERSATION}
+            element={<ChatPage />}
+          />
         </Route>
       </Route>
     </Routes>

@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
@@ -55,7 +56,10 @@ export class InvestorProfileUpdateUseCase implements IInvestorProfileUpdateUseCa
 
     const response: InvestorProfileUpdateResDTO =
       InvestorMapper.investorProfileUpdateResDTO(updatedInvestor);
-    response.profileImg = await this._storageService.createSignedUrl(profileImgKey, 10 * 60);
+    response.profileImg = await this._storageService.createSignedUrl(
+      profileImgKey,
+      CONFIG.SIGNED_URL_EXPIRY
+    );
 
     return response;
   }

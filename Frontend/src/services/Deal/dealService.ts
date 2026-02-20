@@ -35,7 +35,7 @@ export const createDealInstallmentCheckout = async (
     { amount },
   );
 
-  return response.data.data.url as string;
+  return response.data.data as string;
 };
 
 export const releaseDealInstallment = async (

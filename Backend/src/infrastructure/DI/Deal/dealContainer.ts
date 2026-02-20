@@ -2,10 +2,12 @@ import { MongooseUnitOfWork } from "@infrastructure/db/connectDB/MongooseUnitOfW
 import { dealInstallmentModel } from "@infrastructure/db/models/dealInstallmentModel";
 import { dealModel } from "@infrastructure/db/models/dealModel";
 import { transactionModel } from "@infrastructure/db/models/transactionModel";
+import { userModel } from "@infrastructure/db/models/userModel";
 import { walletModel } from "@infrastructure/db/models/walletModel";
 import { DealInstallmentRepository } from "@infrastructure/repostiories/dealInstallmentRepository";
 import { DealRepository } from "@infrastructure/repostiories/dealRepository";
 import { TransactionRepository } from "@infrastructure/repostiories/transactionRepository";
+import { UserRepository } from "@infrastructure/repostiories/userRepository";
 import { WalletRepository } from "@infrastructure/repostiories/walletRepository";
 import { StripePaymentService } from "@infrastructure/services/Stripe/stripePaymentService";
 import { CreateDealInstallmentCheckoutUseCase } from "application/useCases/Deal/createDealInstallmentCheckoutUseCase";
@@ -21,6 +23,7 @@ const paymentService = new StripePaymentService();
 const walletRepo = new WalletRepository(walletModel);
 const transactionRepo = new TransactionRepository(transactionModel);
 const unitOfWork = new MongooseUnitOfWork();
+const userRepo = new UserRepository(userModel);
 
 const createDealInstallmentCheckoutUseCase = new CreateDealInstallmentCheckoutUseCase(
   dealRepo,
@@ -34,7 +37,8 @@ const releaseDealInstallmentUseCase = new ReleaseDealInstallmentUseCase(
   walletRepo,
   dealInstallmentRepo,
   transactionRepo,
-  unitOfWork
+  unitOfWork,
+  userRepo
 );
 
 export const dealController = new DealController(

@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IFetchPersonalPostUseCase } from "@domain/interfaces/useCases/post/IFetchPersonalPostUseCase";
@@ -36,7 +37,7 @@ export class FetchPersonalPostUseCase implements IFetchPersonalPostUseCase {
         if (post.mediaUrls && post.mediaUrls.length > 0) {
           post.mediaUrls = await Promise.all(
             post.mediaUrls.map(async (url) => {
-              return await this._storageService.createSignedUrl(url, 10 * 60);
+              return await this._storageService.createSignedUrl(url, CONFIG.SIGNED_URL_EXPIRY);
             })
           );
         }

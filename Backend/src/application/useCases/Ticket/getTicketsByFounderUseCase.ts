@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { ITicketRepository } from "@domain/interfaces/repositories/ITicketRepository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IGetTicketsByFounderUseCase } from "@domain/interfaces/useCases/ticket/IGetTicketsByFounderUseCase";
@@ -17,28 +18,28 @@ export class GetTicketsByFounderUseCase implements IGetTicketsByFounderUseCase {
         if (ticket.project.coverImageUrl) {
           ticket.project.coverImageUrl = await this._storageService.createSignedUrl(
             ticket.project.coverImageUrl,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
         }
 
         if (ticket.project.logoUrl) {
           ticket.project.logoUrl = await this._storageService.createSignedUrl(
             ticket.project.logoUrl,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
         }
 
         if (ticket.founder.profileImg) {
           ticket.founder.profileImg = await this._storageService.createSignedUrl(
             ticket.founder.profileImg,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
         }
 
         if (ticket.investor.profileImg) {
           ticket.investor.profileImg = await this._storageService.createSignedUrl(
             ticket.investor.profileImg,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
         }
 

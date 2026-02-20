@@ -28,9 +28,14 @@ export class DealController {
   async createInstallmentCheckout(req: Request, res: Response, next: NextFunction) {
     try {
       const user = res.locals.user;
+      const { dealId } = req.params;
+
+      if (!dealId) {
+        throw new NotFoundExecption(Errors.INVALID_DATA);
+      }
 
       const dto: CreateDealInstallmentCheckoutDTO = {
-        dealId: req.body.dealId,
+        dealId,
         amount: req.body.amount,
       };
 
@@ -74,6 +79,7 @@ export class DealController {
       next(error);
     }
   }
+
   async getDealInstallments(req: Request, res: Response, next: NextFunction) {
     try {
       const { userId, role } = res.locals.user;

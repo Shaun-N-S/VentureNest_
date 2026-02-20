@@ -143,7 +143,7 @@ export function ProjectCard({
                             Edit Project
                         </DropdownMenuItem>
 
-                        {/* <DropdownMenuItem
+                        <DropdownMenuItem
                             onClick={(e) => {
                                 e.stopPropagation()
                                 onAddReport?.(id)
@@ -151,7 +151,7 @@ export function ProjectCard({
                             className="px-3 py-2 text-sm hover:bg-gray-100 rounded-lg cursor-pointer"
                         >
                             Add Monthly Report
-                        </DropdownMenuItem> */}
+                        </DropdownMenuItem>
 
                         {/* <DropdownMenuItem
                             onClick={(e) => {

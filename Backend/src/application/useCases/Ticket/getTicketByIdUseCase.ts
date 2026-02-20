@@ -4,6 +4,7 @@ import { TicketDetailedDTO } from "application/dto/ticket/TicketDetailedDTO";
 import { IGetTicketByIdUseCase } from "@domain/interfaces/useCases/ticket/IGetTicketByIdUseCase";
 import { NotFoundExecption } from "application/constants/exceptions";
 import { TICKET_ERRORS } from "@shared/constants/error";
+import { CONFIG } from "@config/config";
 
 export class GetTicketByIdUseCase implements IGetTicketByIdUseCase {
   constructor(
@@ -21,28 +22,28 @@ export class GetTicketByIdUseCase implements IGetTicketByIdUseCase {
     if (ticket.project.logoUrl) {
       ticket.project.logoUrl = await this._storageService.createSignedUrl(
         ticket.project.logoUrl,
-        10 * 60
+        CONFIG.SIGNED_URL_EXPIRY
       );
     }
 
     if (ticket.project.coverImageUrl) {
       ticket.project.coverImageUrl = await this._storageService.createSignedUrl(
         ticket.project.coverImageUrl,
-        10 * 60
+        CONFIG.SIGNED_URL_EXPIRY
       );
     }
 
     if (ticket.founder.profileImg) {
       ticket.founder.profileImg = await this._storageService.createSignedUrl(
         ticket.founder.profileImg,
-        10 * 60
+        CONFIG.SIGNED_URL_EXPIRY
       );
     }
 
     if (ticket.investor.profileImg) {
       ticket.investor.profileImg = await this._storageService.createSignedUrl(
         ticket.investor.profileImg,
-        10 * 60
+        CONFIG.SIGNED_URL_EXPIRY
       );
     }
 

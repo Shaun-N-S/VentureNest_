@@ -18,3 +18,39 @@ export const createTicketSchema = z.object({
 });
 
 export type CreateTicketFormValues = z.infer<typeof createTicketSchema>;
+
+export const monthlyReportSchema = z.object({
+  month: z.string().min(1, "Please select a month"),
+  year: z.string().min(1, "Please select a year"),
+
+  revenue: z.coerce
+    .number({ message: "Must be a valid number" })
+    .min(0, "Revenue cannot be negative")
+    .transform(String),
+
+  expenditure: z.coerce
+    .number({ message: "Must be a valid number" })
+    .min(0, "Expenditure cannot be negative")
+    .transform(String),
+
+  profitLossAmount: z.coerce
+    .number({ message: "Must be a valid number" })
+    .min(0, "Amount cannot be negative")
+    .transform(String),
+
+  profitLossType: z.enum(["profit", "loss"]),
+
+  achievements: z
+    .string()
+    .min(10, "Please provide at least 10 characters of detail"),
+
+  challenges: z
+    .string()
+    .min(10, "Please provide at least 10 characters of detail"),
+
+  confirmation: z.literal(true, {
+    message: "You must confirm the details are accurate",
+  }),
+});
+
+export type MonthlyReportFormData = z.infer<typeof monthlyReportSchema>;

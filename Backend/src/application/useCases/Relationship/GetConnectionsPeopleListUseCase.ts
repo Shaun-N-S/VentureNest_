@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { ConnectionStatus } from "@domain/enum/connectionStatus";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IRelationshipRepository } from "@domain/interfaces/repositories/IRelationshipRepository";
@@ -60,7 +61,10 @@ export class GetConnectionsPeopleListUseCase implements IGetConnectionsPeopleLis
     const finalUsers = await Promise.all(
       combinedUsers.map(async (dto) => {
         if (dto.profileImg) {
-          dto.profileImg = await this._storageService.createSignedUrl(dto.profileImg, 600);
+          dto.profileImg = await this._storageService.createSignedUrl(
+            dto.profileImg,
+            CONFIG.SIGNED_URL_EXPIRY
+          );
         }
         return dto;
       })

@@ -5,6 +5,7 @@ import { NotFoundExecption } from "application/constants/exceptions";
 import { PROJECT_ERRORS } from "@shared/constants/error";
 import { IGetProjectByIdUseCase } from "@domain/interfaces/useCases/admin/project/IGetProjectByIdUseCase";
 import { AdminProjectResDTO } from "application/dto/project/projectDTO";
+import { CONFIG } from "@config/config";
 
 export class GetProjectByIdUseCase implements IGetProjectByIdUseCase {
   constructor(
@@ -22,17 +23,23 @@ export class GetProjectByIdUseCase implements IGetProjectByIdUseCase {
     const dto = AdminProjectMapper.toDTO(project);
 
     if (dto.logoUrl) {
-      dto.logoUrl = await this._storageService.createSignedUrl(dto.logoUrl, 10 * 60);
+      dto.logoUrl = await this._storageService.createSignedUrl(
+        dto.logoUrl,
+        CONFIG.SIGNED_URL_EXPIRY
+      );
     }
 
     if (dto.coverImageUrl) {
-      dto.coverImageUrl = await this._storageService.createSignedUrl(dto.coverImageUrl, 10 * 60);
+      dto.coverImageUrl = await this._storageService.createSignedUrl(
+        dto.coverImageUrl,
+        CONFIG.SIGNED_URL_EXPIRY
+      );
     }
 
     if (dto.owner.profileImg) {
       dto.owner.profileImg = await this._storageService.createSignedUrl(
         dto.owner.profileImg,
-        10 * 60
+        CONFIG.SIGNED_URL_EXPIRY
       );
     }
 

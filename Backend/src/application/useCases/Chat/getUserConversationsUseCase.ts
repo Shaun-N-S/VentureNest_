@@ -6,6 +6,7 @@ import {
   ConversationListItemDTO,
 } from "application/dto/chat/getConversationDTO";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
+import { CONFIG } from "@config/config";
 
 export class GetUserConversationsUseCase implements IGetUserConversationsUseCase {
   constructor(
@@ -34,7 +35,10 @@ export class GetUserConversationsUseCase implements IGetUserConversationsUseCase
       let signedProfileImg: string | undefined;
 
       if (other.profileImg) {
-        signedProfileImg = await this._storageService.createSignedUrl(other.profileImg, 10 * 60);
+        signedProfileImg = await this._storageService.createSignedUrl(
+          other.profileImg,
+          CONFIG.SIGNED_URL_EXPIRY
+        );
       }
 
       result.push({

@@ -1,6 +1,11 @@
+import { MongooseUnitOfWork } from "@infrastructure/db/connectDB/MongooseUnitOfWork";
+import { dealInstallmentModel } from "@infrastructure/db/models/dealInstallmentModel";
+import { dealModel } from "@infrastructure/db/models/dealModel";
 import { investmentOfferModel } from "@infrastructure/db/models/investmentOfferModel";
 import { notificationModel } from "@infrastructure/db/models/notificationModel";
 import { pitchModel } from "@infrastructure/db/models/pitchModel";
+import { DealInstallmentRepository } from "@infrastructure/repostiories/dealInstallmentRepository";
+import { DealRepository } from "@infrastructure/repostiories/dealRepository";
 import { InvestmentOfferRepository } from "@infrastructure/repostiories/investmentOfferRepository";
 import { NotificationRepository } from "@infrastructure/repostiories/notificationRepository";
 import { PitchRepository } from "@infrastructure/repostiories/pitchRepository";
@@ -16,8 +21,11 @@ import { InvestmentOfferController } from "interfaceAdapters/controller/Investor
 
 const investmentOfferRepo = new InvestmentOfferRepository(investmentOfferModel);
 const pitchRepo = new PitchRepository(pitchModel);
+const dealRepo = new DealRepository(dealModel);
 const storageService = new StorageService();
 const notificationRepo = new NotificationRepository(notificationModel);
+const dealInstallmentRepo = new DealInstallmentRepository(dealInstallmentModel);
+const unitOfWork = new MongooseUnitOfWork();
 
 const createNotificationUseCase = new CreateNotificationUseCase(notificationRepo);
 const createInvestmentOfferUseCase = new CreateInvestmentOfferUseCase(
@@ -35,11 +43,15 @@ const getReceivedOfferUseCase = new GetReceivedInvestmentOffersUseCase(
 );
 const getOfferDetailsUseCase = new GetInvestmentOfferDetailsUseCase(
   investmentOfferRepo,
-  storageService
+  storageService,
+  dealRepo,
+  dealInstallmentRepo
 );
 const acceptInvestmentOfferUseCase = new AcceptInvestmentOfferUseCase(
   investmentOfferRepo,
-  createNotificationUseCase
+  dealRepo,
+  createNotificationUseCase,
+  unitOfWork
 );
 const rejectInvestmentOfferUseCase = new RejectInvestmentOfferUseCase(
   investmentOfferRepo,

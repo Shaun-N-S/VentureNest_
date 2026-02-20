@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { UserStatus } from "@domain/enum/userStatus";
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
@@ -61,7 +62,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     if (response.profileImg) {
       response.profileImg = await this._storageService.createSignedUrl(
         response.profileImg,
-        10 * 60
+        CONFIG.SIGNED_URL_EXPIRY
       );
     }
     return response;

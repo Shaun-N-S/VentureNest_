@@ -4,6 +4,7 @@ import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IFetchPostLikesUseCase } from "@domain/interfaces/useCases/post/IFetchPostLikesUseCase";
 import { PostMapper } from "application/mappers/postMapper";
+import { CONFIG } from "@config/config";
 
 export class FetchPostLikesUseCase implements IFetchPostLikesUseCase {
   constructor(
@@ -34,7 +35,10 @@ export class FetchPostLikesUseCase implements IFetchPostLikesUseCase {
     result = await Promise.all(
       result.map(async (item) => {
         if (item.profileImg) {
-          item.profileImg = await this._storageService.createSignedUrl(item.profileImg, 10 * 60);
+          item.profileImg = await this._storageService.createSignedUrl(
+            item.profileImg,
+            CONFIG.SIGNED_URL_EXPIRY
+          );
         }
         return item;
       })

@@ -3,6 +3,7 @@ import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageSe
 import { IFetchAllProjectsUseCase } from "@domain/interfaces/useCases/project/IFetchAllProjectsUseCase";
 import { ProjectMapper } from "application/mappers/projectMapper";
 import { ProjectResDTO } from "application/dto/project/projectDTO";
+import { CONFIG } from "@config/config";
 
 export class FetchAllProjectsUseCase implements IFetchAllProjectsUseCase {
   constructor(
@@ -35,12 +36,15 @@ export class FetchAllProjectsUseCase implements IFetchAllProjectsUseCase {
         dto.liked = project.likes.some((l) => l.likerId.toString() === userId);
 
         if (dto.logoUrl)
-          dto.logoUrl = await this._storageService.createSignedUrl(dto.logoUrl, 10 * 60);
+          dto.logoUrl = await this._storageService.createSignedUrl(
+            dto.logoUrl,
+            CONFIG.SIGNED_URL_EXPIRY
+          );
 
         if (dto.coverImageUrl)
           dto.coverImageUrl = await this._storageService.createSignedUrl(
             dto.coverImageUrl,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
 
         return dto;

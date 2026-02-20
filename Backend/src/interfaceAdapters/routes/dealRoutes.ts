@@ -42,6 +42,14 @@ export class Deal_Router {
         dealController.createInstallmentCheckout(req, res, next);
       }
     );
+
+    this._route.post(
+      ROUTES.DEAL.RELEASE_INSTALLMENT,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        dealController.releaseInstallment(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

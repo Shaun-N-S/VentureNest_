@@ -7,6 +7,7 @@ import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRe
 import { AdminProjectReportDetailDTO } from "application/dto/report/adminReportDTO";
 import { AdminReportMapper } from "application/mappers/adminReportMapper";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
+import { CONFIG } from "@config/config";
 
 export class GetProjectReportsUseCase implements IGetProjectReportsUseCase {
   constructor(
@@ -48,7 +49,7 @@ export class GetProjectReportsUseCase implements IGetProjectReportsUseCase {
         if (reporter?.profileImg) {
           reporter.profileImg = await this._storageService.createSignedUrl(
             reporter.profileImg,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
         } else if (reporter) {
           reporter.profileImg = "";

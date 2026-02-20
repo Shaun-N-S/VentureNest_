@@ -8,6 +8,7 @@ import { CommentMapper } from "application/mappers/commentMapper";
 import { CreateCommentDTO, CommentFeedDTO } from "application/dto/comment/commentDTO";
 import { UserRole } from "@domain/enum/userRole";
 import { ICreateNotificationUseCase } from "@domain/interfaces/useCases/notification/ICreateNotificationUseCase";
+import { CONFIG } from "@config/config";
 
 export class CreateCommentUseCase implements ICreateCommentUseCase {
   constructor(
@@ -51,7 +52,10 @@ export class CreateCommentUseCase implements ICreateCommentUseCase {
     } as any);
 
     if (dto.userProfileImg) {
-      dto.userProfileImg = await this._storageService.createSignedUrl(dto.userProfileImg, 600);
+      dto.userProfileImg = await this._storageService.createSignedUrl(
+        dto.userProfileImg,
+        CONFIG.SIGNED_URL_EXPIRY
+      );
     }
 
     return dto;

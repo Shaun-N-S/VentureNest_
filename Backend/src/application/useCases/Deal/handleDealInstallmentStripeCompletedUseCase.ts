@@ -16,9 +16,11 @@ import {
   InvalidDataException,
   NotFoundExecption,
 } from "application/constants/exceptions";
-import { DEAL_ERRORS, WALLET_ERRORS } from "@shared/constants/error";
+import { DEAL_ERRORS, Errors, WALLET_ERRORS } from "@shared/constants/error";
 import { PLATFORM_COMMISSION_RATE } from "@shared/constants/platform";
 import { HandleDealInstallmentStripeCompletedDTO } from "application/dto/deal/dealInstallmentResponseDTO";
+import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
+import { UserRole } from "@domain/enum/userRole";
 
 export class HandleDealInstallmentStripeCompletedUseCase
   implements IHandleDealInstallmentStripeCompletedUseCase
@@ -29,7 +31,8 @@ export class HandleDealInstallmentStripeCompletedUseCase
     private _installmentRepo: IDealInstallmentRepository,
     private _transactionRepo: ITransactionRepository,
     private _paymentRepo: IPaymentRepository,
-    private _unitOfWork: IUnitOfWork
+    private _unitOfWork: IUnitOfWork,
+    private _userRepo: IUserRepository
   ) {}
 
   async execute(dto: HandleDealInstallmentStripeCompletedDTO): Promise<void> {
@@ -54,9 +57,12 @@ export class HandleDealInstallmentStripeCompletedUseCase
         deal.projectId
       );
 
+      const admin = await this._userRepo.findByRole(UserRole.ADMIN);
+      if (!admin) throw new NotFoundExecption(Errors.ADMIN_NOT_FOUND);
+
       const platformWallet = await this._walletRepo.findByOwner(
         WalletOwnerType.PLATFORM,
-        "PLATFORM_MAIN"
+        admin._id!
       );
 
       if (!projectWallet || !platformWallet) throw new NotFoundExecption(WALLET_ERRORS.NOT_FOUND);
