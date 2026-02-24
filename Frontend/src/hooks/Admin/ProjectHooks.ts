@@ -39,11 +39,13 @@ export const useGetAllProjectRegistrations = (
   page: number,
   limit: number,
   status?: ProjectRegistrationStatus,
+  search?: string,
+  enabled: boolean = true,
 ) => {
   return useQuery({
-    queryKey: ["admin-project-registrations", page, limit, status],
-    queryFn: () => getAllProjectRegistrations(page, limit, status),
-    placeholderData: (previousData) => previousData,
+    queryKey: ["admin-project-registrations", page, limit, status, search],
+    queryFn: () => getAllProjectRegistrations(page, limit, status, search),
+    enabled,
   });
 };
 

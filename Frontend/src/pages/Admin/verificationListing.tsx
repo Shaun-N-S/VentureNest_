@@ -18,6 +18,7 @@ import { useGetAllProjectRegistrations } from "../../hooks/Admin/ProjectHooks";
 import type { ProjectRegistrationStatus } from "../../types/projectRegistrationStatus";
 import type { AdminProjectRegistration } from "../../types/AdminProjectRegistrationType";
 import ProjectVerificationModal from "../../components/modals/ProjectVerificationModal";
+import { useDebounce } from "../../hooks/Debounce/useDebounce";
 
 interface BaseRow {
   _id: string;
@@ -64,8 +65,10 @@ const VerificationPage = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(5);
   const [searchInput, setSearchInput] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const debouncedSearch = useDebounce(searchInput, 500);
+  const [statusFilter, setStatusFilter] = useState<
+    ProjectRegistrationStatus | ""
+  >("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<
     UserRow | InvestorRow | null
@@ -79,6 +82,7 @@ const VerificationPage = () => {
     limit,
     statusFilter,
     debouncedSearch,
+    activeTab === "users",
   );
 
   const { data: investorData } = useFetchAllInvestorsKyc(
@@ -86,6 +90,7 @@ const VerificationPage = () => {
     limit,
     statusFilter,
     debouncedSearch,
+    activeTab === "investors",
   );
 
   const projectStatus =
@@ -97,11 +102,8 @@ const VerificationPage = () => {
     page,
     limit,
     projectStatus,
-  );
-
-  console.log(
-    "projectRegistrationData :",
-    projectRegistrationData?.registrations,
+    debouncedSearch,
+    activeTab === "projects",
   );
 
   const allData = useMemo(() => {
@@ -126,13 +128,6 @@ const VerificationPage = () => {
         ? (investorData?.data?.data?.totalPages ?? 1)
         : (projectRegistrationData?.totalPages ?? 1);
 
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchInput(e.target.value);
-    },
-    [],
-  );
-
   const handleViewClick = useCallback(
     (row: UserRow | InvestorRow | ProjectRow) => {
       if ("registrationId" in row) {
@@ -148,20 +143,12 @@ const VerificationPage = () => {
     [],
   );
 
-  const handleSearchClick = useCallback(() => {
-    setDebouncedSearch(searchInput.trim());
-    setPage(1);
-  }, [searchInput]);
-
-  const handleClearSearch = useCallback(() => {
-    setSearchInput("");
-    setDebouncedSearch("");
-    setPage(1);
-  }, []);
-
   const handleStatusChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setStatusFilter(e.target.value);
+      const value = e.target.value;
+
+      setStatusFilter(value === "" ? "" : (value as ProjectRegistrationStatus));
+
       setPage(1);
     },
     [],
@@ -404,19 +391,37 @@ const VerificationPage = () => {
         id: "status",
         label: "Status",
         render: (row: ProjectRow) => {
-          const status = row?.status ?? "Pending";
+          const status = row.status;
+
+          const STATUS_CONFIG: Record<
+            ProjectRegistrationStatus,
+            { className: string; label: string }
+          > = {
+            APPROVED: {
+              className: "bg-green-100 text-green-700",
+              label: "Approved",
+            },
+            REJECTED: {
+              className: "bg-red-100 text-red-700",
+              label: "Rejected",
+            },
+            SUBMITTED: {
+              className: "bg-blue-100 text-blue-700",
+              label: "Submitted",
+            },
+            PENDING: {
+              className: "bg-yellow-100 text-yellow-700",
+              label: "Pending",
+            },
+          };
+
+          const config = STATUS_CONFIG[status];
 
           return (
             <span
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold ${
-                status === "Approved"
-                  ? "bg-green-100 text-green-700"
-                  : status === "Rejected"
-                    ? "bg-red-100 text-red-700"
-                    : "bg-yellow-100 text-yellow-700"
-              }`}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold ${config.className}`}
             >
-              {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
+              {config.label}
             </span>
           );
         },
@@ -434,7 +439,7 @@ const VerificationPage = () => {
         ),
       },
     ],
-    [page, limit, allData],
+    [page, limit, allData, handleViewClick],
   );
 
   return (
@@ -485,24 +490,18 @@ const VerificationPage = () => {
                   type="text"
                   placeholder="Search by name or email"
                   value={searchInput}
-                  onChange={handleSearchChange}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearchClick()}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-indigo-400 focus:outline-none"
                 />
+
                 {searchInput && (
                   <button
-                    onClick={handleClearSearch}
-                    className="absolute right-20 top-2.5 text-gray-500 hover:text-red-500"
+                    onClick={() => setSearchInput("")}
+                    className="absolute right-3 top-2.5 text-gray-500 hover:text-red-500"
                   >
                     <X size={18} />
                   </button>
                 )}
-                <button
-                  onClick={handleSearchClick}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                >
-                  Search
-                </button>
               </div>
               <select
                 value={statusFilter}

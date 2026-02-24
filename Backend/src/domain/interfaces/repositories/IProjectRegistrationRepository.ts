@@ -29,10 +29,11 @@ export interface IProjectRegistrationRepository extends IBaseRepository<ProjectR
   findAllAdmin(
     skip: number,
     limit: number,
-    status?: ProjectRegistrationStatus
+    status?: ProjectRegistrationStatus,
+    search?: string
   ): Promise<PopulatedProjectRegistrationRepoDTO[]>;
 
-  countAdmin(status?: ProjectRegistrationStatus): Promise<number>;
+  countAdmin(status?: ProjectRegistrationStatus, search?: string): Promise<number>;
 
   findByIdPopulated(registrationId: string): Promise<PopulatedProjectRegistrationRepoDTO | null>;
 }

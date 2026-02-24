@@ -1,3 +1,5 @@
+import type { ProjectRegistrationStatus } from "./projectRegistrationStatus";
+
 export interface AdminProjectRegistration {
   registrationId: string;
 
@@ -21,7 +23,7 @@ export interface AdminProjectRegistration {
   country: string;
   declarationAccepted: boolean;
 
-  status: "Approved" | "Rejected" | "Pending";
+  status: ProjectRegistrationStatus;
   rejectionReason?: string | null;
 
   createdAt: string;

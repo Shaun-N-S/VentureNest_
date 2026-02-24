@@ -1,7 +1,8 @@
 export const ProjectRegistrationStatus = {
-  APPROVED: "Approved",
-  REJECTED: "Rejected",
-  PENDING: "Pending",
+  SUBMITTED: "SUBMITTED",
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
+  PENDING: "PENDING",
 } as const;
 
 export type ProjectRegistrationStatus =

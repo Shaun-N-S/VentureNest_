@@ -3,14 +3,14 @@ import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatu
 export interface PopulatedProjectRegistrationRepoDTO {
   _id: string;
 
-  projectId: {
+  project: {
     _id: string;
     startupName: string;
     logoUrl?: string;
     coverImageUrl?: string;
   };
 
-  founderId: {
+  founder: {
     _id: string;
     userName: string;
     profileImg?: string;

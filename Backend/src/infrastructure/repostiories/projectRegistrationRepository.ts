@@ -2,7 +2,7 @@ import { ProjectRegistrationEntity } from "@domain/entities/project/projectRegis
 import { BaseRepository } from "./baseRepository";
 import { IProjectRegistrationModel } from "@infrastructure/db/models/projectRegistrationModel";
 import { IProjectRegistrationRepository } from "@domain/interfaces/repositories/IProjectRegistrationRepository";
-import { ClientSession, Model } from "mongoose";
+import { ClientSession, Model, PipelineStage } from "mongoose";
 import { ProjectRegistrationMapper } from "application/mappers/projectRegistrationMapper";
 import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatus";
 import { PopulatedProjectRegistrationRepoDTO } from "application/dto/admin/projectRegistrationRepoDTO";
@@ -63,34 +63,133 @@ export class ProjectRegistrationRepository
   async findAllAdmin(
     skip: number,
     limit: number,
-    status?: ProjectRegistrationStatus
+    status?: ProjectRegistrationStatus,
+    search?: string
   ): Promise<PopulatedProjectRegistrationRepoDTO[]> {
-    const query: { status?: ProjectRegistrationStatus } = {};
+    const pipeline: PipelineStage[] = [];
 
+    const matchFilter: Record<string, unknown> = {};
     if (status) {
-      query.status = status;
+      matchFilter.status = status;
     }
 
-    const docs = await this._model
-      .find(query)
-      .populate("projectId", "startupName logoUrl coverImageUrl")
-      .populate("founderId", "userName profileImg")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    pipeline.push({ $match: matchFilter });
 
-    return docs as unknown as PopulatedProjectRegistrationRepoDTO[];
+    // Lookup Project
+    pipeline.push({
+      $lookup: {
+        from: "projects",
+        localField: "projectId",
+        foreignField: "_id",
+        as: "project",
+      },
+    });
+
+    pipeline.push({ $unwind: "$project" });
+
+    // Lookup Founder
+    pipeline.push({
+      $lookup: {
+        from: "users",
+        localField: "founderId",
+        foreignField: "_id",
+        as: "founder",
+      },
+    });
+
+    pipeline.push({ $unwind: "$founder" });
+
+    // Search
+    if (search) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { "project.startupName": { $regex: search, $options: "i" } },
+            { "founder.userName": { $regex: search, $options: "i" } },
+          ],
+        },
+      });
+    }
+
+    // Projection (CRITICAL FIX)
+    pipeline.push({
+      $project: {
+        _id: 1,
+        project: {
+          _id: "$project._id",
+          startupName: "$project.startupName",
+          logoUrl: "$project.logoUrl",
+          coverImageUrl: "$project.coverImageUrl",
+        },
+        founder: {
+          _id: "$founder._id",
+          userName: "$founder.userName",
+          profileImg: "$founder.profileImg",
+        },
+        gstCertificateUrl: 1,
+        companyRegistrationCertificateUrl: 1,
+        cinNumber: 1,
+        country: 1,
+        declarationAccepted: 1,
+        status: 1,
+        rejectionReason: 1,
+        createdAt: 1,
+      },
+    });
+
+    pipeline.push({ $sort: { createdAt: -1 } }, { $skip: skip }, { $limit: limit });
+
+    return this._model.aggregate<PopulatedProjectRegistrationRepoDTO>(pipeline);
   }
 
-  async countAdmin(status?: ProjectRegistrationStatus): Promise<number> {
-    const query: Record<string, unknown> = {};
+  async countAdmin(status?: ProjectRegistrationStatus, search?: string): Promise<number> {
+    const pipeline: PipelineStage[] = [];
 
+    const matchFilter: Record<string, unknown> = {};
     if (status) {
-      query.status = status;
+      matchFilter.status = status;
     }
 
-    return this._model.countDocuments(query);
+    pipeline.push({ $match: matchFilter });
+
+    pipeline.push({
+      $lookup: {
+        from: "projects",
+        localField: "projectId",
+        foreignField: "_id",
+        as: "project",
+      },
+    });
+
+    pipeline.push({ $unwind: "$project" });
+
+    pipeline.push({
+      $lookup: {
+        from: "users",
+        localField: "founderId",
+        foreignField: "_id",
+        as: "founder",
+      },
+    });
+
+    pipeline.push({ $unwind: "$founder" });
+
+    if (search) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { "project.startupName": { $regex: search, $options: "i" } },
+            { "founder.userName": { $regex: search, $options: "i" } },
+          ],
+        },
+      });
+    }
+
+    pipeline.push({ $count: "total" });
+
+    const result = await this._model.aggregate<{ total: number }>(pipeline);
+
+    return result?.[0]?.total ?? 0;
   }
 
   async findByIdPopulated(

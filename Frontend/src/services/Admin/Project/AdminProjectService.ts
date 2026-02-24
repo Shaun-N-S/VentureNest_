@@ -52,6 +52,7 @@ export const getAllProjectRegistrations = async (
   page: number = 1,
   limit: number = 10,
   status?: ProjectRegistrationStatus,
+  search?: string,
 ): Promise<GetAllProjectRegistrationsResponse> => {
   const params = new URLSearchParams({
     page: String(page),
@@ -60,6 +61,10 @@ export const getAllProjectRegistrations = async (
 
   if (status) {
     params.append("status", status);
+  }
+
+  if (search) {
+    params.append("search", search);
   }
 
   const response = await AxiosInstance.get(

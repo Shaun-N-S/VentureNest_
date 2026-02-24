@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import { queryClient } from "../../main";
 import RejectReasonModal from "./RejectReasonModal"; // Reusing your existing rejection modal
 import { AxiosError } from "axios";
+import { ProjectRegistrationStatus } from "../../types/projectRegistrationStatus";
 
 interface ProjectVerificationModalProps {
   isOpen: boolean;
@@ -31,7 +32,7 @@ const ProjectVerificationModal: React.FC<ProjectVerificationModalProps> = ({
   if (!isOpen || !data) return null;
 
   const handleStatusUpdate = (
-    status: "Approved" | "Rejected",
+    status: ProjectRegistrationStatus,
     reason?: string,
   ) => {
     mutate(
@@ -42,9 +43,9 @@ const ProjectVerificationModal: React.FC<ProjectVerificationModalProps> = ({
       },
       {
         onSuccess: () => {
-          toast.success(`Project ${status.toLowerCase()} successfully`);
+          toast.success(`Project ${statusConfig.label} successfully`);
           queryClient.invalidateQueries({
-            queryKey: ["project-registrations"],
+            queryKey: ["admin-project-registrations"],
           });
           setRejectModalOpen(false);
           onClose();
@@ -67,6 +68,30 @@ const ProjectVerificationModal: React.FC<ProjectVerificationModalProps> = ({
       day: "numeric",
     });
   };
+
+  const STATUS_CONFIG: Record<
+    ProjectRegistrationStatus,
+    { className: string; label: string }
+  > = {
+    APPROVED: {
+      className: "bg-green-50 text-green-700 border-green-200",
+      label: "Approved",
+    },
+    REJECTED: {
+      className: "bg-red-50 text-red-700 border-red-200",
+      label: "Rejected",
+    },
+    SUBMITTED: {
+      className: "bg-yellow-50 text-yellow-700 border-yellow-200",
+      label: "Submitted",
+    },
+    PENDING: {
+      className: "bg-blue-50 text-blue-700 border-blue-200",
+      label: "Pending",
+    },
+  };
+
+  const statusConfig = STATUS_CONFIG[data.status];
 
   return (
     <>
@@ -122,15 +147,9 @@ const ProjectVerificationModal: React.FC<ProjectVerificationModalProps> = ({
                     Verification Status
                   </p>
                   <span
-                    className={`flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold w-full border ${
-                      data.status === "Approved"
-                        ? "bg-green-50 text-green-700 border-green-200"
-                        : data.status === "Rejected"
-                          ? "bg-red-50 text-red-700 border-red-200"
-                          : "bg-blue-50 text-blue-700 border-blue-200"
-                    }`}
+                    className={`flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold w-full border ${statusConfig.className}`}
                   >
-                    {data.status.toUpperCase()}
+                    {statusConfig.label}
                   </span>
                 </div>
               </div>
@@ -191,22 +210,23 @@ const ProjectVerificationModal: React.FC<ProjectVerificationModalProps> = ({
                   </div>
                 </section>
 
-                {data.status === "Rejected" && data.rejectionReason && (
-                  <div className="bg-red-50 border border-red-100 p-4 rounded-xl">
-                    <p className="text-xs text-red-400 font-bold uppercase">
-                      Previous Rejection Reason
-                    </p>
-                    <p className="text-sm text-red-700 mt-1">
-                      {data.rejectionReason}
-                    </p>
-                  </div>
-                )}
+                {data.status === ProjectRegistrationStatus.REJECTED &&
+                  data.rejectionReason && (
+                    <div className="bg-red-50 border border-red-100 p-4 rounded-xl">
+                      <p className="text-xs text-red-400 font-bold uppercase">
+                        Previous Rejection Reason
+                      </p>
+                      <p className="text-sm text-red-700 mt-1">
+                        {data.rejectionReason}
+                      </p>
+                    </div>
+                  )}
               </div>
             </div>
           </div>
 
           {/* Footer Actions */}
-          {data.status === "Pending" && (
+          {data.status === ProjectRegistrationStatus.SUBMITTED && (
             <div className="bg-gray-50 border-t border-gray-200 px-8 py-5 flex justify-end gap-4 rounded-b-2xl">
               <button
                 onClick={() => setRejectModalOpen(true)}
@@ -216,7 +236,9 @@ const ProjectVerificationModal: React.FC<ProjectVerificationModalProps> = ({
                 Reject Project
               </button>
               <button
-                onClick={() => handleStatusUpdate("Approved")}
+                onClick={() =>
+                  handleStatusUpdate(ProjectRegistrationStatus.APPROVED)
+                }
                 disabled={isPending}
                 className="px-8 py-2.5 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition shadow-md disabled:opacity-50"
               >
@@ -231,7 +253,9 @@ const ProjectVerificationModal: React.FC<ProjectVerificationModalProps> = ({
       <RejectReasonModal
         isOpen={rejectModalOpen}
         onClose={() => setRejectModalOpen(false)}
-        onSubmit={(reason) => handleStatusUpdate("Rejected", reason)}
+        onSubmit={(reason) =>
+          handleStatusUpdate(ProjectRegistrationStatus.REJECTED, reason)
+        }
       />
     </>
   );

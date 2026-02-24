@@ -143,12 +143,14 @@ export const useInvestorProfileCompletion = () => {
   });
 };
 
-export const useGetProfileImg = (id: string) => {
+export const useGetProfileImg = (id: string, enabled: boolean = true) => {
   return useQuery({
-    queryKey: ["profileImg"],
+    queryKey: ["profileImg", id],
     queryFn: () => getProfileImg(id),
-    enabled: !!id,
+    enabled: !!id && enabled,
     staleTime: 5 * 60 * 1000,
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 };
 

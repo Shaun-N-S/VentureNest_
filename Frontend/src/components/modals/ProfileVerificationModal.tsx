@@ -4,7 +4,6 @@ import type { KYCStatus } from "../../types/KycStatusType";
 import { useUpdateInvestorKyc, useUpdateUsersKyc } from "../../hooks/Admin/KYCHooks";
 import KYCStatusChangeModal from "./KYCStatusChangeModal";
 import toast from "react-hot-toast";
-import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import RejectReasonModal from "./RejectReasonModal";
 import { queryClient } from "../../main";

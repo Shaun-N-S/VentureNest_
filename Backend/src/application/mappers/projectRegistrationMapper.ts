@@ -26,7 +26,7 @@ export class ProjectRegistrationMapper {
       country: dto.country,
       declarationAccepted: dto.declarationAccepted,
 
-      status: dto.status ?? ProjectRegistrationStatus.PENDING,
+      status: dto.status ?? ProjectRegistrationStatus.SUBMITTED,
 
       createdAt: now,
       updatedAt: now,
@@ -107,23 +107,35 @@ export class ProjectRegistrationMapper {
       registrationId: repoDTO._id,
 
       project: {
-        projectId: repoDTO.projectId._id,
-        startupName: repoDTO.projectId.startupName,
-        ...(repoDTO.projectId.logoUrl && { logoUrl: repoDTO.projectId.logoUrl }),
-        ...(repoDTO.projectId.coverImageUrl && { coverImageUrl: repoDTO.projectId.coverImageUrl }),
+        projectId: repoDTO.project._id,
+        startupName: repoDTO.project.startupName,
+        ...(repoDTO.project.logoUrl && {
+          logoUrl: repoDTO.project.logoUrl,
+        }),
+        ...(repoDTO.project.coverImageUrl && {
+          coverImageUrl: repoDTO.project.coverImageUrl,
+        }),
       },
 
       founder: {
-        founderId: repoDTO.founderId._id,
-        userName: repoDTO.founderId.userName,
-        ...(repoDTO.founderId.profileImg && { profileImg: repoDTO.founderId.profileImg }),
+        founderId: repoDTO.founder._id,
+        userName: repoDTO.founder.userName,
+        ...(repoDTO.founder.profileImg && {
+          profileImg: repoDTO.founder.profileImg,
+        }),
       },
 
-      ...(repoDTO.gstCertificateUrl && { gstCertificateUrl: repoDTO.gstCertificateUrl }),
+      ...(repoDTO.gstCertificateUrl && {
+        gstCertificateUrl: repoDTO.gstCertificateUrl,
+      }),
+
       ...(repoDTO.companyRegistrationCertificateUrl && {
         companyRegistrationCertificateUrl: repoDTO.companyRegistrationCertificateUrl,
       }),
-      ...(repoDTO.cinNumber && { cinNumber: repoDTO.cinNumber }),
+
+      ...(repoDTO.cinNumber && {
+        cinNumber: repoDTO.cinNumber,
+      }),
 
       country: repoDTO.country,
       declarationAccepted: repoDTO.declarationAccepted,

@@ -19,6 +19,7 @@ export class AdminProjectRegistrationController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       let enumStatus: ProjectRegistrationStatus | undefined;
+      const search: string | undefined = (req.query.search as string)?.trim() || undefined;
 
       if (req.query.status) {
         if (
@@ -36,7 +37,7 @@ export class AdminProjectRegistrationController {
         throw new InvalidDataException(Errors.INVALID_PAGINATION_PARAMETERS);
       }
 
-      const result = await this._getAllUseCase.execute(page, limit, enumStatus);
+      const result = await this._getAllUseCase.execute(page, limit, enumStatus, search);
 
       ResponseHelper.success(
         res,

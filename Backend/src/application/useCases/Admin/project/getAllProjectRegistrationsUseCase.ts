@@ -11,12 +11,12 @@ export class GetAllProjectRegistrationsUseCase implements IGetAllProjectRegistra
     private _storageService: IStorageService
   ) {}
 
-  async execute(page: number, limit: number, status?: ProjectRegistrationStatus) {
+  async execute(page: number, limit: number, status?: ProjectRegistrationStatus, search?: string) {
     const skip = (page - 1) * limit;
 
     const [docs, total] = await Promise.all([
-      this._projectRegistrationRepo.findAllAdmin(skip, limit, status),
-      this._projectRegistrationRepo.countAdmin(status),
+      this._projectRegistrationRepo.findAllAdmin(skip, limit, status, search),
+      this._projectRegistrationRepo.countAdmin(status, search),
     ]);
 
     const registrations = await Promise.all(

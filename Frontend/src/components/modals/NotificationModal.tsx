@@ -14,6 +14,8 @@ import toast from "react-hot-toast";
 import { queryClient } from "../../main";
 import type { NetworkUser } from "../../types/networkType";
 import { ConnectionRequestCard } from "../card/ConnectionRequestCard ";
+import type { Rootstate } from "../../store/store";
+import { useSelector } from "react-redux";
 
 interface Props {
   isOpen: boolean;
@@ -22,10 +24,14 @@ interface Props {
 
 const NotificationModal = ({ isOpen, onClose }: Props) => {
   const [tab, setTab] = useState<"UNREAD" | "ALL">("UNREAD");
-  const { data, isLoading } = useGetNotifications();
   const markAllMutation = useMarkAllNotificationsRead();
-  const { data: connectionData } = useGetConnectionReq(1, 10);
   const { mutate: updateConnectionStatus } = useConnectionStatusUpdate();
+  const role = useSelector((state: Rootstate) => state.authData.role);
+  const isUserOrInvestor = role === "USER" || role === "INVESTOR";
+
+  const { data, isLoading } = useGetNotifications(1, 10, isUserOrInvestor);
+
+  const { data: connectionData } = useGetConnectionReq(1, 10, isUserOrInvestor);
 
   const connectionRequests: NetworkUser[] = connectionData?.data?.users ?? [];
   const notifications = data?.notifications ?? [];

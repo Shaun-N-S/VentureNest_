@@ -14,10 +14,13 @@ import type { NotificationResponse } from "../../types/notification";
 export const useGetNotifications = (
   page: number = 1,
   limit: number = 10,
+  enabled: boolean = true,
 ): UseQueryResult<NotificationResponse, Error> => {
   return useQuery<NotificationResponse, Error>({
     queryKey: ["notifications", page],
     queryFn: () => getMyNotifications(page, limit),
+    enabled: enabled,
+    refetchOnWindowFocus: false,
   });
 };
 
