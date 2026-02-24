@@ -29,7 +29,6 @@ export interface IProjectModel extends Document {
   donationEnabled: boolean;
   donationTarget: number;
   donationReceived: number;
-  projectRegister: boolean;
 }
 
 export const projectModel = model<IProjectModel>("Project", projectSchema);

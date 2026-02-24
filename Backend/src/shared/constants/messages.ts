@@ -68,10 +68,17 @@ export const MESSAGES = {
     LIKED_SUCCESSFULLY: "Project liked successfully",
     STATUS_UPDATED_SUCCESSFULLY: "Project status updated successfully",
     GET_ALL_PROJECTS: "Fetched projects successfully",
+    GET_ALL_PROJECT_REGISTRATIONS: "Fetched project registrations successfully",
   },
 
   PROJECT_MONTHLY_REPORT: {
     REPORT_ADDED_SUCCESSFULLY: "Monthly report added successfully",
+  },
+
+  PROJECT_REGISTRATION: {
+    REGISTRATION_SUCCESSFULL: "Project registration successfull !",
+    GET_ALL_PROJECT_REGISTRATIONS: "Fetched project registrations successfully",
+    STATUS_UPDATE_SUCCESSFUL: "Project registration status updated successfully",
   },
 
   RELATIONSHIP: {

@@ -13,10 +13,10 @@ export interface IProjectRegistrationModel extends Document {
   cinNumber?: string;
 
   country: string;
-  verifyProfile: boolean;
   declarationAccepted: boolean;
 
   status: ProjectRegistrationStatus;
+  rejectionReason?: string | null;
 
   createdAt: Date;
   updatedAt: Date;

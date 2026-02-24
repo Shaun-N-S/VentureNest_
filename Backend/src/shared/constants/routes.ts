@@ -71,6 +71,8 @@ export const ROUTES = {
     PLANS: "/plans",
     PLAN_BY_ID: "/plans/:planId",
     PLAN_STATUS: "/plans/:planId/status",
+    PROJECT_REGISTRATIONS: "/project-registrations",
+    UPDATE_PROJECT_REGISTRATION_STATUS: "/project-registrations/update-status/:registrationId",
   },
 
   USERS: {

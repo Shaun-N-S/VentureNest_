@@ -25,11 +25,6 @@ const projectRegistrationSchema = new mongoose.Schema(
       required: true,
     },
 
-    verifyProfile: {
-      type: Boolean,
-      default: false,
-    },
-
     declarationAccepted: {
       type: Boolean,
       required: true,

@@ -6,6 +6,8 @@ import {
 import mongoose from "mongoose";
 import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatus";
 import { IProjectRegistrationModel } from "@infrastructure/db/models/projectRegistrationModel";
+import { PopulatedProjectRegistrationRepoDTO } from "application/dto/admin/projectRegistrationRepoDTO";
+import { AdminProjectRegistrationDTO } from "application/dto/admin/adminProjectRegistrationDTO";
 
 export class ProjectRegistrationMapper {
   static toEntity(dto: CreateProjectRegistrationEntityDTO): ProjectRegistrationEntity {
@@ -24,7 +26,6 @@ export class ProjectRegistrationMapper {
       country: dto.country,
       declarationAccepted: dto.declarationAccepted,
 
-      verifyProfile: false,
       status: dto.status ?? ProjectRegistrationStatus.PENDING,
 
       createdAt: now,
@@ -44,7 +45,6 @@ export class ProjectRegistrationMapper {
       cinNumber: entity.cinNumber || "",
 
       country: entity.country,
-      verifyProfile: entity.verifyProfile,
       declarationAccepted: entity.declarationAccepted,
 
       status: entity.status,
@@ -66,7 +66,6 @@ export class ProjectRegistrationMapper {
       cinNumber: entity.cinNumber,
 
       country: entity.country,
-      verifyProfile: entity.verifyProfile,
       declarationAccepted: entity.declarationAccepted,
 
       status: entity.status,
@@ -79,22 +78,58 @@ export class ProjectRegistrationMapper {
   static fromMongooseDocument(doc: IProjectRegistrationModel): ProjectRegistrationEntity {
     return {
       _id: doc._id.toString(),
-
       projectId: doc.projectId.toString(),
       founderId: doc.founderId.toString(),
 
-      gstCertificateUrl: doc.gstCertificateUrl || "",
-      companyRegistrationCertificateUrl: doc.companyRegistrationCertificateUrl || "",
-      cinNumber: doc.cinNumber || "",
+      ...(doc.gstCertificateUrl && {
+        gstCertificateUrl: doc.gstCertificateUrl,
+      }),
+
+      ...(doc.companyRegistrationCertificateUrl && {
+        companyRegistrationCertificateUrl: doc.companyRegistrationCertificateUrl,
+      }),
+
+      ...(doc.cinNumber && {
+        cinNumber: doc.cinNumber,
+      }),
 
       country: doc.country,
-      verifyProfile: doc.verifyProfile,
       declarationAccepted: doc.declarationAccepted,
-
       status: doc.status,
-
+      rejectionReason: doc.rejectionReason ?? null,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
+    };
+  }
+
+  static toAdminDTO(repoDTO: PopulatedProjectRegistrationRepoDTO): AdminProjectRegistrationDTO {
+    return {
+      registrationId: repoDTO._id,
+
+      project: {
+        projectId: repoDTO.projectId._id,
+        startupName: repoDTO.projectId.startupName,
+        ...(repoDTO.projectId.logoUrl && { logoUrl: repoDTO.projectId.logoUrl }),
+        ...(repoDTO.projectId.coverImageUrl && { coverImageUrl: repoDTO.projectId.coverImageUrl }),
+      },
+
+      founder: {
+        founderId: repoDTO.founderId._id,
+        userName: repoDTO.founderId.userName,
+        ...(repoDTO.founderId.profileImg && { profileImg: repoDTO.founderId.profileImg }),
+      },
+
+      ...(repoDTO.gstCertificateUrl && { gstCertificateUrl: repoDTO.gstCertificateUrl }),
+      ...(repoDTO.companyRegistrationCertificateUrl && {
+        companyRegistrationCertificateUrl: repoDTO.companyRegistrationCertificateUrl,
+      }),
+      ...(repoDTO.cinNumber && { cinNumber: repoDTO.cinNumber }),
+
+      country: repoDTO.country,
+      declarationAccepted: repoDTO.declarationAccepted,
+      status: repoDTO.status,
+      rejectionReason: repoDTO.rejectionReason ?? null,
+      createdAt: repoDTO.createdAt,
     };
   }
 }

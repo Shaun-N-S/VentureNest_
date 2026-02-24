@@ -11,11 +11,16 @@ import { ICreateNotificationUseCase } from "@domain/interfaces/useCases/notifica
 import { IDealRepository } from "@domain/interfaces/repositories/IDealRepository";
 import { IUnitOfWork } from "@domain/interfaces/presistence/IUnitOfWork";
 import { DealStatus } from "@domain/enum/dealStatus";
+import { InvestmentType } from "@domain/enum/investmentType";
+import { ConversionStatus } from "@domain/enum/conversionStatus";
+import { IProjectRegistrationRepository } from "@domain/interfaces/repositories/IProjectRegistrationRepository";
+import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatus";
 
 export class AcceptInvestmentOfferUseCase implements IAcceptInvestmentOfferUseCase {
   constructor(
     private _offerRepo: IInvestmentOfferRepository,
     private _dealRepo: IDealRepository,
+    private _projectRegistrationRepo: IProjectRegistrationRepository,
     private _notificationUseCase: ICreateNotificationUseCase,
     private _unitOfWork: IUnitOfWork
   ) {}
@@ -43,6 +48,22 @@ export class AcceptInvestmentOfferUseCase implements IAcceptInvestmentOfferUseCa
     const session = this._unitOfWork.getSession();
 
     try {
+      // Determine Investment Type based on Project Registration
+      const registration = await this._projectRegistrationRepo.findRegistrationByProjectId(
+        offer.projectId
+      );
+
+      let investmentType: InvestmentType;
+      let conversionStatus: ConversionStatus;
+
+      if (registration && registration.status === ProjectRegistrationStatus.APPROVED) {
+        investmentType = InvestmentType.EQUITY;
+        conversionStatus = ConversionStatus.NOT_REQUIRED;
+      } else {
+        investmentType = InvestmentType.FUTURE_EQUITY;
+        conversionStatus = ConversionStatus.PENDING;
+      }
+
       // Update Offer
       const updated = await this._offerRepo.update(
         offerId,
@@ -65,11 +86,19 @@ export class AcceptInvestmentOfferUseCase implements IAcceptInvestmentOfferUseCa
           offerId: offer._id!,
           founderId: offer.founderId,
           investorId: offer.investorId,
+
           totalAmount: offer.amount,
           amountPaid: 0,
           remainingAmount: offer.amount,
+
           equityPercentage: offer.equityPercentage,
-          status: DealStatus.PARTIALLY_PAID,
+          equityAllocated: 0,
+
+          investmentType,
+          conversionStatus,
+
+          status: DealStatus.AWAITING_PAYMENT,
+
           createdAt: new Date(),
         },
         session
@@ -84,7 +113,7 @@ export class AcceptInvestmentOfferUseCase implements IAcceptInvestmentOfferUseCa
         type: NotificationType.INVESTMENT_RECEIVED,
         entityId: offerId,
         entityType: NotificationEntityType.INVESTMENT_OFFER,
-        message: "responded to your investment offer",
+        message: "accepted your investment offer",
       });
 
       await this._unitOfWork.commit();

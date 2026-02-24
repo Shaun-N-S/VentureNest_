@@ -21,6 +21,7 @@ import { PLATFORM_COMMISSION_RATE } from "@shared/constants/platform";
 import { HandleDealInstallmentStripeCompletedDTO } from "application/dto/deal/dealInstallmentResponseDTO";
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 import { UserRole } from "@domain/enum/userRole";
+import { IEquityService } from "@domain/interfaces/services/IEquityService";
 
 export class HandleDealInstallmentStripeCompletedUseCase
   implements IHandleDealInstallmentStripeCompletedUseCase
@@ -32,7 +33,8 @@ export class HandleDealInstallmentStripeCompletedUseCase
     private _transactionRepo: ITransactionRepository,
     private _paymentRepo: IPaymentRepository,
     private _unitOfWork: IUnitOfWork,
-    private _userRepo: IUserRepository
+    private _userRepo: IUserRepository,
+    private _equityService: IEquityService
   ) {}
 
   async execute(dto: HandleDealInstallmentStripeCompletedDTO): Promise<void> {
@@ -86,16 +88,20 @@ export class HandleDealInstallmentStripeCompletedUseCase
       );
 
       await this._dealRepo.incrementPaidAmount(deal._id!, dto.amount, session);
+      const updatedDeal = await this._dealRepo.findById(deal._id!);
+      if (!updatedDeal) throw new NotFoundExecption(DEAL_ERRORS.DEAL_NOT_FOUND);
 
-      const newRemaining = deal.remainingAmount - dto.amount;
+      const isCompleted = updatedDeal.remainingAmount === 0;
 
       await this._dealRepo.update(
-        deal._id!,
+        updatedDeal._id!,
         {
-          status: newRemaining === 0 ? DealStatus.COMPLETED : DealStatus.PARTIALLY_PAID,
+          status: isCompleted ? DealStatus.COMPLETED : DealStatus.PARTIALLY_PAID,
         },
         session
       );
+
+      await this._equityService.allocateEquity(updatedDeal, dto.amount, session!);
 
       await this._transactionRepo.save(
         {

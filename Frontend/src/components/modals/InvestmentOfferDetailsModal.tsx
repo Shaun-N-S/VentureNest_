@@ -243,7 +243,7 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                 </section>
               )}
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
                 {/* Terms & Conditions */}
                 <section className="space-y-4">
                   <div className="flex items-center gap-2">

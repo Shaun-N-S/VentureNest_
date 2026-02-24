@@ -20,6 +20,7 @@ import {
 import { DEAL_ERRORS, Errors, INSTALLMENT_ERRORS, WALLET_ERRORS } from "@shared/constants/error";
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 import { UserRole } from "@domain/enum/userRole";
+import { IEquityService } from "@domain/interfaces/services/IEquityService";
 
 export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUseCase {
   constructor(
@@ -28,7 +29,8 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
     private _installmentRepo: IDealInstallmentRepository,
     private _transactionRepo: ITransactionRepository,
     private _unitOfWork: IUnitOfWork,
-    private _userRepo: IUserRepository
+    private _userRepo: IUserRepository,
+    private _equityService: IEquityService
   ) {}
 
   async execute(investorId: string, dto: ReleaseDealInstallmentDTO): Promise<void> {
@@ -96,6 +98,9 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
       );
 
       await this._dealRepo.incrementPaidAmount(deal._id!, dto.amount, session);
+      const updatedDeal = await this._dealRepo.findById(deal._id!);
+
+      if (!updatedDeal) throw new NotFoundExecption(DEAL_ERRORS.DEAL_NOT_FOUND);
 
       await this._transactionRepo.save(
         {
@@ -109,6 +114,18 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
         },
         session
       );
+
+      const isCompleted = updatedDeal.remainingAmount === 0;
+
+      await this._dealRepo.update(
+        updatedDeal._id!,
+        {
+          status: isCompleted ? DealStatus.COMPLETED : DealStatus.PARTIALLY_PAID,
+        },
+        session
+      );
+
+      await this._equityService.allocateEquity(updatedDeal, dto.amount, session!);
 
       await this._unitOfWork.commit();
     } catch (error) {

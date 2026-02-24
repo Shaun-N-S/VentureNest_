@@ -85,6 +85,7 @@ export const REPLY_ERRORS = {
 
 export const PROJECT_ERRORS = {
   NO_PROJECTS_FOUND: "No projects found!",
+  PROJECT_REGISTRATION_NOT_FOUND: "Project registration not found!",
 };
 
 export const REPORT_ERRORS = {

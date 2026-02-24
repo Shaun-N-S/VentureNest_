@@ -14,6 +14,10 @@ import {
 } from "../../hooks/Admin/KYCHooks";
 import type { KYCStatus } from "../../types/KycStatusType";
 import VerificationModal from "../../components/modals/ProfileVerificationModal";
+import { useGetAllProjectRegistrations } from "../../hooks/Admin/ProjectHooks";
+import type { ProjectRegistrationStatus } from "../../types/projectRegistrationStatus";
+import type { AdminProjectRegistration } from "../../types/AdminProjectRegistrationType";
+import ProjectVerificationModal from "../../components/modals/ProjectVerificationModal";
 
 interface BaseRow {
   _id: string;
@@ -51,8 +55,12 @@ interface InvestorRow extends BaseRow {
   location?: string;
 }
 
+type ProjectRow = AdminProjectRegistration;
+
 const VerificationPage = () => {
-  const [activeTab, setActiveTab] = useState<"users" | "investors">("users");
+  const [activeTab, setActiveTab] = useState<
+    "users" | "investors" | "projects"
+  >("users");
   const [page, setPage] = useState(1);
   const [limit] = useState(5);
   const [searchInput, setSearchInput] = useState("");
@@ -62,51 +70,82 @@ const VerificationPage = () => {
   const [selectedUser, setSelectedUser] = useState<
     UserRow | InvestorRow | null
   >(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectRow | null>(
+    null,
+  );
 
   const { data: userData } = useFetchAllUsersKyc(
     page,
     limit,
     statusFilter,
-    debouncedSearch
+    debouncedSearch,
   );
 
   const { data: investorData } = useFetchAllInvestorsKyc(
     page,
     limit,
     statusFilter,
-    debouncedSearch
+    debouncedSearch,
+  );
+
+  const projectStatus =
+    activeTab === "projects"
+      ? (statusFilter as ProjectRegistrationStatus | undefined)
+      : undefined;
+
+  const { data: projectRegistrationData } = useGetAllProjectRegistrations(
+    page,
+    limit,
+    projectStatus,
   );
 
   console.log(
-    "Search params:",
-    { page, limit, statusFilter, debouncedSearch, activeTab },
-    "userData :",
-    userData,
-    "investorData :",
-    investorData
+    "projectRegistrationData :",
+    projectRegistrationData?.registrations,
   );
 
   const allData = useMemo(() => {
     if (activeTab === "users") {
-      return (userData?.data?.data?.usersKyc as UserRow[]) || [];
-    } else {
-      return (investorData?.data?.data?.investorsKyc as InvestorRow[]) || [];
+      return userData?.data?.data?.usersKyc ?? [];
     }
-  }, [activeTab, userData, investorData]);
+
+    if (activeTab === "investors") {
+      return investorData?.data?.data?.investorsKyc ?? [];
+    }
+
+    return projectRegistrationData?.registrations ?? [];
+  }, [activeTab, userData, investorData, projectRegistrationData]);
 
   // Paginate data
   const paginatedData = allData;
 
   const totalPages =
     activeTab === "users"
-      ? userData?.data?.data?.totalPages || 1
-      : investorData?.data?.data?.totalPages || 1;
+      ? (userData?.data?.data?.totalPages ?? 1)
+      : activeTab === "investors"
+        ? (investorData?.data?.data?.totalPages ?? 1)
+        : (projectRegistrationData?.totalPages ?? 1);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchInput(e.target.value);
     },
-    []
+    [],
+  );
+
+  const handleViewClick = useCallback(
+    (row: UserRow | InvestorRow | ProjectRow) => {
+      if ("registrationId" in row) {
+        setSelectedProject(row);
+        setSelectedUser(null);
+      } else {
+        setSelectedUser(row);
+        setSelectedProject(null);
+      }
+
+      setModalOpen(true);
+    },
+    [],
   );
 
   const handleSearchClick = useCallback(() => {
@@ -125,13 +164,8 @@ const VerificationPage = () => {
       setStatusFilter(e.target.value);
       setPage(1);
     },
-    []
+    [],
   );
-
-  const handleViewClick = useCallback((row: UserRow | InvestorRow) => {
-    setSelectedUser(row);
-    setModalOpen(true);
-  }, []);
 
   const handleModalClose = useCallback(() => {
     setModalOpen(false);
@@ -147,7 +181,7 @@ const VerificationPage = () => {
           String(
             (page - 1) * limit +
               (paginatedData as UserRow[]).findIndex((u) => u._id === row._id) +
-              1
+              1,
           ),
       },
       {
@@ -164,7 +198,7 @@ const VerificationPage = () => {
                 />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium text-white">
-                  {row.userName.charAt(0).toUpperCase()}
+                  {row?.userName ? row.userName.charAt(0).toUpperCase() : "U"}
                 </div>
               )}
             </div>
@@ -192,24 +226,36 @@ const VerificationPage = () => {
       {
         id: "status",
         label: "Status",
-        render: (row: UserRow) => (
-          <span
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold ${
-              row.kycStatus === "APPROVED"
-                ? "bg-green-100 text-green-700"
-                : row.kycStatus === "REJECTED"
-                  ? "bg-red-100 text-red-700"
-                  : row.kycStatus === "SUBMITTED"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-yellow-100 text-yellow-700"
-            }`}
-          >
-            {row.kycStatus.charAt(0) + row.kycStatus.slice(1).toLowerCase()}
-          </span>
-        ),
+        render: (row: UserRow) => {
+          const status = row?.kycStatus;
+
+          if (!status || typeof status !== "string") {
+            return (
+              <span className="px-4 py-1.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                Pending
+              </span>
+            );
+          }
+
+          return (
+            <span
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold ${
+                status === "APPROVED"
+                  ? "bg-green-100 text-green-700"
+                  : status === "REJECTED"
+                    ? "bg-red-100 text-red-700"
+                    : status === "SUBMITTED"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-yellow-100 text-yellow-700"
+              }`}
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
+            </span>
+          );
+        },
       },
     ],
-    [page, limit, paginatedData, handleViewClick]
+    [page, limit, paginatedData, handleViewClick],
   );
 
   // Investor headers
@@ -222,9 +268,9 @@ const VerificationPage = () => {
           String(
             (page - 1) * limit +
               (paginatedData as InvestorRow[]).findIndex(
-                (u) => u._id === row._id
+                (u) => u._id === row._id,
               ) +
-              1
+              1,
           ),
       },
       {
@@ -241,7 +287,7 @@ const VerificationPage = () => {
                 />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium text-white">
-                  {row.userName.charAt(0).toUpperCase()}
+                  {row?.userName ? row.userName.charAt(0).toUpperCase() : "I"}
                 </div>
               )}
             </div>
@@ -269,24 +315,126 @@ const VerificationPage = () => {
       {
         id: "status",
         label: "Status",
-        render: (row: InvestorRow) => (
-          <span
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold ${
-              row.kycStatus === "APPROVED"
-                ? "bg-green-100 text-green-700"
-                : row.kycStatus === "REJECTED"
-                  ? "bg-red-100 text-red-700"
-                  : row.kycStatus === "SUBMITTED"
-                    ? "bg-blue-100 text-blue-700"
+        render: (row: InvestorRow) => {
+          const status = row?.kycStatus;
+
+          if (!status || typeof status !== "string") {
+            return (
+              <span className="px-4 py-1.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                Pending
+              </span>
+            );
+          }
+
+          return (
+            <span
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold ${
+                status === "APPROVED"
+                  ? "bg-green-100 text-green-700"
+                  : status === "REJECTED"
+                    ? "bg-red-100 text-red-700"
+                    : status === "SUBMITTED"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-yellow-100 text-yellow-700"
+              }`}
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
+            </span>
+          );
+        },
+      },
+    ],
+    [page, limit, paginatedData, handleViewClick],
+  );
+
+  const projectHeaders = useMemo(
+    () => [
+      {
+        id: "sl",
+        label: "Sl",
+        render: (row: ProjectRow) =>
+          String(
+            (page - 1) * limit +
+              allData.findIndex(
+                (p: ProjectRow) => p.registrationId === row.registrationId,
+              ) +
+              1,
+          ),
+      },
+      {
+        id: "startup",
+        label: "Startup",
+        render: (row: ProjectRow) => (
+          <div className="flex items-center gap-2">
+            {row?.project?.logoUrl ? (
+              <img
+                src={row.project.logoUrl}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-gray-300 rounded-full" />
+            )}
+            <span>{row?.project?.startupName ?? "-"}</span>
+          </div>
+        ),
+      },
+      {
+        id: "founder",
+        label: "Founder",
+        render: (row: ProjectRow) => (
+          <div className="flex items-center gap-2">
+            {row?.founder?.profileImg ? (
+              <img
+                src={row.founder.profileImg}
+                alt={row.founder.userName}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium text-white">
+                {row?.founder?.userName
+                  ? row.founder.userName.charAt(0).toUpperCase()
+                  : "F"}
+              </div>
+            )}
+            <span>{row?.founder?.userName ?? "-"}</span>
+          </div>
+        ),
+      },
+      {
+        id: "status",
+        label: "Status",
+        render: (row: ProjectRow) => {
+          const status = row?.status ?? "Pending";
+
+          return (
+            <span
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold ${
+                status === "Approved"
+                  ? "bg-green-100 text-green-700"
+                  : status === "Rejected"
+                    ? "bg-red-100 text-red-700"
                     : "bg-yellow-100 text-yellow-700"
-            }`}
+              }`}
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
+            </span>
+          );
+        },
+      },
+      {
+        id: "view",
+        label: "View",
+        render: (row: ProjectRow) => (
+          <button
+            onClick={() => handleViewClick(row)}
+            className="px-6 py-1.5 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition"
           >
-            {row.kycStatus.charAt(0) + row.kycStatus.slice(1).toLowerCase()}
-          </span>
+            View
+          </button>
         ),
       },
     ],
-    [page, limit, paginatedData, handleViewClick]
+    [page, limit, allData],
   );
 
   return (
@@ -301,8 +449,11 @@ const VerificationPage = () => {
           <Tabs
             value={activeTab}
             onValueChange={(value) => {
-              setActiveTab(value as "users" | "investors");
+              setActiveTab(value as "users" | "investors" | "projects");
               setPage(1);
+              setModalOpen(false);
+              setSelectedUser(null);
+              setSelectedProject(null);
             }}
             className="w-full"
           >
@@ -319,12 +470,12 @@ const VerificationPage = () => {
               >
                 Investors
               </TabsTrigger>
-              {/* <TabsTrigger
-                                value="projects"
-                                className="px-6 py-2 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                            >
-                                Projects
-                            </TabsTrigger> */}
+              <TabsTrigger
+                value="projects"
+                className="px-6 py-2 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              >
+                Projects
+              </TabsTrigger>
             </TabsList>
 
             {/* Search and Filter */}
@@ -379,6 +530,16 @@ const VerificationPage = () => {
                 data={paginatedData as InvestorRow[]}
               />
             </TabsContent>
+
+            <TabsContent value="projects" className="mt-0">
+              <Table<ProjectRow & { id: string }>
+                headers={projectHeaders}
+                data={(allData as ProjectRow[]).map((p) => ({
+                  ...p,
+                  id: p.registrationId,
+                }))}
+              />
+            </TabsContent>
           </Tabs>
 
           {/* Pagination */}
@@ -394,9 +555,18 @@ const VerificationPage = () => {
 
       {/* Verification Modal */}
       <VerificationModal
-        isOpen={modalOpen}
+        isOpen={modalOpen && !!selectedUser}
         onClose={handleModalClose}
         data={selectedUser}
+      />
+
+      <ProjectVerificationModal
+        isOpen={modalOpen && !!selectedProject}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedProject(null);
+        }}
+        data={selectedProject}
       />
     </div>
   );

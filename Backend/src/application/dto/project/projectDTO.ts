@@ -30,7 +30,6 @@ export interface ProjectResDTO {
   donationEnabled: boolean;
   donationTarget: number;
   donationReceived: number;
-  projectRegister: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,7 +49,6 @@ export interface CreateProjectDTO {
   location?: string | undefined;
   donationEnabled?: boolean | undefined;
   donationTarget?: number | undefined;
-  projectRegister?: boolean | undefined;
 }
 
 export interface CreateProjectEntityDTO {
@@ -72,7 +70,6 @@ export interface CreateProjectEntityDTO {
 
   donationEnabled?: boolean | undefined;
   donationTarget?: number | undefined;
-  projectRegister?: boolean | undefined;
 }
 
 export interface UpdateProjectDTO {
@@ -96,7 +93,6 @@ export interface UpdateProjectDTO {
 
   donationEnabled?: boolean | undefined;
   donationTarget?: number | undefined;
-  projectRegister?: boolean | undefined;
 }
 
 export interface UpdateProjectEntityDTO {
@@ -119,7 +115,6 @@ export interface UpdateProjectEntityDTO {
 
   donationEnabled?: boolean | undefined;
   donationTarget?: number | undefined;
-  projectRegister?: boolean | undefined;
 }
 
 export interface PopulatedUserStub {
@@ -150,7 +145,6 @@ export interface PopulatedProjectRepoDTO {
   donationEnabled: boolean;
   donationTarget: number;
   donationReceived: number;
-  projectRegister: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

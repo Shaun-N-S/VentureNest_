@@ -60,8 +60,6 @@ const projectSchema = new mongoose.Schema(
     donationEnabled: { type: Boolean, default: false },
     donationTarget: { type: Number, default: 0 },
     donationReceived: { type: Number, default: 0 },
-
-    projectRegister: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

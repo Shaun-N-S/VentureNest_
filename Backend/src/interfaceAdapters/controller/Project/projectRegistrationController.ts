@@ -39,9 +39,6 @@ export class ProjectRegistrationController {
           ? multerFileToFileConverter(files.companyRegistrationCertificate[0])
           : undefined,
 
-        // Convert boolean strings → boolean
-        verifyProfile: formData.verifyProfile === "true" || formData.verifyProfile === true,
-
         declarationAccepted:
           formData.declarationAccepted === "true" || formData.declarationAccepted === true,
       };
@@ -56,7 +53,12 @@ export class ProjectRegistrationController {
 
       await this._createProjectRegistrationUseCase.registerProject(dto);
 
-      ResponseHelper.success(res, MESSAGES.PROJECT.PROJECT_REGISTRATION_SUCCESSFULL, HTTPSTATUS.OK);
+      ResponseHelper.success(
+        res,
+        MESSAGES.PROJECT.PROJECT_REGISTRATION_SUCCESSFULL,
+        {},
+        HTTPSTATUS.OK
+      );
     } catch (error) {
       next(error);
     }

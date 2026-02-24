@@ -28,8 +28,6 @@ export const UpdateProjectReqSchema = z.object({
 
   donationTarget: z.preprocess((v) => (v === "" ? undefined : Number(v)), z.number()).optional(),
 
-  projectRegister: z.boolean().optional(),
-
   // File uploads (optional)
   pitchDeckUrl: z.any().optional(),
   logoUrl: z.any().optional(),

@@ -1,5 +1,7 @@
 import { DealStatus } from "@domain/enum/dealStatus";
 import { DealInstallmentStatus } from "@domain/enum/dealInstallmentStatus";
+import { ConversionStatus } from "@domain/enum/conversionStatus";
+import { InvestmentType } from "@domain/enum/investmentType";
 
 export interface InstallmentDTO {
   installmentId: string;
@@ -19,7 +21,12 @@ export interface DealDetailsResponseDTO {
   totalAmount: number;
   amountPaid: number;
   remainingAmount: number;
+
   equityPercentage: number;
+  equityAllocated: number;
+
+  investmentType: InvestmentType;
+  conversionStatus: ConversionStatus;
 
   status: DealStatus;
 

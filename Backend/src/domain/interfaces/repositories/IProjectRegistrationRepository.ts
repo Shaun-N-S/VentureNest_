@@ -1,8 +1,14 @@
 import { ProjectRegistrationEntity } from "domain/entities/project/projectRegistrationEntity";
 import { IBaseRepository } from "./IBaseRepository";
+import { ClientSession } from "mongoose";
+import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatus";
+import { PopulatedProjectRegistrationRepoDTO } from "application/dto/admin/projectRegistrationRepoDTO";
 
 export interface IProjectRegistrationRepository extends IBaseRepository<ProjectRegistrationEntity> {
-  findRegistrationByProjectId(projectId: string): Promise<ProjectRegistrationEntity | null>;
+  findRegistrationByProjectId(
+    projectId: string,
+    session?: ClientSession
+  ): Promise<ProjectRegistrationEntity | null>;
 
   findRegistrationsByFounderId(
     founderId: string,
@@ -16,7 +22,17 @@ export interface IProjectRegistrationRepository extends IBaseRepository<ProjectR
 
   verifyProjectRegistration(
     registrationId: string,
-    status: string,
-    verifyProfile: boolean
+    status: ProjectRegistrationStatus,
+    rejectionReason?: string
   ): Promise<ProjectRegistrationEntity | null>;
+
+  findAllAdmin(
+    skip: number,
+    limit: number,
+    status?: ProjectRegistrationStatus
+  ): Promise<PopulatedProjectRegistrationRepoDTO[]>;
+
+  countAdmin(status?: ProjectRegistrationStatus): Promise<number>;
+
+  findByIdPopulated(registrationId: string): Promise<PopulatedProjectRegistrationRepoDTO | null>;
 }

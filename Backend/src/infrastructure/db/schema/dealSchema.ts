@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import { DealStatus } from "@domain/enum/dealStatus";
+import { InvestmentType } from "@domain/enum/investmentType";
+import { ConversionStatus } from "@domain/enum/conversionStatus";
 
 const dealSchema = new mongoose.Schema(
   {
@@ -29,16 +31,42 @@ const dealSchema = new mongoose.Schema(
       required: true,
     },
 
-    totalAmount: { type: Number, required: true },
+    totalAmount: {
+      type: Number,
+      required: true,
+    },
 
     amountPaid: {
       type: Number,
       default: 0,
     },
 
-    remainingAmount: { type: Number, required: true },
+    remainingAmount: {
+      type: Number,
+      required: true,
+    },
 
-    equityPercentage: { type: Number, required: true },
+    equityPercentage: {
+      type: Number,
+      required: true,
+    },
+
+    equityAllocated: {
+      type: Number,
+      default: 0,
+    },
+
+    investmentType: {
+      type: String,
+      enum: Object.values(InvestmentType),
+      required: true,
+    },
+
+    conversionStatus: {
+      type: String,
+      enum: Object.values(ConversionStatus),
+      default: ConversionStatus.NOT_REQUIRED,
+    },
 
     status: {
       type: String,

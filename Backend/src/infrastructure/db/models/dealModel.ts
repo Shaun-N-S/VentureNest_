@@ -1,11 +1,15 @@
 import { Document, model } from "mongoose";
-import dealSchema from "../schema/dealSchema";
 import { DealStatus } from "@domain/enum/dealStatus";
+import { InvestmentType } from "@domain/enum/investmentType";
+import { ConversionStatus } from "@domain/enum/conversionStatus";
+import dealSchema from "../schema/dealSchema";
 
 export interface IDealModel extends Document {
   _id: string;
+
   projectId: string;
   offerId: string;
+
   founderId: string;
   investorId: string;
 
@@ -14,6 +18,10 @@ export interface IDealModel extends Document {
   remainingAmount: number;
 
   equityPercentage: number;
+  equityAllocated: number;
+
+  investmentType: InvestmentType;
+  conversionStatus: ConversionStatus;
 
   status: DealStatus;
 

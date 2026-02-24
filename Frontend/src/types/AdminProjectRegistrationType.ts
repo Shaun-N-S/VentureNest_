@@ -1,0 +1,28 @@
+export interface AdminProjectRegistration {
+  registrationId: string;
+
+  project: {
+    projectId: string;
+    startupName: string;
+    logoUrl?: string;
+    coverImageUrl?: string;
+  };
+
+  founder: {
+    founderId: string;
+    userName: string;
+    profileImg?: string;
+  };
+
+  gstCertificateUrl?: string;
+  companyRegistrationCertificateUrl?: string;
+  cinNumber?: string;
+
+  country: string;
+  declarationAccepted: boolean;
+
+  status: "Approved" | "Rejected" | "Pending";
+  rejectionReason?: string | null;
+
+  createdAt: string;
+}

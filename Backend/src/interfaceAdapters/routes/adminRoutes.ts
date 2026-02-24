@@ -2,7 +2,10 @@ import { adminContentController } from "@infrastructure/DI/Admin/adminContentCon
 import { adminInvestorController } from "@infrastructure/DI/Admin/adminInvestorContainer";
 import { adminKycController } from "@infrastructure/DI/Admin/adminKycContainer";
 import { adminPlanController } from "@infrastructure/DI/Admin/adminPlanController";
-import { adminProjectController } from "@infrastructure/DI/Admin/adminProjectContainer";
+import {
+  adminProjectController,
+  adminProjectRegistrationController,
+} from "@infrastructure/DI/Admin/adminProjectContainer";
 import { adminReportController } from "@infrastructure/DI/Admin/adminReportContainer";
 import { adminUserController } from "@infrastructure/DI/Admin/adminUserContainer";
 import { adminAuthController } from "@infrastructure/DI/Auth/authContainer";
@@ -183,6 +186,20 @@ export class Admin_Routes {
       ...adminGuard,
       (req: Request, res: Response, next: NextFunction) =>
         adminPlanController.updatePlanStatus(req, res, next)
+    );
+
+    this._route.get(
+      ADMIN.PROJECT_REGISTRATIONS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminProjectRegistrationController.getAllProjectRegistrations(req, res, next)
+    );
+
+    this._route.patch(
+      ADMIN.UPDATE_PROJECT_REGISTRATION_STATUS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminProjectRegistrationController.updateProjectRegistrationStatus(req, res, next)
     );
   }
 
