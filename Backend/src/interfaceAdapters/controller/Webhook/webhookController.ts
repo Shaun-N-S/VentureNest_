@@ -71,7 +71,7 @@ export class WebhookController {
           ownerId,
           ownerRole: role,
           dealId: session.metadata!.dealId!,
-          amount: Number(session.metadata!.installmentAmount),
+          amount: session.amount_total! / 100,
         });
       }
     }

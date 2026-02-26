@@ -27,4 +27,23 @@ export class TransactionRepository
 
     return docs.map(TransactionMapper.fromMongooseDocument);
   }
+
+  async findAdminTransactions(
+    filters: {
+      reason?: string;
+      action?: string;
+      status?: string;
+      relatedDealId?: string;
+    },
+    skip: number,
+    limit: number
+  ): Promise<TransactionEntity[]> {
+    const docs = await this._model.find(filters).sort({ createdAt: -1 }).skip(skip).limit(limit);
+
+    return docs.map(TransactionMapper.fromMongooseDocument);
+  }
+
+  async countAdminTransactions(filters: any): Promise<number> {
+    return this._model.countDocuments(filters);
+  }
 }

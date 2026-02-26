@@ -4,10 +4,12 @@ import { IFetchPersonalProjectsUseCase } from "@domain/interfaces/useCases/proje
 import { ProjectMapper } from "application/mappers/projectMapper";
 import { ProjectResDTO } from "application/dto/project/projectDTO";
 import { CONFIG } from "@config/config";
+import { IProjectRegistrationRepository } from "@domain/interfaces/repositories/IProjectRegistrationRepository";
 
 export class FetchPersonalProjectsUseCase implements IFetchPersonalProjectsUseCase {
   constructor(
     private _projectRepository: IProjectRepository,
+    private _projectRegistrationRepository: IProjectRegistrationRepository,
     private _storageService: IStorageService
   ) {}
 
@@ -23,6 +25,13 @@ export class FetchPersonalProjectsUseCase implements IFetchPersonalProjectsUseCa
     const dtoProjects: ProjectResDTO[] = await Promise.all(
       projects.map(async (project) => {
         const dto = ProjectMapper.toDTO(project);
+
+        const registration = await this._projectRegistrationRepository.findRegistrationByProjectId(
+          project._id!
+        );
+
+        dto.registrationStatus = registration?.status ?? null;
+        dto.rejectionReason = registration?.rejectionReason ?? null;
 
         dto.liked = project.likes.some((l) => l.likerId.toString() === userId);
 

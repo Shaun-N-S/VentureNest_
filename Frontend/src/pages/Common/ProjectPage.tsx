@@ -52,7 +52,7 @@ const ProjectPage = () => {
 
   const handleProjectLike = (
     projectId: string,
-    updateUI: (liked: boolean, count: number) => void
+    updateUI: (liked: boolean, count: number) => void,
   ) => {
     likeProject(projectId, {
       onSuccess: (res) => {
@@ -73,11 +73,11 @@ const ProjectPage = () => {
                         liked: res.data.liked,
                         likeCount: res.data.likeCount,
                       }
-                    : p
+                    : p,
                 ),
               })),
             };
-          }
+          },
         );
       },
       onError: () => {
@@ -225,6 +225,7 @@ const ProjectPage = () => {
                 description={project.shortDescription}
                 stage={project.stage!}
                 image={project.coverImageUrl || "/placeholder.svg"}
+                registrationStatus={project.registrationStatus}
                 likes={project.likeCount}
                 liked={project.liked}
                 onLike={(updateUI) => handleProjectLike(project._id, updateUI)}

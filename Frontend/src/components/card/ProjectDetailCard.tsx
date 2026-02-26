@@ -10,6 +10,7 @@ import {
   Target,
   Sparkles,
   CalendarDays,
+  CheckCircle,
 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
@@ -17,6 +18,7 @@ import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Document, Page } from "react-pdf";
 import { Link } from "react-router-dom";
+import { VerifiedBadge } from "../Comments/VerifiedBadge";
 
 interface Founder {
   id: string;
@@ -40,6 +42,9 @@ interface ProjectDetailCardProps {
   pitchDeckUrl?: string;
   pitchDeckName?: string;
   location?: string;
+  registrationStatus?: string;
+  rejectionReason?: string | null;
+  isOwner?: boolean;
   onLike?: (id: string) => void;
   isLikeLoading?: boolean;
   onReport?: (id: string) => void;
@@ -66,6 +71,9 @@ export function ProjectDetailCard({
   pitchDeckUrl,
   pitchDeckName,
   location,
+  registrationStatus,
+  rejectionReason,
+  isOwner,
   onReport,
   showScheduleButton,
 }: ProjectDetailCardProps) {
@@ -139,9 +147,15 @@ export function ProjectDetailCard({
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               {/* LEFT SIDE */}
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
-                  {name}
-                </h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
+                    {name}
+                  </h1>
+
+                  {registrationStatus === "APPROVED" && (
+                    <VerifiedBadge size={26} />
+                  )}
+                </div>
 
                 <Badge
                   variant="outline"
@@ -150,6 +164,20 @@ export function ProjectDetailCard({
                   <Sparkles className="w-3 h-3 mr-1" />
                   {stage}
                 </Badge>
+                {isOwner && registrationStatus === "REJECTED" && (
+                  <div className="mt-3 p-4 rounded-xl bg-red-50 border border-red-200">
+                    <div className="flex items-center gap-2 text-red-700 font-semibold text-sm">
+                      <CheckCircle className="w-4 h-4 text-red-600" />
+                      Project Rejected
+                    </div>
+
+                    {rejectionReason && (
+                      <p className="mt-2 text-sm text-red-600 leading-relaxed">
+                        {rejectionReason}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* RIGHT SIDE */}

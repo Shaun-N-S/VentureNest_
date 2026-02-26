@@ -1,4 +1,5 @@
 import { adminContentController } from "@infrastructure/DI/Admin/adminContentContainer";
+import { adminFinanceController } from "@infrastructure/DI/Admin/adminFinanceContainer";
 import { adminInvestorController } from "@infrastructure/DI/Admin/adminInvestorContainer";
 import { adminKycController } from "@infrastructure/DI/Admin/adminKycContainer";
 import { adminPlanController } from "@infrastructure/DI/Admin/adminPlanController";
@@ -200,6 +201,13 @@ export class Admin_Routes {
       ...adminGuard,
       (req: Request, res: Response, next: NextFunction) =>
         adminProjectRegistrationController.updateProjectRegistrationStatus(req, res, next)
+    );
+
+    this._route.get(
+      ADMIN.TRANSACTIONS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminFinanceController.getAdminTransactions(req, res, next)
     );
   }
 

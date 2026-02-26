@@ -78,7 +78,7 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
       if (investorWallet.balance < dto.amount)
         throw new InvalidDataException(INSTALLMENT_ERRORS.INSUFFICIENT_BALANCE);
 
-      const platformFee = dto.amount * PLATFORM_COMMISSION_RATE;
+      const platformFee = Number((dto.amount * PLATFORM_COMMISSION_RATE).toFixed(2));
       const founderReceives = dto.amount - platformFee;
 
       await this._walletRepo.decrementBalance(investorWallet._id!, dto.amount, session);

@@ -1,4 +1,5 @@
 import { CONFIG } from "@config/config";
+import { IProjectRegistrationRepository } from "@domain/interfaces/repositories/IProjectRegistrationRepository";
 import { IProjectRepository } from "@domain/interfaces/repositories/IProjectRepository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IFetchProjectByIdUseCase } from "@domain/interfaces/useCases/project/IFetchProjectByIdUseCase";
@@ -10,6 +11,7 @@ import { ProjectMapper } from "application/mappers/projectMapper";
 export class FetchProjectByIdUseCase implements IFetchProjectByIdUseCase {
   constructor(
     private _projectRepo: IProjectRepository,
+    private _projectRegistrationRepository: IProjectRegistrationRepository,
     private _storageService: IStorageService
   ) {}
 
@@ -19,6 +21,12 @@ export class FetchProjectByIdUseCase implements IFetchProjectByIdUseCase {
     if (!populatedProject) throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);
 
     const dto = ProjectMapper.toDTOFromPopulatedRepo(populatedProject);
+
+    const registration =
+      await this._projectRegistrationRepository.findRegistrationByProjectId(projectId);
+
+    dto.registrationStatus = registration?.status ?? null;
+    dto.rejectionReason = registration?.rejectionReason ?? null;
 
     if (dto.user) {
       dto.user.profileImg = dto.user.profileImg

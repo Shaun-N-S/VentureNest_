@@ -73,6 +73,7 @@ export const ROUTES = {
     PLAN_STATUS: "/plans/:planId/status",
     PROJECT_REGISTRATIONS: "/project-registrations",
     UPDATE_PROJECT_REGISTRATION_STATUS: "/project-registrations/update-status/:registrationId",
+    TRANSACTIONS: "/transactions",
   },
 
   USERS: {

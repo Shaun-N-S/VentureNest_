@@ -1,4 +1,5 @@
 import { PreferredSector } from "@domain/enum/preferredSector";
+import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatus";
 import { ProjectRole } from "@domain/enum/projectRole";
 import { StartupStage } from "@domain/enum/startupStages";
 import { TeamSize } from "@domain/enum/teamSize";
@@ -22,6 +23,8 @@ export interface ProjectResDTO {
   logoUrl?: string;
   coverImageUrl?: string;
   location?: string;
+  registrationStatus?: ProjectRegistrationStatus | null;
+  rejectionReason?: string | null;
   likes: { likerId: string; likerRole: UserRole }[];
   liked: boolean;
   likeCount: number;

@@ -23,6 +23,7 @@ const ProjectDetailedPage = () => {
   const { data, isLoading } = useFetchProjectById(id!);
   const { mutate: likeProject, isPending } = useLikeProject();
   const role = useSelector((state: Rootstate) => state.authData.role);
+  const userId = useSelector((state: Rootstate) => state.authData.id);
 
   console.log("data for detailed page  project    : ,", data);
 
@@ -147,6 +148,9 @@ const ProjectDetailedPage = () => {
           pitchDeckUrl={project.pitchDeckUrl}
           pitchDeckName="Pitch Deck"
           location={project.location}
+          registrationStatus={project.registrationStatus}
+          rejectionReason={project.rejectionReason}
+          isOwner={project.userId === userId}
           onLike={handleProjectLike}
           isLikeLoading={isPending}
           onReport={handleReport}

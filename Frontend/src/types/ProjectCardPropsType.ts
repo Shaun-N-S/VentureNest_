@@ -1,3 +1,5 @@
+import type { ProjectRegistrationStatus } from "./projectRegistrationStatus";
+
 export interface ProjectCardProps {
   id: string;
   title: string;
@@ -6,6 +8,8 @@ export interface ProjectCardProps {
   logoUrl?: string;
   likes?: number;
   liked?: boolean;
+  registrationStatus?: ProjectRegistrationStatus | null;
+  rejectionReason?: string | null;
   isOwnProfile?: boolean;
   onLike?: (updateUI: (liked: boolean) => void) => void;
 

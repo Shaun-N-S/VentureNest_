@@ -2,7 +2,7 @@ import { ProjectRegistrationEntity } from "@domain/entities/project/projectRegis
 import { BaseRepository } from "./baseRepository";
 import { IProjectRegistrationModel } from "@infrastructure/db/models/projectRegistrationModel";
 import { IProjectRegistrationRepository } from "@domain/interfaces/repositories/IProjectRegistrationRepository";
-import { ClientSession, Model, PipelineStage } from "mongoose";
+import mongoose, { ClientSession, Model, PipelineStage } from "mongoose";
 import { ProjectRegistrationMapper } from "application/mappers/projectRegistrationMapper";
 import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatus";
 import { PopulatedProjectRegistrationRepoDTO } from "application/dto/admin/projectRegistrationRepoDTO";
@@ -15,8 +15,15 @@ export class ProjectRegistrationRepository
     super(_model, ProjectRegistrationMapper);
   }
 
-  async findRegistrationByProjectId(projectId: string, session?: ClientSession) {
-    const doc = await this._model.findOne({ projectId }).session(session!);
+  async findRegistrationByProjectId(
+    projectId: string,
+    session?: ClientSession
+  ): Promise<ProjectRegistrationEntity | null> {
+    const doc = await this._model
+      .findOne({ projectId })
+      .sort({ createdAt: -1 })
+      .session(session ?? null);
+
     return doc ? ProjectRegistrationMapper.fromMongooseDocument(doc) : null;
   }
 
@@ -195,14 +202,55 @@ export class ProjectRegistrationRepository
   async findByIdPopulated(
     registrationId: string
   ): Promise<PopulatedProjectRegistrationRepoDTO | null> {
-    const doc = await this._model
-      .findById(registrationId)
-      .populate("projectId", "startupName logoUrl coverImageUrl")
-      .populate("founderId", "userName profileImg")
-      .lean();
+    const result = await this._model.aggregate<PopulatedProjectRegistrationRepoDTO>([
+      { $match: { _id: new mongoose.Types.ObjectId(registrationId) } },
 
-    if (!doc) return null;
+      {
+        $lookup: {
+          from: "projects",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "project",
+        },
+      },
+      { $unwind: "$project" },
 
-    return doc as unknown as PopulatedProjectRegistrationRepoDTO;
+      {
+        $lookup: {
+          from: "users",
+          localField: "founderId",
+          foreignField: "_id",
+          as: "founder",
+        },
+      },
+      { $unwind: "$founder" },
+
+      {
+        $project: {
+          _id: 1,
+          project: {
+            _id: "$project._id",
+            startupName: "$project.startupName",
+            logoUrl: "$project.logoUrl",
+            coverImageUrl: "$project.coverImageUrl",
+          },
+          founder: {
+            _id: "$founder._id",
+            userName: "$founder.userName",
+            profileImg: "$founder.profileImg",
+          },
+          gstCertificateUrl: 1,
+          companyRegistrationCertificateUrl: 1,
+          cinNumber: 1,
+          country: 1,
+          declarationAccepted: 1,
+          status: 1,
+          rejectionReason: 1,
+          createdAt: 1,
+        },
+      },
+    ]);
+
+    return result?.[0] ?? null;
   }
 }

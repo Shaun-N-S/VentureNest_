@@ -61,7 +61,9 @@ export const API_ROUTES = {
     PLAN_BY_ID: "/admin/plans/:planId",
     PLAN_STATUS: "/admin/plans/:planId/status",
     PROJECT_REGISTRATIONS: "/admin/project-registrations",
-    PROJECT_REGISTRATIONS_UPDATE_STATUS: "/admin/project-registrations/update-status",
+    PROJECT_REGISTRATIONS_UPDATE_STATUS:
+      "/admin/project-registrations/update-status",
+    TRANSACTIONS: "/admin/transactions",
   },
 
   INVESTOR: {

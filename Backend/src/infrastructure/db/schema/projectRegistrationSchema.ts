@@ -35,6 +35,11 @@ const projectRegistrationSchema = new mongoose.Schema(
       enum: Object.values(ProjectRegistrationStatus),
       default: ProjectRegistrationStatus.PENDING,
     },
+
+    rejectionReason: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );

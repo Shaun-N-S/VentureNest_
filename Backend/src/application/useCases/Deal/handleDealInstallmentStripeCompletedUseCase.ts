@@ -69,7 +69,7 @@ export class HandleDealInstallmentStripeCompletedUseCase
 
       if (!projectWallet || !platformWallet) throw new NotFoundExecption(WALLET_ERRORS.NOT_FOUND);
 
-      const platformFee = dto.amount * PLATFORM_COMMISSION_RATE;
+      const platformFee = Number((dto.amount * PLATFORM_COMMISSION_RATE).toFixed(2));
       const founderReceives = dto.amount - platformFee;
 
       await this._walletRepo.incrementBalance(projectWallet._id!, founderReceives, session);
