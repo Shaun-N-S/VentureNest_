@@ -21,4 +21,6 @@ export interface ITransactionRepository extends IBaseRepository<TransactionEntit
     status?: string;
     relatedDealId?: string;
   }): Promise<number>;
+
+  sumByReason(reason: string): Promise<number>;
 }

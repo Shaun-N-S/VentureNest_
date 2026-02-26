@@ -7,4 +7,5 @@ export interface IDealRepository extends IBaseRepository<DealEntity> {
   incrementPaidAmount(dealId: string, amount: number, session?: ClientSession): Promise<void>;
   findByInvestorId(investorId: string): Promise<DealEntity[]>;
   findByFounderId(founderId: string): Promise<DealEntity[]>;
+  countByStatus(status: string): Promise<number>;
 }

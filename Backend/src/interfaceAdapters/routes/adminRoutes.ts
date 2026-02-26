@@ -209,6 +209,13 @@ export class Admin_Routes {
       (req: Request, res: Response, next: NextFunction) =>
         adminFinanceController.getAdminTransactions(req, res, next)
     );
+
+    this._route.get(
+      ADMIN.FINANCE_SUMMARY,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminFinanceController.getFinanceSummary(req, res, next)
+    );
   }
 
   public get_router(): Router {

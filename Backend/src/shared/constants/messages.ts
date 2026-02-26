@@ -23,6 +23,7 @@ export const MESSAGES = {
     VERIFIED_USER: "User verified successfully by admin.",
     UPDATE_STATUS: "User status updated",
     TRANSACTIONS_FETCHED: "Transactions fetched successfully",
+    FINANCE_SUMMARY_FETCHED: "Finance summary fetched successfully",
   },
 
   OTP: {

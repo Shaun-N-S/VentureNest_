@@ -3,13 +3,17 @@ import { ResponseHelper } from "@shared/utils/responseHelper";
 import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { IGetAdminTransactionsUseCase } from "@domain/interfaces/useCases/admin/transaction/IGetAdminTransactionsUseCase";
 import { MESSAGES } from "@shared/constants/messages";
+import { IGetAdminFinanceSummaryUseCase } from "@domain/interfaces/useCases/admin/finance/IGetAdminFinanceSummaryUseCase";
 
 export class AdminFinanceController {
-  constructor(private readonly getAdminTransactionsUseCase: IGetAdminTransactionsUseCase) {}
+  constructor(
+    private _getAdminTransactionsUseCase: IGetAdminTransactionsUseCase,
+    private _getAdminFinanceSummaryUseCase: IGetAdminFinanceSummaryUseCase
+  ) {}
 
   async getAdminTransactions(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.getAdminTransactionsUseCase.execute({
+      const result = await this._getAdminTransactionsUseCase.execute({
         reason: req.query.reason as string,
         action: req.query.action as string,
         status: req.query.status as string,
@@ -19,6 +23,16 @@ export class AdminFinanceController {
       });
 
       ResponseHelper.success(res, MESSAGES.ADMIN.TRANSACTIONS_FETCHED, result, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getFinanceSummary(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await this._getAdminFinanceSummaryUseCase.execute();
+
+      ResponseHelper.success(res, MESSAGES.ADMIN.FINANCE_SUMMARY_FETCHED, result, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

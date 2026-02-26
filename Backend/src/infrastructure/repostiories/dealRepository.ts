@@ -48,4 +48,8 @@ export class DealRepository
 
     return docs.map(DealMapper.fromMongooseDocument);
   }
+
+  async countByStatus(status: string): Promise<number> {
+    return this._model.countDocuments({ status });
+  }
 }

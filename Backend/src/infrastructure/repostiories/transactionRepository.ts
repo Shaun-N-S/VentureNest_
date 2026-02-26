@@ -46,4 +46,18 @@ export class TransactionRepository
   async countAdminTransactions(filters: any): Promise<number> {
     return this._model.countDocuments(filters);
   }
+
+  async sumByReason(reason: string): Promise<number> {
+    const result = await this._model.aggregate([
+      { $match: { reason } },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    return result[0]?.total ?? 0;
+  }
 }
