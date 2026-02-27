@@ -38,12 +38,24 @@ export class TransactionRepository
     skip: number,
     limit: number
   ): Promise<TransactionEntity[]> {
-    const docs = await this._model.find(filters).sort({ createdAt: -1 }).skip(skip).limit(limit);
+    const query: any = {};
+
+    if (filters.reason) query.reason = filters.reason;
+    if (filters.action) query.action = filters.action;
+    if (filters.status) query.status = filters.status;
+    if (filters.relatedDealId) query.relatedDealId = filters.relatedDealId;
+
+    const docs = await this._model.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit);
 
     return docs.map(TransactionMapper.fromMongooseDocument);
   }
 
-  async countAdminTransactions(filters: any): Promise<number> {
+  async countAdminTransactions(filters: {
+    reason?: string;
+    action?: string;
+    status?: string;
+    relatedDealId?: string;
+  }): Promise<number> {
     return this._model.countDocuments(filters);
   }
 

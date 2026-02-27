@@ -9,6 +9,7 @@ import { ConversionStatus } from "@domain/enum/conversionStatus";
 import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatus";
 import { ClientSession } from "mongoose";
 import { InvalidDataException } from "application/constants/exceptions";
+import { PROJECT_ERRORS } from "@shared/constants/error";
 
 export class EquityService implements IEquityService {
   constructor(
@@ -23,32 +24,27 @@ export class EquityService implements IEquityService {
     installmentAmount: number,
     session: ClientSession
   ): Promise<void> {
-    // Skip if not real equity
     if (deal.investmentType !== InvestmentType.EQUITY) return;
 
-    // Ensure conversion not pending
     if (deal.conversionStatus === ConversionStatus.PENDING) return;
 
-    // Ensure project is registered
     const registration = await this._projectRegistrationRepo.findRegistrationByProjectId(
       deal.projectId,
       session
     );
 
     if (!registration || registration.status !== ProjectRegistrationStatus.APPROVED) {
-      throw new InvalidDataException("Project not eligible for equity allocation");
+      throw new InvalidDataException(PROJECT_ERRORS.PROJECT_NOT_ELIGIBLE_FOR_EQUITY);
     }
 
-    // Calculate proportional equity
     const proportionalEquity = (installmentAmount / deal.totalAmount) * deal.equityPercentage;
 
     const newEquityAllocated = deal.equityAllocated + proportionalEquity;
 
     if (newEquityAllocated > deal.equityPercentage + 0.0001) {
-      throw new InvalidDataException("Equity overallocation detected");
+      throw new InvalidDataException(PROJECT_ERRORS.EQUITY_OVERALLOCATION);
     }
 
-    // Fetch or create cap table
     let capTable = await this._capTableRepo.findByProjectId(deal.projectId, session);
 
     if (!capTable) {
@@ -140,11 +136,11 @@ export class EquityService implements IEquityService {
       session
     );
 
-    //Safety check — ensure cap table totals ≈ 100%
+    //Safety check — ensure cap table totals = 100%
     const totalPercentage = updatedShareholders.reduce((acc, s) => acc + s.equityPercentage, 0);
 
     if (Math.abs(totalPercentage - 100) > 0.01) {
-      throw new InvalidDataException("Cap table imbalance detected");
+      throw new InvalidDataException(PROJECT_ERRORS.CAPTBLE_IMBALANCE);
     }
   }
 }

@@ -75,6 +75,7 @@ export const ROUTES = {
     UPDATE_PROJECT_REGISTRATION_STATUS: "/project-registrations/update-status/:registrationId",
     TRANSACTIONS: "/transactions",
     FINANCE_SUMMARY: "/finance-summary",
+    PLATFORM_WALLET: "/platform-wallet",
   },
 
   USERS: {

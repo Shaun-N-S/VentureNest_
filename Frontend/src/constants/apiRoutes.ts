@@ -65,6 +65,7 @@ export const API_ROUTES = {
       "/admin/project-registrations/update-status",
     TRANSACTIONS: "/admin/transactions",
     FINANCE_SUMMARY: "/admin/finance-summary",
+    PLATFORM_WALLET: "/admin/platform-wallet",
   },
 
   INVESTOR: {

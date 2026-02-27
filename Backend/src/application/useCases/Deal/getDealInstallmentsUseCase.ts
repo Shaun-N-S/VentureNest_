@@ -20,7 +20,6 @@ export class GetDealInstallmentsUseCase implements IGetDealInstallmentsUseCase {
       throw new NotFoundExecption(DEAL_ERRORS.DEAL_NOT_FOUND);
     }
 
-    // Access Control
     if (deal.investorId !== userId && deal.founderId !== userId) {
       throw new ForbiddenException(DEAL_ERRORS.UNAUTHORIZED_DEAL_ACCESS);
     }

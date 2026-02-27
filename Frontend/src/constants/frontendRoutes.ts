@@ -51,5 +51,6 @@ export const FRONTEND_ROUTES = {
     PROJECTS: "/projects",
     REPORTS: "/reports",
     SUBCRIPTION: "/subscriptions",
+    WALLET: "/wallet",
   },
 };

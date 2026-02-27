@@ -16,9 +16,12 @@ type AdminTransactionFilters = {
 export class GetAdminTransactionsUseCase implements IGetAdminTransactionsUseCase {
   constructor(private readonly transactionRepository: ITransactionRepository) {}
 
-  async execute(
-    request: GetAdminTransactionsRequestDTO
-  ): Promise<{ data: AdminTransactionDTO[]; total: number }> {
+  async execute(request: GetAdminTransactionsRequestDTO): Promise<{
+    transactions: AdminTransactionDTO[];
+    totalTransactions: number;
+    totalPages: number;
+    currentPage: number;
+  }> {
     const { reason, action, status, dealId, page, limit } = request;
 
     const filters: AdminTransactionFilters = {};
@@ -38,9 +41,13 @@ export class GetAdminTransactionsUseCase implements IGetAdminTransactionsUseCase
 
     const total = await this.transactionRepository.countAdminTransactions(filters);
 
+    const totalPages = Math.ceil(total / limit);
+
     return {
-      data: transactions.map((tx) => AdminTransactionMapper.toDTO(tx)),
-      total,
+      transactions: transactions.map((tx) => AdminTransactionMapper.toDTO(tx)),
+      totalTransactions: total,
+      totalPages,
+      currentPage: page,
     };
   }
 }

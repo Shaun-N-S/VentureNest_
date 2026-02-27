@@ -86,6 +86,10 @@ export const REPLY_ERRORS = {
 export const PROJECT_ERRORS = {
   NO_PROJECTS_FOUND: "No projects found!",
   PROJECT_REGISTRATION_NOT_FOUND: "Project registration not found!",
+  INVALID_PROJECT_REGISTRATION_STATUS: "Invalid project registration status!",
+  PROJECT_NOT_ELIGIBLE_FOR_EQUITY: "Project not eligible for equity allocation",
+  EQUITY_OVERALLOCATION: "Equity overallocation detected",
+  CAPTBLE_IMBALANCE: "Cap table imbalance detected",
 };
 
 export const REPORT_ERRORS = {

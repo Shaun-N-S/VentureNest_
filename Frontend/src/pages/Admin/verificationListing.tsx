@@ -415,7 +415,10 @@ const VerificationPage = () => {
             },
           };
 
-          const config = STATUS_CONFIG[status];
+          const config = STATUS_CONFIG[status as ProjectRegistrationStatus] ?? {
+            className: "bg-gray-100 text-gray-600",
+            label: status ?? "Unknown",
+          };
 
           return (
             <span

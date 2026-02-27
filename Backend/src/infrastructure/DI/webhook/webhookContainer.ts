@@ -49,7 +49,10 @@ const equityService = new EquityService(
 const handleCheckoutCompletedUC = new HandleCheckoutCompletedUseCase(
   paymentRepo,
   subscriptionRepo,
-  planRepo
+  planRepo,
+  transactionRepo,
+  walletRepo,
+  userRepo
 );
 const handleWalletTopupCompletedUseCase = new HandleWalletTopupCompletedUseCase(
   walletRepo,

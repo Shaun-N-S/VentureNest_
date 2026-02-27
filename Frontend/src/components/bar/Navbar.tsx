@@ -16,7 +16,8 @@ import NotificationModal from "../modals/NotificationModal";
 
 const menuItems: Record<UserRole, { name: string; path: string }[]> = {
   ADMIN: [
-    { name: "Dashboard", path: "/admin/dashboard" },
+    { name: "Home", path: "/admin/dashboard" },
+    { name: "Wallet", path: "/admin/wallet" },
     { name: "Users", path: "/admin/users" },
     { name: "Projects", path: "/admin/projects" },
     { name: "Investors", path: "/admin/investors" },
