@@ -7,6 +7,9 @@ import { PitchStatus } from "@domain/enum/pitchStatus";
 import { ForbiddenException, NotFoundExecption } from "application/constants/exceptions";
 import { Errors, PROJECT_ERRORS } from "@shared/constants/error";
 import { PitchMapper } from "application/mappers/pitchMapper";
+import { SubscriptionAction } from "@domain/enum/subscriptionActions";
+import { UserRole } from "@domain/enum/userRole";
+import { subscriptionUsageContainer } from "@infrastructure/DI/Subscription/subscriptionUsageContainer";
 
 export class CreatePitchUseCase implements ICreatePitchUseCase {
   constructor(
@@ -35,6 +38,12 @@ export class CreatePitchUseCase implements ICreatePitchUseCase {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+
+    await subscriptionUsageContainer.incrementUsageUC.execute(
+      data.founderId,
+      UserRole.USER,
+      SubscriptionAction.SEND_PROPOSAL
+    );
 
     return PitchMapper.toResponseDTO(pitch);
   }

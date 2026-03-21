@@ -1,7 +1,9 @@
+import { SubscriptionAction } from "@domain/enum/subscriptionActions";
 import { pitchController } from "@infrastructure/DI/Pitch/pitchContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { Router, Request, Response, NextFunction } from "express";
 import { investorGuard, userGuard, userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
+import { subscriptionGuard } from "interfaceAdapters/middleware/subscriptionMiddleware";
 
 export class Pitch_Router {
   private _route: Router;
@@ -15,6 +17,7 @@ export class Pitch_Router {
     this._route.post(
       ROUTES.PITCH.CREATE,
       ...userGuard,
+      subscriptionGuard(SubscriptionAction.SEND_PROPOSAL),
       (req: Request, res: Response, next: NextFunction) => {
         pitchController.createPitch(req, res, next);
       }

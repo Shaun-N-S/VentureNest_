@@ -148,3 +148,12 @@ export const DEAL_ERRORS = {
 export const INSTALLMENT_ERRORS = {
   INSUFFICIENT_BALANCE: "Insufficient wallet balance!",
 };
+
+export const SUBSCRIPTION_ERRORS = {
+  NO_ACTIVE_SUBSCRIPTION: "No active subscription found",
+  INVALID_PLAN: "Invalid plan",
+  ACTION_NOT_ALLOWED: "Action not allowed in your plan",
+  PROJECT_LIMIT_EXCEEDED: "Project creation limit exceeded for this month",
+  PROPOSAL_LIMIT_EXCEEDED: "Proposal sending limit exceeded for this month",
+  INVESTMENT_OFFER_LIMIT_EXCEEDED: "Investment offer sending limit exceeded for this month",
+};

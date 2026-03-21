@@ -26,12 +26,10 @@ export default function PlanCard({
             label: "Proposals per month",
             value: plan.limits.proposalsPerMonth,
           },
-          { label: "Meeting requests", value: plan.limits.meetingRequests },
         ]
-      : [
-          { label: "Investment offers", value: plan.limits.investmentOffers },
-          { label: "Active investments", value: plan.limits.activeInvestments },
-        ];
+      : [{ label: "Investment offers", value: plan.limits.investmentOffers }];
+
+  const formatValue = (value: number) => (value === -1 ? "Unlimited" : value);
 
   return (
     <motion.div
@@ -129,7 +127,9 @@ export default function PlanCard({
                 />
               </div>
               <div className="flex items-baseline gap-2 flex-1">
-                <span className="font-bold text-gray-900">{feature.value}</span>
+                <span className="font-bold text-gray-900">
+                  {formatValue(feature.value)}
+                </span>
                 <span className="text-sm text-gray-600">{feature.label}</span>
               </div>
             </motion.div>

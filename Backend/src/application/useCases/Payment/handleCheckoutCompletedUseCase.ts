@@ -39,6 +39,15 @@ export class HandleCheckoutCompletedUseCase implements IHandleCheckoutCompletedU
     const endDate = new Date();
     endDate.setDate(startDate.getDate() + data.durationDays);
 
+    const existingSubscription = await this._subscriptionRepo.findActiveByOwner(
+      data.ownerId,
+      data.ownerRole
+    );
+
+    if (existingSubscription) {
+      await this._subscriptionRepo.cancelSubscription(data.ownerId, data.ownerRole);
+    }
+
     await this._subscriptionRepo.save({
       ownerId: data.ownerId,
       ownerRole: data.ownerRole,
@@ -47,6 +56,10 @@ export class HandleCheckoutCompletedUseCase implements IHandleCheckoutCompletedU
       expiresAt: endDate,
       status: SubscriptionStatus.ACTIVE,
       createdAt: new Date(),
+
+      ...(existingSubscription && {
+        upgradedFrom: existingSubscription.planId,
+      }),
     });
 
     await this._paymentRepo.save({

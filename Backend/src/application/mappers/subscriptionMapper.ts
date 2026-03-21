@@ -17,6 +17,12 @@ export class SubscriptionMapper {
 
       ...(entity.usage && { usage: entity.usage }),
 
+      upgradedFrom: entity.upgradedFrom
+        ? new mongoose.Types.ObjectId(entity.upgradedFrom)
+        : undefined,
+
+      cancelledAt: entity.cancelledAt,
+
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };
@@ -34,6 +40,9 @@ export class SubscriptionMapper {
       status: doc.status,
 
       ...(doc.usage && { usage: doc.usage }),
+
+      ...(doc.upgradedFrom && { upgradedFrom: doc.upgradedFrom.toString() }),
+      ...(doc.cancelledAt && { cancelledAt: doc.cancelledAt }),
 
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

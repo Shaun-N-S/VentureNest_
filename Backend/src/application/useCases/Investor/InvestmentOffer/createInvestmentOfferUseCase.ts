@@ -12,6 +12,8 @@ import { UserRole } from "@domain/enum/userRole";
 import { NotificationType } from "@domain/enum/notificationType";
 import { NotificationEntityType } from "@domain/enum/notificationEntityType";
 import { MESSAGES } from "@shared/constants/messages";
+import { SubscriptionAction } from "@domain/enum/subscriptionActions";
+import { subscriptionUsageContainer } from "@infrastructure/DI/Subscription/subscriptionUsageContainer";
 
 export class CreateInvestmentOfferUseCase implements ICreateInvestmentOfferUseCase {
   constructor(
@@ -46,6 +48,12 @@ export class CreateInvestmentOfferUseCase implements ICreateInvestmentOfferUseCa
     });
 
     const savedOffer = await this._offerRepo.save(offerEntity);
+
+    await subscriptionUsageContainer.incrementUsageUC.execute(
+      investorId,
+      UserRole.INVESTOR,
+      SubscriptionAction.SEND_INVESTMENT_OFFER
+    );
 
     await this._notificationUseCase.createNotification({
       recipientId: pitch.founderId,

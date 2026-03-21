@@ -11,7 +11,13 @@ export default function PlansPage() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const { data, isLoading } = useGetAvailablePlans();
   const { data: currentSubscription } = useCurrentSubscription();
-  const currentPlanId = currentSubscription?.plan?._id ?? null;
+  const isActiveSubscription =
+    currentSubscription?.status === "ACTIVE" &&
+    new Date(currentSubscription.expiresAt) > new Date();
+
+  const currentPlanId = isActiveSubscription
+    ? currentSubscription?.plan?._id
+    : null;
 
   if (isLoading) {
     return (
@@ -20,6 +26,14 @@ export default function PlansPage() {
           <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
           <p className="text-gray-600 font-medium">Loading plans...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (!data?.plans?.length) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        No plans available
       </div>
     );
   }
@@ -164,24 +178,26 @@ export default function PlansPage() {
 
         {/* PLANS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {data?.plans.map((plan, index) => {
-            const isCurrent = plan._id === currentPlanId;
+          {data?.plans
+            .filter((plan) => plan.status === "ACTIVE")
+            .map((plan, index) => {
+              const isCurrent = plan._id === currentPlanId;
 
-            return (
-              <PlanCard
-                key={plan._id}
-                plan={plan}
-                index={index}
-                isTrending={index === 1}
-                isCurrent={isCurrent}
-                onSelect={() => {
-                  if (!isCurrent) {
-                    setSelectedPlan(plan);
-                  }
-                }}
-              />
-            );
-          })}
+              return (
+                <PlanCard
+                  key={plan._id}
+                  plan={plan}
+                  index={index}
+                  isTrending={index === 1}
+                  isCurrent={isCurrent}
+                  onSelect={() => {
+                    if (!isCurrent) {
+                      setSelectedPlan(plan);
+                    }
+                  }}
+                />
+              );
+            })}
         </div>
       </div>
 

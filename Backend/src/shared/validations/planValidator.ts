@@ -5,9 +5,6 @@ import { PlanStatus } from "@domain/enum/planStatus";
 
 /**
  * CREATE PLAN
- * - Defaults ensure DTO compatibility
- * - No optional number outputs
- * - Role-based permission validation
  */
 export const createPlanSchema = z
   .object({
@@ -16,22 +13,23 @@ export const createPlanSchema = z
     description: z.string().min(10),
 
     limits: z.object({
-      projects: z.number().min(0).default(0),
-      proposalsPerMonth: z.number().min(0).default(0),
-      meetingRequests: z.number().min(0).default(0),
-
-      investmentOffers: z.number().min(0).default(0),
-      activeInvestments: z.number().min(0).default(0),
+      projects: z.number().min(-1).default(-1),
+      proposalsPerMonth: z.number().min(-1).default(-1),
+      investmentOffers: z.number().min(-1).default(-1),
     }),
 
     permissions: z.object({
+      // USER
       canCreateProject: z.boolean(),
       canSendProposal: z.boolean(),
-      canRequestMeeting: z.boolean(),
 
+      // INVESTOR
       canSendInvestmentOffer: z.boolean(),
       canInvestMoney: z.boolean(),
       canViewInvestmentDashboard: z.boolean(),
+
+      // COMMON
+      canStartVideoCall: z.boolean(),
     }),
 
     billing: z.object({
@@ -39,56 +37,74 @@ export const createPlanSchema = z
       price: z.number().nonnegative(),
     }),
   })
+
+  /**
+   * USER cannot have investor permissions
+   */
   .refine(
     (data) =>
       data.role === PlanRole.USER
-        ? !data.permissions.canInvestMoney && !data.permissions.canSendInvestmentOffer
+        ? !data.permissions.canSendInvestmentOffer &&
+          !data.permissions.canInvestMoney &&
+          !data.permissions.canViewInvestmentDashboard
         : true,
     {
-      message: "USER plans cannot invest or send investment offers",
+      message: "USER plans cannot have investor permissions",
       path: ["permissions"],
     }
-  );
+  )
+
+  /**
+   * INVESTOR cannot create projects
+   */
+  .refine((data) => (data.role === PlanRole.INVESTOR ? !data.permissions.canCreateProject : true), {
+    message: "INVESTOR cannot create projects",
+    path: ["permissions"],
+  });
 
 /**
  * UPDATE PLAN
- * - Partial updates allowed
- * - No defaults here (patch semantics)
  */
-export const updatePlanSchema = z.object({
-  name: z.string().min(3).optional(),
-  description: z.string().min(10).optional(),
+export const updatePlanSchema = z
+  .object({
+    name: z.string().min(3).optional(),
+    description: z.string().min(10).optional(),
 
-  limits: z
-    .object({
-      projects: z.number().min(0).optional(),
-      proposalsPerMonth: z.number().min(0).optional(),
-      meetingRequests: z.number().min(0).optional(),
+    limits: z
+      .object({
+        projects: z.number().min(-1).optional(),
+        proposalsPerMonth: z.number().min(-1).optional(),
+        investmentOffers: z.number().min(-1).optional(),
+      })
+      .optional(),
 
-      investmentOffers: z.number().min(0).optional(),
-      activeInvestments: z.number().min(0).optional(),
-    })
-    .optional(),
+    permissions: z
+      .object({
+        canCreateProject: z.boolean().optional(),
+        canSendProposal: z.boolean().optional(),
 
-  permissions: z
-    .object({
-      canCreateProject: z.boolean().optional(),
-      canSendProposal: z.boolean().optional(),
-      canRequestMeeting: z.boolean().optional(),
+        canSendInvestmentOffer: z.boolean().optional(),
+        canInvestMoney: z.boolean().optional(),
+        canViewInvestmentDashboard: z.boolean().optional(),
 
-      canSendInvestmentOffer: z.boolean().optional(),
-      canInvestMoney: z.boolean().optional(),
-      canViewInvestmentDashboard: z.boolean().optional(),
-    })
-    .optional(),
+        canStartVideoCall: z.boolean().optional(),
+      })
+      .optional(),
 
-  billing: z
-    .object({
-      durationDays: z.number().positive().optional(),
-      price: z.number().nonnegative().optional(),
-    })
-    .optional(),
-});
+    billing: z
+      .object({
+        durationDays: z.number().positive().optional(),
+        price: z.number().nonnegative().optional(),
+      })
+      .optional(),
+  })
+
+  /**
+   * Prevent empty updates
+   */
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be updated",
+  });
 
 /**
  * UPDATE PLAN STATUS

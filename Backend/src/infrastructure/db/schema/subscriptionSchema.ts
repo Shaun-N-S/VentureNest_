@@ -39,8 +39,15 @@ const subscriptionSchema = new mongoose.Schema(
     usage: {
       projectsUsed: { type: Number, default: 0 },
       proposalsUsed: { type: Number, default: 0 },
-      meetingRequestsUsed: { type: Number, default: 0 },
       investmentOffersUsed: { type: Number, default: 0 },
+    },
+
+    upgradedFrom: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
+
+    cancelledAt: {
+      type: Date,
     },
   },
   { timestamps: true }

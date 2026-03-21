@@ -9,24 +9,20 @@ export interface PlanDTO {
   description: string;
 
   limits: {
-    // USER
     projects?: number;
     proposalsPerMonth?: number;
-    meetingRequests?: number;
-
-    // INVESTOR
     investmentOffers?: number;
-    activeInvestments?: number;
   };
 
   permissions: {
     canCreateProject: boolean;
     canSendProposal: boolean;
-    canRequestMeeting: boolean;
 
     canSendInvestmentOffer: boolean;
     canInvestMoney: boolean;
     canViewInvestmentDashboard: boolean;
+
+    canStartVideoCall: boolean;
   };
 
   billing: {

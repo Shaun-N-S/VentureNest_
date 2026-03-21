@@ -14,7 +14,10 @@ export class PlanMapper {
       role: dto.role,
       description: dto.description,
       limits: dto.limits,
-      permissions: dto.permissions,
+      permissions: {
+        ...dto.permissions,
+        canStartVideoCall: dto.permissions.canStartVideoCall ?? false,
+      },
       billing: dto.billing,
       status: PlanStatus.ACTIVE,
       createdAt: new Date(),

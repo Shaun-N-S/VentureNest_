@@ -1,4 +1,8 @@
 export const MESSAGES = {
+  ROUTE: {
+    NOT_FOUND: "Route not found",
+  },
+
   USERS: {
     REGISTER_SUCCESS: "User registered successfully.",
     LOGIN_SUCCESS: "User logged in successfully.",

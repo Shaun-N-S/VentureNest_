@@ -29,6 +29,8 @@ import { Notification_Router } from "interfaceAdapters/routes/notificationRoutes
 import { Chat_Router } from "interfaceAdapters/routes/chatRoutes";
 import { Deal_Router } from "interfaceAdapters/routes/dealRoutes";
 import { platformInitializationService } from "@infrastructure/DI/Wallet/walletContainer";
+import { MESSAGES } from "@shared/constants/messages";
+import { cronContainer } from "@infrastructure/DI/Cron/cronContainer";
 
 class Express_app {
   private _app: Express;
@@ -90,11 +92,10 @@ class Express_app {
     this._app.use("/chat", new Chat_Router().get_router());
     this._app.use("/deals", new Deal_Router().get_router());
 
-    // ✅ 404 handler
     this._app.use((req: Request, res: Response) => {
       res.status(404).json({
         success: false,
-        message: "Route not found",
+        message: MESSAGES.ROUTE.NOT_FOUND,
       });
     });
   }
@@ -109,6 +110,8 @@ class Express_app {
     await mongoConnect.connect();
 
     await platformInitializationService.ensurePlatformWallet();
+
+    cronContainer.startAll();
 
     const server = http.createServer(this._app);
     initSocket(server);

@@ -14,6 +14,7 @@ import { IGetAllPlansUseCase } from "@domain/interfaces/useCases/admin/plan/IGet
 import { IGetPlanByIdUseCase } from "@domain/interfaces/useCases/admin/plan/IGetPlanByIdUseCase";
 import { IUpdatePlanUseCase } from "@domain/interfaces/useCases/admin/plan/IUpdatePlanUseCase";
 import { IUpdatePlanStatusUseCase } from "@domain/interfaces/useCases/admin/plan/IUpdatePlanStatusUseCase";
+import { UpdatePlanDTO } from "application/dto/plan/updatePlanDTO";
 
 export class AdminPlanController {
   constructor(
@@ -33,7 +34,7 @@ export class AdminPlanController {
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
 
-      const result = await this._createPlanUseCase.execute(req.body);
+      const result = await this._createPlanUseCase.execute(validated.data);
 
       ResponseHelper.success(res, MESSAGES.PLAN.CREATED_SUCCESSFULLY, result, HTTPSTATUS.CREATED);
     } catch (error) {
@@ -86,7 +87,11 @@ export class AdminPlanController {
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
 
-      const result = await this._updatePlanUseCase.execute(planId, validated.data);
+      const cleanData = Object.fromEntries(
+        Object.entries(validated.data).filter(([, v]) => v !== undefined)
+      ) as UpdatePlanDTO;
+
+      const result = await this._updatePlanUseCase.execute(planId, cleanData);
 
       ResponseHelper.success(res, MESSAGES.PLAN.UPDATED_SUCCESSFULLY, result, HTTPSTATUS.OK);
     } catch (error) {

@@ -16,15 +16,14 @@ export default function PurchasePlanModal({ plan, onClose }: Props) {
   const features =
     plan.role === "USER"
       ? [
-          `${plan.limits.projects} Projects`,
-          `${plan.limits.proposalsPerMonth} Proposals / month`,
-          `${plan.limits.meetingRequests} Meetings`,
+          { label: "Projects", value: plan.limits.projects },
+          {
+            label: "Proposals per month",
+            value: plan.limits.proposalsPerMonth,
+          },
         ]
-      : [
-          `${plan.limits.investmentOffers} Investment offers`,
-          `${plan.limits.activeInvestments} Active investments`,
-        ];
-
+      : [{ label: "Investment offers", value: plan.limits.investmentOffers }];
+  
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-xl sm:max-w-2xl p-0 overflow-hidden rounded-2xl sm:rounded-3xl border-0 shadow-2xl bg-white">
@@ -132,7 +131,7 @@ export default function PurchasePlanModal({ plan, onClose }: Props) {
                 <div className="space-y-3">
                   {features.map((feature, index) => (
                     <motion.div
-                      key={feature}
+                      key={feature.label}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.6 + index * 0.1 }}
@@ -144,7 +143,8 @@ export default function PurchasePlanModal({ plan, onClose }: Props) {
                         </div>
                       </div>
                       <span className="text-base text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
-                        {feature}
+                        {feature.value === -1 ? "Unlimited" : feature.value}{" "}
+                        {feature.label}
                       </span>
                     </motion.div>
                   ))}
