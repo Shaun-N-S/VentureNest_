@@ -66,4 +66,23 @@ export class WalletRepository
       await this._model.updateOne({ _id: walletId }, update);
     }
   }
+
+  async decrementBalanceWithCheck(
+    walletId: string,
+    amount: number,
+    session?: ClientSession
+  ): Promise<boolean> {
+    const result = await this._model.updateOne(
+      {
+        _id: walletId,
+        balance: { $gte: amount },
+      },
+      {
+        $inc: { balance: -amount },
+      },
+      session ? { session } : {}
+    );
+
+    return result.modifiedCount === 1;
+  }
 }

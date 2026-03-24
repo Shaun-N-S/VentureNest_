@@ -13,4 +13,10 @@ export interface IWalletRepository extends IBaseRepository<WalletEntity> {
   incrementLockedBalance(walletId: string, amount: number, session?: ClientSession): Promise<void>;
 
   decrementLockedBalance(walletId: string, amount: number, session?: ClientSession): Promise<void>;
+
+  decrementBalanceWithCheck(
+    walletId: string,
+    amount: number,
+    session?: ClientSession
+  ): Promise<boolean>;
 }

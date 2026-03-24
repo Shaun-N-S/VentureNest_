@@ -23,18 +23,26 @@ export class DealRepository
     amount: number,
     session?: ClientSession
   ): Promise<void> {
-    const update = {
-      $inc: {
-        amountPaid: amount,
-        remainingAmount: -amount,
-      },
-    };
+    const deal = await this._model.findById(dealId).session(session!);
 
-    if (session) {
-      await this._model.updateOne({ _id: dealId }, update, { session });
-    } else {
-      await this._model.updateOne({ _id: dealId }, update);
+    if (!deal) {
+      throw new Error("Deal not found");
     }
+
+    if (deal.remainingAmount < amount) {
+      throw new Error("Overpayment not allowed");
+    }
+
+    await this._model.updateOne(
+      { _id: dealId },
+      {
+        $inc: {
+          amountPaid: amount,
+          remainingAmount: -amount,
+        },
+      },
+      session ? { session } : {}
+    );
   }
 
   async findByInvestorId(investorId: string): Promise<DealEntity[]> {

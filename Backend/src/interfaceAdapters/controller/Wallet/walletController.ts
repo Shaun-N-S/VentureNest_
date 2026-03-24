@@ -7,11 +7,13 @@ import { InvalidDataException } from "application/constants/exceptions";
 import { Errors } from "@shared/constants/error";
 import { MESSAGES } from "@shared/constants/messages";
 import { ICreateWalletTopupCheckoutUseCase } from "@domain/interfaces/useCases/wallet/ICreateWalletTopupCheckoutUseCase";
+import { IRequestWithdrawalUseCase } from "@domain/interfaces/useCases/wallet/IRequestWithdrawalUseCase";
 
 export class WalletController {
   constructor(
     private _getWalletDetailsUseCase: IGetWalletDetailsUseCase,
-    private _createWalletTopupCheckoutUseCase: ICreateWalletTopupCheckoutUseCase
+    private _createWalletTopupCheckoutUseCase: ICreateWalletTopupCheckoutUseCase,
+    private _requestWithdrawalUseCase: IRequestWithdrawalUseCase
   ) {}
 
   async getMyWallet(req: Request, res: Response, next: NextFunction) {
@@ -75,6 +77,28 @@ export class WalletController {
         { url: checkoutUrl },
         HTTPSTATUS.OK
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async requestWithdrawal(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = res.locals.user;
+      const { amount, reason, projectId } = req.body;
+
+      if (!projectId || !amount || amount <= 0) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const result = await this._requestWithdrawalUseCase.execute(
+        userId,
+        projectId,
+        amount,
+        reason
+      );
+
+      ResponseHelper.success(res, "Withdrawal successful", result, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

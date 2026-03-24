@@ -193,6 +193,7 @@ export const ROUTES = {
     ME: "/me",
     PROJECT: "/project/:projectId",
     TOPUP_CHECKOUT: "/topup/checkout",
+    REQUEST_WITHDRAWAL: "/request-withdrawal",
   },
 
   TRANSACTION: {

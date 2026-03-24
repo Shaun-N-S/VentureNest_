@@ -131,6 +131,10 @@ export const OFFER_ERRORS = {
 export const WALLET_ERRORS = {
   NOT_FOUND: "Wallet not found",
   INVALID_TOPUP_AMOUNT: "Invalid topup amount!",
+  WITHDRAWAL_REASON_TOO_SHORT: "Withdrawal reason must be at least 3 characters long",
+  WITHDRAWAL_AMOUNT_INVALID: "Withdrawal amount required",
+  WITHDRAWAL_UNAUTHORIZED_ACCESS: "You are not authorized to request withdrawal for this project",
+  WITHDRAWAL_INSUFFICIENT_BALANCE: "Insufficient balance for withdrawal",
 };
 
 export const CHAT_ERRORS = {
