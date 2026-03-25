@@ -22,6 +22,7 @@ const menuItems: Record<UserRole, { name: string; path: string }[]> = {
     { name: "Projects", path: "/admin/projects" },
     { name: "Investors", path: "/admin/investors" },
     { name: "Verifications", path: "/admin/verifications" },
+    {name :"Withdrawal Request", path: "/admin/withdrawals"},
     { name: "Reports", path: "/admin/reports" },
     { name: "Subscriptions", path: "/admin/subscriptions" },
   ],

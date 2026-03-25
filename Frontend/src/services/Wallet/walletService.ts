@@ -21,3 +21,35 @@ export const getProjectWallet = async (projectId: string): Promise<Wallet> => {
   );
   return response.data.data;
 };
+
+export const requestWithdrawal = async (
+  projectId: string,
+  amount: number,
+  reason: string,
+) => {
+  const response = await AxiosInstance.post(
+    API_ROUTES.WALLET.REQUEST_WITHDRAWAL,
+    {
+      projectId,
+      amount,
+      reason,
+    },
+  );
+
+  return response.data.data;
+};
+
+export const getProjectWithdrawals = async (
+  projectId: string,
+  page: number = 1,
+  limit: number = 10,
+) => {
+  const response = await AxiosInstance.get(
+    API_ROUTES.WALLET.GET_PROJECT_WITHDRAWALS.replace(":projectId", projectId),
+    {
+      params: { page, limit },
+    },
+  );
+
+  return response.data.data;
+};

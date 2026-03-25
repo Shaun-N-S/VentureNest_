@@ -1,10 +1,11 @@
-import { Model } from "mongoose";
+import { ClientSession, Model } from "mongoose";
 import { BaseRepository } from "./baseRepository";
 import { ITransactionRepository } from "@domain/interfaces/repositories/ITransactionRepository";
 import { TransactionMapper } from "application/mappers/transactionMapper";
 import { ITransactionModel } from "@infrastructure/db/models/transactionModel";
 import { TransactionEntity } from "@domain/entities/Transaction/transactionEntity";
 import { TransactionAction } from "@domain/enum/transactionType";
+import { TransactionStatus } from "@domain/enum/transactionStatus";
 
 export class TransactionRepository
   extends BaseRepository<TransactionEntity, ITransactionModel>
@@ -71,5 +72,18 @@ export class TransactionRepository
     ]);
 
     return result[0]?.total ?? 0;
+  }
+
+  async findByRelatedPaymentId(paymentId: string): Promise<TransactionEntity | null> {
+    const doc = await this._model.findOne({ relatedPaymentId: paymentId });
+    return doc ? TransactionMapper.fromMongooseDocument(doc) : null;
+  }
+
+  async updateStatus(
+    id: string,
+    status: TransactionStatus,
+    session?: ClientSession
+  ): Promise<void> {
+    await this._model.updateOne({ _id: id }, { $set: { status } }, session ? { session } : {});
   }
 }

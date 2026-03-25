@@ -37,6 +37,7 @@ export class InvestorMapper {
       aadharImg: "",
       selfieImg: "",
       verifiedAt: undefined,
+      stripeOnboardingComplete: false,
       kycHistory: [],
       createdAt: now,
       updatedAt: now,
@@ -86,7 +87,7 @@ export class InvestorMapper {
 
   static toMongooseDocument(investor: InvestorEntity) {
     return {
-      _id: new mongoose.Types.ObjectId(investor._id),
+      _id: investor._id ? new mongoose.Types.ObjectId(investor._id) : undefined,
       userName: investor.userName,
       email: investor.email,
       password: investor.password,
@@ -108,6 +109,9 @@ export class InvestorMapper {
       selfieImg: investor.selfieImg,
       isFirstLogin: investor.isFirstLogin,
       verifiedAt: investor.verifiedAt,
+      ...(investor.googleId && { googleId: investor.googleId }),
+      ...(investor.stripeAccountId && { stripeAccountId: investor.stripeAccountId }),
+      stripeOnboardingComplete: investor.stripeOnboardingComplete,
       createdAt: investor.createdAt,
       updatedAt: investor.updatedAt,
 
@@ -134,7 +138,7 @@ export class InvestorMapper {
       selfieImg: doc.selfieImg || "",
       phoneNumber: doc.phoneNumber || "",
       address: doc.address || "",
-      dateOfBirth: doc.dateOfBirth || undefined,
+      dateOfBirth: doc.dateOfBirth,
       role: doc.role || UserRole.INVESTOR,
       status: doc.status || UserStatus.ACTIVE,
       kycStatus: doc.kycStatus || KYCStatus.PENDING,
@@ -145,7 +149,12 @@ export class InvestorMapper {
       isFirstLogin: doc.isFirstLogin ?? true,
       website: doc.website || "",
       bio: doc.bio || "",
-      verifiedAt: doc.verifiedAt || undefined,
+      verifiedAt: doc.verifiedAt,
+      ...(doc.googleId && { googleId: doc.googleId }),
+      ...(doc.stripeAccountId && { stripeAccountId: doc.stripeAccountId }),
+      ...(doc.stripeOnboardingComplete !== undefined && {
+        stripeOnboardingComplete: doc.stripeOnboardingComplete,
+      }),
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
 

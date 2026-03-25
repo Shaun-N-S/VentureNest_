@@ -76,6 +76,9 @@ export const ROUTES = {
     TRANSACTIONS: "/transactions",
     FINANCE_SUMMARY: "/finance-summary",
     PLATFORM_WALLET: "/platform-wallet",
+    WITHDRAWALS: "/withdrawals",
+    APPROVE_WITHDRAWAL: "/withdrawal/:id/approve",
+    REJECT_WITHDRAWAL: "/withdrawal/:id/reject",
   },
 
   USERS: {
@@ -194,6 +197,10 @@ export const ROUTES = {
     PROJECT: "/project/:projectId",
     TOPUP_CHECKOUT: "/topup/checkout",
     REQUEST_WITHDRAWAL: "/request-withdrawal",
+    PROJECT_WITHDRAWALS: "/project/:projectId/withdrawals",
+    BANK_WITHDRAWAL: "/withdraw/bank",
+    STRIPE_ONBOARD_LINK: "/stripe/onboarding-link",
+    STRIPE_ACCOUNT: "/stripe/account",
   },
 
   TRANSACTION: {

@@ -1,4 +1,4 @@
-import { investorAuthController, userAuthController } from "@infrastructure/DI/Auth/authContainer";
+import { investorAuthController } from "@infrastructure/DI/Auth/authContainer";
 import { investorProfileController } from "@infrastructure/DI/Investor/InvestorProfileContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";

@@ -13,7 +13,6 @@ import { IResendOtpUseCase } from "@domain/interfaces/useCases/auth/IResendOtp";
 import { ITokenCreationUseCase } from "@domain/interfaces/useCases/auth/ITokenCreation";
 import { IVerifyOtpUseCase } from "@domain/interfaces/useCases/auth/IVerifyOtp";
 import { ISignUpSendOtpUseCase } from "@domain/interfaces/useCases/auth/user/ISignUpSendOtp";
-import { userModel } from "@infrastructure/db/models/userModel";
 import { Errors, INVESTOR_ERRORS, USER_ERRORS } from "@shared/constants/error";
 import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { MESSAGES } from "@shared/constants/messages";

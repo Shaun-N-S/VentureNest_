@@ -155,6 +155,10 @@ export const MESSAGES = {
     WALLET_FETCHED: "Wallet fetched successfully",
     WALLET_TOPUP_CREATED: "Wallet topup created",
     WALLET_TRANSACTION: "Wallet transactions fetched",
+    WITHDRAWAL_REQUESTED: "Withdrawal requested successfully",
+    WITHDRAWAL_SUCCESS: "Withdrawal to bank successful",
+    STRIPE_ONBOARDING_LINK_CREATED: "Stripe onboarding link created successfully",
+    PROJECT_WITHDRAWAL_FETCHED: "Project withdrawals fetched successfully",
   },
 
   SUBSCRIPTION: {

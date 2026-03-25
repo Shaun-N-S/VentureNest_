@@ -8,12 +8,14 @@ import { PaymentPurpose } from "@domain/enum/paymentPurpose";
 import { IHandleCheckoutCompletedUseCase } from "@domain/interfaces/useCases/payment/IHandleCheckoutCompletedUseCase";
 import { IHandleWalletTopupCompletedUseCase } from "@domain/interfaces/useCases/wallet/IHandleWalletTopupCompletedUseCase";
 import { IHandleDealInstallmentStripeCompletedUseCase } from "@domain/interfaces/useCases/deal/IHandleDealInstallmentStripeCompletedUseCase";
+import { IHandleStripePayoutWebhookUseCase } from "@domain/interfaces/useCases/stripe/IHandleStripePayoutWebhookUseCase";
 
 export class WebhookController {
   constructor(
     private _handleCheckoutCompletedUC: IHandleCheckoutCompletedUseCase,
     private _handleWalletTopupCompletedUC: IHandleWalletTopupCompletedUseCase,
-    private _handleDealInstallmentCompletedUC: IHandleDealInstallmentStripeCompletedUseCase
+    private _handleDealInstallmentCompletedUC: IHandleDealInstallmentStripeCompletedUseCase,
+    private _handleStripePayoutWebhookUC: IHandleStripePayoutWebhookUseCase
   ) {}
 
   handleStripeWebhook = async (req: Request, res: Response): Promise<void> => {
@@ -74,6 +76,19 @@ export class WebhookController {
           amount: session.amount_total! / 100,
         });
       }
+    }
+
+    const eventType = event.type as string;
+
+    if (eventType === "transfer.paid" || eventType === "transfer.failed") {
+      const transfer = event.data.object as Stripe.Transfer;
+
+      const type = eventType === "transfer.paid" ? "SUCCESS" : "FAILED";
+
+      await this._handleStripePayoutWebhookUC.execute({
+        type,
+        transferId: transfer.id,
+      });
     }
 
     res.json({ received: true });

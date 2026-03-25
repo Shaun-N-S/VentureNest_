@@ -28,6 +28,11 @@ import { Badge } from "../../components/ui/badge";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
 import type { ProjectType } from "../../types/projectType";
+import {
+  useGetProjectWithdrawals,
+  useRequestWithdrawal,
+} from "../../hooks/Wallet/walletHooks";
+import WithdrawModal from "../../components/modals/WithdrawModal";
 
 export default function WalletPage() {
   const role = useSelector((state: Rootstate) => state.authData.role);
@@ -41,6 +46,7 @@ export default function WalletPage() {
   const [actionFilter, setActionFilter] = useState<
     TransactionAction | undefined
   >(undefined);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
   const myWallet = useGetMyWallet();
   const projectWallet = useGetProjectWallet(selectedProjectId ?? undefined);
@@ -48,6 +54,14 @@ export default function WalletPage() {
   const personalTransactions = useMyWalletTransactions(actionFilter);
 
   const projects: ProjectType[] = projectData?.data?.data?.projects ?? [];
+
+  const withdrawals = useGetProjectWithdrawals(
+    selectedProjectId ?? undefined,
+    1,
+    10,
+  );
+
+  const requestWithdrawal = useRequestWithdrawal();
 
   console.log(projects);
 
@@ -339,6 +353,49 @@ export default function WalletPage() {
                       balance={projectWallet.data?.balance ?? 0}
                       available={projectWallet.data?.availableBalance ?? 0}
                     />
+                    <div className="bg-white border rounded-3xl shadow-sm overflow-hidden mt-6">
+                      <div className="p-6 border-b">
+                        <h3 className="font-bold text-lg text-slate-800">
+                          Withdrawal History
+                        </h3>
+                      </div>
+
+                      <div className="divide-y">
+                        {withdrawals.isLoading ? (
+                          <div className="p-6 text-center text-slate-400">
+                            Loading...
+                          </div>
+                        ) : withdrawals.data?.data.length === 0 ? (
+                          <div className="p-6 text-center text-slate-400">
+                            No withdrawals yet
+                          </div>
+                        ) : (
+                          withdrawals.data?.data.map((w: any) => (
+                            <div
+                              key={w.withdrawalId}
+                              className="p-4 flex justify-between"
+                            >
+                              <div>
+                                <p className="font-semibold">₹{w.amount}</p>
+                                <p className="text-xs text-gray-400">
+                                  {new Date(w.createdAt).toLocaleString()}
+                                </p>
+                              </div>
+
+                              <Badge>{w.status}</Badge>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-4 mt-4">
+                      <Button
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={() => setShowWithdrawModal(true)}
+                      >
+                        Withdraw Funds
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -346,6 +403,20 @@ export default function WalletPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <WithdrawModal
+        open={showWithdrawModal}
+        onClose={() => setShowWithdrawModal(false)}
+        onSubmit={(amount, reason) => {
+          if (!selectedProjectId) return;
+
+          requestWithdrawal.mutate({
+            projectId: selectedProjectId,
+            amount,
+            reason,
+          });
+        }}
+      />
 
       <AddFundsModal
         open={showAddFunds}

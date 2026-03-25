@@ -38,4 +38,14 @@ export class WithdrawalMapper {
       createdAt: entity.createdAt!,
     };
   }
+
+  static toListDTO(entity: WithdrawalEntity) {
+    return {
+      withdrawalId: entity._id!,
+      projectId: entity.projectId,
+      amount: entity.amount,
+      status: entity.status,
+      createdAt: entity.createdAt!,
+    };
+  }
 }

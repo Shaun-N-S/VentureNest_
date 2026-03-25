@@ -24,6 +24,7 @@ import { WalletRepository } from "@infrastructure/repostiories/walletRepository"
 import { EquityService } from "@infrastructure/services/EquityService";
 import { HandleDealInstallmentStripeCompletedUseCase } from "application/useCases/Deal/handleDealInstallmentStripeCompletedUseCase";
 import { HandleCheckoutCompletedUseCase } from "application/useCases/Payment/handleCheckoutCompletedUseCase";
+import { HandleStripePayoutWebhookUseCase } from "application/useCases/Stripe/handleStripePayoutWebhookUseCase";
 import { HandleWalletTopupCompletedUseCase } from "application/useCases/Wallet/handleWalletTopupCompletedUseCase";
 import { WebhookController } from "interfaceAdapters/controller/Webhook/webhookController";
 
@@ -69,9 +70,15 @@ const handleDealInstallmentStripeCompleteUseCase = new HandleDealInstallmentStri
   userRepo,
   equityService
 );
+const handleStripePayoutWebhookUseCase = new HandleStripePayoutWebhookUseCase(
+  transactionRepo,
+  walletRepo,
+  unitOfWork
+);
 
 export const webhookController = new WebhookController(
   handleCheckoutCompletedUC,
   handleWalletTopupCompletedUseCase,
-  handleDealInstallmentStripeCompleteUseCase
+  handleDealInstallmentStripeCompleteUseCase,
+  handleStripePayoutWebhookUseCase
 );

@@ -1,4 +1,5 @@
 export interface RequestWithdrawalDTO {
+  projectId: string;
   amount: number;
   reason: string;
 }

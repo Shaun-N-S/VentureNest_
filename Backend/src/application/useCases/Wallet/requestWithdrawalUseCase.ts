@@ -2,26 +2,25 @@ import { IRequestWithdrawalUseCase } from "@domain/interfaces/useCases/wallet/IR
 import { IWalletRepository } from "@domain/interfaces/repositories/IWalletRepository";
 import { IProjectRepository } from "@domain/interfaces/repositories/IProjectRepository";
 import { IWithdrawalRepository } from "@domain/interfaces/repositories/IWithdrawalRepository";
-import { ITransactionRepository } from "@domain/interfaces/repositories/ITransactionRepository";
 import { IUnitOfWork } from "@domain/interfaces/presistence/IUnitOfWork";
 import { WalletOwnerType } from "@domain/enum/walletOwnerType";
-import { TransactionAction, TransactionReason } from "@domain/enum/transactionType";
-import { TransactionStatus } from "@domain/enum/transactionStatus";
 import { WithdrawalMapper } from "application/mappers/withdrawalMapper";
 import { InvalidDataException, NotFoundExecption } from "application/constants/exceptions";
 import { WALLET_ERRORS } from "@shared/constants/error";
 import { WithdrawalStatus } from "@domain/enum/WithdrawalStatus";
+import { RequestWithdrawalDTO } from "application/dto/wallet/withdrawalDTO";
 
 export class RequestWithdrawalUseCase implements IRequestWithdrawalUseCase {
   constructor(
     private _walletRepo: IWalletRepository,
     private _projectRepo: IProjectRepository,
     private _withdrawalRepo: IWithdrawalRepository,
-    private _transactionRepo: ITransactionRepository,
     private _unitOfWork: IUnitOfWork
   ) {}
 
-  async execute(userId: string, projectId: string, amount: number, reason: string) {
+  async execute(userId: string, dto: RequestWithdrawalDTO) {
+    const { projectId, amount, reason } = dto;
+
     if (!reason || reason.trim().length < 3) {
       throw new InvalidDataException(WALLET_ERRORS.WITHDRAWAL_REASON_TOO_SHORT);
     }
@@ -50,6 +49,7 @@ export class RequestWithdrawalUseCase implements IRequestWithdrawalUseCase {
     const session = this._unitOfWork.getSession();
 
     try {
+      // LOCK MONEY
       await this._walletRepo.decrementBalance(wallet._id!, amount, session);
       await this._walletRepo.incrementLockedBalance(wallet._id!, amount, session);
 
@@ -59,22 +59,7 @@ export class RequestWithdrawalUseCase implements IRequestWithdrawalUseCase {
           walletId: wallet._id!,
           amount,
           reason,
-          status: WithdrawalStatus.COMPLETED,
-          createdAt: new Date(),
-          processedAt: new Date(),
-        },
-        session
-      );
-
-      await this._walletRepo.decrementLockedBalance(wallet._id!, amount, session);
-
-      await this._transactionRepo.save(
-        {
-          fromWalletId: wallet._id!,
-          amount,
-          action: TransactionAction.DEBIT,
-          reason: TransactionReason.WITHDRAWAL,
-          status: TransactionStatus.SUCCESS,
+          status: WithdrawalStatus.PENDING,
           createdAt: new Date(),
         },
         session

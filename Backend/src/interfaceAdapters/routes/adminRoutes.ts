@@ -1,5 +1,8 @@
 import { adminContentController } from "@infrastructure/DI/Admin/adminContentContainer";
-import { adminFinanceController } from "@infrastructure/DI/Admin/adminFinanceContainer";
+import {
+  adminFinanceController,
+  adminWithdrawalController,
+} from "@infrastructure/DI/Admin/adminFinanceContainer";
 import { adminInvestorController } from "@infrastructure/DI/Admin/adminInvestorContainer";
 import { adminKycController } from "@infrastructure/DI/Admin/adminKycContainer";
 import { adminPlanController } from "@infrastructure/DI/Admin/adminPlanController";
@@ -223,6 +226,29 @@ export class Admin_Routes {
       (req: Request, res: Response, next: NextFunction) => {
         adminFinanceController.getPlatformWallet(req, res, next);
       }
+    );
+
+    this._route.get(
+      ADMIN.WITHDRAWALS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        console.log("Approve Withdrawal Route Hit");
+        adminWithdrawalController.getAll(req, res, next);
+      }
+    );
+
+    this._route.patch(
+      ADMIN.APPROVE_WITHDRAWAL,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminWithdrawalController.approve(req, res, next)
+    );
+
+    this._route.patch(
+      ADMIN.REJECT_WITHDRAWAL,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminWithdrawalController.reject(req, res, next)
     );
   }
 

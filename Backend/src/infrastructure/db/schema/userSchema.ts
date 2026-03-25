@@ -47,7 +47,9 @@ const userSchema = new mongoose.Schema(
     kycRejectReason: { type: String },
     adminVerified: { type: Boolean, default: false },
     verifiedAt: { type: Date },
-
+    googleId: { type: String, unique: true, sparse: true },
+    stripeAccountId: { type: String },
+    stripeOnboardingComplete: { type: Boolean, default: false },
     role: {
       type: String,
       enum: Object.values(UserRole),

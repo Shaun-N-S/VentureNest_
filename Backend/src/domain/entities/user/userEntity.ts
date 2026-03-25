@@ -34,6 +34,10 @@ export interface UserEntity {
   selfieImg?: string;
   verifiedAt?: Date | undefined;
   googleId?: string;
+
+  stripeAccountId?: string;
+  stripeOnboardingComplete?: boolean;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

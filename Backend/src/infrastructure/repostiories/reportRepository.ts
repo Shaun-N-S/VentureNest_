@@ -7,10 +7,7 @@ import { ReportMapper } from "application/mappers/reportMapper";
 import { ReportStatus } from "@domain/enum/reportStatus";
 import { ReportTargetType } from "@domain/enum/reporterTarget";
 import { ReporterType } from "@domain/enum/reporterRole";
-import {
-  AdminReportedPostDTO,
-  AdminReportedProjectDTO,
-} from "application/dto/report/adminReportDTO";
+import { AdminReportedProjectDTO } from "application/dto/report/adminReportDTO";
 import { ReportReason } from "@domain/enum/reportReason";
 
 export class ReportRepository

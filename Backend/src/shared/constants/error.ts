@@ -42,6 +42,7 @@ export const Errors = {
   NOT_ALLOWED: "Not allowed!",
   KYC_NOT_VERIFIED: "Your kyc verification is not completed!",
   ADMIN_NOT_FOUND: "Platform admin not found",
+  INVALID_AMOUNT: "Invalid amount",
 };
 
 export const USER_ERRORS = {
@@ -135,6 +136,9 @@ export const WALLET_ERRORS = {
   WITHDRAWAL_AMOUNT_INVALID: "Withdrawal amount required",
   WITHDRAWAL_UNAUTHORIZED_ACCESS: "You are not authorized to request withdrawal for this project",
   WITHDRAWAL_INSUFFICIENT_BALANCE: "Insufficient balance for withdrawal",
+  WITHDRAWAL_ALREADY_PROCESSED: "This withdrawal request has already been processed",
+  WITHDRAWAL_NOT_FOUND: "Withdrawal request not found",
+  INSUFFICIENT_BALANCE: "Insufficient balance in wallet",
 };
 
 export const CHAT_ERRORS = {
@@ -160,4 +164,13 @@ export const SUBSCRIPTION_ERRORS = {
   PROJECT_LIMIT_EXCEEDED: "Project creation limit exceeded for this month",
   PROPOSAL_LIMIT_EXCEEDED: "Proposal sending limit exceeded for this month",
   INVESTMENT_OFFER_LIMIT_EXCEEDED: "Investment offer sending limit exceeded for this month",
+};
+
+export const STRIPE_ERRORS = {
+  STRIPE_ACCOUNT_CREATION_FAILED: "Failed to create Stripe account",
+  STRIPE_ONBOARDING_LINK_CREATION_FAILED: "Failed to create Stripe onboarding link",
+  STRIPE_PAYOUT_FAILED: "Failed to create Stripe payout",
+  ACCOUNT_NOT_FOUND: "Stripe account not found",
+  NOT_CONNECTED: "Stripe not connected",
+  NOT_ONBOARDED: "Stripe onboarding not completed",
 };

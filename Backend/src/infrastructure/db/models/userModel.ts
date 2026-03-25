@@ -27,6 +27,9 @@ export interface IUserModel extends Document {
   aadharImg?: string;
   selfieImg?: string;
   verifiedAt?: Date;
+  googleId?: string;
+  stripeAccountId?: string;
+  stripeOnboardingComplete?: boolean;
   createdAt: Date;
   updatedAt: Date;
   kycHistory: {

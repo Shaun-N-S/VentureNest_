@@ -66,6 +66,9 @@ export const API_ROUTES = {
     TRANSACTIONS: "/admin/transactions",
     FINANCE_SUMMARY: "/admin/finance-summary",
     PLATFORM_WALLET: "/admin/platform-wallet",
+    WITHDRAWALS: "/admin/withdrawals",
+    APPROVE_WITHDRAWAL: "/admin/withdrawal/:id/approve",
+    REJECT_WITHDRAWAL: "/admin/withdrawal/:id/reject",
   },
 
   INVESTOR: {
@@ -176,6 +179,8 @@ export const API_ROUTES = {
     GET_MY_WALLET: "/wallet/me",
     GET_PROJECT_WALLET: "/wallet/project/:projectId",
     TOPUP_CHECKOUT: "/wallet/topup/checkout",
+    REQUEST_WITHDRAWAL: "/wallet/request-withdrawal",
+    GET_PROJECT_WITHDRAWALS: "/wallet/project/:projectId/withdrawals",
   },
 
   TRANSACTION: {

@@ -1,6 +1,8 @@
 import { TransactionEntity } from "@domain/entities/Transaction/transactionEntity";
 import { IBaseRepository } from "./IBaseRepository";
 import { TransactionAction } from "@domain/enum/transactionType";
+import { ClientSession } from "mongoose";
+import { TransactionStatus } from "@domain/enum/transactionStatus";
 
 export interface ITransactionRepository extends IBaseRepository<TransactionEntity> {
   findByWallet(walletId: string, action?: TransactionAction): Promise<TransactionEntity[]>;
@@ -23,4 +25,8 @@ export interface ITransactionRepository extends IBaseRepository<TransactionEntit
   }): Promise<number>;
 
   sumByReason(reason: string): Promise<number>;
+
+  findByRelatedPaymentId(paymentId: string): Promise<TransactionEntity | null>;
+
+  updateStatus(id: string, status: TransactionStatus, session?: ClientSession): Promise<void>;
 }

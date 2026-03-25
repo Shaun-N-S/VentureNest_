@@ -13,6 +13,7 @@ import ProjectDetailedPage from "../pages/Common/ProjectDetailedPage";
 import ReportManagementPage from "../pages/Admin/ReportsListingPage";
 import AdminPlansPage from "../pages/Admin/PlanManagementPage";
 import AdminWalletPage from "../pages/Admin/AdminWalletPage";
+import WithdrawalListing from "../pages/Admin/WithdrawalListing";
 
 const AdminRoutes = () => {
   return (
@@ -64,6 +65,11 @@ const AdminRoutes = () => {
           <Route
             path={FRONTEND_ROUTES.ADMIN.WALLET}
             element={<AdminWalletPage />}
+          />
+
+          <Route
+            path={FRONTEND_ROUTES.ADMIN.WITHDRAWALS}
+            element={<WithdrawalListing />}
           />
         </Route>
       </Route>
