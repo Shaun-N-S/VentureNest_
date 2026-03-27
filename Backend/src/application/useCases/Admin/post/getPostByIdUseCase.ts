@@ -5,6 +5,7 @@ import { NotFoundExecption } from "application/constants/exceptions";
 import { Errors } from "@shared/constants/error";
 import { AdminPostResDTO } from "application/dto/post/postDTO";
 import { IGetPostByIdUseCase } from "@domain/interfaces/useCases/admin/post/IGetPostByIdUseCase";
+import { CONFIG } from "@config/config";
 
 export class GetPostByIdUseCase implements IGetPostByIdUseCase {
   constructor(
@@ -22,7 +23,9 @@ export class GetPostByIdUseCase implements IGetPostByIdUseCase {
     const dto = AdminPostMapper.toDTO(post);
 
     dto.mediaUrls = await Promise.all(
-      dto.mediaUrls.map((url) => this._storageService.createSignedUrl(url, 10 * 60))
+      dto.mediaUrls.map((url) =>
+        this._storageService.createSignedUrl(url, CONFIG.SIGNED_URL_EXPIRY)
+      )
     );
 
     return dto;

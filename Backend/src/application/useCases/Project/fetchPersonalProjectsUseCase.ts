@@ -3,10 +3,13 @@ import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageSe
 import { IFetchPersonalProjectsUseCase } from "@domain/interfaces/useCases/project/IFetchPersonalProjectsUseCase";
 import { ProjectMapper } from "application/mappers/projectMapper";
 import { ProjectResDTO } from "application/dto/project/projectDTO";
+import { CONFIG } from "@config/config";
+import { IProjectRegistrationRepository } from "@domain/interfaces/repositories/IProjectRegistrationRepository";
 
 export class FetchPersonalProjectsUseCase implements IFetchPersonalProjectsUseCase {
   constructor(
     private _projectRepository: IProjectRepository,
+    private _projectRegistrationRepository: IProjectRegistrationRepository,
     private _storageService: IStorageService
   ) {}
 
@@ -23,15 +26,25 @@ export class FetchPersonalProjectsUseCase implements IFetchPersonalProjectsUseCa
       projects.map(async (project) => {
         const dto = ProjectMapper.toDTO(project);
 
+        const registration = await this._projectRegistrationRepository.findRegistrationByProjectId(
+          project._id!
+        );
+
+        dto.registrationStatus = registration?.status ?? null;
+        dto.rejectionReason = registration?.rejectionReason ?? null;
+
         dto.liked = project.likes.some((l) => l.likerId.toString() === userId);
 
         if (dto.logoUrl)
-          dto.logoUrl = await this._storageService.createSignedUrl(dto.logoUrl, 10 * 60);
+          dto.logoUrl = await this._storageService.createSignedUrl(
+            dto.logoUrl,
+            CONFIG.SIGNED_URL_EXPIRY
+          );
 
         if (dto.coverImageUrl)
           dto.coverImageUrl = await this._storageService.createSignedUrl(
             dto.coverImageUrl,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
 
         return dto;

@@ -17,4 +17,18 @@ export class PaymentRepository
     const doc = await this._model.findOne({ sessionId });
     return doc ? PaymentMapper.fromMongooseDocument(doc) : null;
   }
+
+  async sumByPurpose(purpose: string): Promise<number> {
+    const result = await this._model.aggregate([
+      { $match: { purpose } },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    return result[0]?.total ?? 0;
+  }
 }

@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { PostEntity } from "@domain/entities/post/postEntity";
 import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository";
@@ -33,7 +34,7 @@ export class CreatePostUseCase implements ICreatePostUseCase {
 
     const signedMediaUrls = await Promise.all(
       uploadedMediaUrls.map(async (url) => {
-        return await this._storageService.createSignedUrl(url, 10 * 60);
+        return await this._storageService.createSignedUrl(url, CONFIG.SIGNED_URL_EXPIRY);
       })
     );
 

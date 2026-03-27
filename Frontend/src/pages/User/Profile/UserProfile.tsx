@@ -263,7 +263,7 @@ export default function ProfilePage() {
         toast.error("Failed to like post");
       },
     });
-  };
+  }; 
 
   const handleProjectLike = (
     projectId: string,
@@ -389,6 +389,9 @@ export default function ProfilePage() {
                       logoUrl={project.logoUrl}
                       likes={project.likeCount}
                       liked={project.liked}
+                      registrationStatus={project.registrationStatus}
+                      rejectionReason={project.rejectionReason}
+                      isOwnProfile={isOwnProfile}
                       onLike={(updateUI) =>
                         handleProjectLike(project._id, updateUI)
                       }

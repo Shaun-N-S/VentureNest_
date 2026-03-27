@@ -25,7 +25,6 @@ export interface ProjectEntity {
   donationEnabled: boolean;
   donationTarget: number;
   donationReceived: number;
-  projectRegister: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

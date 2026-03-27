@@ -1,3 +1,4 @@
+import { DealStatus } from "@domain/enum/dealStatus";
 import { OfferStatus } from "@domain/enum/offerStatus";
 
 export interface InvestmentOfferDetailsResponseDTO {
@@ -37,4 +38,14 @@ export interface InvestmentOfferDetailsResponseDTO {
   rejectionReason?: string;
 
   createdAt: string;
+
+  deal?: {
+    dealId: string;
+    totalAmount: number;
+    amountPaid: number;
+    remainingAmount: number;
+    equityPercentage: number;
+    status: DealStatus;
+    createdAt?: Date;
+  };
 }

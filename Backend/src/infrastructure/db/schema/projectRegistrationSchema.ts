@@ -25,11 +25,6 @@ const projectRegistrationSchema = new mongoose.Schema(
       required: true,
     },
 
-    verifyProfile: {
-      type: Boolean,
-      default: false,
-    },
-
     declarationAccepted: {
       type: Boolean,
       required: true,
@@ -39,6 +34,11 @@ const projectRegistrationSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(ProjectRegistrationStatus),
       default: ProjectRegistrationStatus.PENDING,
+    },
+
+    rejectionReason: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true }

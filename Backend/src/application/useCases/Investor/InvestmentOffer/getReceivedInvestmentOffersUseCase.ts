@@ -3,6 +3,7 @@ import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageSe
 import { InvestmentOfferMapper } from "application/mappers/investmentOfferMapper";
 import { IGetReceivedInvestmentOffersUseCase } from "@domain/interfaces/useCases/investor/investmentOffer/IGetReceivedInvestmentOffersUseCase";
 import { OfferStatus } from "@domain/enum/offerStatus";
+import { CONFIG } from "@config/config";
 
 export class GetReceivedInvestmentOffersUseCase implements IGetReceivedInvestmentOffersUseCase {
   constructor(
@@ -28,13 +29,13 @@ export class GetReceivedInvestmentOffersUseCase implements IGetReceivedInvestmen
         if (offer.projectLogoUrl) {
           offer.projectLogoUrl = await this._storageService.createSignedUrl(
             offer.projectLogoUrl,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
         }
         if (offer.investorProfileImg) {
           offer.investorProfileImg = await this._storageService.createSignedUrl(
             offer.investorProfileImg,
-            10 * 60
+            CONFIG.SIGNED_URL_EXPIRY
           );
         }
         return offer;

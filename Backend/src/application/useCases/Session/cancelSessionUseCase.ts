@@ -13,12 +13,12 @@ import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRe
 
 export class CancelSessionUseCase implements ICancelSessionUseCase {
   constructor(
-    private readonly _sessionRepo: ISessionRepository,
-    private readonly _userRepo: IUserRepository,
+    private _sessionRepo: ISessionRepository,
+    private _userRepo: IUserRepository,
     private _investorRepo: IInvestorRepository,
-    private readonly _projectRepo: IProjectRepository,
-    private readonly _emailService: IEmailService,
-    private readonly _cancelEmailTemplate: ISessionCancelledEmailContentGenerator
+    private _projectRepo: IProjectRepository,
+    private _emailService: IEmailService,
+    private _cancelEmailTemplate: ISessionCancelledEmailContentGenerator
   ) {}
 
   async execute(data: CancelSessionDTO): Promise<CancelledSessionResponseDTO> {

@@ -12,7 +12,6 @@ export class Transaction_Routes {
   }
 
   private _setRoutes() {
-    // 🔹 Get personal wallet transactions (with optional action filter)
     this._route.get(
       ROUTES.TRANSACTION.MY_WALLET,
       ...userOrInvestorGuard,

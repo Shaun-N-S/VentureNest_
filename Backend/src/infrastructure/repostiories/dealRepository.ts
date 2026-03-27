@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import { ClientSession, Model } from "mongoose";
 import { BaseRepository } from "./baseRepository";
 import { IDealRepository } from "@domain/interfaces/repositories/IDealRepository";
 import { IDealModel } from "@infrastructure/db/models/dealModel";
@@ -18,7 +18,21 @@ export class DealRepository
     return doc ? DealMapper.fromMongooseDocument(doc) : null;
   }
 
-  async incrementPaidAmount(dealId: string, amount: number): Promise<void> {
+  async incrementPaidAmount(
+    dealId: string,
+    amount: number,
+    session?: ClientSession
+  ): Promise<void> {
+    const deal = await this._model.findById(dealId).session(session!);
+
+    if (!deal) {
+      throw new Error("Deal not found");
+    }
+
+    if (deal.remainingAmount < amount) {
+      throw new Error("Overpayment not allowed");
+    }
+
     await this._model.updateOne(
       { _id: dealId },
       {
@@ -26,7 +40,24 @@ export class DealRepository
           amountPaid: amount,
           remainingAmount: -amount,
         },
-      }
+      },
+      session ? { session } : {}
     );
+  }
+
+  async findByInvestorId(investorId: string): Promise<DealEntity[]> {
+    const docs = await this._model.find({ investorId }).sort({ createdAt: -1 });
+
+    return docs.map(DealMapper.fromMongooseDocument);
+  }
+
+  async findByFounderId(founderId: string): Promise<DealEntity[]> {
+    const docs = await this._model.find({ founderId }).sort({ createdAt: -1 });
+
+    return docs.map(DealMapper.fromMongooseDocument);
+  }
+
+  async countByStatus(status: string): Promise<number> {
+    return this._model.countDocuments({ status });
   }
 }

@@ -1,3 +1,5 @@
+import { CONFIG } from "@config/config";
+import { IProjectRegistrationRepository } from "@domain/interfaces/repositories/IProjectRegistrationRepository";
 import { IProjectRepository } from "@domain/interfaces/repositories/IProjectRepository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IFetchProjectByIdUseCase } from "@domain/interfaces/useCases/project/IFetchProjectByIdUseCase";
@@ -9,6 +11,7 @@ import { ProjectMapper } from "application/mappers/projectMapper";
 export class FetchProjectByIdUseCase implements IFetchProjectByIdUseCase {
   constructor(
     private _projectRepo: IProjectRepository,
+    private _projectRegistrationRepository: IProjectRegistrationRepository,
     private _storageService: IStorageService
   ) {}
 
@@ -19,22 +22,37 @@ export class FetchProjectByIdUseCase implements IFetchProjectByIdUseCase {
 
     const dto = ProjectMapper.toDTOFromPopulatedRepo(populatedProject);
 
+    const registration =
+      await this._projectRegistrationRepository.findRegistrationByProjectId(projectId);
+
+    dto.registrationStatus = registration?.status ?? null;
+    dto.rejectionReason = registration?.rejectionReason ?? null;
+
     if (dto.user) {
       dto.user.profileImg = dto.user.profileImg
-        ? await this._storageService.createSignedUrl(dto.user.profileImg, 10 * 60)
+        ? await this._storageService.createSignedUrl(dto.user.profileImg, CONFIG.SIGNED_URL_EXPIRY)
         : null;
     }
 
     if (dto.logoUrl) {
-      dto.logoUrl = await this._storageService.createSignedUrl(dto.logoUrl, 10 * 60);
+      dto.logoUrl = await this._storageService.createSignedUrl(
+        dto.logoUrl,
+        CONFIG.SIGNED_URL_EXPIRY
+      );
     }
 
     if (dto.coverImageUrl) {
-      dto.coverImageUrl = await this._storageService.createSignedUrl(dto.coverImageUrl, 10 * 60);
+      dto.coverImageUrl = await this._storageService.createSignedUrl(
+        dto.coverImageUrl,
+        CONFIG.SIGNED_URL_EXPIRY
+      );
     }
 
     if (dto.pitchDeckUrl) {
-      dto.pitchDeckUrl = await this._storageService.createSignedUrl(dto.pitchDeckUrl, 10 * 60);
+      dto.pitchDeckUrl = await this._storageService.createSignedUrl(
+        dto.pitchDeckUrl,
+        CONFIG.SIGNED_URL_EXPIRY
+      );
     }
 
     dto.liked = dto.likes.some((u) => u.likerId === userId);

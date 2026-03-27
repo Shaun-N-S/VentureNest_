@@ -114,11 +114,13 @@ const AdminPlansPage = () => {
   const mapFormToPayload = (form: CreatePlanFormData): CreatePlanPayload => ({
     ...form,
     limits: {
-      projects: form.limits.projects ?? 0,
-      proposalsPerMonth: form.limits.proposalsPerMonth ?? 0,
-      meetingRequests: form.limits.meetingRequests ?? 0,
-      investmentOffers: form.limits.investmentOffers ?? 0,
-      activeInvestments: form.limits.activeInvestments ?? 0,
+      projects: form.limits.projects ?? -1,
+      proposalsPerMonth: form.limits.proposalsPerMonth ?? -1,
+      investmentOffers: form.limits.investmentOffers ?? -1,
+    },
+    permissions: {
+      ...form.permissions,
+      canStartVideoCall: form.permissions.canStartVideoCall ?? false,
     },
   });
 
@@ -233,14 +235,12 @@ const AdminPlansPage = () => {
             <>
               <p>Projects: {row.limits.projects}</p>
               <p>Proposals: {row.limits.proposalsPerMonth}</p>
-              <p>Meetings: {row.limits.meetingRequests}</p>
             </>
           )}
 
           {row.role === "INVESTOR" && (
             <>
               <p>Offers: {row.limits.investmentOffers}</p>
-              <p>Active Investments: {row.limits.activeInvestments}</p>
             </>
           )}
         </div>

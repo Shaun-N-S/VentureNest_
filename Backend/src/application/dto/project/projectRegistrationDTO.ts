@@ -11,7 +11,6 @@ export interface ProjectRegistrationResDTO {
   cinNumber?: string;
 
   country: string;
-  verifyProfile: boolean;
   declarationAccepted: boolean;
 
   status: ProjectRegistrationStatus;

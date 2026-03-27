@@ -1,10 +1,18 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  createStripeAccount,
   createWalletTopupCheckout,
   getMyWallet,
   getProjectWallet,
+  getProjectWithdrawals,
+  getStripeOnboardingLink,
+  requestWithdrawal,
+  withdrawToBank,
 } from "../../services/Wallet/walletService";
 import type { Wallet } from "../../types/wallet";
+import toast from "react-hot-toast";
+import { queryClient } from "../../main";
+import { AxiosError } from "axios";
 
 export const useWalletTopup = () => {
   return useMutation({
@@ -16,7 +24,7 @@ export const useWalletTopup = () => {
 
     onError: (error) => {
       console.error("Wallet top-up failed", error);
-      alert("Unable to add money. Please try again.");
+      toast.error("Unable to add money. Please try again.");
     },
   });
 };
@@ -33,5 +41,94 @@ export const useGetProjectWallet = (projectId?: string) => {
     queryKey: ["project-wallet", projectId],
     queryFn: () => getProjectWallet(projectId!),
     enabled: !!projectId,
+  });
+};
+
+export const useRequestWithdrawal = () => {
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      amount,
+      requestReason,
+    }: {
+      projectId: string;
+      amount: number;
+      requestReason: string;
+    }) => requestWithdrawal(projectId, amount, requestReason),
+
+    onSuccess: (_, variables) => {
+      toast.success("Withdrawal requested");
+
+      queryClient.invalidateQueries({
+        queryKey: ["project-withdrawals", variables.projectId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["project-wallet", variables.projectId],
+      });
+    },
+
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        toast.error(
+          err?.response?.data?.message || "Failed to request withdrawal",
+        );
+      }
+    },
+  });
+};
+
+export const useGetProjectWithdrawals = (
+  projectId?: string,
+  page: number = 1,
+  limit: number = 10,
+) => {
+  return useQuery({
+    queryKey: ["project-withdrawals", projectId, page],
+    queryFn: () => getProjectWithdrawals(projectId!, page, limit),
+    enabled: !!projectId,
+  });
+};
+
+export const useCreateStripeAccount = () => {
+  return useMutation({
+    mutationFn: createStripeAccount,
+
+    onError: () => {
+      toast.error("Failed to create Stripe account");
+    },
+  });
+};
+
+export const useGetStripeOnboardingLink = () => {
+  return useMutation({
+    mutationFn: getStripeOnboardingLink,
+
+    onSuccess: (url) => {
+      window.location.href = url;
+    },
+
+    onError: () => {
+      toast.error("Failed to open Stripe onboarding");
+    },
+  });
+};
+
+export const useWithdrawToBank = () => {
+  return useMutation({
+    mutationFn: (amount: number) => withdrawToBank(amount),
+
+    onSuccess: () => {
+      toast.success("Withdrawal initiated ");
+
+      // refresh wallet
+      queryClient.invalidateQueries({ queryKey: ["my-wallet"] });
+    },
+
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        toast.error(err?.response?.data?.message || "Withdrawal failed");
+      }
+    },
   });
 };

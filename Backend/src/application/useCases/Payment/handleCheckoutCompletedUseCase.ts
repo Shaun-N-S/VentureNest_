@@ -1,16 +1,25 @@
 import { PaymentPurpose } from "@domain/enum/paymentPurpose";
 import { SubscriptionStatus } from "@domain/enum/subscriptionStatus";
+import { TransactionStatus } from "@domain/enum/transactionStatus";
+import { TransactionAction, TransactionReason } from "@domain/enum/transactionType";
 import { UserRole } from "@domain/enum/userRole";
+import { WalletOwnerType } from "@domain/enum/walletOwnerType";
 import { IPaymentRepository } from "@domain/interfaces/repositories/IPaymentRepository";
 import { IPlanRepository } from "@domain/interfaces/repositories/IPlanRepository";
 import { ISubscriptionRepository } from "@domain/interfaces/repositories/ISubscriptionRepository";
+import { ITransactionRepository } from "@domain/interfaces/repositories/ITransactionRepository";
+import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
+import { IWalletRepository } from "@domain/interfaces/repositories/IWalletRepository";
 import { IHandleCheckoutCompletedUseCase } from "@domain/interfaces/useCases/payment/IHandleCheckoutCompletedUseCase";
 
 export class HandleCheckoutCompletedUseCase implements IHandleCheckoutCompletedUseCase {
   constructor(
     private _paymentRepo: IPaymentRepository,
     private _subscriptionRepo: ISubscriptionRepository,
-    private _planRepo: IPlanRepository
+    private _planRepo: IPlanRepository,
+    private _transactionRepo: ITransactionRepository,
+    private _walletRepo: IWalletRepository,
+    private _userRepo: IUserRepository
   ) {}
 
   async execute(data: {
@@ -30,6 +39,15 @@ export class HandleCheckoutCompletedUseCase implements IHandleCheckoutCompletedU
     const endDate = new Date();
     endDate.setDate(startDate.getDate() + data.durationDays);
 
+    const existingSubscription = await this._subscriptionRepo.findActiveByOwner(
+      data.ownerId,
+      data.ownerRole
+    );
+
+    if (existingSubscription) {
+      await this._subscriptionRepo.cancelSubscription(data.ownerId, data.ownerRole);
+    }
+
     await this._subscriptionRepo.save({
       ownerId: data.ownerId,
       ownerRole: data.ownerRole,
@@ -38,6 +56,10 @@ export class HandleCheckoutCompletedUseCase implements IHandleCheckoutCompletedU
       expiresAt: endDate,
       status: SubscriptionStatus.ACTIVE,
       createdAt: new Date(),
+
+      ...(existingSubscription && {
+        upgradedFrom: existingSubscription.planId,
+      }),
     });
 
     await this._paymentRepo.save({
@@ -47,6 +69,24 @@ export class HandleCheckoutCompletedUseCase implements IHandleCheckoutCompletedU
       planId: data.planId,
       purpose: PaymentPurpose.SUBSCRIPTION,
       amount: plan.billing.price,
+      createdAt: new Date(),
+    });
+
+    const admin = await this._userRepo.findByRole(UserRole.ADMIN);
+    if (!admin) return;
+
+    const platformWallet = await this._walletRepo.findByOwner(WalletOwnerType.PLATFORM, admin._id!);
+
+    if (!platformWallet) return;
+
+    await this._walletRepo.incrementBalance(platformWallet._id!, plan.billing.price);
+
+    await this._transactionRepo.save({
+      toWalletId: platformWallet._id!,
+      amount: plan.billing.price,
+      action: TransactionAction.CREDIT,
+      reason: TransactionReason.SUBSCRIPTION,
+      status: TransactionStatus.SUCCESS,
       createdAt: new Date(),
     });
   }

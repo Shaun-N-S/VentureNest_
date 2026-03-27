@@ -71,6 +71,14 @@ export const ROUTES = {
     PLANS: "/plans",
     PLAN_BY_ID: "/plans/:planId",
     PLAN_STATUS: "/plans/:planId/status",
+    PROJECT_REGISTRATIONS: "/project-registrations",
+    UPDATE_PROJECT_REGISTRATION_STATUS: "/project-registrations/update-status/:registrationId",
+    TRANSACTIONS: "/transactions",
+    FINANCE_SUMMARY: "/finance-summary",
+    PLATFORM_WALLET: "/platform-wallet",
+    WITHDRAWALS: "/withdrawals",
+    APPROVE_WITHDRAWAL: "/withdrawal/:id/approve",
+    REJECT_WITHDRAWAL: "/withdrawal/:id/reject",
   },
 
   USERS: {
@@ -188,6 +196,11 @@ export const ROUTES = {
     ME: "/me",
     PROJECT: "/project/:projectId",
     TOPUP_CHECKOUT: "/topup/checkout",
+    REQUEST_WITHDRAWAL: "/request-withdrawal",
+    PROJECT_WITHDRAWALS: "/project/:projectId/withdrawals",
+    BANK_WITHDRAWAL: "/withdraw/bank",
+    STRIPE_ONBOARD_LINK: "/stripe/onboarding-link",
+    STRIPE_ACCOUNT: "/stripe/account",
   },
 
   TRANSACTION: {
@@ -207,5 +220,13 @@ export const ROUTES = {
     SEND_MESSAGE: "/message",
     MARK_READ: "/read/:conversationId",
     UNREAD_COUNT: "/unread-count",
+  },
+
+  DEAL: {
+    MY: "/my",
+    GET_BY_ID: "/:dealId",
+    GET_INSTALLMENTS: "/:dealId/installments",
+    INSTALLMENT_CHECKOUT: "/:dealId/installment-checkout",
+    RELEASE_INSTALLMENT: "/:dealId/release-installment",
   },
 };

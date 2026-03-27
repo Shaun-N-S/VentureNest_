@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { UserRole } from "@domain/enum/userRole";
 import { ICommentRepository } from "@domain/interfaces/repositories/ICommentRepository";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
@@ -44,7 +45,7 @@ export class CreateReplyUseCase implements ICreateReplyUseCase {
     if (dto.replierProfileImg) {
       dto.replierProfileImg = await this._storageService.createSignedUrl(
         dto.replierProfileImg,
-        600
+        CONFIG.SIGNED_URL_EXPIRY
       );
     }
 

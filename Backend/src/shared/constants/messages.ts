@@ -1,4 +1,8 @@
 export const MESSAGES = {
+  ROUTE: {
+    NOT_FOUND: "Route not found",
+  },
+
   USERS: {
     REGISTER_SUCCESS: "User registered successfully.",
     LOGIN_SUCCESS: "User logged in successfully.",
@@ -22,6 +26,8 @@ export const MESSAGES = {
   ADMIN: {
     VERIFIED_USER: "User verified successfully by admin.",
     UPDATE_STATUS: "User status updated",
+    TRANSACTIONS_FETCHED: "Transactions fetched successfully",
+    FINANCE_SUMMARY_FETCHED: "Finance summary fetched successfully",
   },
 
   OTP: {
@@ -68,10 +74,17 @@ export const MESSAGES = {
     LIKED_SUCCESSFULLY: "Project liked successfully",
     STATUS_UPDATED_SUCCESSFULLY: "Project status updated successfully",
     GET_ALL_PROJECTS: "Fetched projects successfully",
+    GET_ALL_PROJECT_REGISTRATIONS: "Fetched project registrations successfully",
   },
 
   PROJECT_MONTHLY_REPORT: {
     REPORT_ADDED_SUCCESSFULLY: "Monthly report added successfully",
+  },
+
+  PROJECT_REGISTRATION: {
+    REGISTRATION_SUCCESSFULL: "Project registration successfull !",
+    GET_ALL_PROJECT_REGISTRATIONS: "Fetched project registrations successfully",
+    STATUS_UPDATE_SUCCESSFUL: "Project registration status updated successfully",
   },
 
   RELATIONSHIP: {
@@ -140,8 +153,15 @@ export const MESSAGES = {
 
   WALLET: {
     WALLET_FETCHED: "Wallet fetched successfully",
+    WITHDRAWAL_FETCHED: "Withdrawal fetched successfully",
     WALLET_TOPUP_CREATED: "Wallet topup created",
     WALLET_TRANSACTION: "Wallet transactions fetched",
+    WITHDRAWAL_REQUESTED: "Withdrawal requested successfully",
+    WITHDRAWAL_SUCCESS: "Withdrawal to bank successful",
+    STRIPE_ONBOARDING_LINK_CREATED: "Stripe onboarding link created successfully",
+    PROJECT_WITHDRAWAL_FETCHED: "Project withdrawals fetched successfully",
+    WITHDRAWAL_APPROVED: "Withdrawal Approved",
+    WITHDRAWAL_REJECTED: "Withdrawal Rejected",
   },
 
   SUBSCRIPTION: {
@@ -162,5 +182,16 @@ export const MESSAGES = {
     MESSAGES_FETCHED: "Messages fetched",
     CONVERSATIONS_MARKED_AS_READ: "Conversation marked as read",
     UNREAD_MESSAGE_COUNT: "Unread count fetched",
+  },
+
+  PAYMENT: {
+    CHECKOUT_CREATED: "Payment checkout created!",
+  },
+
+  DEAL: {
+    DEALS_FETCHED: "Deals fetched successfully",
+    DEAL_FETCHED: "Deal details fetched successfully",
+    INSTALLMENTS_FETCHED: "Installment details fetched",
+    INSTALLMENT_RELEASED: "Installment released successfully",
   },
 };

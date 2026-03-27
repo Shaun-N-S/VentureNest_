@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
@@ -47,7 +48,10 @@ export class UpdateUserProfileUseCase implements IUpdateUserProfileUseCase {
     }
 
     const response: UserProfileUpdateResDTO = UserMapper.userProfileUpdateRes(updatedUser);
-    response.profileImg = await this._storageService.createSignedUrl(profileImgKey, 10 * 60);
+    response.profileImg = await this._storageService.createSignedUrl(
+      profileImgKey,
+      CONFIG.SIGNED_URL_EXPIRY
+    );
     return response;
   }
 }

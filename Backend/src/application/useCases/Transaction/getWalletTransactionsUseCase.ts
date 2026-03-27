@@ -2,26 +2,54 @@ import { IWalletRepository } from "@domain/interfaces/repositories/IWalletReposi
 import { ITransactionRepository } from "@domain/interfaces/repositories/ITransactionRepository";
 import { WalletOwnerType } from "@domain/enum/walletOwnerType";
 import { TransactionMapper } from "application/mappers/transactionMapper";
-import { TransactionAction } from "@domain/enum/transactionType";
-import { UserRole } from "@domain/enum/userRole";
 import { IGetWalletTransactionsUseCase } from "@domain/interfaces/useCases/transaction/IGetWalletTransactionsUseCase";
+import {
+  GetWalletTransactionsRequestDTO,
+  GetWalletTransactionsResponseDTO,
+} from "application/dto/transaction/transactionDTO";
+import { UserRole } from "@domain/enum/userRole";
 
 export class GetWalletTransactionsUseCase implements IGetWalletTransactionsUseCase {
   constructor(
-    private _walletRepo: IWalletRepository,
-    private _transactionRepo: ITransactionRepository
+    private readonly walletRepository: IWalletRepository,
+    private readonly transactionRepository: ITransactionRepository
   ) {}
 
-  async execute(params: { ownerId: string; ownerType: UserRole; action?: TransactionAction }) {
-    const wallet = await this._walletRepo.findByOwner(
-      params.ownerType === UserRole.INVESTOR ? WalletOwnerType.INVESTOR : WalletOwnerType.USER,
-      params.ownerId
+  async execute(
+    request: GetWalletTransactionsRequestDTO
+  ): Promise<GetWalletTransactionsResponseDTO> {
+    const { ownerId, ownerRole, action, page, limit } = request;
+
+    const walletOwnerType =
+      ownerRole === UserRole.INVESTOR ? WalletOwnerType.INVESTOR : WalletOwnerType.USER;
+
+    const wallet = await this.walletRepository.findByOwner(walletOwnerType, ownerId);
+
+    if (!wallet) {
+      return {
+        data: [],
+        total: 0,
+        page,
+        limit,
+      };
+    }
+
+    const skip = (page - 1) * limit;
+
+    const transactions = await this.transactionRepository.findByWalletPaginated(
+      wallet._id!,
+      action,
+      skip,
+      limit
     );
 
-    if (!wallet) return [];
+    const total = await this.transactionRepository.countByWallet(wallet._id!, action);
 
-    const transactions = await this._transactionRepo.findByWallet(wallet._id!, params.action);
-
-    return transactions.map(TransactionMapper.toDTO);
+    return {
+      data: transactions.map(TransactionMapper.toDTO),
+      total,
+      page,
+      limit,
+    };
   }
 }

@@ -7,11 +7,21 @@ import { InvalidDataException } from "application/constants/exceptions";
 import { Errors } from "@shared/constants/error";
 import { MESSAGES } from "@shared/constants/messages";
 import { ICreateWalletTopupCheckoutUseCase } from "@domain/interfaces/useCases/wallet/ICreateWalletTopupCheckoutUseCase";
+import { IRequestWithdrawalUseCase } from "@domain/interfaces/useCases/wallet/IRequestWithdrawalUseCase";
+import { IGetProjectWithdrawalsUseCase } from "@domain/interfaces/useCases/wallet/IGetProjectWithdrawalsUseCase";
+import { ICreateStripeAccountUseCase } from "@domain/interfaces/useCases/stripe/ICreateStripeAccountUseCase";
+import { IGetStripeOnboardingLinkUseCase } from "@domain/interfaces/useCases/stripe/IGetStripeOnboardingLinkUseCase";
+import { IWithdrawToBankUseCase } from "@domain/interfaces/useCases/stripe/IWithdrawToBankUseCase";
 
 export class WalletController {
   constructor(
     private _getWalletDetailsUseCase: IGetWalletDetailsUseCase,
-    private _createWalletTopupCheckoutUseCase: ICreateWalletTopupCheckoutUseCase
+    private _createWalletTopupCheckoutUseCase: ICreateWalletTopupCheckoutUseCase,
+    private _requestWithdrawalUseCase: IRequestWithdrawalUseCase,
+    private _getProjectWithdrawalsUseCase: IGetProjectWithdrawalsUseCase,
+    private _createStripeAccountUseCase: ICreateStripeAccountUseCase,
+    private _getStripeOnboardingLinkUseCase: IGetStripeOnboardingLinkUseCase,
+    private _withdrawToBankUseCase: IWithdrawToBankUseCase
   ) {}
 
   async getMyWallet(req: Request, res: Response, next: NextFunction) {
@@ -77,6 +87,97 @@ export class WalletController {
       );
     } catch (error) {
       next(error);
+    }
+  }
+
+  async requestWithdrawal(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = res.locals.user;
+      const { projectId, amount, requestReason } = req.body;
+
+      if (!projectId || !amount || amount <= 0) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const result = await this._requestWithdrawalUseCase.execute(userId, {
+        projectId,
+        amount,
+        requestReason,
+      });
+
+      ResponseHelper.success(res, MESSAGES.WALLET.WITHDRAWAL_REQUESTED, result, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getProjectWithdrawals(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = res.locals.user;
+      const { projectId } = req.params;
+      const { page = 1, limit = 10 } = req.query;
+
+      const result = await this._getProjectWithdrawalsUseCase.execute(userId, {
+        projectId: projectId!,
+        page: Number(page),
+        limit: Number(limit),
+      });
+
+      ResponseHelper.success(
+        res,
+        MESSAGES.WALLET.PROJECT_WITHDRAWAL_FETCHED,
+        result,
+        HTTPSTATUS.OK
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createStripeAccount(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = res.locals.user;
+
+      const result = await this._createStripeAccountUseCase.execute(userId);
+
+      ResponseHelper.success(
+        res,
+        MESSAGES.WALLET.STRIPE_ONBOARDING_LINK_CREATED,
+        result,
+        HTTPSTATUS.OK
+      );
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getStripeOnboardingLink(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = res.locals.user;
+
+      const result = await this._getStripeOnboardingLinkUseCase.execute(userId);
+
+      ResponseHelper.success(
+        res,
+        MESSAGES.WALLET.STRIPE_ONBOARDING_LINK_CREATED,
+        result,
+        HTTPSTATUS.OK
+      );
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async withdrawToBank(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = res.locals.user;
+      const { amount } = req.body;
+
+      const result = await this._withdrawToBankUseCase.execute(userId, { amount });
+
+      ResponseHelper.success(res, MESSAGES.WALLET.WITHDRAWAL_SUCCESS, result, HTTPSTATUS.OK);
+    } catch (err) {
+      next(err);
     }
   }
 }

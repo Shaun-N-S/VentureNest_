@@ -38,13 +38,13 @@ export class SubscriptionRepository
     return doc ? SubscriptionMapper.fromMongooseDocument(doc) : null;
   }
 
-  async cancelSubscription(
-    ownerId: string,
-    ownerRole: UserRole
-  ): Promise<SubscriptionEntity | null> {
+  async cancelSubscription(ownerId: string, ownerRole: UserRole) {
     const updated = await this._model.findOneAndUpdate(
       { ownerId, ownerRole, status: SubscriptionStatus.ACTIVE },
-      { status: SubscriptionStatus.CANCELLED },
+      {
+        status: SubscriptionStatus.CANCELLED,
+        cancelledAt: new Date(),
+      },
       { new: true }
     );
 
@@ -67,5 +67,32 @@ export class SubscriptionRepository
     );
 
     return updated ? SubscriptionMapper.fromMongooseDocument(updated) : null;
+  }
+
+  async expireAllExpired(): Promise<void> {
+    await this._model.updateMany(
+      {
+        status: SubscriptionStatus.ACTIVE,
+        expiresAt: { $lte: new Date() },
+      },
+      {
+        status: SubscriptionStatus.EXPIRED,
+      }
+    );
+  }
+
+  async incrementUsage(ownerId: string, ownerRole: UserRole, field: string): Promise<void> {
+    await this._model.updateOne(
+      {
+        ownerId,
+        ownerRole,
+        status: SubscriptionStatus.ACTIVE,
+      },
+      {
+        $inc: {
+          [`usage.${field}`]: 1,
+        },
+      }
+    );
   }
 }

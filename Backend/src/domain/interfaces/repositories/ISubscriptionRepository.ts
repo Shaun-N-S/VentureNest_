@@ -10,4 +10,8 @@ export interface ISubscriptionRepository extends IBaseRepository<SubscriptionEnt
   cancelSubscription(ownerId: string, ownerRole: UserRole): Promise<SubscriptionEntity | null>;
 
   expireSubscription(ownerId: string, ownerRole: UserRole): Promise<SubscriptionEntity | null>;
+
+  expireAllExpired(): Promise<void>;
+
+  incrementUsage(ownerId: string, ownerRole: UserRole, field: string): Promise<void>;
 }

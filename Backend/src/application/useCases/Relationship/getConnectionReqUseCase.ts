@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { ConnectionStatus } from "@domain/enum/connectionStatus";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IRelationshipRepository } from "@domain/interfaces/repositories/IRelationshipRepository";
@@ -42,7 +43,10 @@ export class GetConnectionReqUseCase implements IGetConnectionReqUseCase {
         const dto = RelationshipMapper.NetworkUsers(sender, sender.role, ConnectionStatus.PENDING);
 
         if (dto.profileImg) {
-          dto.profileImg = await this._storageService.createSignedUrl(dto.profileImg, 600);
+          dto.profileImg = await this._storageService.createSignedUrl(
+            dto.profileImg,
+            CONFIG.SIGNED_URL_EXPIRY
+          );
         }
 
         return dto;

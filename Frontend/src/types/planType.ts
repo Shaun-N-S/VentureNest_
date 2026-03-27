@@ -10,18 +10,18 @@ export interface Plan {
   limits: {
     projects: number;
     proposalsPerMonth: number;
-    meetingRequests: number;
     investmentOffers: number;
-    activeInvestments: number;
   };
 
   permissions: {
     canCreateProject: boolean;
     canSendProposal: boolean;
-    canRequestMeeting: boolean;
+
     canSendInvestmentOffer: boolean;
     canInvestMoney: boolean;
     canViewInvestmentDashboard: boolean;
+
+    canStartVideoCall: boolean;
   };
 
   billing: {
@@ -44,18 +44,18 @@ export interface CreatePlanPayload {
   limits: {
     projects: number;
     proposalsPerMonth: number;
-    meetingRequests: number;
     investmentOffers: number;
-    activeInvestments: number;
   };
 
   permissions: {
     canCreateProject: boolean;
     canSendProposal: boolean;
-    canRequestMeeting: boolean;
+
     canSendInvestmentOffer: boolean;
     canInvestMoney: boolean;
     canViewInvestmentDashboard: boolean;
+
+    canStartVideoCall: boolean;
   };
 
   billing: {
@@ -68,6 +68,7 @@ export interface UpdatePlanPayload {
   name?: string;
   description?: string;
   limits?: Partial<Plan["limits"]>;
+  permissions?: Partial<Plan["permissions"]>;
   billing?: Partial<Plan["billing"]>;
 }
 

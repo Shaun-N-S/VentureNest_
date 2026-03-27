@@ -1,3 +1,5 @@
+import type { ProjectRegistrationStatus } from "./projectRegistrationStatus";
+
 export interface ProjectType {
   _id: string;
 
@@ -16,6 +18,9 @@ export interface ProjectType {
   logoUrl?: string;
   coverImageUrl?: string;
   pitchDeckUrl?: string;
+  registrationStatus?: ProjectRegistrationStatus | null;
+  rejectionReason?: string | null;
+
   isActive?: boolean;
   likeCount: number;
   liked: boolean;

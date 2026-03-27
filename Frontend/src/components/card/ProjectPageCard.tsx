@@ -4,6 +4,7 @@ import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { VerifiedBadge } from "../Comments/VerifiedBadge";
 
 interface ProjectCardProps {
   id: string;
@@ -13,6 +14,7 @@ interface ProjectCardProps {
   image: string;
   likes: number;
   liked?: boolean;
+  registrationStatus?: string | null;
   onLike: (updateUI: (liked: boolean, count: number) => void) => void;
   isLikeLoading?: boolean;
   onOpen?: (id: string) => void;
@@ -25,6 +27,7 @@ export function ProjectPageCard({
   stage,
   image,
   likes,
+  registrationStatus,
   liked = false,
   isLikeLoading = false,
   onLike,
@@ -64,7 +67,11 @@ export function ProjectPageCard({
         {/* Header Section */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-900">{name}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xl font-bold text-gray-900">{name}</h3>
+
+              {registrationStatus === "APPROVED" && <VerifiedBadge size={26} />}
+            </div>
             <Badge
               variant="outline"
               className="mt-1 bg-green-50 text-green-700 border-green-200"

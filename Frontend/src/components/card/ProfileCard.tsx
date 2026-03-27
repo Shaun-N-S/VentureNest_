@@ -52,6 +52,7 @@ import { ChangePasswordModal } from "../modals/ChangePasswordModal";
 import { useNavigate } from "react-router-dom";
 import { useCreateConversation } from "../../hooks/Chat/chatHooks";
 import TopicSelectionModal from "../modals/InterestedTopics";
+import StripePayoutModal from "../modals/StripePayoutModal";
 
 export function ProfileCard(props: ProfileCardProps) {
   // State management - unchanged
@@ -66,6 +67,7 @@ export function ProfileCard(props: ProfileCardProps) {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [resetToken, setResetToken] = useState<string | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
 
   const role = useSelector((state: Rootstate) => state.authData.role);
   const userId = useSelector((state: Rootstate) => state.authData.id);
@@ -398,6 +400,16 @@ export function ProfileCard(props: ProfileCardProps) {
                           <Smile className="w-4 h-4 text-slate-400" />
                           Update Interested Topics
                         </button>
+
+                        <button
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            setIsPayoutModalOpen(true);
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+                        >
+                          💳 Setup Payout
+                        </button>
                       </motion.div>
                     </>
                   )}
@@ -664,6 +676,11 @@ export function ProfileCard(props: ProfileCardProps) {
           }}
         />
       )}
+
+      <StripePayoutModal
+        open={isPayoutModalOpen}
+        onClose={() => setIsPayoutModalOpen(false)}
+      />
 
       <TopicSelectionModal
         isOpen={isTopicModalOpen}

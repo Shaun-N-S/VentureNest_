@@ -60,6 +60,15 @@ export const API_ROUTES = {
     PLANS: "/admin/plans",
     PLAN_BY_ID: "/admin/plans/:planId",
     PLAN_STATUS: "/admin/plans/:planId/status",
+    PROJECT_REGISTRATIONS: "/admin/project-registrations",
+    PROJECT_REGISTRATIONS_UPDATE_STATUS:
+      "/admin/project-registrations/update-status",
+    TRANSACTIONS: "/admin/transactions",
+    FINANCE_SUMMARY: "/admin/finance-summary",
+    PLATFORM_WALLET: "/admin/platform-wallet",
+    WITHDRAWALS: "/admin/withdrawals",
+    APPROVE_WITHDRAWAL: "/admin/withdrawal/:id/approve",
+    REJECT_WITHDRAWAL: "/admin/withdrawal/:id/reject",
   },
 
   INVESTOR: {
@@ -170,6 +179,11 @@ export const API_ROUTES = {
     GET_MY_WALLET: "/wallet/me",
     GET_PROJECT_WALLET: "/wallet/project/:projectId",
     TOPUP_CHECKOUT: "/wallet/topup/checkout",
+    REQUEST_WITHDRAWAL: "/wallet/request-withdrawal",
+    GET_PROJECT_WITHDRAWALS: "/wallet/project/:projectId/withdrawals",
+    BANK_WITHDRAWAL: "/wallet/withdraw/bank",
+    STRIPE_ONBOARD_LINK: "/wallet/stripe/onboarding-link",
+    STRIPE_ACCOUNT: "/wallet/stripe/account",
   },
 
   TRANSACTION: {
@@ -189,5 +203,13 @@ export const API_ROUTES = {
     SEND_MESSAGE: "/chat/message",
     MARK_READ: "/chat/read/:conversationId",
     UNREAD_COUNT: "/chat/unread-count",
+  },
+
+  DEAL: {
+    GET_MY_DEALS: "/deals/my",
+    GET_BY_ID: "/deals/:dealId",
+    GET_INSTALLMENTS: "/deals/:dealId/installments",
+    INSTALLMENT_CHECKOUT: "/deals/:dealId/installment-checkout",
+    RELEASE_INSTALLMENT: "/deals/:dealId/release-installment",
   },
 };

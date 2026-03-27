@@ -5,6 +5,7 @@ import { PitchStatus } from "@domain/enum/pitchStatus";
 import { ForbiddenException, NotFoundExecption } from "application/constants/exceptions";
 import { Errors, PITCH_ERRORS } from "@shared/constants/error";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
+import { CONFIG } from "@config/config";
 
 export class GetPitchDetailsUseCase implements IGetPitchDetailsUseCase {
   constructor(
@@ -41,21 +42,21 @@ export class GetPitchDetailsUseCase implements IGetPitchDetailsUseCase {
     if (dto.project.logoUrl) {
       dto.project.logoUrl = await this._storageService.createSignedUrl(
         dto.project.logoUrl,
-        10 * 60
+        CONFIG.SIGNED_URL_EXPIRY
       );
     }
 
     if (dto.founder.profileImg) {
       dto.founder.profileImg = await this._storageService.createSignedUrl(
         dto.founder.profileImg,
-        10 * 60
+        CONFIG.SIGNED_URL_EXPIRY
       );
     }
 
     if (dto.investor.profileImg) {
       dto.investor.profileImg = await this._storageService.createSignedUrl(
         dto.investor.profileImg,
-        10 * 60
+        CONFIG.SIGNED_URL_EXPIRY
       );
     }
 

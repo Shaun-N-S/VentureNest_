@@ -14,23 +14,22 @@ export interface IPlanModel extends Document {
     // USER
     projects?: number;
     proposalsPerMonth?: number;
-    meetingRequests?: number;
 
     // INVESTOR
     investmentOffers?: number;
-    activeInvestments?: number;
   };
 
   permissions: {
     // USER
     canCreateProject: boolean;
     canSendProposal: boolean;
-    canRequestMeeting: boolean;
 
     // INVESTOR
     canSendInvestmentOffer: boolean;
     canInvestMoney: boolean;
     canViewInvestmentDashboard: boolean;
+
+    canStartVideoCall: boolean;
   };
 
   billing: {

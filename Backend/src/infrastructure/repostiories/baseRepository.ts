@@ -1,4 +1,4 @@
-import mongoose, { Model, Document, UpdateQuery } from "mongoose";
+import mongoose, { Model, Document, UpdateQuery, ClientSession, QueryOptions } from "mongoose";
 
 export abstract class BaseRepository<TEntity, TModel extends Document> {
   constructor(
@@ -6,10 +6,14 @@ export abstract class BaseRepository<TEntity, TModel extends Document> {
     private mapper: any
   ) {}
 
-  async save(data: TEntity): Promise<TEntity> {
+  async save(data: TEntity, session?: ClientSession): Promise<TEntity> {
     const doc = this.mapper.toMongooseDocument(data);
-    const saved = await this._model.create(doc);
-    return this.mapper.fromMongooseDocument(saved);
+
+    const savedDocs = session
+      ? await this._model.create([doc], { session })
+      : await this._model.create([doc]);
+
+    return this.mapper.fromMongooseDocument(savedDocs[0]);
   }
 
   async findById(id: string): Promise<TEntity | null> {
@@ -65,12 +69,17 @@ export abstract class BaseRepository<TEntity, TModel extends Document> {
     return docs.map((doc) => this.mapper.fromMongooseDocument(doc as TModel));
   }
 
-  async update(id: string, data: Partial<TEntity>): Promise<TEntity | null> {
-    // const updateDoc = this.mapper.toMongooseDocument({ id, ...data });
-
-    const updated = await this._model.findByIdAndUpdate(id, data as UpdateQuery<Document>, {
+  async update(
+    id: string,
+    data: Partial<TEntity>,
+    session?: ClientSession
+  ): Promise<TEntity | null> {
+    const options: QueryOptions<TModel> = {
       new: true,
-    });
+      ...(session ? { session } : {}),
+    };
+
+    const updated = await this._model.findByIdAndUpdate(id, data as UpdateQuery<TModel>, options);
 
     return updated ? this.mapper.fromMongooseDocument(updated) : null;
   }

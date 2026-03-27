@@ -1,4 +1,6 @@
 import { DealStatus } from "@domain/enum/dealStatus";
+import { InvestmentType } from "@domain/enum/investmentType";
+import { ConversionStatus } from "@domain/enum/conversionStatus";
 
 export interface DealEntity {
   _id?: string;
@@ -14,6 +16,10 @@ export interface DealEntity {
   remainingAmount: number;
 
   equityPercentage: number;
+  equityAllocated: number;
+
+  investmentType: InvestmentType;
+  conversionStatus: ConversionStatus;
 
   status: DealStatus;
 

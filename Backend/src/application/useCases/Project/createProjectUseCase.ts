@@ -11,6 +11,10 @@ import { CreateProjectDTO } from "application/dto/project/projectDTO";
 import { ProjectMapper } from "application/mappers/projectMapper";
 import { ForbiddenException } from "application/constants/exceptions";
 import { Errors, USER_ERRORS } from "@shared/constants/error";
+import { CONFIG } from "@config/config";
+import { subscriptionUsageContainer } from "@infrastructure/DI/Subscription/subscriptionUsageContainer";
+import { UserRole } from "@domain/enum/userRole";
+import { SubscriptionAction } from "@domain/enum/subscriptionActions";
 
 export class CreateProjectUseCase implements ICreateProjectUseCase {
   constructor(
@@ -66,11 +70,17 @@ export class CreateProjectUseCase implements ICreateProjectUseCase {
 
     const savedProject = await this._projectRepository.save(projectEntity);
 
+    await subscriptionUsageContainer.incrementUsageUC.execute(
+      userId,
+      UserRole.USER,
+      SubscriptionAction.CREATE_PROJECT
+    );
+
     // Create project wallet ONLY after project creation
     await this._createWalletUseCase.execute(WalletOwnerType.PROJECT, savedProject._id!);
 
     const signedLogoUrl = uploadedLogoUrl
-      ? await this._storageService.createSignedUrl(uploadedLogoUrl, 600)
+      ? await this._storageService.createSignedUrl(uploadedLogoUrl, CONFIG.SIGNED_URL_EXPIRY)
       : undefined;
 
     return {

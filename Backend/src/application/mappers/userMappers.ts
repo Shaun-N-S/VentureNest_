@@ -21,22 +21,27 @@ export class UserMapper {
       email: dto.email,
       password: dto.password,
       isFirstLogin: true,
+
       linkedInUrl: "",
       profileImg: "",
       website: "",
       bio: "",
       interestedTopics: [],
+
       role: UserRole.USER,
       status: UserStatus.ACTIVE,
       kycStatus: KYCStatus.PENDING,
       adminVerified: false,
+
       dateOfBirth: undefined,
       phoneNumber: "",
       address: "",
       aadharImg: "",
       selfieImg: "",
       verifiedAt: undefined,
-      googleId: "",
+
+      stripeOnboardingComplete: false,
+
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -67,6 +72,12 @@ export class UserMapper {
       status: user.status,
       isFirstLogin: user.isFirstLogin,
       adminVerified: user.adminVerified,
+      ...(user.stripeAccountId && {
+        stripeAccountId: user.stripeAccountId,
+      }),
+      ...(user.stripeOnboardingComplete !== undefined && {
+        stripeOnboardingComplete: user.stripeOnboardingComplete,
+      }),
       kycStatus: user.kycStatus,
       profileImg: user.profileImg || "",
     };
@@ -84,28 +95,39 @@ export class UserMapper {
 
   static toMongooseDocument(user: UserEntity) {
     return {
-      _id: new mongoose.Types.ObjectId(user._id),
+      _id: user._id ? new mongoose.Types.ObjectId(user._id) : undefined,
       userName: user.userName,
       email: user.email,
       password: user.password,
+
       linkedInUrl: user.linkedInUrl,
       profileImg: user.profileImg,
       website: user.website,
       bio: user.bio,
+
       interestedTopics: user.interestedTopics,
       role: user.role,
       status: user.status,
+
       adminVerified: user.adminVerified,
       kycStatus: user.kycStatus,
       kycHistory: user.kycHistory || [],
       kycRejectReason: user.kycRejectReason,
+
       dateOfBirth: user.dateOfBirth,
       phoneNumber: user.phoneNumber,
       address: user.address,
       aadharImg: user.aadharImg,
       selfieImg: user.selfieImg,
+
       isFirstLogin: user.isFirstLogin,
       verifiedAt: user.verifiedAt,
+
+      ...(user.googleId && { googleId: user.googleId }),
+      ...(user.stripeAccountId && { stripeAccountId: user.stripeAccountId }),
+
+      stripeOnboardingComplete: user.stripeOnboardingComplete,
+
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
@@ -123,7 +145,7 @@ export class UserMapper {
       selfieImg: doc.selfieImg || "",
       phoneNumber: doc.phoneNumber || "",
       address: doc.address || "",
-      dateOfBirth: doc.dateOfBirth || new Date(0),
+      dateOfBirth: doc.dateOfBirth,
       role: doc.role || UserRole.USER,
       status: doc.status || UserStatus.ACTIVE,
       kycStatus: doc.kycStatus || KYCStatus.PENDING,
@@ -134,7 +156,16 @@ export class UserMapper {
       isFirstLogin: doc.isFirstLogin ?? true,
       website: doc.website || "",
       bio: doc.bio || "",
-      verifiedAt: doc.verifiedAt || new Date(0),
+      verifiedAt: doc.verifiedAt,
+      ...(doc.googleId && {
+        googleId: doc.googleId,
+      }),
+      ...(doc.stripeAccountId && {
+        stripeAccountId: doc.stripeAccountId,
+      }),
+      ...(doc.stripeOnboardingComplete !== undefined && {
+        stripeOnboardingComplete: doc.stripeOnboardingComplete,
+      }),
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
     };

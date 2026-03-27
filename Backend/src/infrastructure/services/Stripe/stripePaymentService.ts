@@ -8,12 +8,11 @@ export class StripePaymentService implements IPaymentService {
   async createCheckoutSession(data: {
     ownerId: string;
     ownerRole: UserRole;
-    planId?: string;
+    amount: number;
+    purpose: PaymentPurpose;
     planName: string;
     description: string;
-    amount: number;
-    durationDays?: number;
-    purpose: PaymentPurpose;
+    metadata: Record<string, string>;
   }): Promise<string> {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -31,13 +30,10 @@ export class StripePaymentService implements IPaymentService {
         },
       ],
       metadata: {
-        purpose: data.purpose,
         ownerId: data.ownerId,
         role: data.ownerRole,
-        ...(data.purpose === PaymentPurpose.SUBSCRIPTION && {
-          planId: data.planId!,
-          durationDays: String(data.durationDays!),
-        }),
+        purpose: data.purpose,
+        ...data.metadata,
       },
       success_url: `${CONFIG.FRONTEND_URL}/payment-success`,
       cancel_url: `${CONFIG.FRONTEND_URL}/payment-cancel`,

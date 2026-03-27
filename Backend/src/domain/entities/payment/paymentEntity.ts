@@ -4,7 +4,7 @@ import { PaymentPurpose } from "@domain/enum/paymentPurpose";
 export interface PaymentEntity {
   id?: string;
   sessionId: string;
-
+  dealId?: string;
   ownerId: string;
   ownerRole: UserRole;
 

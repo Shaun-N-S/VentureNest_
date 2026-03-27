@@ -41,6 +41,9 @@ export const Errors = {
   INVALID_STRIPE_WEBHOOK_SIGNATURE: "Invalid Stripe webhook signature",
   NOT_ALLOWED: "Not allowed!",
   KYC_NOT_VERIFIED: "Your kyc verification is not completed!",
+  ADMIN_NOT_FOUND: "Platform admin not found",
+  INVALID_AMOUNT: "Invalid amount",
+  INVALID_LIMIT: "Invalid limit",
 };
 
 export const USER_ERRORS = {
@@ -84,6 +87,11 @@ export const REPLY_ERRORS = {
 
 export const PROJECT_ERRORS = {
   NO_PROJECTS_FOUND: "No projects found!",
+  PROJECT_REGISTRATION_NOT_FOUND: "Project registration not found!",
+  INVALID_PROJECT_REGISTRATION_STATUS: "Invalid project registration status!",
+  PROJECT_NOT_ELIGIBLE_FOR_EQUITY: "Project not eligible for equity allocation",
+  EQUITY_OVERALLOCATION: "Equity overallocation detected",
+  CAPTBLE_IMBALANCE: "Cap table imbalance detected",
 };
 
 export const REPORT_ERRORS = {
@@ -124,8 +132,48 @@ export const OFFER_ERRORS = {
 
 export const WALLET_ERRORS = {
   NOT_FOUND: "Wallet not found",
+  INVALID_TOPUP_AMOUNT: "Invalid topup amount!",
+  WITHDRAWAL_REASON_TOO_SHORT: "Withdrawal reason must be at least 3 characters long",
+  WITHDRAWAL_AMOUNT_INVALID: "Withdrawal amount required",
+  WITHDRAWAL_UNAUTHORIZED_ACCESS: "You are not authorized to request withdrawal for this project",
+  WITHDRAWAL_INSUFFICIENT_BALANCE: "Insufficient balance for withdrawal",
+  WITHDRAWAL_ALREADY_PROCESSED: "This withdrawal request has already been processed",
+  WITHDRAWAL_NOT_FOUND: "Withdrawal request not found",
+  INSUFFICIENT_BALANCE: "Insufficient balance in wallet",
+  INVALID_WITHDRAWAL_STATUS: "Invalid withdrawal status",
+  WITHDRAWAL_REJECT_REASON_REQUIRED: "Rejection reason must be at least 3 characters",
 };
 
 export const CHAT_ERRORS = {
   CONVERSATION_NOT_FOUND: "Conversation not found",
+};
+
+export const DEAL_ERRORS = {
+  DEAL_NOT_FOUND: "Deal not found!",
+  DEAL_ALREADY_COMPLETED: "Deal is already completed!",
+  INVALID_INSTALLMENT_AMOUNT: "Invalid installment amount!",
+  UNAUTHORIZED_DEAL_ACCESS: "You are not authorized to access this deal!",
+  UNSUPPORTED_PAYMENT_METHOD: "Unsupported payment method!",
+};
+
+export const INSTALLMENT_ERRORS = {
+  INSUFFICIENT_BALANCE: "Insufficient wallet balance!",
+};
+
+export const SUBSCRIPTION_ERRORS = {
+  NO_ACTIVE_SUBSCRIPTION: "No active subscription found",
+  INVALID_PLAN: "Invalid plan",
+  ACTION_NOT_ALLOWED: "Action not allowed in your plan",
+  PROJECT_LIMIT_EXCEEDED: "Project creation limit exceeded for this month",
+  PROPOSAL_LIMIT_EXCEEDED: "Proposal sending limit exceeded for this month",
+  INVESTMENT_OFFER_LIMIT_EXCEEDED: "Investment offer sending limit exceeded for this month",
+};
+
+export const STRIPE_ERRORS = {
+  STRIPE_ACCOUNT_CREATION_FAILED: "Failed to create Stripe account",
+  STRIPE_ONBOARDING_LINK_CREATION_FAILED: "Failed to create Stripe onboarding link",
+  STRIPE_PAYOUT_FAILED: "Failed to create Stripe payout",
+  ACCOUNT_NOT_FOUND: "Stripe account not found",
+  NOT_CONNECTED: "Stripe not connected",
+  NOT_ONBOARDED: "Stripe onboarding not completed",
 };

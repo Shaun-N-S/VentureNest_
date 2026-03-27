@@ -6,6 +6,7 @@ import {
 } from "application/dto/notification/notificationResponseDTO";
 import { NotificationMapper } from "application/mappers/notificationMapper";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
+import { CONFIG } from "@config/config";
 
 export class GetNotificationsUseCase implements IGetNotificationsUseCase {
   constructor(
@@ -26,7 +27,7 @@ export class GetNotificationsUseCase implements IGetNotificationsUseCase {
       if (notification.actor?.profileImg) {
         const signedUrl = await this._storageService.createSignedUrl(
           notification.actor.profileImg,
-          10 * 60
+          CONFIG.SIGNED_URL_EXPIRY
         );
 
         notification.actor.profileImg = signedUrl;

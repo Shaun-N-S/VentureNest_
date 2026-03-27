@@ -36,7 +36,6 @@ export class ProjectMapper {
       donationTarget: entity.donationTarget,
       donationReceived: entity.donationReceived,
 
-      projectRegister: entity.projectRegister,
       createdAt: entity.createdAt!,
       updatedAt: entity.updatedAt!,
 
@@ -82,7 +81,6 @@ export class ProjectMapper {
       donationTarget: populatedProject.donationTarget,
       donationReceived: populatedProject.donationReceived,
 
-      projectRegister: populatedProject.projectRegister,
       createdAt: populatedProject.createdAt,
       updatedAt: populatedProject.updatedAt,
     };
@@ -118,7 +116,6 @@ export class ProjectMapper {
       donationEnabled: dto.donationEnabled,
       donationTarget: dto.donationTarget,
       donationReceived: dto.donationReceived,
-      projectRegister: dto.projectRegister,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
       ...(dto.walletId && { walletId: dto.walletId }),
@@ -153,7 +150,6 @@ export class ProjectMapper {
       donationTarget: dto.donationTarget ?? 0,
       donationReceived: 0,
 
-      projectRegister: dto.projectRegister ?? false,
       createdAt: now,
       updatedAt: now,
     };
@@ -183,7 +179,6 @@ export class ProjectMapper {
       donationEnabled: doc.donationEnabled,
       donationTarget: doc.donationTarget,
       donationReceived: doc.donationReceived,
-      projectRegister: doc.projectRegister,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
       ...(doc.walletId && { walletId: doc.walletId }),
@@ -212,7 +207,6 @@ export class ProjectMapper {
       donationEnabled: project.donationEnabled ?? false,
       donationTarget: project.donationTarget ?? 0,
       donationReceived: project.donationReceived ?? 0,
-      projectRegister: project.projectRegister ?? false,
       createdAt: project.createdAt ?? new Date(),
       updatedAt: project.updatedAt ?? new Date(),
       ...(project.walletId && { walletId: project.walletId }),
@@ -234,7 +228,6 @@ export class ProjectMapper {
 
       donationEnabled: dto.donationEnabled ?? existing.donationEnabled,
       donationTarget: dto.donationTarget ?? existing.donationTarget,
-      projectRegister: dto.projectRegister ?? existing.projectRegister,
 
       donationReceived: existing.donationReceived,
       likes: existing.likes,
@@ -294,7 +287,6 @@ export class ProjectMapper {
       donationEnabled: doc.donationEnabled ?? false,
       donationTarget: doc.donationTarget ?? 0,
       donationReceived: doc.donationReceived ?? 0,
-      projectRegister: doc.projectRegister ?? false,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
       ...(doc.walletId && { walletId: doc.walletId?.toString() }),

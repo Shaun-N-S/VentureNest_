@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository";
 import { IProjectRepository } from "@domain/interfaces/repositories/IProjectRepository";
 import { IRelationshipRepository } from "@domain/interfaces/repositories/IRelationshipRepository";
@@ -29,7 +30,7 @@ export class FetchUserProfileUseCase implements IFetchUserProfileUseCase {
     if (profileData.profileImg) {
       profileData.profileImg = await this._storageService.createSignedUrl(
         profileData.profileImg,
-        10 * 60
+        CONFIG.SIGNED_URL_EXPIRY
       );
     } else {
       profileData.profileImg = "";

@@ -10,6 +10,8 @@ export interface LoginUserResponseDTO {
   status: UserStatus;
   isFirstLogin: boolean;
   adminVerified: boolean;
+  stripeAccountId?: string;
+  stripeOnboardingComplete?: boolean;
   kycStatus: KYCStatus;
   profileImg: string;
 }

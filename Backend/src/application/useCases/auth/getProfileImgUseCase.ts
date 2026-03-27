@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
@@ -29,7 +30,10 @@ export class GetProfileImgUseCase implements IGetProfileImg {
       throw new NotFoundExecption(USER_ERRORS.NO_PROFILE_FOUND);
     }
 
-    const signedUrl = await this._storageService.createSignedUrl(profileKey, 10 * 60);
+    const signedUrl = await this._storageService.createSignedUrl(
+      profileKey,
+      CONFIG.SIGNED_URL_EXPIRY
+    );
 
     return { profileImg: signedUrl };
   }

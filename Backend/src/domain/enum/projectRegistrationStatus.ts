@@ -1,5 +1,6 @@
 export enum ProjectRegistrationStatus {
-  APPROVED = "Approved",
-  REJECTED = "Rejected",
-  PENDING = "Pending",
+  SUBMITTED = "SUBMITTED",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  PENDING = "PENDING",
 }

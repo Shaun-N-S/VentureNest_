@@ -2,6 +2,8 @@ import { Router, Request, Response, NextFunction } from "express";
 import { ROUTES } from "@shared/constants/routes";
 import { investorGuard, userGuard, userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 import { investmentOfferController } from "@infrastructure/DI/Investor/InvestmentOfferContainer";
+import { SubscriptionAction } from "@domain/enum/subscriptionActions";
+import { subscriptionGuard } from "interfaceAdapters/middleware/subscriptionMiddleware";
 
 export class InvestmentOffer_Router {
   private _route: Router;
@@ -15,6 +17,7 @@ export class InvestmentOffer_Router {
     this._route.post(
       ROUTES.OFFER.CREATE,
       ...investorGuard,
+      subscriptionGuard(SubscriptionAction.SEND_INVESTMENT_OFFER),
       (req: Request, res: Response, next: NextFunction) =>
         investmentOfferController.createOffer(req, res, next)
     );

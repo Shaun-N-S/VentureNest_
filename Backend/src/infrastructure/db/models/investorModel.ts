@@ -21,13 +21,16 @@ export interface IInvestorModel extends Document {
   status: UserStatus;
   kycStatus: KYCStatus;
   adminVerified: boolean;
-  dateOfBirth: Date;
+  dateOfBirth?: Date;
   phoneNumber?: string;
   address?: string;
   aadharImg?: string;
   selfieImg?: string;
   isFirstLogin: boolean;
-  verifiedAt: Date;
+  verifiedAt?: Date;
+  googleId?: string;
+  stripeAccountId?: string;
+  stripeOnboardingComplete?: boolean;
   createdAt: Date;
   updatedAt: Date;
   kycHistory: {

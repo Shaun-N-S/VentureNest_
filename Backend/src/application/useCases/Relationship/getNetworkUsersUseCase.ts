@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { ConnectionStatus } from "@domain/enum/connectionStatus";
 import { UserStatus } from "@domain/enum/userStatus";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
@@ -45,7 +46,10 @@ export class GetNetworkUsersUseCase implements IGetNetworkUsersUseCase {
         const dto = RelationshipMapper.NetworkUsers(record, record.role, connectionStatus);
 
         if (dto.profileImg) {
-          dto.profileImg = await this._storageService.createSignedUrl(dto.profileImg, 600);
+          dto.profileImg = await this._storageService.createSignedUrl(
+            dto.profileImg,
+            CONFIG.SIGNED_URL_EXPIRY
+          );
         }
 
         return dto;

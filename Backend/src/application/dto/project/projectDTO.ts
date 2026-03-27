@@ -1,4 +1,5 @@
 import { PreferredSector } from "@domain/enum/preferredSector";
+import { ProjectRegistrationStatus } from "@domain/enum/projectRegistrationStatus";
 import { ProjectRole } from "@domain/enum/projectRole";
 import { StartupStage } from "@domain/enum/startupStages";
 import { TeamSize } from "@domain/enum/teamSize";
@@ -22,6 +23,8 @@ export interface ProjectResDTO {
   logoUrl?: string;
   coverImageUrl?: string;
   location?: string;
+  registrationStatus?: ProjectRegistrationStatus | null;
+  rejectionReason?: string | null;
   likes: { likerId: string; likerRole: UserRole }[];
   liked: boolean;
   likeCount: number;
@@ -30,7 +33,6 @@ export interface ProjectResDTO {
   donationEnabled: boolean;
   donationTarget: number;
   donationReceived: number;
-  projectRegister: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,7 +52,6 @@ export interface CreateProjectDTO {
   location?: string | undefined;
   donationEnabled?: boolean | undefined;
   donationTarget?: number | undefined;
-  projectRegister?: boolean | undefined;
 }
 
 export interface CreateProjectEntityDTO {
@@ -72,7 +73,6 @@ export interface CreateProjectEntityDTO {
 
   donationEnabled?: boolean | undefined;
   donationTarget?: number | undefined;
-  projectRegister?: boolean | undefined;
 }
 
 export interface UpdateProjectDTO {
@@ -96,7 +96,6 @@ export interface UpdateProjectDTO {
 
   donationEnabled?: boolean | undefined;
   donationTarget?: number | undefined;
-  projectRegister?: boolean | undefined;
 }
 
 export interface UpdateProjectEntityDTO {
@@ -119,7 +118,6 @@ export interface UpdateProjectEntityDTO {
 
   donationEnabled?: boolean | undefined;
   donationTarget?: number | undefined;
-  projectRegister?: boolean | undefined;
 }
 
 export interface PopulatedUserStub {
@@ -150,7 +148,6 @@ export interface PopulatedProjectRepoDTO {
   donationEnabled: boolean;
   donationTarget: number;
   donationReceived: number;
-  projectRegister: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

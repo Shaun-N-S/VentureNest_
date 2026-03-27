@@ -16,9 +16,11 @@ export interface ISubscriptionModel extends Document {
   usage?: {
     projectsUsed?: number;
     proposalsUsed?: number;
-    meetingRequestsUsed?: number;
     investmentOffersUsed?: number;
   };
+
+  upgradedFrom?: string;
+  cancelledAt?: Date;
 
   createdAt: Date;
   updatedAt: Date;

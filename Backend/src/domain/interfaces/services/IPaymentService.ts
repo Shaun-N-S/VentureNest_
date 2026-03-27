@@ -6,13 +6,12 @@ export interface IPaymentService {
     ownerId: string;
     ownerRole: UserRole;
 
-    planId?: string;
-    durationDays?: number;
+    amount: number;
+    purpose: PaymentPurpose;
 
     planName: string;
     description: string;
-    amount: number;
 
-    purpose: PaymentPurpose;
+    metadata: Record<string, string>;
   }): Promise<string>;
 }

@@ -30,10 +30,16 @@ export const useSendConnectionReq = () => {
   });
 };
 
-export const useGetConnectionReq = (page: number, limit: number) => {
+export const useGetConnectionReq = (
+  page: number,
+  limit: number,
+  enabled: boolean = true,
+) => {
   return useQuery({
     queryKey: ["personal-connection-req", page, limit],
     queryFn: () => getConnectionReq(page, limit),
+    enabled,
+    refetchOnWindowFocus: false,
   });
 };
 

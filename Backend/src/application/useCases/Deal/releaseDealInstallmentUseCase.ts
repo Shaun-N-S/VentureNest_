@@ -1,0 +1,143 @@
+import { IReleaseDealInstallmentUseCase } from "@domain/interfaces/useCases/deal/IReleaseDealInstallmentUseCase";
+import { IDealRepository } from "@domain/interfaces/repositories/IDealRepository";
+import { IWalletRepository } from "@domain/interfaces/repositories/IWalletRepository";
+import { IDealInstallmentRepository } from "@domain/interfaces/repositories/IDealInstallmentRepository";
+import { ITransactionRepository } from "@domain/interfaces/repositories/ITransactionRepository";
+import { IUnitOfWork } from "@domain/interfaces/presistence/IUnitOfWork";
+import { WalletOwnerType } from "@domain/enum/walletOwnerType";
+import { DealStatus } from "@domain/enum/dealStatus";
+import { DealInstallmentStatus } from "@domain/enum/dealInstallmentStatus";
+import { TransactionAction, TransactionReason } from "@domain/enum/transactionType";
+import { TransactionStatus } from "@domain/enum/transactionStatus";
+import { PaymentMethod } from "@domain/enum/paymentMethod";
+import { PLATFORM_COMMISSION_RATE } from "@shared/constants/platform";
+import { ReleaseDealInstallmentDTO } from "application/dto/deal/releaseInstallmentDTO";
+import {
+  ForbiddenException,
+  InvalidDataException,
+  NotFoundExecption,
+} from "application/constants/exceptions";
+import { DEAL_ERRORS, Errors, INSTALLMENT_ERRORS, WALLET_ERRORS } from "@shared/constants/error";
+import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
+import { UserRole } from "@domain/enum/userRole";
+import { IEquityService } from "@domain/interfaces/services/IEquityService";
+
+export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUseCase {
+  constructor(
+    private _dealRepo: IDealRepository,
+    private _walletRepo: IWalletRepository,
+    private _installmentRepo: IDealInstallmentRepository,
+    private _transactionRepo: ITransactionRepository,
+    private _unitOfWork: IUnitOfWork,
+    private _userRepo: IUserRepository,
+    private _equityService: IEquityService
+  ) {}
+
+  async execute(investorId: string, dto: ReleaseDealInstallmentDTO): Promise<void> {
+    if (dto.paymentMethod !== PaymentMethod.WALLET) {
+      throw new InvalidDataException(DEAL_ERRORS.UNSUPPORTED_PAYMENT_METHOD);
+    }
+
+    const deal = await this._dealRepo.findById(dto.dealId);
+    if (!deal) throw new NotFoundExecption(DEAL_ERRORS.DEAL_NOT_FOUND);
+
+    if (deal.investorId !== investorId)
+      throw new ForbiddenException(DEAL_ERRORS.UNAUTHORIZED_DEAL_ACCESS);
+
+    if (deal.status === DealStatus.COMPLETED)
+      throw new InvalidDataException(DEAL_ERRORS.DEAL_ALREADY_COMPLETED);
+
+    if (dto.amount <= 0 || dto.amount > deal.remainingAmount)
+      throw new InvalidDataException(DEAL_ERRORS.INVALID_INSTALLMENT_AMOUNT);
+
+    await this._unitOfWork.start();
+    const session = this._unitOfWork.getSession();
+
+    try {
+      const investorWallet = await this._walletRepo.findByOwner(
+        WalletOwnerType.INVESTOR,
+        investorId
+      );
+
+      const projectWallet = await this._walletRepo.findByOwner(
+        WalletOwnerType.PROJECT,
+        deal.projectId
+      );
+
+      const admin = await this._userRepo.findByRole(UserRole.ADMIN);
+      if (!admin) throw new NotFoundExecption(Errors.ADMIN_NOT_FOUND);
+
+      const platformWallet = await this._walletRepo.findByOwner(
+        WalletOwnerType.PLATFORM,
+        admin._id!
+      );
+
+      if (!investorWallet || !projectWallet || !platformWallet)
+        throw new NotFoundExecption(WALLET_ERRORS.NOT_FOUND);
+
+      const success = await this._walletRepo.decrementBalanceWithCheck(
+        investorWallet._id!,
+        dto.amount,
+        session
+      );
+
+      if (!success) {
+        throw new InvalidDataException(INSTALLMENT_ERRORS.INSUFFICIENT_BALANCE);
+      }
+
+      const platformFee = Number((dto.amount * PLATFORM_COMMISSION_RATE).toFixed(2));
+      const founderReceives = dto.amount - platformFee;
+
+      await this._walletRepo.decrementBalance(investorWallet._id!, dto.amount, session);
+      await this._walletRepo.incrementBalance(projectWallet._id!, founderReceives, session);
+      await this._walletRepo.incrementBalance(platformWallet._id!, platformFee, session);
+
+      await this._installmentRepo.save(
+        {
+          dealId: deal._id!,
+          amount: dto.amount,
+          platformFee,
+          founderReceives,
+          status: DealInstallmentStatus.PAID,
+          createdAt: new Date(),
+        },
+        session
+      );
+
+      await this._dealRepo.incrementPaidAmount(deal._id!, dto.amount, session);
+      const updatedDeal = await this._dealRepo.findById(deal._id!);
+
+      if (!updatedDeal) throw new NotFoundExecption(DEAL_ERRORS.DEAL_NOT_FOUND);
+
+      await this._transactionRepo.save(
+        {
+          fromWalletId: investorWallet._id!,
+          amount: dto.amount,
+          action: TransactionAction.DEBIT,
+          reason: TransactionReason.INVESTMENT,
+          status: TransactionStatus.SUCCESS,
+          relatedDealId: deal._id!,
+          createdAt: new Date(),
+        },
+        session
+      );
+
+      const isCompleted = updatedDeal.remainingAmount === 0;
+
+      await this._dealRepo.update(
+        updatedDeal._id!,
+        {
+          status: isCompleted ? DealStatus.COMPLETED : DealStatus.PARTIALLY_PAID,
+        },
+        session
+      );
+
+      await this._equityService.allocateEquity(updatedDeal, dto.amount, session!);
+
+      await this._unitOfWork.commit();
+    } catch (error) {
+      await this._unitOfWork.rollback();
+      throw error;
+    }
+  }
+}

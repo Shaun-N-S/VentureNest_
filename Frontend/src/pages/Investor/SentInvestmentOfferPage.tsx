@@ -27,7 +27,7 @@ import { Label } from "../../components/ui/label";
 import { useCreateInvestmentOffer } from "../../hooks/Investor/InvestmentOffer/InvestmentOfferHooks";
 import {
   investmentOfferSchema,
-  type InvestmentOfferFormValues,
+  type InvestmentOfferOutput,
 } from "../../lib/validations/investmentOfferSchema";
 
 export default function SendInvestmentOfferPage() {
@@ -39,7 +39,7 @@ export default function SendInvestmentOfferPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<InvestmentOfferFormValues>({
+  } = useForm({
     resolver: zodResolver(investmentOfferSchema),
     defaultValues: {
       amount: undefined,
@@ -51,7 +51,7 @@ export default function SendInvestmentOfferPage() {
     },
   });
 
-  const onSubmit = (data: InvestmentOfferFormValues) => {
+  const onSubmit = (data: InvestmentOfferOutput) => {
     const payload = {
       projectId: projectId!,
       pitchId: pitchId!,
@@ -117,7 +117,7 @@ export default function SendInvestmentOfferPage() {
                         type="number"
                         placeholder="500,000"
                         className={`pl-9 ${errors.amount ? "border-red-500 focus-visible:ring-red-500" : ""}`}
-                        {...register("amount", { valueAsNumber: true })}
+                        {...register("amount")}
                       />
                     </div>
                     {errors.amount && (
@@ -137,9 +137,7 @@ export default function SendInvestmentOfferPage() {
                         step="0.01"
                         placeholder="7.5"
                         className={`pl-9 ${errors.equityPercentage ? "border-red-500 focus-visible:ring-red-500" : ""}`}
-                        {...register("equityPercentage", {
-                          valueAsNumber: true,
-                        })}
+                        {...register("equityPercentage")}
                       />
                     </div>
                     {errors.equityPercentage && (
@@ -158,8 +156,7 @@ export default function SendInvestmentOfferPage() {
                     id="valuation"
                     type="number"
                     placeholder="Post-money valuation"
-                    className={errors.valuation ? "border-red-500" : ""}
-                    {...register("valuation", { valueAsNumber: true })}
+                    {...register("valuation")}
                   />
                   {errors.valuation && (
                     <p className="text-xs font-medium text-red-500 mt-1">

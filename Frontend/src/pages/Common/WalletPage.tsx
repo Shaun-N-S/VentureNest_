@@ -12,13 +12,16 @@ import {
   Target,
   Users,
 } from "lucide-react";
-
+import type { Transaction } from "../../types/transactionTypes";
 import BalanceCard from "../../components/card/BalanceCard";
 import { useFetchPersonalProjects } from "../../hooks/Project/projectHooks";
 import { useMyWalletTransactions } from "../../hooks/Transaction/transactionHooks";
 import {
+  useCreateStripeAccount,
   useGetMyWallet,
   useGetProjectWallet,
+  useGetStripeOnboardingLink,
+  useWithdrawToBank,
 } from "../../hooks/Wallet/walletHooks";
 import type { TransactionAction } from "../../types/transactionTypes";
 import AddFundsModal from "../../components/modals/AddFundsModal";
@@ -28,6 +31,15 @@ import { Badge } from "../../components/ui/badge";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
 import type { ProjectType } from "../../types/projectType";
+import {
+  useGetProjectWithdrawals,
+  useRequestWithdrawal,
+} from "../../hooks/Wallet/walletHooks";
+import WithdrawModal from "../../components/modals/WithdrawModal";
+import type { Withdrawal } from "../../types/withdrawalTypes";
+import Pagination from "../../components/pagination/Pagination";
+import BankWithdrawModal from "../../components/modals/BankWithdrawModal";
+import { AxiosError } from "axios";
 
 export default function WalletPage() {
   const role = useSelector((state: Rootstate) => state.authData.role);
@@ -38,18 +50,56 @@ export default function WalletPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
     null,
   );
+  const [page, setPage] = useState(1);
   const [actionFilter, setActionFilter] = useState<
     TransactionAction | undefined
   >(undefined);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showBankWithdrawModal, setShowBankWithdrawModal] = useState(false);
+  const [txPage, setTxPage] = useState(1);
 
   const myWallet = useGetMyWallet();
   const projectWallet = useGetProjectWallet(selectedProjectId ?? undefined);
   const { data: projectData } = useFetchPersonalProjects(1, 20);
-  const personalTransactions = useMyWalletTransactions(actionFilter);
+  const personalTransactions = useMyWalletTransactions(txPage, 5, actionFilter);
 
   const projects: ProjectType[] = projectData?.data?.data?.projects ?? [];
 
-  console.log(projects);
+  const withdrawals = useGetProjectWithdrawals(
+    selectedProjectId ?? undefined,
+    page,
+    5,
+  );
+
+  const requestWithdrawal = useRequestWithdrawal();
+
+  const createStripe = useCreateStripeAccount();
+  const onboarding = useGetStripeOnboardingLink();
+  const withdrawToBankHook = useWithdrawToBank();
+
+  const handleConnectStripe = async () => {
+    try {
+      await createStripe.mutateAsync();
+      await onboarding.mutateAsync();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleBankWithdraw = async (amount: number) => {
+    try {
+      await withdrawToBankHook.mutateAsync(amount);
+      setShowBankWithdrawModal(false);
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        const msg = err?.response?.data?.message;
+
+        if (msg?.includes("NOT_ONBOARDED")) {
+          handleConnectStripe();
+        }
+      }
+    }
+  };
 
   if (myWallet.isLoading) {
     return (
@@ -104,12 +154,14 @@ export default function WalletPage() {
                 >
                   <Plus className="w-5 h-5" /> Add Funds
                 </Button>
-                {/* <Button
+                {/* Withdraw Button */}
+                <Button
                   variant="outline"
                   className="w-full h-12 rounded-xl text-slate-600"
+                  onClick={() => setShowBankWithdrawModal(true)}
                 >
                   Withdraw to Bank
-                </Button> */}
+                </Button>
               </div>
             </div>
 
@@ -125,7 +177,7 @@ export default function WalletPage() {
 
                 {/* Filters */}
                 <div className="flex flex-wrap gap-2 bg-slate-50 p-1 rounded-xl">
-                  {["ALL", "CREDIT", "DEBIT", "TRANSFER"].map((type) => (
+                  {["ALL", "CREDIT", "TRANSFER"].map((type) => (
                     <button
                       key={type}
                       onClick={() =>
@@ -153,12 +205,12 @@ export default function WalletPage() {
                   <div className="p-10 text-center text-slate-400">
                     Loading records...
                   </div>
-                ) : personalTransactions.data?.length === 0 ? (
+                ) : personalTransactions.data?.data.length === 0 ? (
                   <div className="p-10 text-center text-slate-400">
                     No transactions found.
                   </div>
                 ) : (
-                  personalTransactions.data?.map((tx) => (
+                  personalTransactions.data?.data.map((tx: Transaction) => (
                     <div
                       key={tx._id}
                       className="flex justify-between items-center p-5 hover:bg-slate-50/50 transition-colors"
@@ -216,6 +268,16 @@ export default function WalletPage() {
                   ))
                 )}
               </div>
+              {personalTransactions.data && (
+                <Pagination
+                  currentPage={personalTransactions.data.page}
+                  totalPages={Math.ceil(
+                    personalTransactions.data.total /
+                      personalTransactions.data.limit,
+                  )}
+                  setPage={setTxPage}
+                />
+              )}
             </div>
           </motion.div>
         ) : (
@@ -334,11 +396,92 @@ export default function WalletPage() {
                     <Loader2 className="animate-spin text-blue-500" />
                   </div>
                 ) : (
-                  <div className="max-w-2xl">
+                  <div className="max-w-2xl space-y-6">
                     <BalanceCard
                       balance={projectWallet.data?.balance ?? 0}
                       available={projectWallet.data?.availableBalance ?? 0}
                     />
+
+                    <div className="bg-white border border-gray-200 rounded-3xl shadow-sm overflow-hidden">
+                      {/* Header */}
+                      <div className="p-6 border-b flex items-center justify-between">
+                        <h3 className="font-semibold text-lg text-slate-800">
+                          Withdrawal History
+                        </h3>
+
+                        <Button
+                          className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-sm"
+                          onClick={() => setShowWithdrawModal(true)}
+                        >
+                          Withdraw Funds
+                        </Button>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-4 space-y-3">
+                        {withdrawals.isLoading ? (
+                          <div className="p-6 text-center text-slate-400">
+                            Loading...
+                          </div>
+                        ) : withdrawals.data?.data.length === 0 ? (
+                          <div className="p-6 text-center text-slate-400">
+                            No withdrawals yet
+                          </div>
+                        ) : (
+                          <>
+                            {withdrawals.data?.data.map((w: Withdrawal) => (
+                              <div
+                                key={w.withdrawalId}
+                                className="p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition flex justify-between items-start"
+                              >
+                                {/* Left */}
+                                <div className="space-y-1">
+                                  <p className="font-semibold text-slate-800 text-base">
+                                    ₹{w.amount}
+                                  </p>
+
+                                  <p className="text-xs text-gray-400">
+                                    {new Date(w.createdAt).toLocaleString()}
+                                  </p>
+
+                                  <p className="text-sm text-gray-600 mt-1 leading-snug">
+                                    Request Reason: {w.requestReason}
+                                  </p>
+
+                                  {w.rejectionReason && (
+                                    <p className="text-sm text-red-500 mt-1">
+                                      Rejection Reason: {w.rejectionReason}
+                                    </p>
+                                  )}
+                                </div>
+
+                                {/* Status */}
+                                <Badge
+                                  className={`px-3 py-1 text-xs font-medium rounded-full ${
+                                    w.status === "PENDING"
+                                      ? "bg-yellow-100 text-yellow-700"
+                                      : w.status === "APPROVED"
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-red-100 text-red-700"
+                                  }`}
+                                >
+                                  {w.status}
+                                </Badge>
+                              </div>
+                            ))}
+
+                            <Pagination
+                              currentPage={withdrawals.data?.page ?? 1}
+                              totalPages={Math.ceil(
+                                (withdrawals.data?.total ?? 0) /
+                                  (withdrawals.data?.limit ?? 5),
+                              )}
+                              setPage={setPage}
+                            />
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -347,9 +490,30 @@ export default function WalletPage() {
         )}
       </AnimatePresence>
 
+      <WithdrawModal
+        open={showWithdrawModal}
+        onClose={() => setShowWithdrawModal(false)}
+        onSubmit={(amount, requestReason) => {
+          if (!selectedProjectId) return;
+
+          requestWithdrawal.mutate({
+            projectId: selectedProjectId,
+            amount,
+            requestReason,
+          });
+        }}
+      />
+
       <AddFundsModal
         open={showAddFunds}
         onClose={() => setShowAddFunds(false)}
+      />
+
+      <BankWithdrawModal
+        open={showBankWithdrawModal}
+        onClose={() => setShowBankWithdrawModal(false)}
+        onSubmit={handleBankWithdraw}
+        loading={withdrawToBankHook.isPending}
       />
     </div>
   );

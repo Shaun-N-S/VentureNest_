@@ -30,18 +30,18 @@ interface Billing {
 interface Limits {
   projects?: number;
   proposalsPerMonth?: number;
-  meetingRequests?: number;
   investmentOffers?: number;
-  activeInvestments?: number;
 }
 
 interface Permissions {
   canCreateProject: boolean;
   canSendProposal: boolean;
-  canRequestMeeting: boolean;
+
   canSendInvestmentOffer: boolean;
   canInvestMoney: boolean;
   canViewInvestmentDashboard: boolean;
+
+  canStartVideoCall: boolean;
 }
 
 export interface CreatePlanFormData {
@@ -73,17 +73,17 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
       limits: {
         projects: 0,
         proposalsPerMonth: 0,
-        meetingRequests: 0,
         investmentOffers: 0,
-        activeInvestments: 0,
       },
       permissions: {
         canCreateProject: false,
         canSendProposal: false,
-        canRequestMeeting: false,
+
         canSendInvestmentOffer: false,
         canInvestMoney: false,
         canViewInvestmentDashboard: false,
+
+        canStartVideoCall: false,
       },
       billing: {
         price: 0,
@@ -104,17 +104,17 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
         limits: {
           projects: 0,
           proposalsPerMonth: 0,
-          meetingRequests: 0,
           investmentOffers: 0,
-          activeInvestments: 0,
         },
         permissions: {
           canCreateProject: false,
           canSendProposal: false,
-          canRequestMeeting: false,
+
           canSendInvestmentOffer: false,
           canInvestMoney: false,
           canViewInvestmentDashboard: false,
+
+          canStartVideoCall: false,
         },
         billing: {
           price: 0,
@@ -194,18 +194,13 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
                               projects: prev.limits.projects ?? 0,
                               proposalsPerMonth:
                                 prev.limits.proposalsPerMonth ?? 0,
-                              meetingRequests: prev.limits.meetingRequests ?? 0,
                               investmentOffers: 0,
-                              activeInvestments: 0,
                             }
                           : {
                               projects: 0,
                               proposalsPerMonth: 0,
-                              meetingRequests: 0,
                               investmentOffers:
                                 prev.limits.investmentOffers ?? 0,
-                              activeInvestments:
-                                prev.limits.activeInvestments ?? 0,
                             },
                     }));
                   }}
@@ -274,11 +269,6 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
                   value={form.limits.proposalsPerMonth}
                   onChange={(v) => updateLimits("proposalsPerMonth", v)}
                 />
-                <NumberInput
-                  label="Meeting Requests"
-                  value={form.limits.meetingRequests}
-                  onChange={(v) => updateLimits("meetingRequests", v)}
-                />
               </LimitsGrid>
 
               <PermissionsGrid>
@@ -293,9 +283,9 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
                   onChange={(v) => updatePermissions("canSendProposal", v)}
                 />
                 <PermissionToggle
-                  label="Request Meeting"
-                  value={form.permissions.canRequestMeeting}
-                  onChange={(v) => updatePermissions("canRequestMeeting", v)}
+                  label="Video Call Access"
+                  value={form.permissions.canStartVideoCall}
+                  onChange={(v) => updatePermissions("canStartVideoCall", v)}
                 />
               </PermissionsGrid>
             </Section>
@@ -308,11 +298,6 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
                   label="Investment Offers"
                   value={form.limits.investmentOffers}
                   onChange={(v) => updateLimits("investmentOffers", v)}
-                />
-                <NumberInput
-                  label="Active Investments"
-                  value={form.limits.activeInvestments}
-                  onChange={(v) => updateLimits("activeInvestments", v)}
                 />
               </LimitsGrid>
 

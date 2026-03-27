@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { UserStatus } from "@domain/enum/userStatus";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IKeyValueTTLCaching } from "@domain/interfaces/services/ICache/IKeyValueTTLCaching";
@@ -62,7 +63,7 @@ export class InvestorLoginUseCase implements IInvestorLoginUseCase {
     if (response.profileImg) {
       response.profileImg = await this._storageService.createSignedUrl(
         response.profileImg,
-        10 * 60
+        CONFIG.SIGNED_URL_EXPIRY
       );
     }
     console.log(response);

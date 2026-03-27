@@ -8,6 +8,14 @@ const PaymentSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      index: true,
+    },
+
+    dealId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Deal",
+      required: false,
+      index: true,
     },
 
     ownerId: {

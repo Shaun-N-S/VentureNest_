@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { KYCStatus } from "@domain/enum/kycStatus";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
@@ -36,13 +37,22 @@ export class GetAllInvestorKycUseCase implements IGetAllInvestorKycUseCase {
         const dto = KycMapper.investorKycRes(investor);
 
         if (dto.selfieImg) {
-          dto.selfieImg = await this._storageService.createSignedUrl(dto.selfieImg, 10 * 60);
+          dto.selfieImg = await this._storageService.createSignedUrl(
+            dto.selfieImg,
+            CONFIG.SIGNED_URL_EXPIRY
+          );
         }
         if (dto.aadharImg) {
-          dto.aadharImg = await this._storageService.createSignedUrl(dto.aadharImg, 10 * 60);
+          dto.aadharImg = await this._storageService.createSignedUrl(
+            dto.aadharImg,
+            CONFIG.SIGNED_URL_EXPIRY
+          );
         }
         if (dto.profileImg) {
-          dto.profileImg = await this._storageService.createSignedUrl(dto.profileImg, 10 * 60);
+          dto.profileImg = await this._storageService.createSignedUrl(
+            dto.profileImg,
+            CONFIG.SIGNED_URL_EXPIRY
+          );
         }
 
         return dto;

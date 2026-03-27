@@ -26,25 +26,17 @@ const planSchema = new mongoose.Schema(
       // USER
       projects: {
         type: Number,
-        min: 0,
+        min: -1,
       },
       proposalsPerMonth: {
         type: Number,
-        min: 0,
-      },
-      meetingRequests: {
-        type: Number,
-        min: 0,
+        min: -1,
       },
 
       // INVESTOR
       investmentOffers: {
         type: Number,
-        min: 0,
-      },
-      activeInvestments: {
-        type: Number,
-        min: 0,
+        min: -1,
       },
     },
 
@@ -56,11 +48,6 @@ const planSchema = new mongoose.Schema(
         default: false,
       },
       canSendProposal: {
-        type: Boolean,
-        required: true,
-        default: false,
-      },
-      canRequestMeeting: {
         type: Boolean,
         required: true,
         default: false,
@@ -78,6 +65,11 @@ const planSchema = new mongoose.Schema(
         default: false,
       },
       canViewInvestmentDashboard: {
+        type: Boolean,
+        required: true,
+        default: false,
+      },
+      canStartVideoCall: {
         type: Boolean,
         required: true,
         default: false,

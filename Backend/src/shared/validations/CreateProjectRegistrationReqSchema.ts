@@ -16,11 +16,6 @@ export const CreateProjectRegistrationReqSchema = z.object({
 
   country: z.string().min(1, "Country is required"),
 
-  verifyProfile: z
-    .union([z.string(), z.boolean()])
-    .transform((val) => val === true || val === "true")
-    .refine((v) => v === true, { message: "You must verify your profile first" }),
-
   declarationAccepted: z
     .union([z.string(), z.boolean()])
     .transform((val) => val === true || val === "true")

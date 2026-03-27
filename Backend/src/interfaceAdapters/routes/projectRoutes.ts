@@ -1,3 +1,4 @@
+import { SubscriptionAction } from "@domain/enum/subscriptionActions";
 import {
   projectController,
   projectMonthlyReportController,
@@ -7,6 +8,7 @@ import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
 import { userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 import { uploadMulter } from "interfaceAdapters/middleware/multer";
+import { subscriptionGuard } from "interfaceAdapters/middleware/subscriptionMiddleware";
 
 export class Project_Router {
   private _route: Router;
@@ -20,6 +22,7 @@ export class Project_Router {
     this._route.post(
       ROUTES.PROJECT.CREATE,
       ...userOrInvestorGuard,
+      subscriptionGuard(SubscriptionAction.CREATE_PROJECT),
       uploadMulter.fields([
         { name: "pitchDeckUrl", maxCount: 1 },
         { name: "logoUrl", maxCount: 1 },

@@ -8,18 +8,18 @@ export interface CreatePlanDTO {
   limits: {
     projects?: number;
     proposalsPerMonth?: number;
-    meetingRequests?: number;
     investmentOffers?: number;
-    activeInvestments?: number;
   };
 
   permissions: {
     canCreateProject: boolean;
     canSendProposal: boolean;
-    canRequestMeeting: boolean;
+
     canSendInvestmentOffer: boolean;
     canInvestMoney: boolean;
     canViewInvestmentDashboard: boolean;
+
+    canStartVideoCall: boolean;
   };
 
   billing: {

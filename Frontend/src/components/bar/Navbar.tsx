@@ -16,11 +16,13 @@ import NotificationModal from "../modals/NotificationModal";
 
 const menuItems: Record<UserRole, { name: string; path: string }[]> = {
   ADMIN: [
-    { name: "Dashboard", path: "/admin/dashboard" },
+    { name: "Home", path: "/admin/dashboard" },
+    { name: "Wallet", path: "/admin/wallet" },
     { name: "Users", path: "/admin/users" },
     { name: "Projects", path: "/admin/projects" },
     { name: "Investors", path: "/admin/investors" },
     { name: "Verifications", path: "/admin/verifications" },
+    {name :"Withdrawal Request", path: "/admin/withdrawals"},
     { name: "Reports", path: "/admin/reports" },
     { name: "Subscriptions", path: "/admin/subscriptions" },
   ],
@@ -54,15 +56,24 @@ const Navbar: React.FC = () => {
 
   const [isAvatarOpen, setIsAvatarOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const navItems = role ? menuItems[role] : [];
 
   const { mutate: logout } = useLogout();
 
-  const { data, isLoading, isError } = useGetProfileImg(userData.id);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const isUserOrInvestor = role === "USER" || role === "INVESTOR";
 
-  const { data: notificationData } = useGetNotifications();
+  const { data, isLoading, isError } = useGetProfileImg(
+    userData.id,
+    isUserOrInvestor,
+  );
+
+  const { data: notificationData } = useGetNotifications(
+    1,
+    10,
+    isUserOrInvestor,
+  );
   const unreadCount = notificationData?.unreadCount ?? 0;
 
   useEffect(() => {
@@ -164,10 +175,12 @@ const Navbar: React.FC = () => {
               />
             )}
             <div className="relative">
-              <Bell
-                className="w-5 h-5 cursor-pointer"
-                onClick={handleNotificationBell}
-              />
+              {isUserOrInvestor && (
+                <Bell
+                  className="w-5 h-5 cursor-pointer"
+                  onClick={handleNotificationBell}
+                />
+              )}
 
               {unreadCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 rounded-full">
@@ -262,10 +275,13 @@ const Navbar: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      <NotificationModal
-        isOpen={isNotificationOpen}
-        onClose={() => setIsNotificationOpen(false)}
-      />
+
+      {isUserOrInvestor && (
+        <NotificationModal
+          isOpen={isNotificationOpen}
+          onClose={() => setIsNotificationOpen(false)}
+        />
+      )}
     </nav>
   );
 };

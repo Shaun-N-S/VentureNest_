@@ -37,10 +37,22 @@ const createProjectUseCase = new CreateProjectUseCase(
   createWalletUseCase,
   userRepo
 );
-const fetchAllProjectsUseCase = new FetchAllProjectsUseCase(projectRepo, storageService);
-const fetchPersonalProjectsUseCase = new FetchPersonalProjectsUseCase(projectRepo, storageService);
+const fetchAllProjectsUseCase = new FetchAllProjectsUseCase(
+  projectRepo,
+  projectRegisterRepo,
+  storageService
+);
+const fetchPersonalProjectsUseCase = new FetchPersonalProjectsUseCase(
+  projectRepo,
+  projectRegisterRepo,
+  storageService
+);
 const removeProjectUseCase = new RemoveProjectUseCase(projectRepo, storageService);
-const fetchProjectByIdUseCase = new FetchProjectByIdUseCase(projectRepo, storageService);
+const fetchProjectByIdUseCase = new FetchProjectByIdUseCase(
+  projectRepo,
+  projectRegisterRepo,
+  storageService
+);
 const updateProjectUseCase = new UpdateProjectUseCase(projectRepo, storageService);
 const createMonthlyReportUseCase = new CreateProjectMonthlyReportUseCase(projectMontlyReportRepo);
 const verifyProjectUseCase = new RegisterProjectUseCase(projectRegisterRepo, storageService);

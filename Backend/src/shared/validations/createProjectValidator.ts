@@ -35,8 +35,6 @@ export const CreateProjectReqSchema = z.object({
     )
     .optional(),
 
-  projectRegister: z.boolean().optional(),
-
   // Files
   pitchDeckUrl: z.any().optional(),
   logoUrl: z.any().optional(),

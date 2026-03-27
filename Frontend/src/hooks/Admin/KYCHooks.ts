@@ -10,11 +10,13 @@ export const useFetchAllUsersKyc = (
   page: number,
   limit: number,
   status?: string,
-  search?: string
+  search?: string,
+  enabled: boolean = true,
 ) => {
   return useQuery({
     queryKey: ["users-kyc", page, limit, status, search],
     queryFn: () => getAllUsersKyc(page, limit, status, search),
+    enabled,
   });
 };
 
@@ -22,11 +24,13 @@ export const useFetchAllInvestorsKyc = (
   page: number,
   limit: number,
   status?: string,
-  search?: string
+  search?: string,
+  enabled: boolean = true,
 ) => {
   return useQuery({
     queryKey: ["investors-kyc", page, limit, status, search],
     queryFn: () => getAllInvestorsKyc(page, limit, status, search),
+    enabled,
   });
 };
 

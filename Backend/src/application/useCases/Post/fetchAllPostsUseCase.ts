@@ -1,3 +1,4 @@
+import { CONFIG } from "@config/config";
 import { UserRole } from "@domain/enum/userRole";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository";
@@ -62,7 +63,9 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
 
         if (post.mediaUrls?.length) {
           dto.mediaUrls = await Promise.all(
-            post.mediaUrls.map((url) => this._storageService.createSignedUrl(url, 600))
+            post.mediaUrls.map((url) =>
+              this._storageService.createSignedUrl(url, CONFIG.SIGNED_URL_EXPIRY)
+            )
           );
         }
 
@@ -73,7 +76,7 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
           if (author?.profileImg) {
             dto.authorProfileImg = await this._storageService.createSignedUrl(
               author.profileImg,
-              600
+              CONFIG.SIGNED_URL_EXPIRY
             );
           }
         } else {
@@ -83,7 +86,7 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
           if (investor?.profileImg) {
             dto.authorProfileImg = await this._storageService.createSignedUrl(
               investor.profileImg,
-              600
+              CONFIG.SIGNED_URL_EXPIRY
             );
           }
         }

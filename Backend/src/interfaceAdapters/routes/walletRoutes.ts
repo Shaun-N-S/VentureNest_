@@ -35,6 +35,43 @@ export class Wallet_Router {
         walletController.createWalletTopupCheckout(req, res, next);
       }
     );
+
+    this._route.post(
+      ROUTES.WALLET.REQUEST_WITHDRAWAL,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        walletController.requestWithdrawal(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ROUTES.WALLET.PROJECT_WITHDRAWALS,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        walletController.getProjectWithdrawals(req, res, next);
+      }
+    );
+
+    this._route.post(
+      ROUTES.WALLET.STRIPE_ACCOUNT,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        walletController.createStripeAccount(req, res, next)
+    );
+
+    this._route.get(
+      ROUTES.WALLET.STRIPE_ONBOARD_LINK,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        walletController.getStripeOnboardingLink(req, res, next)
+    );
+
+    this._route.post(
+      ROUTES.WALLET.BANK_WITHDRAWAL,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        walletController.withdrawToBank(req, res, next)
+    );
   }
 
   public get_router(): Router {
