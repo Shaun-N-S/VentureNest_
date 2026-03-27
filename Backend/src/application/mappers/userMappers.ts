@@ -72,6 +72,12 @@ export class UserMapper {
       status: user.status,
       isFirstLogin: user.isFirstLogin,
       adminVerified: user.adminVerified,
+      ...(user.stripeAccountId && {
+        stripeAccountId: user.stripeAccountId,
+      }),
+      ...(user.stripeOnboardingComplete !== undefined && {
+        stripeOnboardingComplete: user.stripeOnboardingComplete,
+      }),
       kycStatus: user.kycStatus,
       profileImg: user.profileImg || "",
     };

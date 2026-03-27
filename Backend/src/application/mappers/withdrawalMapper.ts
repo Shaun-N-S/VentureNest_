@@ -10,7 +10,8 @@ export class WithdrawalMapper {
       projectId: new mongoose.Types.ObjectId(entity.projectId),
       walletId: new mongoose.Types.ObjectId(entity.walletId),
       amount: entity.amount,
-      reason: entity.reason,
+      requestReason: entity.requestReason,
+      rejectionReason: entity.rejectionReason,
       status: entity.status,
       createdAt: entity.createdAt,
       processedAt: entity.processedAt,
@@ -23,7 +24,10 @@ export class WithdrawalMapper {
       projectId: doc.projectId.toString(),
       walletId: doc.walletId.toString(),
       amount: doc.amount,
-      reason: doc.reason,
+      requestReason: doc.requestReason,
+      ...(doc.rejectionReason && {
+        rejectionReason: doc.rejectionReason,
+      }),
       status: doc.status,
       createdAt: doc.createdAt,
       ...(doc.processedAt && { processedAt: doc.processedAt }),
@@ -35,6 +39,10 @@ export class WithdrawalMapper {
       withdrawalId: entity._id!,
       amount: entity.amount,
       status: entity.status,
+      requestReason: entity.requestReason,
+      ...(entity.rejectionReason && {
+        rejectionReason: entity.rejectionReason,
+      }),
       createdAt: entity.createdAt!,
     };
   }

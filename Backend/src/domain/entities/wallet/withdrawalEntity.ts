@@ -7,7 +7,8 @@ export interface WithdrawalEntity {
   walletId: string;
 
   amount: number;
-  reason: string;
+  requestReason: string;
+  rejectionReason?: string;
 
   status: WithdrawalStatus;
 

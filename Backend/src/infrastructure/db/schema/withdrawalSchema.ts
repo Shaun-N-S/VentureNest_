@@ -3,11 +3,17 @@ import mongoose from "mongoose";
 
 const withdrawalSchema = new mongoose.Schema(
   {
-    projectId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+      required: true,
+      index: true,
+    },
     walletId: { type: mongoose.Schema.Types.ObjectId, required: true },
 
     amount: { type: Number, required: true },
-    reason: { type: String, required: true },
+    requestReason: { type: String, required: true },
+    rejectionReason: { type: String },
 
     status: {
       type: String,

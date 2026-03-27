@@ -137,4 +137,11 @@ export class UserRepository
 
     return UserMapper.fromMongooseDocument(doc);
   }
+
+  async updateStripeOnboardingStatus(accountId: string, status: boolean): Promise<void> {
+    await this._model.updateOne(
+      { stripeAccountId: accountId },
+      { $set: { stripeOnboardingComplete: status } }
+    );
+  }
 }

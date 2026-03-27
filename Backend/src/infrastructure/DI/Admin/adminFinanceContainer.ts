@@ -21,6 +21,7 @@ import { RejectWithdrawalUseCase } from "application/useCases/Admin/finance/with
 import { AdminFinanceController } from "interfaceAdapters/controller/Admin/adminFinanceController";
 import { AdminWithdrawalController } from "interfaceAdapters/controller/Admin/adminWithdrawalController";
 import { GetWithdrawaluseCase } from "application/useCases/Admin/finance/withdrawal/getWithdrawalUseCase";
+import { StorageService } from "@infrastructure/services/storageService";
 
 const transactionRepo = new TransactionRepository(transactionModel);
 const dealRepo = new DealRepository(dealModel);
@@ -30,6 +31,7 @@ const userRepo = new UserRepository(userModel);
 const projectRepo = new ProjectRepository(projectModel);
 const withdrawalRepo = new WithdrawalRepository(withdrawalModel);
 const unitOfWork = new MongooseUnitOfWork();
+const storageService = new StorageService();
 
 const getAdminTransactionUseCase = new GetAdminTransactionsUseCase(transactionRepo);
 const getAdminFinanceSmmaryUseCase = new GetAdminFinanceSummaryUseCase(
@@ -46,7 +48,7 @@ const approveWithdrawalUseCase = new ApproveWithdrawalUseCase(
   unitOfWork
 );
 const rejectWithdrawalUseCase = new RejectWithdrawalUseCase(withdrawalRepo, walletRepo, unitOfWork);
-const getWithdrawalUseCase = new GetWithdrawaluseCase(withdrawalRepo);
+const getWithdrawalUseCase = new GetWithdrawaluseCase(withdrawalRepo, storageService);
 
 export const adminFinanceController = new AdminFinanceController(
   getAdminTransactionUseCase,

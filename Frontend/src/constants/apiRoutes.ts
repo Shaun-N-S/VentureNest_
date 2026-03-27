@@ -181,6 +181,9 @@ export const API_ROUTES = {
     TOPUP_CHECKOUT: "/wallet/topup/checkout",
     REQUEST_WITHDRAWAL: "/wallet/request-withdrawal",
     GET_PROJECT_WITHDRAWALS: "/wallet/project/:projectId/withdrawals",
+    BANK_WITHDRAWAL: "/wallet/withdraw/bank",
+    STRIPE_ONBOARD_LINK: "/wallet/stripe/onboarding-link",
+    STRIPE_ACCOUNT: "/wallet/stripe/account",
   },
 
   TRANSACTION: {

@@ -9,13 +9,15 @@ import { IHandleCheckoutCompletedUseCase } from "@domain/interfaces/useCases/pay
 import { IHandleWalletTopupCompletedUseCase } from "@domain/interfaces/useCases/wallet/IHandleWalletTopupCompletedUseCase";
 import { IHandleDealInstallmentStripeCompletedUseCase } from "@domain/interfaces/useCases/deal/IHandleDealInstallmentStripeCompletedUseCase";
 import { IHandleStripePayoutWebhookUseCase } from "@domain/interfaces/useCases/stripe/IHandleStripePayoutWebhookUseCase";
+import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 
 export class WebhookController {
   constructor(
     private _handleCheckoutCompletedUC: IHandleCheckoutCompletedUseCase,
     private _handleWalletTopupCompletedUC: IHandleWalletTopupCompletedUseCase,
     private _handleDealInstallmentCompletedUC: IHandleDealInstallmentStripeCompletedUseCase,
-    private _handleStripePayoutWebhookUC: IHandleStripePayoutWebhookUseCase
+    private _handleStripePayoutWebhookUC: IHandleStripePayoutWebhookUseCase,
+    private _userRepository: IUserRepository
   ) {}
 
   handleStripeWebhook = async (req: Request, res: Response): Promise<void> => {
@@ -79,6 +81,20 @@ export class WebhookController {
     }
 
     const eventType = event.type as string;
+
+    if (event.type === "account.updated") {
+      const account = event.data.object as Stripe.Account;
+
+      const isCompleted =
+        account.details_submitted && account.charges_enabled && account.payouts_enabled;
+
+      console.log("Stripe onboarding status:", {
+        id: account.id,
+        isCompleted,
+      });
+
+      await this._userRepository.updateStripeOnboardingStatus(account.id, isCompleted);
+    }
 
     if (eventType === "transfer.paid" || eventType === "transfer.failed") {
       const transfer = event.data.object as Stripe.Transfer;

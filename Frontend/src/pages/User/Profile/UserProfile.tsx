@@ -263,7 +263,7 @@ export default function ProfilePage() {
         toast.error("Failed to like post");
       },
     });
-  };
+  }; 
 
   const handleProjectLike = (
     projectId: string,

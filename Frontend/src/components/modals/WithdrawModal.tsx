@@ -12,41 +12,114 @@ export default function WithdrawModal({
 }) {
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
+  const [errors, setErrors] = useState<{ amount?: string; reason?: string }>({});
 
   if (!open) return null;
 
+  const validate = () => {
+    const newErrors: { amount?: string; reason?: string } = {};
+
+    const numAmount = Number(amount);
+
+    if (!amount) {
+      newErrors.amount = "Amount is required";
+    } else if (isNaN(numAmount)) {
+      newErrors.amount = "Enter a valid number";
+    } else if (numAmount <= 0) {
+      newErrors.amount = "Amount must be greater than 0";
+    }
+
+    if (!reason.trim()) {
+      newErrors.reason = "Reason is required";
+    } else if (reason.trim().length < 5) {
+      newErrors.reason = "Reason must be at least 5 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (!validate()) return;
+
+    onSubmit(Number(amount), reason.trim());
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-xl w-full max-w-md space-y-4">
-        <h2 className="font-bold text-lg">Request Withdrawal</h2>
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 space-y-5 animate-in fade-in zoom-in-95">
 
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">Withdraw Funds</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition"
+          >
+            ✕
+          </button>
+        </div>
 
-        <textarea
-          placeholder="Reason"
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+        {/* Amount */}
+        <div className="space-y-1">
+          <label className="text-sm text-gray-600">Amount</label>
+          <input
+            type="number"
+            placeholder="Enter amount"
+            value={amount}
+            onChange={(e) => {
+              setAmount(e.target.value);
+              setErrors((prev) => ({ ...prev, amount: "" }));
+            }}
+            className={`w-full p-2.5 rounded-lg outline-none transition border ${
+              errors.amount
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300 focus:border-black focus:ring-black"
+            }`}
+          />
+          {errors.amount && (
+            <p className="text-xs text-red-500">{errors.amount}</p>
+          )}
+        </div>
 
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
+        {/* Reason */}
+        <div className="space-y-1">
+          <label className="text-sm text-gray-600">Reason</label>
+          <textarea
+            placeholder="Why are you withdrawing?"
+            value={reason}
+            onChange={(e) => {
+              setReason(e.target.value);
+              setErrors((prev) => ({ ...prev, reason: "" }));
+            }}
+            rows={3}
+            className={`w-full p-2.5 rounded-lg outline-none resize-none transition border ${
+              errors.reason
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300 focus:border-black focus:ring-black"
+            }`}
+          />
+          {errors.reason && (
+            <p className="text-xs text-red-500">{errors.reason}</p>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-2">
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg"
+          >
             Cancel
           </Button>
 
           <Button
-            onClick={() => {
-              onSubmit(Number(amount), reason);
-              onClose();
-            }}
+            onClick={handleSubmit}
+            className="px-4 py-2 rounded-lg"
           >
-            Submit
+            Submit Request
           </Button>
         </div>
       </div>

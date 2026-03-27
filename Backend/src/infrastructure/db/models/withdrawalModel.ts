@@ -7,7 +7,8 @@ export interface IWithdrawalModel extends Document {
   projectId: string;
   walletId: string;
   amount: number;
-  reason: string;
+  requestReason: string;
+  rejectionReason?: string;
   status: WithdrawalStatus;
   createdAt: Date;
   processedAt?: Date;

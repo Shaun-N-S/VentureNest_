@@ -93,7 +93,7 @@ export class WalletController {
   async requestWithdrawal(req: Request, res: Response, next: NextFunction) {
     try {
       const { userId } = res.locals.user;
-      const { projectId, amount, reason } = req.body;
+      const { projectId, amount, requestReason } = req.body;
 
       if (!projectId || !amount || amount <= 0) {
         throw new InvalidDataException(Errors.INVALID_DATA);
@@ -102,7 +102,7 @@ export class WalletController {
       const result = await this._requestWithdrawalUseCase.execute(userId, {
         projectId,
         amount,
-        reason,
+        requestReason,
       });
 
       ResponseHelper.success(res, MESSAGES.WALLET.WITHDRAWAL_REQUESTED, result, HTTPSTATUS.OK);

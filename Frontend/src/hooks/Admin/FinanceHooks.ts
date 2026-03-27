@@ -31,11 +31,11 @@ export const useAdminWithdrawals = (
   page: number,
   limit: number,
   status?: string,
-  projectId?: string,
+  search?: string,
 ) => {
   return useQuery({
-    queryKey: ["admin-withdrawals", page, status, projectId],
-    queryFn: () => getAdminWithdrawals(page, limit, status, projectId),
+    queryKey: ["admin-withdrawals", page, status, search],
+    queryFn: () => getAdminWithdrawals(page, limit, status, search),
   });
 };
 
@@ -57,11 +57,10 @@ export const useApproveWithdrawal = () => {
 
 export const useRejectWithdrawal = () => {
   return useMutation({
-    mutationFn: (id: string) => rejectWithdrawal(id),
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      rejectWithdrawal(id, reason),
 
     onSuccess: () => {
-      toast.success("Withdrawal rejected");
-
       queryClient.invalidateQueries({ queryKey: ["admin-withdrawals"] });
     },
 

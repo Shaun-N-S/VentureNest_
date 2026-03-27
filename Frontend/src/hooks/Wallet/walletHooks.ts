@@ -1,10 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  createStripeAccount,
   createWalletTopupCheckout,
   getMyWallet,
   getProjectWallet,
   getProjectWithdrawals,
+  getStripeOnboardingLink,
   requestWithdrawal,
+  withdrawToBank,
 } from "../../services/Wallet/walletService";
 import type { Wallet } from "../../types/wallet";
 import toast from "react-hot-toast";
@@ -46,12 +49,12 @@ export const useRequestWithdrawal = () => {
     mutationFn: ({
       projectId,
       amount,
-      reason,
+      requestReason,
     }: {
       projectId: string;
       amount: number;
-      reason: string;
-    }) => requestWithdrawal(projectId, amount, reason),
+      requestReason: string;
+    }) => requestWithdrawal(projectId, amount, requestReason),
 
     onSuccess: (_, variables) => {
       toast.success("Withdrawal requested");
@@ -84,5 +87,48 @@ export const useGetProjectWithdrawals = (
     queryKey: ["project-withdrawals", projectId, page],
     queryFn: () => getProjectWithdrawals(projectId!, page, limit),
     enabled: !!projectId,
+  });
+};
+
+export const useCreateStripeAccount = () => {
+  return useMutation({
+    mutationFn: createStripeAccount,
+
+    onError: () => {
+      toast.error("Failed to create Stripe account");
+    },
+  });
+};
+
+export const useGetStripeOnboardingLink = () => {
+  return useMutation({
+    mutationFn: getStripeOnboardingLink,
+
+    onSuccess: (url) => {
+      window.location.href = url;
+    },
+
+    onError: () => {
+      toast.error("Failed to open Stripe onboarding");
+    },
+  });
+};
+
+export const useWithdrawToBank = () => {
+  return useMutation({
+    mutationFn: (amount: number) => withdrawToBank(amount),
+
+    onSuccess: () => {
+      toast.success("Withdrawal initiated ");
+
+      // refresh wallet
+      queryClient.invalidateQueries({ queryKey: ["my-wallet"] });
+    },
+
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        toast.error(err?.response?.data?.message || "Withdrawal failed");
+      }
+    },
   });
 };

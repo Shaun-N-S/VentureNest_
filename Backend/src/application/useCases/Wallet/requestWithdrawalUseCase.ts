@@ -19,9 +19,9 @@ export class RequestWithdrawalUseCase implements IRequestWithdrawalUseCase {
   ) {}
 
   async execute(userId: string, dto: RequestWithdrawalDTO) {
-    const { projectId, amount, reason } = dto;
+    const { projectId, amount, requestReason } = dto;
 
-    if (!reason || reason.trim().length < 3) {
+    if (!requestReason || requestReason.trim().length < 3) {
       throw new InvalidDataException(WALLET_ERRORS.WITHDRAWAL_REASON_TOO_SHORT);
     }
 
@@ -58,7 +58,7 @@ export class RequestWithdrawalUseCase implements IRequestWithdrawalUseCase {
           projectId,
           walletId: wallet._id!,
           amount,
-          reason,
+          requestReason,
           status: WithdrawalStatus.PENDING,
           createdAt: new Date(),
         },

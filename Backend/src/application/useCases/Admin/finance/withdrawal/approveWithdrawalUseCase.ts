@@ -56,7 +56,7 @@ export class ApproveWithdrawalUseCase implements IApproveWithdrawalUseCase {
       await this._withdrawalRepo.update(
         withdrawalId,
         {
-          status: WithdrawalStatus.COMPLETED,
+          status: WithdrawalStatus.APPROVED,
           processedAt: new Date(),
         },
         session

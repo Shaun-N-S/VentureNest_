@@ -1,12 +1,14 @@
 export interface RequestWithdrawalDTO {
   projectId: string;
   amount: number;
-  reason: string;
+  requestReason: string;
 }
 
 export interface WithdrawalResponseDTO {
   withdrawalId: string;
   amount: number;
   status: string;
+  requestReason: string;
+  rejectionReason?: string;
   createdAt: Date;
 }

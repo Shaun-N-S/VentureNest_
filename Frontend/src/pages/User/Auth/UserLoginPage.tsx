@@ -1,27 +1,32 @@
-import LoginForm, { type LoginFormData } from "../../../components/auth/LoginForm"
-import { Link, useNavigate } from "react-router-dom"
-import toast from "react-hot-toast"
-import { useGoogleLoginMutation, useUserLogin } from "../../../hooks/Auth/AuthHooks"
-import { useDispatch } from "react-redux"
-import { setData } from "../../../store/Slice/authDataSlice"
-import { setToken } from "../../../store/Slice/tokenSlice"
-import { motion } from "framer-motion"
-import { AxiosError } from "axios"
-import LeftPanel from "../../../components/auth/LeftPanal"
-import { Button } from "../../../components/ui/button"
-import { useGoogleLogin } from "@react-oauth/google"
+import LoginForm, {
+  type LoginFormData,
+} from "../../../components/auth/LoginForm";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import {
+  useGoogleLoginMutation,
+  useUserLogin,
+} from "../../../hooks/Auth/AuthHooks";
+import { useDispatch } from "react-redux";
+import { setData } from "../../../store/Slice/authDataSlice";
+import { setToken } from "../../../store/Slice/tokenSlice";
+import { motion } from "framer-motion";
+import { AxiosError } from "axios";
+import LeftPanel from "../../../components/auth/LeftPanal";
+import { Button } from "../../../components/ui/button";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const UserLoginPage = () => {
-  const { mutate: userLogin } = useUserLogin()
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const { mutate: userLogin } = useUserLogin();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { mutate: googleLoginMutate } = useGoogleLoginMutation();
 
   const handleUserLogin = (values: LoginFormData) => {
     userLogin(values, {
       onSuccess: (res) => {
-        console.log("response", res)
-        toast.success("Login successfull")
+        console.log("response", res);
+        toast.success("Login successfull");
         dispatch(
           setData({
             _id: res.data.user._id,
@@ -35,24 +40,26 @@ const UserLoginPage = () => {
             website: res.data.user.website,
             linkedInUrl: res.data.user.linkedInUrl,
             adminVerified: res.data.user.adminVerified,
+            stripeAccountId: res.data.user.stripeAccountId,
+            stripeOnboardingComplete: res.data.user.stripeOnboardingComplete,
             isAuthenticated: true,
             companyName: res.data.user.companyName,
-          })
+          }),
         );
-        dispatch(setToken(res.data?.accessToken || ""))
-        navigate("/home")
+        dispatch(setToken(res.data?.accessToken || ""));
+        navigate("/home");
       },
       onError: (err) => {
-        console.log("cath", err)
-        console.log("axios error  ")
+        console.log("cath", err);
+        console.log("axios error  ");
         if (err instanceof AxiosError) {
-          const errMsg = err.response?.data.message
-          console.log("Error while login ,", errMsg)
-          toast.error(errMsg)
+          const errMsg = err.response?.data.message;
+          console.log("Error while login ,", errMsg);
+          toast.error(errMsg);
         }
       },
-    })
-  }
+    });
+  };
 
   const login = useGoogleLogin({
     onSuccess: (res) => handleGoogleLoginSuccess(res.code),
@@ -61,7 +68,7 @@ const UserLoginPage = () => {
   });
 
   const handleGoogleLoginSuccess = (code: string) => {
-    const role = "USER"
+    const role = "USER";
     googleLoginMutate(
       { authorizationCode: code, role },
       {
@@ -71,7 +78,7 @@ const UserLoginPage = () => {
             return;
           }
           toast.success(res.message);
-          console.log("data from backend during login : ", res.data.user)
+          console.log("data from backend during login : ", res.data.user);
           dispatch(
             setData({
               _id: res.data.user._id,
@@ -85,22 +92,22 @@ const UserLoginPage = () => {
               website: res.data.user.website,
               linkedInUrl: res.data.user.linkedInUrl,
               adminVerified: res.data.user.adminVerified,
+              stripeAccountId: res.data.user.stripeAccountId,
+              stripeOnboardingComplete: res.data.user.stripeOnboardingComplete,
               isAuthenticated: true,
               companyName: res.data.user.companyName,
-            })
+            }),
           );
           dispatch(setToken(res.data?.accessToken || ""));
-
         },
         onError: (err) => {
           if (err instanceof AxiosError) {
-            toast.error(err?.response?.data?.message)
+            toast.error(err?.response?.data?.message);
           }
         },
-      }
+      },
     );
   };
-
 
   return (
     <div className="min-h-screen md:h-screen grid grid-cols-1 md:grid-cols-2 items-stretch bg-background text-foreground md:overflow-hidden">
@@ -121,8 +128,12 @@ const UserLoginPage = () => {
           <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-md shadow-xl shadow-black/5">
             {/* Header */}
             <div className="px-6 pt-6 pb-3">
-              <h1 className="text-2xl font-semibold tracking-tight text-pretty ">Welcome back</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Sign in to continue to your dashboard.</p>
+              <h1 className="text-2xl font-semibold tracking-tight text-pretty ">
+                Welcome back
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Sign in to continue to your dashboard.
+              </p>
             </div>
 
             {/* Form */}
@@ -155,7 +166,10 @@ const UserLoginPage = () => {
                 </a>
                 <div className="text-muted-foreground">
                   {"Don't have an account? "}
-                  <Link to="/signup" className="text-primary font-medium hover:underline underline-offset-4">
+                  <Link
+                    to="/signup"
+                    className="text-primary font-medium hover:underline underline-offset-4"
+                  >
                     Sign up
                   </Link>
                 </div>
@@ -169,7 +183,7 @@ const UserLoginPage = () => {
         </motion.div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default UserLoginPage
+export default UserLoginPage;

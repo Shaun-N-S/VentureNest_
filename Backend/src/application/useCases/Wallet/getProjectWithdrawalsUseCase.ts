@@ -40,10 +40,11 @@ export class GetProjectWithdrawalsUseCase implements IGetProjectWithdrawalsUseCa
 
     return {
       data: data.map((w) => ({
-        withdrawalId: w._id!,
+        withdrawalId: w._id!.toString(),
         amount: w.amount,
         status: w.status,
-        reason: w.reason,
+        requestReason: w.requestReason,
+        ...(w.rejectionReason && { rejectionReason: w.rejectionReason }),
         createdAt: w.createdAt!,
       })),
       total,

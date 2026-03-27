@@ -14,7 +14,7 @@ export class RejectWithdrawalUseCase implements IRejectWithdrawalUseCase {
     private _unitOfWork: IUnitOfWork
   ) {}
 
-  async execute(withdrawalId: string) {
+  async execute(withdrawalId: string, reason: string) {
     const withdrawal = await this._withdrawalRepo.findById(withdrawalId);
 
     if (!withdrawal) throw new NotFoundExecption(WALLET_ERRORS.WITHDRAWAL_NOT_FOUND);
@@ -41,7 +41,8 @@ export class RejectWithdrawalUseCase implements IRejectWithdrawalUseCase {
       await this._withdrawalRepo.update(
         withdrawalId,
         {
-          status: WithdrawalStatus.FAILED,
+          status: WithdrawalStatus.REJECTED,
+          rejectionReason: reason,
           processedAt: new Date(),
         },
         session

@@ -86,4 +86,31 @@ export class TransactionRepository
   ): Promise<void> {
     await this._model.updateOne({ _id: id }, { $set: { status } }, session ? { session } : {});
   }
+
+  async findByWalletPaginated(
+    walletId: string,
+    action?: TransactionAction,
+    skip: number = 0,
+    limit: number = 10
+  ): Promise<TransactionEntity[]> {
+    const query: any = {
+      $or: [{ fromWalletId: walletId }, { toWalletId: walletId }],
+    };
+
+    if (action) query.action = action;
+
+    const docs = await this._model.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit);
+
+    return docs.map(TransactionMapper.fromMongooseDocument);
+  }
+
+  async countByWallet(walletId: string, action?: TransactionAction): Promise<number> {
+    const query: any = {
+      $or: [{ fromWalletId: walletId }, { toWalletId: walletId }],
+    };
+
+    if (action) query.action = action;
+
+    return this._model.countDocuments(query);
+  }
 }

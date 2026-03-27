@@ -1,3 +1,3 @@
 export interface IRejectWithdrawalUseCase {
-  execute(withdrawalId: string): Promise<void>;
+  execute(withdrawalId: string, reason: string): Promise<void>;
 }

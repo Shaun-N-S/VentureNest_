@@ -5,10 +5,10 @@ export const getAdminWithdrawals = async (
   page = 1,
   limit = 10,
   status?: string,
-  projectId?: string,
+  search?: string,
 ) => {
   const response = await AxiosInstance.get(API_ROUTES.ADMIN.WITHDRAWALS, {
-    params: { page, limit, status, projectId },
+    params: { page, limit, status, search },
   });
 
   return response.data.data;
@@ -22,9 +22,10 @@ export const approveWithdrawal = async (id: string) => {
   return response.data;
 };
 
-export const rejectWithdrawal = async (id: string) => {
+export const rejectWithdrawal = async (id: string, reason: string) => {
   const response = await AxiosInstance.patch(
     API_ROUTES.ADMIN.REJECT_WITHDRAWAL.replace(":id", id),
+    { reason },
   );
 
   return response.data;

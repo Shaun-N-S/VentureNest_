@@ -29,4 +29,13 @@ export interface ITransactionRepository extends IBaseRepository<TransactionEntit
   findByRelatedPaymentId(paymentId: string): Promise<TransactionEntity | null>;
 
   updateStatus(id: string, status: TransactionStatus, session?: ClientSession): Promise<void>;
+
+  findByWalletPaginated(
+    walletId: string,
+    action: TransactionAction | undefined,
+    skip: number,
+    limit: number
+  ): Promise<TransactionEntity[]>;
+
+  countByWallet(walletId: string, action?: TransactionAction): Promise<number>;
 }

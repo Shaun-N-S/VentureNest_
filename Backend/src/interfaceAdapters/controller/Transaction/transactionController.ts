@@ -19,13 +19,17 @@ export class TransactionController {
         throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
       }
 
+      const { page = "1", limit = "10", action } = req.query;
+
       const requestDTO: GetWalletTransactionsRequestDTO = {
         ownerId: user.userId!,
         ownerRole: user.role!,
+        page: Number(page),
+        limit: Number(limit),
       };
 
-      if (req.query.action) {
-        requestDTO.action = req.query.action as TransactionAction;
+      if (action) {
+        requestDTO.action = action as TransactionAction;
       }
 
       const transactions = await this.getWalletTransactionsUseCase.execute(requestDTO);

@@ -80,5 +80,6 @@ export const webhookController = new WebhookController(
   handleCheckoutCompletedUC,
   handleWalletTopupCompletedUseCase,
   handleDealInstallmentStripeCompleteUseCase,
-  handleStripePayoutWebhookUseCase
+  handleStripePayoutWebhookUseCase,
+  userRepo
 );

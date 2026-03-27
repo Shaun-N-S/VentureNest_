@@ -15,6 +15,8 @@ export interface UserAuthData {
   linkedInUrl: string;
   companyName: string;
   adminVerified: boolean;
+  stripeAccountId?: string;
+  stripeOnboardingComplete?: boolean;
   isAuthenticated?: boolean;
   connectionsCount?: number;
   postsCount?: number;
@@ -35,6 +37,8 @@ interface UserPayloadFromAPI {
   linkedInUrl: string;
   companyName: string;
   adminVerified: boolean;
+  stripeAccountId?: string;
+  stripeOnboardingComplete?: boolean;
   isAuthenticated?: boolean;
   connectionsCount?: number;
   postsCount?: number;
@@ -55,6 +59,8 @@ const initialState: UserAuthData = {
   linkedInUrl: "",
   companyName: "",
   adminVerified: false,
+  stripeAccountId: undefined,
+  stripeOnboardingComplete: false,
   isAuthenticated: false,
   connectionsCount: 0,
   postsCount: 0,
@@ -66,7 +72,7 @@ const AuthDataSlice = createSlice({
   name: "AuthData",
   initialState,
   reducers: {
-    setData: (state, action: PayloadAction<UserPayloadFromAPI>) => {
+    setData: (_, action: PayloadAction<UserPayloadFromAPI>) => {
       return {
         id: action.payload._id,
         userName: action.payload.userName,
@@ -80,6 +86,9 @@ const AuthDataSlice = createSlice({
         linkedInUrl: action.payload.linkedInUrl,
         companyName: action.payload.companyName,
         adminVerified: action.payload.adminVerified,
+        stripeAccountId: action.payload.stripeAccountId ?? undefined,
+        stripeOnboardingComplete:
+          action.payload.stripeOnboardingComplete ?? false,
         connectionsCount: action.payload.connectionsCount ?? 0,
         postsCount: action.payload.postsCount ?? 0,
         projectsCount: action.payload.projectsCount ?? 0,

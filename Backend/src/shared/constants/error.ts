@@ -43,6 +43,7 @@ export const Errors = {
   KYC_NOT_VERIFIED: "Your kyc verification is not completed!",
   ADMIN_NOT_FOUND: "Platform admin not found",
   INVALID_AMOUNT: "Invalid amount",
+  INVALID_LIMIT: "Invalid limit",
 };
 
 export const USER_ERRORS = {
@@ -139,6 +140,8 @@ export const WALLET_ERRORS = {
   WITHDRAWAL_ALREADY_PROCESSED: "This withdrawal request has already been processed",
   WITHDRAWAL_NOT_FOUND: "Withdrawal request not found",
   INSUFFICIENT_BALANCE: "Insufficient balance in wallet",
+  INVALID_WITHDRAWAL_STATUS: "Invalid withdrawal status",
+  WITHDRAWAL_REJECT_REASON_REQUIRED: "Rejection reason must be at least 3 characters",
 };
 
 export const CHAT_ERRORS = {

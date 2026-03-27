@@ -17,4 +17,13 @@ export interface GetWalletTransactionsRequestDTO {
   ownerId: string;
   ownerRole: UserRole;
   action?: TransactionAction;
+  page: number;
+  limit: number;
+}
+
+export interface GetWalletTransactionsResponseDTO {
+  data: TransactionDTO[];
+  total: number;
+  page: number;
+  limit: number;
 }
