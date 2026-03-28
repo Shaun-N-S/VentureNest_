@@ -20,6 +20,7 @@ import MySessionsPage from "../pages/Common/MySessionPage";
 import PitchesPage from "../pages/Common/PitchesPage";
 import WalletPage from "../pages/Common/WalletPage";
 import ChatPage from "../pages/Common/ChatPage";
+import UserDashboardPage from "../pages/User/UserDashboardPage";
 
 const UserRoutes = () => {
   return (
@@ -88,6 +89,10 @@ const UserRoutes = () => {
           <Route
             path={FRONTEND_ROUTES.USER.CHAT_CONVERSATION}
             element={<ChatPage />}
+          />
+          <Route
+            path={FRONTEND_ROUTES.USER.DASHBOARD}
+            element={<UserDashboardPage />}
           />
         </Route>
       </Route>

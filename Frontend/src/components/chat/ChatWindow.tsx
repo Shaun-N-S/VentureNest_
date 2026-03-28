@@ -21,7 +21,6 @@ const ChatWindow = () => {
   const navigate = useNavigate();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // 1. Fetch Messages
   const {
     data: messageData,
     fetchNextPage,
@@ -30,11 +29,8 @@ const ChatWindow = () => {
   const messages =
     messageData?.pages.flatMap((page) => page.messages).reverse() ?? [];
 
-  // 2. Fetch Conversations (to get the Header Details like Name/Image)
-  // We use the existing cache key so this doesn't trigger a new network request usually
   const { data: conversationData } = useInfiniteConversations();
 
-  // 3. Find the specific conversation details for the header
   const currentConversation = useMemo(() => {
     if (!conversationId || !conversationData) return null;
     const allConversations = conversationData.pages.flatMap(

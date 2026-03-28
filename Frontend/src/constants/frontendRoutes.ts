@@ -18,6 +18,7 @@ export const FRONTEND_ROUTES = {
     WALLET: "/wallet",
     CHAT: "/chat",
     CHAT_CONVERSATION: "/chat/:conversationId",
+    DASHBOARD: "/dashboard",
   },
 
   INVESTOR: {

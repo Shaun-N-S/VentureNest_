@@ -181,4 +181,10 @@ export class ProjectRepository
       isActive: true,
     });
   }
+
+  async findByUserId(userId: string): Promise<ProjectEntity[]> {
+    const docs = await this._model.find({ userId, isActive: true }).sort({ createdAt: -1 });
+
+    return docs.map((doc) => ProjectMapper.fromMongooseDocument(doc));
+  }
 }

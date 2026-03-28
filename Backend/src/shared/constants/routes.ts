@@ -229,4 +229,12 @@ export const ROUTES = {
     INSTALLMENT_CHECKOUT: "/:dealId/installment-checkout",
     RELEASE_INSTALLMENT: "/:dealId/release-installment",
   },
+
+  DASHBOARD: {
+    USER: "/user",
+    PROJECT_ANALYTICS: "/reports",
+    INVESTOR_SUMMARY: "/investor",
+    INVESTOR_PORTFOLIO: "/investor-portfolio",
+    INVESTMENT_CHART: "/dashboard/investment-chart",
+  },
 };

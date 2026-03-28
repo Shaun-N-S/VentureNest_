@@ -28,7 +28,24 @@ const MessageBubble = ({ message }: Props) => {
         <p
           className={`leading-relaxed ${isMine ? "text-white/95" : "text-slate-800"}`}
         >
-          {message.content}
+          {message.messageType === "TEXT" && <span>{message.content}</span>}
+
+          {message.messageType === "IMAGE" && message.fileUrl && (
+            <img
+              src={message.fileUrl}
+              className="rounded-xl max-h-60 object-cover mt-1"
+            />
+          )}
+
+          {message.messageType === "FILE" && message.fileUrl && (
+            <a
+              href={message.fileUrl}
+              target="_blank"
+              className="underline text-blue-500"
+            >
+              📎 {message.fileName}
+            </a>
+          )}
         </p>
 
         <div

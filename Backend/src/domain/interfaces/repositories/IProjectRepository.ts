@@ -39,4 +39,5 @@ export interface IProjectRepository extends IBaseRepository<ProjectEntity> {
 
   countAdmin(status?: string, search?: string): Promise<number>;
   countProjectsByAuthor(userId: string): Promise<number>;
+  findByUserId(userId: string): Promise<ProjectEntity[]>;
 }

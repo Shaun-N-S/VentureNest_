@@ -10,6 +10,8 @@ import { IGetMessagesUseCase } from "@domain/interfaces/useCases/chat/IGetMessag
 import { IMarkConversationReadUseCase } from "@domain/interfaces/useCases/chat/IMarkConversationReadUseCase";
 import { IGetUnreadCountUseCase } from "@domain/interfaces/useCases/chat/IGetUnreadCountUseCase";
 import { MESSAGES } from "@shared/constants/messages";
+import { multerFileToFileConverter } from "@shared/utils/fileConverter";
+import { MulterFiles } from "@domain/types/multerFilesType";
 
 export class ChatController {
   constructor(
@@ -48,8 +50,16 @@ export class ChatController {
       const { userId, role } = res.locals.user;
       const { conversationId, content, messageType } = req.body;
 
-      if (!userId || !conversationId || !content || !messageType) {
+      const files = req.files as MulterFiles<"file">;
+
+      if (!userId || !conversationId || !messageType) {
         throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      let file: File | undefined;
+
+      if (files?.file?.[0]) {
+        file = multerFileToFileConverter(files.file[0]);
       }
 
       const result = await this._sendMessageUseCase.execute({
@@ -58,6 +68,7 @@ export class ChatController {
         senderRole: role,
         content,
         messageType,
+        file,
       });
 
       ResponseHelper.success(res, MESSAGES.CHAT.MESSAGE_SENT, result, HTTPSTATUS.OK);

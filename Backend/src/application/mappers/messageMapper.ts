@@ -3,7 +3,7 @@ import { IMessageModel } from "@infrastructure/db/models/messageModel";
 import { Message } from "@domain/entities/chat/messageEntity";
 import { MessageStatus } from "@domain/enum/messageStatus";
 import { MessageType } from "@domain/enum/messageType";
-import { SendMessageReqDTO } from "application/dto/chat/sendMessageDTO";
+import { UserRole } from "@domain/enum/userRole";
 
 export class MessageMapper {
   static toMongooseDocument(message: Message) {
@@ -16,6 +16,8 @@ export class MessageMapper {
       senderRole: message.senderRole,
 
       content: message.content,
+      fileUrl: message.fileUrl,
+      fileName: message.fileName,
 
       messageType: message.messageType,
 
@@ -37,8 +39,9 @@ export class MessageMapper {
       senderId: doc.senderId.toString(),
       senderRole: doc.senderRole,
 
-      content: doc.content,
-
+      ...(doc.content && { content: doc.content }),
+      ...(doc.fileUrl && { fileUrl: doc.fileUrl }),
+      ...(doc.fileName && { fileName: doc.fileName }),
       messageType: doc.messageType as MessageType,
 
       status: doc.status as MessageStatus,
@@ -50,12 +53,22 @@ export class MessageMapper {
     };
   }
 
-  static fromSendDTO(dto: SendMessageReqDTO): Omit<Message, "_id"> {
+  static fromSendDTO(dto: {
+    conversationId: string;
+    senderId: string;
+    senderRole: UserRole;
+    content?: string;
+    fileUrl?: string;
+    fileName?: string;
+    messageType: MessageType;
+  }): Omit<Message, "_id"> {
     return {
       conversationId: dto.conversationId,
       senderId: dto.senderId,
       senderRole: dto.senderRole,
-      content: dto.content,
+      ...(dto.content && { content: dto.content }),
+      ...(dto.fileUrl && { fileUrl: dto.fileUrl }),
+      ...(dto.fileName && { fileName: dto.fileName }),
       messageType: dto.messageType,
       status: MessageStatus.SENT,
       isDeleted: false,

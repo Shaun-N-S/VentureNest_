@@ -1,7 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useInfiniteConversations } from "../../hooks/Chat/chatHooks";
 import type { ConversationPreview } from "../../types/chat";
-import { Search, MessageSquarePlus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const ConversationList = () => {

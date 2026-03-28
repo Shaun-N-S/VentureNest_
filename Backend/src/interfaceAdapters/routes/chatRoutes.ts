@@ -2,6 +2,7 @@ import { chatController } from "@infrastructure/DI/Chat/chatContainer";
 import { Router, Request, Response, NextFunction } from "express";
 import { userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 import { ROUTES } from "@shared/constants/routes";
+import { uploadMulter } from "interfaceAdapters/middleware/multer";
 
 export class Chat_Router {
   private _route: Router;
@@ -36,6 +37,7 @@ export class Chat_Router {
     this._route.post(
       ROUTES.CHAT.SEND_MESSAGE,
       ...userOrInvestorGuard,
+      uploadMulter.fields([{ name: "file", maxCount: 1 }]),
       (req: Request, res: Response, next: NextFunction) =>
         chatController.sendMessage(req, res, next)
     );

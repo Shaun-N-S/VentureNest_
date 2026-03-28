@@ -18,13 +18,18 @@ const chatPublisher = new SocketChatPublisher();
 const storageService = new StorageService();
 
 const createConversationUseCase = new CreateConversationUseCase(conversationRepo);
-const sendMessageUseCase = new SendMessageUseCase(messageRepo, conversationRepo, chatPublisher);
+const sendMessageUseCase = new SendMessageUseCase(
+  messageRepo,
+  conversationRepo,
+  chatPublisher,
+  storageService
+);
 const getUserConversationsUseCase = new GetUserConversationsUseCase(
   conversationRepo,
   storageService
 );
 const markConversationReadUseCase = new MarkConversationReadUseCase(messageRepo);
-const getMessagesUseCase = new GetMessagesUseCase(messageRepo);
+const getMessagesUseCase = new GetMessagesUseCase(messageRepo, storageService);
 const getUnreadCountUseCase = new GetUnreadCountUseCase(messageRepo);
 
 export const chatController = new ChatController(

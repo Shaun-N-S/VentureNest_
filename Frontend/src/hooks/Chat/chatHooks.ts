@@ -13,8 +13,6 @@ import {
   getUnreadCount,
 } from "../../services/Chat/chatService";
 import type { UserRole } from "../../types/UserRole";
-import type { MessageType } from "../../types/messageType";
-
 /* ---------------------- Create Conversation ---------------------- */
 export const useCreateConversation = () => {
   return useMutation({
@@ -60,17 +58,9 @@ export const useSendMessage = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      conversationId,
-      content,
-      messageType,
-    }: {
-      conversationId: string;
-      content: string;
-      messageType: MessageType;
-    }) => sendMessage(conversationId, content, messageType),
+    mutationFn: (formData: FormData) => sendMessage(formData),
 
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["chat-conversations"],
       });

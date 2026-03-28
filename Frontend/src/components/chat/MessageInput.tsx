@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSendMessage } from "../../hooks/Chat/chatHooks";
 import { MESSAGE_TYPE } from "../../types/messageType";
 import { getSocket } from "../../lib/socket";
-import { SendHorizontal } from "lucide-react";
+import { SendHorizontal, Smile, Paperclip } from "lucide-react";
+import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 
 interface Props {
   conversationId: string;
@@ -10,20 +11,41 @@ interface Props {
 
 const MessageInput = ({ conversationId }: Props) => {
   const [text, setText] = useState<string>("");
-  const sendMessage = useSendMessage();
+  const [showEmoji, setShowEmoji] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
+  const sendMessage = useSendMessage();
   const socket = getSocket();
 
   const handleSend = () => {
     if (!text.trim()) return;
 
-    sendMessage.mutate({
-      conversationId,
-      content: text,
-      messageType: MESSAGE_TYPE.TEXT,
-    });
+    const formData = new FormData();
+    formData.append("conversationId", conversationId);
+    formData.append("content", text);
+    formData.append("messageType", MESSAGE_TYPE.TEXT);
+
+    sendMessage.mutate(formData);
 
     setText("");
+    setShowEmoji(false);
+  };
+
+  const handleFileUpload = (file: File) => {
+    const formData = new FormData();
+
+    formData.append("conversationId", conversationId);
+    formData.append(
+      "messageType",
+      file.type.startsWith("image") ? "IMAGE" : "FILE",
+    );
+    formData.append("file", file);
+
+    sendMessage.mutate(formData);
+  };
+
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setText((prev) => prev + emojiData.emoji);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -41,46 +63,82 @@ const MessageInput = ({ conversationId }: Props) => {
     }, 1000);
 
     return () => clearTimeout(timeout);
-  }, [text, conversationId]);
+  }, [text, conversationId, socket]);
 
   return (
-    <div className="max-w-4xl mx-auto flex items-center gap-3">
-      {/* Decorative attachment buttons */}
-      {/* <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
-        <Paperclip size={20} />
-      </button> */}
+    <div className="w-full bg-white border-t border-slate-200 px-4 py-3">
+      <div className="max-w-4xl mx-auto flex items-center gap-3">
+        {/* 📎 Attach */}
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-indigo-600 transition"
+        >
+          <Paperclip size={20} />
+        </button>
 
-      <div className="flex-1 relative">
-        <input
-          value={text}
-          onKeyDown={handleKeyDown}
-          onChange={(e) => {
-            setText(e.target.value);
-            socket?.emit("chat:typing", { conversationId });
-          }}
-          className="w-full bg-slate-100 border-none rounded-full px-5 py-3.5 pl-5 pr-12 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all shadow-inner"
-          placeholder="Type a message..."
-        />
-        {/* Emoji Button inside input */}
-        {/* <button className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-amber-500 transition-colors">
-          <Smile size={18} />
-        </button> */}
-      </div>
+        {/* Input Container */}
+        <div className="flex-1 relative">
+          <input
+            value={text}
+            onKeyDown={handleKeyDown}
+            onChange={(e) => {
+              setText(e.target.value);
+              socket?.emit("chat:typing", { conversationId });
+            }}
+            className="
+              w-full bg-slate-100 rounded-full px-5 py-3 pr-12
+              text-sm text-slate-800 placeholder:text-slate-400
+              focus:outline-none focus:ring-2 focus:ring-indigo-500/20
+              transition-all
+            "
+            placeholder="Type a message..."
+          />
 
-      <button
-        onClick={handleSend}
-        disabled={!text.trim()}
-        className={`
-            p-3.5 rounded-full shadow-lg transition-all duration-200 flex items-center justify-center
+          {/* 😀 Emoji Button */}
+          <button
+            type="button"
+            onClick={() => setShowEmoji((prev) => !prev)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-yellow-500"
+          >
+            <Smile size={20} />
+          </button>
+
+          {/* 😀 Emoji Picker */}
+          {showEmoji && (
+            <div className="absolute bottom-14 right-0 z-50">
+              <EmojiPicker onEmojiClick={handleEmojiClick} />
+            </div>
+          )}
+        </div>
+
+        {/* 🚀 Send Button */}
+        <button
+          onClick={handleSend}
+          disabled={!text.trim()}
+          className={`
+            p-3 rounded-full flex items-center justify-center transition-all
             ${
               text.trim()
-                ? "bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 hover:shadow-indigo-500/30"
+                ? "bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 shadow-md"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed"
             }
-        `}
-      >
-        <SendHorizontal size={20} className={text.trim() ? "ml-0.5" : ""} />
-      </button>
+          `}
+        >
+          <SendHorizontal size={20} />
+        </button>
+
+        {/* Hidden File Input */}
+        <input
+          type="file"
+          hidden
+          ref={fileRef}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleFileUpload(file);
+          }}
+        />
+      </div>
     </div>
   );
 };

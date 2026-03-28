@@ -34,4 +34,46 @@ export class ProjectMonthlyReportRepository
 
     return doc ? ProjectMonthlyReportMapper.fromMongooseDocument(doc) : null;
   }
+
+  async findLatestByProjectId(projectId: string): Promise<ProjectMonthlyReportEntity | null> {
+    const doc = await this._model.findOne({ projectId }).sort({ year: -1, month: -1 });
+
+    return doc ? ProjectMonthlyReportMapper.fromMongooseDocument(doc) : null;
+  }
+
+  async findReportsForAnalytics(
+    projectId: string,
+    filters: {
+      fromDate?: Date;
+      toDate?: Date;
+      month?: string;
+      year?: number;
+    }
+  ): Promise<ProjectMonthlyReportEntity[]> {
+    const query: any = { projectId };
+
+    if (filters.month) {
+      query.month = filters.month;
+    }
+
+    if (filters.year) {
+      query.year = filters.year;
+    }
+
+    if (filters.fromDate || filters.toDate) {
+      query.createdAt = {};
+
+      if (filters.fromDate) {
+        query.createdAt.$gte = filters.fromDate;
+      }
+
+      if (filters.toDate) {
+        query.createdAt.$lte = filters.toDate;
+      }
+    }
+
+    const docs = await this._model.find(query).sort({ year: 1, month: 1 });
+
+    return docs.map(ProjectMonthlyReportMapper.fromMongooseDocument);
+  }
 }

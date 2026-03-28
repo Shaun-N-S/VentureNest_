@@ -194,4 +194,8 @@ export const MESSAGES = {
     INSTALLMENTS_FETCHED: "Installment details fetched",
     INSTALLMENT_RELEASED: "Installment released successfully",
   },
+
+  DASHBOARD: {
+    FETCHED: "Dashboard fetched",
+  },
 };

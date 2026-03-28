@@ -212,4 +212,11 @@ export const API_ROUTES = {
     INSTALLMENT_CHECKOUT: "/deals/:dealId/installment-checkout",
     RELEASE_INSTALLMENT: "/deals/:dealId/release-installment",
   },
+
+  DASHBOARD: {
+    USER: "/dashboard/user",
+    PROJECT_ANALYTICS: "/dashboard/reports",
+    INVESTOR_SUMMARY: "/dashboard/investor",
+    INVESTOR_PORTFOLIO: "/dashboard/investor-portfolio"
+  },
 };
