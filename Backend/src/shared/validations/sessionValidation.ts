@@ -9,3 +9,5 @@ export const addSessionFeedbackSchema = z.object({
   feedback: z.string().min(5).max(1000),
   decision: z.nativeEnum(TicketStatus),
 });
+
+export const joinSessionSchema = z.object({});

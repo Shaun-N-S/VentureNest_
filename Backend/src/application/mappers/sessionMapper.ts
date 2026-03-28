@@ -30,6 +30,10 @@ export class SessionMapper {
 
       status: SessionStatus.SCHEDULED,
       stage,
+      waitingUsers: [],
+      allowedUsers: [],
+      hostJoined: false,
+      roomId: new mongoose.Types.ObjectId().toString(),
 
       ...(startTime && { startTime }),
     };
@@ -56,6 +60,11 @@ export class SessionMapper {
       ...(doc.cancelReason && { cancelReason: doc.cancelReason }),
       ...(doc.feedback && { feedback: doc.feedback }),
 
+      ...(doc.waitingUsers && { waitingUsers: doc.waitingUsers.map(String) }),
+      ...(doc.allowedUsers && { allowedUsers: doc.allowedUsers.map(String) }),
+      ...(doc.hostJoined !== undefined && { hostJoined: doc.hostJoined }),
+      ...(doc.roomId && { roomId: doc.roomId }),
+
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     };
@@ -80,6 +89,11 @@ export class SessionMapper {
       ...(entity.cancelledBy && { cancelledBy: entity.cancelledBy }),
       ...(entity.cancelReason && { cancelReason: entity.cancelReason }),
       ...(entity.feedback && { feedback: entity.feedback }),
+
+      waitingUsers: entity.waitingUsers || [],
+      allowedUsers: entity.allowedUsers || [],
+      hostJoined: entity.hostJoined ?? false,
+      roomId: entity.roomId,
     };
   }
 

@@ -135,6 +135,7 @@ export const MESSAGES = {
   SESSION: {
     SESSION_CANCELLED: "Session cancelled successfully",
     SESSION_FEEDBACK_ADDED: "Session feedback added successfully",
+    JOIN_REQUEST_SUCCESSFUL: "Session join request successful",
   },
 
   PITCH: {

@@ -26,6 +26,11 @@ export interface SessionEntity {
   cancelledBy?: SessionCancelledBy;
   cancelReason?: string;
 
+  waitingUsers?: string[];
+  allowedUsers?: string[];
+  hostJoined?: boolean;
+  roomId?: string;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -40,6 +40,17 @@ const sessionSchema = new mongoose.Schema(
 
     cancelReason: String,
     feedback: String,
+    waitingUsers: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+    },
+
+    allowedUsers: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+    },
+    hostJoined: { type: Boolean, default: false },
+    roomId: { type: String },
   },
   { timestamps: true }
 );

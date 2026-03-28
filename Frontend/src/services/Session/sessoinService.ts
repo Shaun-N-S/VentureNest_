@@ -4,6 +4,7 @@ import type {
   AddSessionFeedbackDTO,
   CancelledSessionResponseDTO,
   CancelSessionDTO,
+  JoinSessionResponseDTO,
   SessionFeedbackResponseDTO,
 } from "../../types/session";
 
@@ -30,5 +31,13 @@ export const sessionService = {
     );
 
     return data.data;
-  }
+  },
+
+  joinSession: async (sessionId: string): Promise<JoinSessionResponseDTO> => {
+    const { data } = await AxiosInstance.post(
+      API_ROUTES.SESSION.JOIN_REQUEST.replace(":sessionId", sessionId),
+    );
+
+    return data.data;
+  },
 };

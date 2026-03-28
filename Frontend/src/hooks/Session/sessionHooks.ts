@@ -18,3 +18,10 @@ export const useAddSessionFeedback = () => {
       sessionService.addSessionFeedback(payload.sessionId, payload),
   });
 };
+
+export const useJoinSession = () => {
+  return useMutation({
+    mutationFn: (sessionId: string) => sessionService.joinSession(sessionId),
+  });
+};
+

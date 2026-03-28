@@ -6,6 +6,7 @@ import { Badge } from "../ui/badge";
 import type { PersonDTO, SessionDTO } from "../../types/session";
 import { useState } from "react";
 import { SessionDetailsModal } from "../modals/SessionDetailsModal";
+import VideoCall from "../VideoCall/VideoCall";
 
 interface Props {
   session: SessionDTO;
@@ -30,6 +31,7 @@ export function SessionCard({
 }: Props) {
   const date = new Date(session.date);
   const [open, setOpen] = useState(false);
+  const [joined, setJoined] = useState(false);
   const isScheduled = session.status === "scheduled";
   const isCompleted = session.status === "completed";
   const isCancelled = session.status === "cancelled";
@@ -168,13 +170,12 @@ export function SessionCard({
 
           {/* ACTION BUTTONS */}
           <div className="space-y-2.5">
-            {isScheduled && (
-              <Button className="w-full h-11 gap-2 shadow-md hover:shadow-lg transition-all font-semibold">
-                <Video className="w-4 h-4" />
-                Join Session
-              </Button>
-            )}
-
+            {isScheduled &&
+              (joined ? (
+                <VideoCall sessionId={session.id} />
+              ) : (
+                <Button onClick={() => setJoined(true)}>Join Session</Button>
+              ))}{" "}
             <Button
               variant="outline"
               className="w-full h-10 gap-2 font-medium hover:bg-accent transition-all"

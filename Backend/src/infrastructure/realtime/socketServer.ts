@@ -67,6 +67,40 @@ export function initSocket(server: HttpServer) {
       console.log(" Event received:", event, args);
     });
 
+    /* ------------------ VIDEO CALL ------------------ */
+
+    // Join session room
+    socket.on("session:join", (sessionId: string) => {
+      socket.join(SocketRooms.session(sessionId));
+
+      socket.to(SocketRooms.session(sessionId)).emit("video:user-joined", {
+        userId: socket.data.user.userId,
+      });
+
+      console.log(` Joined session room: ${sessionId}`);
+    });
+
+    // Offer
+    socket.on("video:offer", ({ sessionId, offer }) => {
+      socket.to(SocketRooms.session(sessionId)).emit("video:offer", {
+        offer,
+      });
+    });
+
+    // Answer
+    socket.on("video:answer", ({ sessionId, answer }) => {
+      socket.to(SocketRooms.session(sessionId)).emit("video:answer", {
+        answer,
+      });
+    });
+
+    // ICE Candidate
+    socket.on("video:ice-candidate", ({ sessionId, candidate }) => {
+      socket.to(SocketRooms.session(sessionId)).emit("video:ice-candidate", {
+        candidate,
+      });
+    });
+
     socket.on("disconnect", () => {
       console.log(" Socket disconnected:", socket.id);
     });

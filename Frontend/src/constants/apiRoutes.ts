@@ -156,6 +156,7 @@ export const API_ROUTES = {
   SESSION: {
     CANCEL_SESSION: "/sessions/:sessionId/cancel",
     ADD_FEEDBACK: "/sessions/:sessionId/feedback",
+    JOIN_REQUEST: "/session/:sessionId/join-request",
   },
 
   PITCH: {
@@ -217,6 +218,6 @@ export const API_ROUTES = {
     USER: "/dashboard/user",
     PROJECT_ANALYTICS: "/dashboard/reports",
     INVESTOR_SUMMARY: "/dashboard/investor",
-    INVESTOR_PORTFOLIO: "/dashboard/investor-portfolio"
+    INVESTOR_PORTFOLIO: "/dashboard/investor-portfolio",
   },
 };

@@ -33,7 +33,8 @@ export default function MySessionsPage() {
   ) as UserRole;
   const { data, isLoading } = useMyTickets(role);
   const [tab, setTab] = useState<Tab>("UPCOMING");
-
+  const [joined, setJoined] = useState(false);
+  
   const sessions = useMemo<FlattenedSession[]>(() => {
     if (!data) return [];
 

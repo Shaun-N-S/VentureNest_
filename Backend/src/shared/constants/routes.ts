@@ -173,6 +173,7 @@ export const ROUTES = {
   SESSION: {
     CANCEL_SESSOIN: "/:sessionId/cancel",
     ADD_FEEDBACK: "/:sessionId/feedback",
+    JOIN_REQUEST: "/:sessionId/join-request",
   },
 
   PITCH: {

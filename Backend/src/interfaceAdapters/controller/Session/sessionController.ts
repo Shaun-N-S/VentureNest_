@@ -11,11 +11,13 @@ import { InvalidDataException } from "application/constants/exceptions";
 import { Errors } from "@shared/constants/error";
 import { MESSAGES } from "@shared/constants/messages";
 import { ICreateSessionFeedbackUseCase } from "@domain/interfaces/useCases/session/ICreateSessionFeedbackUseCase";
+import { IJoinSessionUseCase } from "@domain/interfaces/useCases/session/IJoinSessionUseCase";
 
 export class SessionController {
   constructor(
     private _cancelSessionUseCase: ICancelSessionUseCase,
-    private _addSessionFeedbackUseCase: ICreateSessionFeedbackUseCase
+    private _addSessionFeedbackUseCase: ICreateSessionFeedbackUseCase,
+    private _joinSessionUseCase: IJoinSessionUseCase
   ) {}
 
   async cancelSession(req: Request, res: Response, next: NextFunction) {
@@ -65,6 +67,27 @@ export class SessionController {
       });
 
       ResponseHelper.success(res, MESSAGES.SESSION.SESSION_FEEDBACK_ADDED, result, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async joinSession(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { sessionId } = req.params;
+
+      if (!sessionId) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const userId = res.locals.user.userId;
+
+      const result = await this._joinSessionUseCase.execute({
+        sessionId,
+        userId,
+      });
+
+      ResponseHelper.success(res, MESSAGES.SESSION.JOIN_REQUEST_SUCCESSFUL, result, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

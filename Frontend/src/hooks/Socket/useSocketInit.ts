@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { initSocket, disconnectSocket } from "../../lib/socket";
+import { initSocket } from "../../lib/socket";
 import { registerFeedSocket } from "../../sockets/feed.socket";
 import { registerNotificationSocket } from "../../sockets/notification.socket";
 import type { Rootstate } from "../../store/store";

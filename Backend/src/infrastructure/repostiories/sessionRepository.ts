@@ -56,4 +56,32 @@ export class SessionRepository
 
     return doc ? SessionMapper.toEntity(doc) : null;
   }
+
+  async joinSession(sessionId: string, userId: string): Promise<SessionEntity | null> {
+    const session = await this._model.findById(sessionId);
+
+    if (!session) return null;
+
+    if (!session.waitingUsers) {
+      session.waitingUsers = [];
+    }
+
+    if (!session.allowedUsers) {
+      session.allowedUsers = [];
+    }
+
+    if (session.investorId.toString() === userId) {
+      session.hostJoined = true;
+    } else {
+      const alreadyWaiting = session.waitingUsers.some((id) => id.toString() === userId);
+
+      if (!alreadyWaiting) {
+        session.waitingUsers.push(userId as any);
+      }
+    }
+
+    await session.save();
+
+    return SessionMapper.toEntity(session);
+  }
 }
