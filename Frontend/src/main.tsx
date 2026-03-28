@@ -19,7 +19,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 export const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
@@ -30,5 +29,4 @@ createRoot(document.getElementById('root')!).render(
         </PersistGate>
       </Provider>
     </GoogleOAuthProvider>
-  </StrictMode>,
 )

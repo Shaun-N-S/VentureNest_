@@ -21,6 +21,8 @@ import PitchesPage from "../pages/Common/PitchesPage";
 import WalletPage from "../pages/Common/WalletPage";
 import ChatPage from "../pages/Common/ChatPage";
 import UserDashboardPage from "../pages/User/UserDashboardPage";
+import VideoPage from "../pages/Common/VideoPage";
+import WaitingPage from "../pages/Common/WaitingPage";
 
 const UserRoutes = () => {
   return (
@@ -94,6 +96,9 @@ const UserRoutes = () => {
             path={FRONTEND_ROUTES.USER.DASHBOARD}
             element={<UserDashboardPage />}
           />
+
+          <Route path={FRONTEND_ROUTES.USER.VIDEO_CALL} element={<VideoPage />} />
+          <Route path={FRONTEND_ROUTES.USER.WAITING_AREA} element={<WaitingPage />} />
         </Route>
       </Route>
     </Routes>

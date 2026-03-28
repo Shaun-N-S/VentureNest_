@@ -174,6 +174,8 @@ export const ROUTES = {
     CANCEL_SESSOIN: "/:sessionId/cancel",
     ADD_FEEDBACK: "/:sessionId/feedback",
     JOIN_REQUEST: "/:sessionId/join-request",
+    APPROVE_USER: "/:sessionId/approve-user",
+    GET_STATUS: "/:sessionId/status",
   },
 
   PITCH: {

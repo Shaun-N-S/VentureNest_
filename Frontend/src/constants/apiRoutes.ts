@@ -156,7 +156,9 @@ export const API_ROUTES = {
   SESSION: {
     CANCEL_SESSION: "/sessions/:sessionId/cancel",
     ADD_FEEDBACK: "/sessions/:sessionId/feedback",
-    JOIN_REQUEST: "/session/:sessionId/join-request",
+    JOIN_REQUEST: "/sessions/:sessionId/join-request",
+    APPROVE_USER: "/sessions/:sessionId/approve-user",
+    GET_STATUS: "/sessions/:sessionId/status",
   },
 
   PITCH: {

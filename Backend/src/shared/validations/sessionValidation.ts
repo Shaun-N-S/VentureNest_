@@ -11,3 +11,7 @@ export const addSessionFeedbackSchema = z.object({
 });
 
 export const joinSessionSchema = z.object({});
+
+export const approveUserSchema = z.object({
+  userId: z.string().min(1),
+});

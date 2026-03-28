@@ -33,7 +33,6 @@ export default function MySessionsPage() {
   ) as UserRole;
   const { data, isLoading } = useMyTickets(role);
   const [tab, setTab] = useState<Tab>("UPCOMING");
-  const [joined, setJoined] = useState(false);
   
   const sessions = useMemo<FlattenedSession[]>(() => {
     if (!data) return [];
@@ -202,7 +201,7 @@ export default function MySessionsPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
               {filtered.map(
-                ({ session, project, founder, investor, stage }) => (
+                ({ session, project, founder, investor }) => (
                   <SessionCard
                     key={session.id}
                     session={session}

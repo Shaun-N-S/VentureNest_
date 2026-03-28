@@ -14,7 +14,7 @@ export const initSocket = () => {
 
     socket = io(import.meta.env.VITE_API_BASE_URL, {
       auth: { token },
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
     });
   }
 

@@ -19,4 +19,6 @@ export interface ISessionRepository extends IBaseRepository<SessionEntity> {
   ): Promise<SessionEntity | null>;
 
   joinSession(sessionId: string, userId: string): Promise<SessionEntity | null>;
+
+  approveUser(sessionId: string, userId: string): Promise<SessionEntity | null>;
 }

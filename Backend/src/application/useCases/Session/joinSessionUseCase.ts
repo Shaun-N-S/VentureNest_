@@ -3,6 +3,8 @@ import { IJoinSessionUseCase } from "@domain/interfaces/useCases/session/IJoinSe
 import { JoinSessionDTO, JoinSessionResponseDTO } from "application/dto/session/JoinSessionDTO";
 import { NotFoundExecption } from "application/constants/exceptions";
 import { SESSION_ERRORS } from "@shared/constants/error";
+import { io } from "@infrastructure/realtime/socketServer";
+import { SocketRooms } from "@infrastructure/realtime/socketRooms";
 
 export class JoinSessionUseCase implements IJoinSessionUseCase {
   constructor(private _sessionRepo: ISessionRepository) {}
@@ -20,6 +22,9 @@ export class JoinSessionUseCase implements IJoinSessionUseCase {
       throw new NotFoundExecption(SESSION_ERRORS.SESSION_NOT_FOUND);
     }
 
+    io.to(SocketRooms.session(data.sessionId)).emit("session:user-waiting", {
+      userId: data.userId,
+    });
     // determine role
     if (updated.investorId === data.userId) {
       return { role: "host" };

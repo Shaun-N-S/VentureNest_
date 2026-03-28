@@ -1,6 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { initSocket } from "../../lib/socket";
 import { registerVideoSocket } from "../../sockets/video.socket";
+import {
+  useApproveUser,
+  useSessionStatus,
+} from "../../hooks/Session/sessionHooks";
+import { useNavigate } from "react-router-dom";
 
 const servers = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -11,73 +16,254 @@ interface Props {
 }
 
 export default function VideoCall({ sessionId }: Props) {
+  const [waitingUsers, setWaitingUsers] = useState<string[]>([]);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isCameraOff, setIsCameraOff] = useState(false);
+
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const localStreamRef = useRef<MediaStream | null>(null);
+  const socketRef = useRef<any>(null);
 
+  const { mutate: approveUserApi } = useApproveUser();
+
+  const { data } = useSessionStatus(sessionId);
+  const navigate = useNavigate();
+
+  const isHost = data?.role === "host";
+
+  /* ------------------ INIT SOCKET ------------------ */
   useEffect(() => {
     const socket = initSocket();
     if (!socket) return;
 
+    socketRef.current = socket;
+
+    return () => {
+      socket.off("session:user-waiting");
+    };
+  }, []);
+
+  /* ------------------ ACCESS CONTROL ------------------ */
+  useEffect(() => {
+    if (!data) return;
+
+    if (data.role !== "host" && data.role !== "allowed") {
+      navigate(`/waiting/${sessionId}`);
+    }
+  }, [data, navigate, sessionId]);
+
+  /* ------------------ JOIN ROOM ------------------ */
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    socketRef.current.emit("session:join", sessionId);
+  }, [sessionId]);
+
+  /* ------------------ WEBRTC ------------------ */
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    const socket = socketRef.current;
     const peerConnection = new RTCPeerConnection(servers);
-    let localStream: MediaStream;
 
     const start = async () => {
-      localStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
 
-      localVideoRef.current!.srcObject = localStream;
+        localStreamRef.current = stream;
 
-      localStream.getTracks().forEach((track) => {
-        peerConnection.addTrack(track, localStream);
-      });
-
-      peerConnection.ontrack = (event) => {
-        remoteVideoRef.current!.srcObject = event.streams[0];
-      };
-
-      peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit("video:ice-candidate", {
-            sessionId,
-            candidate: event.candidate,
-          });
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
         }
-      };
 
-      socket.emit("session:join", sessionId);
+        stream.getTracks().forEach((track) => {
+          peerConnection.addTrack(track, stream);
+        });
 
-      registerVideoSocket(socket, peerConnection, sessionId);
+        peerConnection.ontrack = (event) => {
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = event.streams[0];
+          }
+        };
 
-      socket.on("video:user-joined", async ({ userId }) => {
-        if (socket.id! < userId) return;
+        peerConnection.onicecandidate = (event) => {
+          if (event.candidate) {
+            socket.emit("video:ice-candidate", {
+              sessionId,
+              candidate: event.candidate,
+            });
+          }
+        };
 
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
+        registerVideoSocket(socket, peerConnection, sessionId);
 
-        socket.emit("video:offer", { sessionId, offer });
-      });
+        socket.on("video:user-joined", async () => {
+          try {
+            await new Promise((r) => setTimeout(r, 300));
+
+            if (peerConnection.signalingState !== "stable") return;
+
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+
+            socket.emit("video:offer", { sessionId, offer });
+          } catch (err) {
+            console.log("Offer error:", err);
+          }
+        });
+      } catch (err) {
+        console.error("Media error:", err);
+      }
     };
 
     start();
 
     return () => {
       peerConnection.close();
-      localStream?.getTracks().forEach((track) => track.stop());
+      localStreamRef.current?.getTracks().forEach((t) => t.stop());
 
       socket.off("video:offer");
       socket.off("video:answer");
       socket.off("video:ice-candidate");
-
-      socket.disconnect();
+      socket.off("video:user-joined");
     };
   }, [sessionId]);
 
+  /* ------------------ WAITING USERS ------------------ */
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    const socket = socketRef.current;
+
+    const handler = ({ userId }: { userId: string }) => {
+      console.log("WAITING USER:", userId);
+
+      setWaitingUsers((prev) => {
+        if (prev.includes(userId)) return prev;
+        return [...prev, userId];
+      });
+    };
+
+    socket.on("session:user-waiting", handler);
+
+    return () => {
+      socket.off("session:user-waiting", handler);
+    };
+  }, []);
+
+  /* ------------------ ACTIONS ------------------ */
+
+  const approveUser = (userId: string) => {
+    console.log("APPROVING USER:", userId);
+
+    approveUserApi({
+      sessionId,
+      userId,
+    });
+  };
+
+  const toggleMute = () => {
+    if (!localStreamRef.current) return;
+
+    localStreamRef.current.getAudioTracks().forEach((track) => {
+      track.enabled = !track.enabled;
+    });
+
+    setIsMuted((prev) => !prev);
+  };
+
+  const toggleCamera = () => {
+    if (!localStreamRef.current) return;
+
+    localStreamRef.current.getVideoTracks().forEach((track) => {
+      track.enabled = !track.enabled;
+    });
+
+    setIsCameraOff((prev) => !prev);
+  };
+
+  const leaveCall = () => {
+    localStreamRef.current?.getTracks().forEach((t) => t.stop());
+    socketRef.current?.emit("session:leave", { sessionId });
+
+    navigate("/sessions");
+  };
+
+  /* ------------------ UI ------------------ */
+
   return (
-    <div className="flex gap-4">
-      <video ref={localVideoRef} autoPlay playsInline muted width={300} />
-      <video ref={remoteVideoRef} autoPlay playsInline width={300} />
+    <div className="h-screen bg-gray-900 text-white flex flex-col">
+      {/* VIDEO AREA */}
+      <div className="flex-1 grid grid-cols-2 gap-4 p-4">
+        <video
+          ref={localVideoRef}
+          autoPlay
+          playsInline
+          muted
+          className="rounded-xl bg-black w-full h-full object-cover"
+        />
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          playsInline
+          className="rounded-xl bg-black w-full h-full object-cover"
+        />
+      </div>
+
+      {/* HOST PANEL */}
+      {isHost && (
+        <div className="bg-gray-800 p-3">
+          <h3 className="mb-2 font-semibold">Waiting Users</h3>
+
+          {waitingUsers.length === 0 && (
+            <p className="text-gray-400">No users waiting</p>
+          )}
+
+          {waitingUsers.map((userId) => (
+            <div
+              key={userId}
+              className="flex justify-between items-center mb-2 bg-gray-700 px-3 py-2 rounded"
+            >
+              <span>User {userId.slice(-4)}</span>
+
+              <button
+                onClick={() => approveUser(userId)}
+                className="bg-green-500 hover:bg-green-600 px-3 py-1 rounded"
+              >
+                Allow
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* CONTROLS */}
+      <div className="bg-gray-800 p-4 flex justify-center gap-6">
+        <button
+          onClick={toggleMute}
+          className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-full"
+        >
+          {isMuted ? "Unmute" : "Mute"}
+        </button>
+
+        <button
+          onClick={toggleCamera}
+          className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-full"
+        >
+          {isCameraOff ? "Camera On" : "Camera Off"}
+        </button>
+
+        <button
+          onClick={leaveCall}
+          className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full"
+        >
+          Leave
+        </button>
+      </div>
     </div>
   );
 }
