@@ -36,6 +36,10 @@ export class ApproveUserUseCase implements IApproveUserUseCase {
       sessionId: data.sessionId,
     });
 
+    io.to(SocketRooms.session(data.sessionId)).emit("session:waiting-list-updated", {
+      waitingUsers: updated.waitingUsers || [],
+    });
+
     return {
       approvedUserId: data.userId,
     };

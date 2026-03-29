@@ -6,6 +6,7 @@ import {
   useSessionStatus,
 } from "../../hooks/Session/sessionHooks";
 import { useNavigate } from "react-router-dom";
+import type { Socket } from "socket.io-client";
 
 const servers = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -22,14 +23,16 @@ export default function VideoCall({ sessionId }: Props) {
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
+
   const localStreamRef = useRef<MediaStream | null>(null);
-  const socketRef = useRef<any>(null);
+  const socketRef = useRef<Socket | null>(null);
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+  const startedRef = useRef(false);
 
   const { mutate: approveUserApi } = useApproveUser();
-
   const { data } = useSessionStatus(sessionId);
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const isHost = data?.role === "host";
 
   /* ------------------ INIT SOCKET ------------------ */
@@ -62,10 +65,17 @@ export default function VideoCall({ sessionId }: Props) {
 
   /* ------------------ WEBRTC ------------------ */
   useEffect(() => {
-    if (!socketRef.current) return;
+    if (!socketRef.current || startedRef.current) return;
+
+    startedRef.current = true;
 
     const socket = socketRef.current;
-    const peerConnection = new RTCPeerConnection(servers);
+
+    if (!peerConnectionRef.current) {
+      peerConnectionRef.current = new RTCPeerConnection(servers);
+    }
+
+    const peerConnection = peerConnectionRef.current;
 
     const start = async () => {
       try {
@@ -81,7 +91,9 @@ export default function VideoCall({ sessionId }: Props) {
         }
 
         stream.getTracks().forEach((track) => {
-          peerConnection.addTrack(track, stream);
+          if (peerConnection.signalingState !== "closed") {
+            peerConnection.addTrack(track, stream);
+          }
         });
 
         peerConnection.ontrack = (event) => {
@@ -102,18 +114,16 @@ export default function VideoCall({ sessionId }: Props) {
         registerVideoSocket(socket, peerConnection, sessionId);
 
         socket.on("video:user-joined", async () => {
-          try {
-            await new Promise((r) => setTimeout(r, 300));
+          if (!isHost) return;
 
-            if (peerConnection.signalingState !== "stable") return;
+          await new Promise((r) => setTimeout(r, 300));
 
-            const offer = await peerConnection.createOffer();
-            await peerConnection.setLocalDescription(offer);
+          if (peerConnection.signalingState !== "stable") return;
 
-            socket.emit("video:offer", { sessionId, offer });
-          } catch (err) {
-            console.log("Offer error:", err);
-          }
+          const offer = await peerConnection.createOffer();
+          await peerConnection.setLocalDescription(offer);
+
+          socket.emit("video:offer", { sessionId, offer });
         });
       } catch (err) {
         console.error("Media error:", err);
@@ -123,7 +133,6 @@ export default function VideoCall({ sessionId }: Props) {
     start();
 
     return () => {
-      peerConnection.close();
       localStreamRef.current?.getTracks().forEach((t) => t.stop());
 
       socket.off("video:offer");
@@ -139,31 +148,28 @@ export default function VideoCall({ sessionId }: Props) {
 
     const socket = socketRef.current;
 
-    const handler = ({ userId }: { userId: string }) => {
-      console.log("WAITING USER:", userId);
-
-      setWaitingUsers((prev) => {
-        if (prev.includes(userId)) return prev;
-        return [...prev, userId];
-      });
+    const listHandler = ({ waitingUsers }: { waitingUsers: string[] }) => {
+      setWaitingUsers(waitingUsers);
     };
 
-    socket.on("session:user-waiting", handler);
+    socket.on("session:waiting-list-updated", listHandler);
 
     return () => {
-      socket.off("session:user-waiting", handler);
+      socket.off("session:waiting-list-updated", listHandler);
     };
   }, []);
 
   /* ------------------ ACTIONS ------------------ */
 
   const approveUser = (userId: string) => {
-    console.log("APPROVING USER:", userId);
-
-    approveUserApi({
-      sessionId,
-      userId,
-    });
+    approveUserApi(
+      { sessionId, userId },
+      {
+        onSuccess: () => {
+          setWaitingUsers((prev) => prev.filter((id) => id !== userId));
+        },
+      },
+    );
   };
 
   const toggleMute = () => {
@@ -188,6 +194,7 @@ export default function VideoCall({ sessionId }: Props) {
 
   const leaveCall = () => {
     localStreamRef.current?.getTracks().forEach((t) => t.stop());
+
     socketRef.current?.emit("session:leave", { sessionId });
 
     navigate("/sessions");
@@ -197,7 +204,7 @@ export default function VideoCall({ sessionId }: Props) {
 
   return (
     <div className="h-screen bg-gray-900 text-white flex flex-col">
-      {/* VIDEO AREA */}
+      {/* VIDEO */}
       <div className="flex-1 grid grid-cols-2 gap-4 p-4">
         <video
           ref={localVideoRef}
@@ -245,21 +252,21 @@ export default function VideoCall({ sessionId }: Props) {
       <div className="bg-gray-800 p-4 flex justify-center gap-6">
         <button
           onClick={toggleMute}
-          className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-full"
+          className="bg-gray-600 px-4 py-2 rounded-full"
         >
           {isMuted ? "Unmute" : "Mute"}
         </button>
 
         <button
           onClick={toggleCamera}
-          className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-full"
+          className="bg-gray-600 px-4 py-2 rounded-full"
         >
           {isCameraOff ? "Camera On" : "Camera Off"}
         </button>
 
         <button
           onClick={leaveCall}
-          className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full"
+          className="bg-red-600 px-4 py-2 rounded-full"
         >
           Leave
         </button>

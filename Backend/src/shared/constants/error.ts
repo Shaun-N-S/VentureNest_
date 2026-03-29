@@ -115,6 +115,8 @@ export const SESSION_ERRORS = {
   CANNOT_FEEDBACK_CANCELLED_SESSION: "Adding feedback cancelled!",
   FEEDBACK_ALREADY_SUBMITTED: "Feedback already added!",
   USER_NOT_FOUND: "User is not in waiting list",
+  NOT_STARTED_YET: "Session not started yet",
+  ENDED: "Session has ended",
 };
 
 export const PITCH_ERRORS = {

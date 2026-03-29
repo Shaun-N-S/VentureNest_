@@ -33,8 +33,8 @@ export const useSocketInit = () => {
 
     return () => {
       console.log("Cleaning up socket");
-      socket.removeAllListeners();
-      // disconnectSocket();
+      // socket.removeAllListeners();
+      // // disconnectSocket();
     };
   }, [token]);
 };

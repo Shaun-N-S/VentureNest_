@@ -9,40 +9,57 @@ export const registerVideoSocket = (
 
   /* ---------- OFFER ---------- */
   socket.on("video:offer", async ({ offer }) => {
-    await peerConnection.setRemoteDescription(offer);
+    try {
+      console.log("📩 Received offer");
 
-    const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
+      await peerConnection.setRemoteDescription(offer);
 
-    socket.emit("video:answer", { sessionId, answer });
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
 
-    // ✅ process buffered ICE
-    pendingCandidates.forEach((c) =>
-      peerConnection.addIceCandidate(new RTCIceCandidate(c)),
-    );
-    pendingCandidates.length = 0;
+      socket.emit("video:answer", { sessionId, answer });
+
+      // ✅ APPLY buffered ICE
+      pendingCandidates.forEach((c) =>
+        peerConnection.addIceCandidate(new RTCIceCandidate(c)),
+      );
+      pendingCandidates.length = 0;
+    } catch (err) {
+      console.log("Offer handling error:", err);
+    }
   });
 
   /* ---------- ANSWER ---------- */
   socket.on("video:answer", async ({ answer }) => {
-    await peerConnection.setRemoteDescription(answer);
+    try {
+      console.log("📩 Received answer");
 
-    // ✅ process buffered ICE
-    pendingCandidates.forEach((c) =>
-      peerConnection.addIceCandidate(new RTCIceCandidate(c)),
-    );
-    pendingCandidates.length = 0;
+      await peerConnection.setRemoteDescription(answer);
+
+      // ✅ APPLY buffered ICE
+      pendingCandidates.forEach((c) =>
+        peerConnection.addIceCandidate(new RTCIceCandidate(c)),
+      );
+      pendingCandidates.length = 0;
+    } catch (err) {
+      console.log("Answer handling error:", err);
+    }
   });
 
   /* ---------- ICE ---------- */
   socket.on("video:ice-candidate", async ({ candidate }) => {
-    if (!candidate) return;
+    try {
+      if (!candidate) return;
 
-    if (peerConnection.remoteDescription) {
+      // ✅ IF remote not ready → buffer
+      if (!peerConnection.remoteDescription) {
+        pendingCandidates.push(candidate);
+        return;
+      }
+
       await peerConnection.addIceCandidate(candidate);
-    } else {
-      // 🔥 buffer until remote description is ready
-      pendingCandidates.push(candidate);
+    } catch (err) {
+      console.log("ICE ERROR:", err);
     }
   });
 };

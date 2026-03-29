@@ -62,12 +62,14 @@ export class SessionRepository
 
     if (!session) return null;
 
-    if (!session.waitingUsers) {
-      session.waitingUsers = [];
-    }
+    session.waitingUsers = session.waitingUsers || [];
+    session.allowedUsers = session.allowedUsers || [];
 
-    if (!session.allowedUsers) {
-      session.allowedUsers = [];
+    // ✅ FIX 1: if already allowed → DO NOTHING
+    const isAllowed = session.allowedUsers.some((id) => id.toString() === userId);
+
+    if (isAllowed) {
+      return SessionMapper.toEntity(session);
     }
 
     if (session.investorId.toString() === userId) {

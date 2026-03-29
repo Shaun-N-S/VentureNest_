@@ -4,6 +4,8 @@ import type {
   CancelSessionDTO,
 } from "../../types/session";
 import { sessionService } from "../../services/Session/sessoinService";
+import { AxiosError } from "axios";
+import toast from "react-hot-toast";
 
 export const useCancelSession = () => {
   return useMutation({
@@ -22,6 +24,14 @@ export const useAddSessionFeedback = () => {
 export const useJoinSession = () => {
   return useMutation({
     mutationFn: (sessionId: string) => sessionService.joinSession(sessionId),
+
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        const message =
+          error?.response?.data?.message || "Something went wrong";
+        toast.error(message);
+      }
+    },
   });
 };
 
@@ -34,6 +44,14 @@ export const useApproveUser = () => {
       sessionId: string;
       userId: string;
     }) => sessionService.approveUser(sessionId, userId),
+
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        const message =
+          error?.response?.data?.message || "Something went wrong";
+        toast.error(message);
+      }
+    },
   });
 };
 
