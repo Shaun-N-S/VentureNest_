@@ -8,7 +8,7 @@ import { DealRepository } from "@infrastructure/repostiories/dealRepository";
 import { ProjectMonthlyReportRepository } from "@infrastructure/repostiories/projectMontlyReportRepository";
 import { ProjectRepository } from "@infrastructure/repostiories/projectRepository";
 import { WalletRepository } from "@infrastructure/repostiories/walletRepository";
-// import { GetInvestmentChartUseCase } from "application/useCases/Dashboard/getInvestmentChartUseCase";
+import { StorageService } from "@infrastructure/services/storageService";
 import { GetInvestorDashboardSummaryUseCase } from "application/useCases/Dashboard/getInvestorDashboardSummaryUseCase";
 import { GetInvestorPortfolioUseCase } from "application/useCases/Dashboard/getInvestorPortfolioUseCase";
 import { GetProjectReportAnalyticsUseCase } from "application/useCases/Dashboard/getProjectReportAnalyticsUseCase";
@@ -20,6 +20,7 @@ const dealRepo = new DealRepository(dealModel);
 const capTableRepo = new CapTableRepository(capTableModel);
 const reportRepo = new ProjectMonthlyReportRepository(projectMonthlyReportModel);
 const walletRepo = new WalletRepository(walletModel);
+const storageService = new StorageService();
 
 const getUserDashboardUseCase = new GetUserDashboardUseCase(
   projectRepo,
@@ -32,13 +33,11 @@ const getInvestorDashboardSummaryUseCase = new GetInvestorDashboardSummaryUseCas
   dealRepo,
   walletRepo
 );
-const getInvestorPortfolioUseCase = new GetInvestorPortfolioUseCase(dealRepo);
-// const getInvestmentChartUseCase = new GetInvestmentChartUseCase(dealRepo);
+const getInvestorPortfolioUseCase = new GetInvestorPortfolioUseCase(dealRepo, storageService);
 
 export const dashboardController = new DashboardController(
   getUserDashboardUseCase,
   getProjectAnalyticsUseCase,
   getInvestorDashboardSummaryUseCase,
   getInvestorPortfolioUseCase
-  // getInvestmentChartUseCase
 );

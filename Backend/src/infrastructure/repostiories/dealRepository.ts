@@ -5,7 +5,6 @@ import { IDealModel } from "@infrastructure/db/models/dealModel";
 import { DealEntity } from "@domain/entities/deal/dealEntity";
 import { DealMapper } from "application/mappers/dealMapper";
 import { InvestorPortfolioItemDTO } from "application/dto/dashboard/investorPortfolioDTO";
-import { InvestmentChartData } from "application/dto/dashboard/investmentChartDTO";
 
 export class DealRepository
   extends BaseRepository<DealEntity, IDealModel>
@@ -70,65 +69,28 @@ export class DealRepository
   }
 
   async findInvestorPortfolio(investorId: string): Promise<InvestorPortfolioItemDTO[]> {
-    const result = await this._model.aggregate([
-      {
-        $match: { investorId },
-      },
-      {
-        $lookup: {
-          from: "projects",
-          localField: "projectId",
-          foreignField: "_id",
-          as: "project",
-        },
-      },
-      {
-        $unwind: "$project",
-      },
-      {
-        $project: {
-          projectId: "$project._id",
-          startupName: "$project.startupName",
-          stage: "$project.stage",
-          investedAmount: "$amountPaid",
-          equity: "$equityPercentage",
-          status: "$status",
-        },
-      },
-      {
-        $sort: { createdAt: -1 },
-      },
-    ]);
+    const docs = await this._model
+      .find({ investorId })
+      .populate("projectId", "startupName logoUrl stage")
+      .sort({ createdAt: -1 });
 
-    return result;
-  }
+    return docs.map((doc) => {
+      const project = doc.projectId as unknown as {
+        _id: string;
+        startupName: string;
+        logoUrl?: string;
+        stage: string;
+      };
 
-  async findInvestmentChart(investorId: string): Promise<InvestmentChartData[]> {
-    const result = await this._model.aggregate([
-      {
-        $match: { investorId },
-      },
-      {
-        $group: {
-          _id: {
-            year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" },
-          },
-          totalInvested: { $sum: "$amountPaid" },
-        },
-      },
-      {
-        $sort: {
-          "_id.year": 1,
-          "_id.month": 1,
-        },
-      },
-    ]);
-
-    return result.map((item) => ({
-      year: item._id.year,
-      month: item._id.month,
-      totalInvested: item.totalInvested,
-    }));
+      return {
+        projectId: project._id.toString(),
+        startupName: project.startupName,
+        stage: project.stage,
+        investedAmount: doc.amountPaid,
+        equity: doc.equityPercentage,
+        status: doc.status,
+        logo: project.logoUrl || "",
+      };
+    });
   }
 }

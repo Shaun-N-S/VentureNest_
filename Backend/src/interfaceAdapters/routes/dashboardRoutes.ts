@@ -38,17 +38,9 @@ export class Dashboard_Router {
 
     this._route.get(
       ROUTES.DASHBOARD.INVESTOR_PORTFOLIO,
-      ...userOrInvestorGuard,
+      ...investorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         dashboardController.getInvestorPortfolio(req, res, next);
-      }
-    );
-
-    this._route.get(
-      ROUTES.DASHBOARD.INVESTMENT_CHART,
-      ...userOrInvestorGuard,
-      (req: Request, res: Response, next: NextFunction) => {
-        dashboardController.getInvestmentChart(req, res, next);
       }
     );
   }

@@ -25,6 +25,8 @@ export class GetProjectReportAnalyticsUseCase implements IGetProjectReportAnalyt
 
     const reports = await this._reportRepo.findReportsForAnalytics(dto.projectId, filter);
 
+    console.log("Fetched reports for analytics:", reports);
+
     return {
       projectId: dto.projectId,
       reports: reports.map((r) => ({
@@ -33,6 +35,9 @@ export class GetProjectReportAnalyticsUseCase implements IGetProjectReportAnalyt
         revenue: r.revenue,
         expenditure: r.expenditure,
         netProfitLossAmount: r.netProfitLossAmount,
+        keyAchievements: r.keyAchievement,
+        challenges: r.challenges,
+        netProfitLossType: r.netProfitLossType,
       })),
     };
   }

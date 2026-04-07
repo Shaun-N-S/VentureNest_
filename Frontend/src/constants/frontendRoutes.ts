@@ -45,6 +45,7 @@ export const FRONTEND_ROUTES = {
     CHAT_CONVERSATION: "/chat/:conversationId",
     VIDEO_CALL: "/video/:sessionId",
     WAITING_AREA: "/waiting/:sessionId",
+    DASHBOARD: "/dashboard",
   },
 
   ADMIN: {

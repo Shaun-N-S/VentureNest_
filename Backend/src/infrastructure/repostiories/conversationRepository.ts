@@ -72,7 +72,6 @@ export class ConversationRepository
         select: "userName companyName profileImg",
       })
       .lean<PopulatedConversationDoc[]>();
-    console.log("doc from db  :  : ", docs);
     return docs.map((doc) => {
       const participants: [PopulatedParticipantDTO, PopulatedParticipantDTO] = doc.participants.map(
         (p) => ({

@@ -9,7 +9,6 @@ import { Errors } from "@shared/constants/error";
 import { GetProjectReportAnalyticsRequestDTO } from "application/dto/dashboard/projectReportAnalyticsDTO";
 import { IGetInvestorDashboardSummaryUseCase } from "@domain/interfaces/useCases/dashboard/IGetInvestorDashboardSummaryUseCase";
 import { IGetInvestorPortfolioUseCase } from "@domain/interfaces/useCases/dashboard/IGetInvestorPortfolioUseCase";
-import { IGetInvestmentChartUseCase } from "@domain/interfaces/useCases/dashboard/IGetInvestmentChartUseCase";
 
 export class DashboardController {
   constructor(
@@ -17,7 +16,6 @@ export class DashboardController {
     private _getProjectAnalyticsUseCase: IGetProjectReportAnalyticsUseCase,
     private _getInvestorDashboardSummaryUseCase: IGetInvestorDashboardSummaryUseCase,
     private _getInvestorPortfolioUseCase: IGetInvestorPortfolioUseCase
-    // private _getInvestmentChartUseCase: IGetInvestmentChartUseCase
   ) {}
 
   async getUserDashboard(req: Request, res: Response, next: NextFunction) {
@@ -76,18 +74,6 @@ export class DashboardController {
       const data = await this._getInvestorPortfolioUseCase.execute(user.userId);
 
       ResponseHelper.success(res, MESSAGES.DASHBOARD.FETCHED, data, HTTPSTATUS.OK);
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  async getInvestmentChart(req: Request, res: Response, next: NextFunction) {
-    try {
-      const user = res.locals.user;
-
-      // const data = await this._getInvestmentChartUseCase.execute(user.userId);
-
-      // ResponseHelper.success(res, "Investment chart fetched", data, HTTPSTATUS.OK);
     } catch (err) {
       next(err);
     }

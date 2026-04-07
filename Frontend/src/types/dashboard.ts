@@ -24,6 +24,8 @@ export interface ProjectReportPoint {
   revenue: number;
   expenditure: number;
   netProfitLossAmount: number;
+  keyAchievements: string;
+  challenges: string;
 }
 
 export interface ProjectReportAnalyticsResponse {
@@ -55,3 +57,11 @@ export interface InvestorPortfolioItem {
 }
 
 export type InvestorPortfolio = InvestorPortfolioItem[];
+
+export interface InvestmentChartItemDTO {
+  month: string;
+  year: number;
+  totalInvested: number;
+}
+
+export type InvestmentChartDTO = InvestmentChartItemDTO[];
