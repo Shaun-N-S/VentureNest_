@@ -69,6 +69,9 @@ export const API_ROUTES = {
     WITHDRAWALS: "/admin/withdrawals",
     APPROVE_WITHDRAWAL: "/admin/withdrawal/:id/approve",
     REJECT_WITHDRAWAL: "/admin/withdrawal/:id/reject",
+    DASHBOARD_SUMMARY: "/admin/dashboard-summary",
+    DASHBOARD_GRAPH: "/admin/dashboard-graph",
+    DASHBOARD_TOP: "/admin/dashboard-top",
   },
 
   INVESTOR: {

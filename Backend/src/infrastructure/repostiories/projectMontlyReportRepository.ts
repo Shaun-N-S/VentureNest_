@@ -60,20 +60,46 @@ export class ProjectMonthlyReportRepository
       query.year = filters.year;
     }
 
+    const docs = await this._model.find(query);
+
+    let filteredDocs = docs;
+
     if (filters.fromDate || filters.toDate) {
-      query.createdAt = {};
+      const from = filters.fromDate ? new Date(filters.fromDate) : null;
+      const to = filters.toDate ? new Date(filters.toDate) : null;
 
-      if (filters.fromDate) {
-        query.createdAt.$gte = filters.fromDate;
-      }
+      filteredDocs = docs.filter((doc) => {
+        const reportMonth = new Date(`${doc.month} 1, ${doc.year}`).getMonth();
+        const reportYear = doc.year;
 
-      if (filters.toDate) {
-        query.createdAt.$lte = filters.toDate;
-      }
+        if (from) {
+          const fromMonth = from.getMonth();
+          const fromYear = from.getFullYear();
+
+          if (reportYear < fromYear || (reportYear === fromYear && reportMonth < fromMonth)) {
+            return false;
+          }
+        }
+
+        if (to) {
+          const toMonth = to.getMonth();
+          const toYear = to.getFullYear();
+
+          if (reportYear > toYear || (reportYear === toYear && reportMonth > toMonth)) {
+            return false;
+          }
+        }
+
+        return true;
+      });
     }
 
-    const docs = await this._model.find(query).sort({ year: 1, month: 1 });
+    filteredDocs.sort((a, b) => {
+      const d1 = new Date(`${a.month} 1, ${a.year}`).getTime();
+      const d2 = new Date(`${b.month} 1, ${b.year}`).getTime();
+      return d1 - d2;
+    });
 
-    return docs.map(ProjectMonthlyReportMapper.fromMongooseDocument);
+    return filteredDocs.map(ProjectMonthlyReportMapper.fromMongooseDocument);
   }
 }

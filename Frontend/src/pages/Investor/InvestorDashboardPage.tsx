@@ -88,17 +88,6 @@ const CalendarIcon = () => (
     <line x1="3" y1="10" x2="21" y2="10" />
   </svg>
 );
-const ChevronRightIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    className="w-4 h-4"
-  >
-    <polyline points="9 18 15 12 9 6" />
-  </svg>
-);
 
 const MONTHS = [
   { label: "All Months", value: "" },
@@ -516,9 +505,12 @@ const InvestorDashboardPage = () => {
   const [selectedReport, setSelectedReport] = useState<MonthlyReport | null>(
     null,
   );
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 3;
-
+  const isDateRangeActive = !!(fromDate || toDate);
+  const isMonthYearActive = !!(selectedMonth || yearInput);
   const debouncedYear = useDebounce(yearInput, 500);
 
   useEffect(() => {
@@ -527,10 +519,15 @@ const InvestorDashboardPage = () => {
     }
   }, [portfolio, selectedProjectId]);
 
-  const filters = {
-    month: selectedMonth || undefined,
-    year: debouncedYear ? Number(debouncedYear) : undefined,
-  };
+  const filters = isDateRangeActive
+    ? {
+        fromDate: fromDate || undefined,
+        toDate: toDate || undefined,
+      }
+    : {
+        month: selectedMonth || undefined,
+        year: debouncedYear ? Number(debouncedYear) : undefined,
+      };
 
   const { data: analytics, isLoading: analyticsLoading } = useProjectAnalytics(
     selectedProjectId,
@@ -554,7 +551,7 @@ const InvestorDashboardPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedProjectId, selectedMonth, debouncedYear]);
+  }, [selectedProjectId, selectedMonth, debouncedYear, fromDate, toDate]);
 
   const uniqueProjects = portfolio
     ? (Array.from(
@@ -565,7 +562,7 @@ const InvestorDashboardPage = () => {
   const selectedProject = uniqueProjects.find(
     (p) => p.projectId === selectedProjectId,
   );
-  const hasFilters = !!(yearInput || selectedMonth);
+  const hasFilters = !!(yearInput || selectedMonth || fromDate || toDate);
 
   // ── Loading ──
   if (isLoading) {
@@ -661,9 +658,24 @@ const InvestorDashboardPage = () => {
                 <h2 className="font-bold text-slate-800 text-base leading-tight">
                   Project Performance
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5 font-medium truncate">
-                  {selectedProject?.startupName ?? "Select a project"}
-                </p>
+                <div className="flex items-center gap-2 mt-1 min-w-0">
+                  {/* Logo */}
+                  {selectedProject?.logo ? (
+                    <img
+                      src={selectedProject.logo}
+                      className="w-5 h-5 rounded-full object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 shrink-0">
+                      {selectedProject?.startupName?.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+
+                  {/* Name */}
+                  <p className="text-xs text-slate-400 font-medium truncate">
+                    {selectedProject?.startupName ?? "Select a project"}
+                  </p>
+                </div>
               </div>
               <select
                 className="text-sm border border-slate-200 rounded-xl px-3 py-2 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 cursor-pointer shrink-0"
@@ -682,6 +694,7 @@ const InvestorDashboardPage = () => {
             <div className="flex flex-wrap items-center gap-2">
               <input
                 type="number"
+                disabled={isDateRangeActive}
                 placeholder="Year"
                 className="text-sm border border-slate-200 rounded-xl px-3 py-2 w-24 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400"
                 value={yearInput}
@@ -690,6 +703,7 @@ const InvestorDashboardPage = () => {
               <select
                 className="text-sm border border-slate-200 rounded-xl px-3 py-2 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 cursor-pointer"
                 value={selectedMonth}
+                disabled={isDateRangeActive}
                 onChange={(e) => setSelectedMonth(e.target.value)}
               >
                 {MONTHS.map((m) => (
@@ -698,12 +712,32 @@ const InvestorDashboardPage = () => {
                   </option>
                 ))}
               </select>
+
+              <input
+                type="date"
+                disabled={isMonthYearActive}
+                max={toDate || undefined}
+                className="text-sm border border-slate-200 rounded-xl px-3 py-2 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+              />
+
+              <input
+                type="date"
+                disabled={isMonthYearActive}
+                min={fromDate || undefined}
+                className="text-sm border border-slate-200 rounded-xl px-3 py-2 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+              />
               {hasFilters && (
                 <button
                   className="text-xs text-slate-500 hover:text-slate-700 font-semibold bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-xl transition-all"
                   onClick={() => {
                     setYearInput("");
                     setSelectedMonth("");
+                    setFromDate("");
+                    setToDate("");
                   }}
                 >
                   Clear

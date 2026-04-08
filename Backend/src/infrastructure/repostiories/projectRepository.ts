@@ -187,4 +187,12 @@ export class ProjectRepository
 
     return docs.map((doc) => ProjectMapper.fromMongooseDocument(doc));
   }
+
+  async findByIds(ids: string[]): Promise<ProjectEntity[]> {
+    const docs = await this._model.find({
+      _id: { $in: ids },
+    });
+
+    return docs.map(ProjectMapper.fromMongooseDocument);
+  }
 }

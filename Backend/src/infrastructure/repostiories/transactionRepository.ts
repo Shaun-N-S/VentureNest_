@@ -4,7 +4,7 @@ import { ITransactionRepository } from "@domain/interfaces/repositories/ITransac
 import { TransactionMapper } from "application/mappers/transactionMapper";
 import { ITransactionModel } from "@infrastructure/db/models/transactionModel";
 import { TransactionEntity } from "@domain/entities/Transaction/transactionEntity";
-import { TransactionAction } from "@domain/enum/transactionType";
+import { TransactionAction, TransactionReason } from "@domain/enum/transactionType";
 import { TransactionStatus } from "@domain/enum/transactionStatus";
 
 export class TransactionRepository
@@ -112,5 +112,59 @@ export class TransactionRepository
     if (action) query.action = action;
 
     return this._model.countDocuments(query);
+  }
+
+  async getRevenueByReasonWithFilter(
+    reason: TransactionReason,
+    filter: {
+      fromDate?: Date;
+      toDate?: Date;
+      year?: number;
+      month?: number;
+    }
+  ) {
+    const match: any = {
+      reason,
+      status: "SUCCESS",
+    };
+
+    // Date filters
+    if (filter.fromDate && filter.toDate) {
+      match.createdAt = {
+        $gte: filter.fromDate,
+        $lte: filter.toDate,
+      };
+    } else if (filter.year) {
+      match.createdAt = {
+        $gte: new Date(`${filter.year}-01-01`),
+        $lte: new Date(`${filter.year}-12-31`),
+      };
+    }
+
+    return this._model.aggregate([
+      { $match: match },
+
+      ...(filter.month
+        ? [
+            {
+              $addFields: {
+                month: { $month: "$createdAt" },
+              },
+            },
+            {
+              $match: { month: filter.month },
+            },
+          ]
+        : []),
+
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          total: { $sum: "$amount" },
+        },
+      },
+
+      { $sort: { _id: 1 } },
+    ]);
   }
 }

@@ -28,6 +28,9 @@ export const MESSAGES = {
     UPDATE_STATUS: "User status updated",
     TRANSACTIONS_FETCHED: "Transactions fetched successfully",
     FINANCE_SUMMARY_FETCHED: "Finance summary fetched successfully",
+    DASHBOARD_SUMMARY_FETCHED: "Dashboard summary fetched successfully",
+    TOP_DATA_FETCHED: "Dashboard top data fetched successfully",
+    GRAPH_FETCHED: "Dashboard graph data fetched successfully",
   },
 
   OTP: {

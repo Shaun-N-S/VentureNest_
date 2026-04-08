@@ -11,4 +11,6 @@ export interface IDealRepository extends IBaseRepository<DealEntity> {
   countByStatus(status: string): Promise<number>;
   findByProjectId(projectId: string): Promise<DealEntity[]>;
   findInvestorPortfolio(investorId: string): Promise<InvestorPortfolioData>;
+  getTopStartups(limit: number): Promise<{ projectId: string; totalFunding: number }[]>;
+  getTopInvestors(limit: number): Promise<{ investorId: string; totalInvested: number }[]>;
 }

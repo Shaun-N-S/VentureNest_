@@ -86,24 +86,31 @@ const UserDashboardPage = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string>();
   const [yearInput, setYearInput] = useState<string>("");
   const [selectedMonth, setSelectedMonth] = useState<string>("");
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
 
   const debouncedYear = useDebounce(yearInput, 500);
 
-  // Auto-select first project
   useEffect(() => {
     if (data?.projects.length && !selectedProjectId) {
       setSelectedProjectId(data.projects[0].projectId);
     }
-  }, [data]);
+  }, [data, selectedProjectId]);
 
-  const filters = {
-    month: selectedMonth || undefined,
-    year: debouncedYear ? Number(debouncedYear) : undefined,
-  };
+  const isInvalidRange =
+    fromDate && toDate && new Date(fromDate) > new Date(toDate);
+
+  const filters =
+    fromDate && toDate
+      ? { fromDate, toDate }
+      : {
+          month: selectedMonth || undefined,
+          year: debouncedYear ? Number(debouncedYear) : undefined,
+        };
 
   const { data: analytics, isLoading: analyticsLoading } = useProjectAnalytics(
     selectedProjectId,
-    filters,
+    isInvalidRange ? undefined : filters,
   );
 
   // ── Loading state ──
@@ -155,21 +162,20 @@ const UserDashboardPage = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <SummaryCard
           title="Total Projects"
-          value={data.totalProjects}
+          value={data?.totalProjects ?? 0}
           icon={<FolderIcon />}
-          accent="blue"
         />
+
         <SummaryCard
           title="Total Investment"
-          value={`₹${data.totalInvestment.toLocaleString("en-IN")}`}
+          value={`₹${(data?.totalInvestment ?? 0).toLocaleString("en-IN")}`}
           icon={<CoinIcon />}
-          accent="emerald"
         />
+
         <SummaryCard
           title="Total Investors"
-          value={data.totalInvestors}
+          value={data?.totalInvestors ?? 0}
           icon={<PeopleIcon />}
-          accent="violet"
         />
       </div>
 
@@ -209,6 +215,7 @@ const UserDashboardPage = () => {
               <div className="relative">
                 <input
                   type="number"
+                  disabled={!!fromDate || !!toDate}
                   placeholder="Year"
                   className="text-sm border border-gray-200 rounded-lg pl-2.5 pr-2.5 py-1.5 w-24 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400"
                   value={yearInput}
@@ -218,6 +225,7 @@ const UserDashboardPage = () => {
 
               {/* Month selector */}
               <select
+                disabled={!!fromDate || !!toDate}
                 className="text-sm border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 cursor-pointer"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
@@ -229,13 +237,35 @@ const UserDashboardPage = () => {
                 ))}
               </select>
 
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  disabled={!!yearInput || !!selectedMonth}
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="text-sm border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                />
+
+                <span className="text-xs text-gray-400">to</span>
+
+                <input
+                  type="date"
+                  disabled={!!yearInput || !!selectedMonth}
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="text-sm border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
               {/* Clear filters */}
-              {(yearInput || selectedMonth) && (
+              {(yearInput || selectedMonth || fromDate || toDate) && (
                 <button
                   className="text-xs text-blue-500 hover:text-blue-700 underline underline-offset-2 transition-colors"
                   onClick={() => {
                     setYearInput("");
                     setSelectedMonth("");
+                    setFromDate("");
+                    setToDate("");
                   }}
                 >
                   Clear

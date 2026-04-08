@@ -79,6 +79,9 @@ export const ROUTES = {
     WITHDRAWALS: "/withdrawals",
     APPROVE_WITHDRAWAL: "/withdrawal/:id/approve",
     REJECT_WITHDRAWAL: "/withdrawal/:id/reject",
+    DASHBOARD_SUMMARY: "/dashboard-summary",
+    DASHBOARD_GRAPH: "/dashboard-graph",
+    DASHBOARD_TOP: "/dashboard-top",
   },
 
   USERS: {

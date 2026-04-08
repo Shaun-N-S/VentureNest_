@@ -3,7 +3,6 @@ import { FRONTEND_ROUTES } from "../constants/frontendRoutes";
 import AdminLoginPage from "../pages/Admin/AdminLoginPage";
 import ProtectedLogin from "../components/protectedComponents/ProtectedLogin";
 import ProtectedRoute from "../components/protectedComponents/ProtectedRoute";
-import Dashboard from "../pages/Admin/Dashboard";
 import UsersListing from "../pages/Admin/UsersListing";
 import InvestorsListing from "../pages/Admin/InvestorListing";
 import AdminLayout from "../layouts/AdminLayout";
@@ -14,6 +13,7 @@ import ReportManagementPage from "../pages/Admin/ReportsListingPage";
 import AdminPlansPage from "../pages/Admin/PlanManagementPage";
 import AdminWalletPage from "../pages/Admin/AdminWalletPage";
 import WithdrawalListing from "../pages/Admin/WithdrawalListing";
+import AdminDashboardPage from "../pages/Admin/AdminDashboardPage";
 
 const AdminRoutes = () => {
   return (
@@ -29,10 +29,6 @@ const AdminRoutes = () => {
       {/* Protected Admin routes with layout */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AdminLayout />}>
-          <Route
-            path={FRONTEND_ROUTES.ADMIN.DASHBOARD}
-            element={<Dashboard />}
-          />
           <Route
             path={FRONTEND_ROUTES.ADMIN.USERS}
             element={<UsersListing />}
@@ -70,6 +66,11 @@ const AdminRoutes = () => {
           <Route
             path={FRONTEND_ROUTES.ADMIN.WITHDRAWALS}
             element={<WithdrawalListing />}
+          />
+
+          <Route
+            path={FRONTEND_ROUTES.ADMIN.DASHBOARD}
+            element={<AdminDashboardPage />}
           />
         </Route>
       </Route>

@@ -93,4 +93,40 @@ export class DealRepository
       };
     });
   }
+
+  async getTopStartups(limit: number): Promise<{ projectId: string; totalFunding: number }[]> {
+    const result = await this._model.aggregate([
+      {
+        $group: {
+          _id: "$projectId",
+          totalFunding: { $sum: "$amountPaid" },
+        },
+      },
+      { $sort: { totalFunding: -1 } },
+      { $limit: limit },
+    ]);
+
+    return result.map((r) => ({
+      projectId: r._id.toString(),
+      totalFunding: r.totalFunding,
+    }));
+  }
+
+  async getTopInvestors(limit: number): Promise<{ investorId: string; totalInvested: number }[]> {
+    const result = await this._model.aggregate([
+      {
+        $group: {
+          _id: "$investorId",
+          totalInvested: { $sum: "$amountPaid" },
+        },
+      },
+      { $sort: { totalInvested: -1 } },
+      { $limit: limit },
+    ]);
+
+    return result.map((r) => ({
+      investorId: r._id.toString(),
+      totalInvested: r.totalInvested,
+    }));
+  }
 }

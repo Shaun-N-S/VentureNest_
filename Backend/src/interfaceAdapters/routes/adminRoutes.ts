@@ -1,4 +1,5 @@
 import { adminContentController } from "@infrastructure/DI/Admin/adminContentContainer";
+import { adminDashboardController } from "@infrastructure/DI/Admin/adminDashboardContainer";
 import {
   adminFinanceController,
   adminWithdrawalController,
@@ -249,6 +250,27 @@ export class Admin_Routes {
       ...adminGuard,
       (req: Request, res: Response, next: NextFunction) =>
         adminWithdrawalController.reject(req, res, next)
+    );
+
+    this._route.get(
+      ADMIN.DASHBOARD_SUMMARY,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminDashboardController.getSummary(req, res, next)
+    );
+
+    this._route.get(
+      ADMIN.DASHBOARD_GRAPH,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminDashboardController.getGraph(req, res, next)
+    );
+
+    this._route.get(
+      ADMIN.DASHBOARD_TOP,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminDashboardController.getTop(req, res, next)
     );
   }
 
