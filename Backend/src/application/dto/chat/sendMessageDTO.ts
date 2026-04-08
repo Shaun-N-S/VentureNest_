@@ -6,7 +6,8 @@ export interface SendMessageReqDTO {
   conversationId: string;
   senderId: string;
   senderRole: UserRole;
-  content: string;
+  content?: string;
+  file?: File | undefined;
   messageType: MessageType;
 }
 

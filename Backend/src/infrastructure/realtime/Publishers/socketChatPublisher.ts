@@ -13,6 +13,8 @@ export class SocketChatPublisher implements IChatEventPublisher {
       senderId: message.senderId,
       senderRole: message.senderRole,
       content: message.content,
+      fileUrl: message.fileUrl,
+      fileName: message.fileName,
       messageType: message.messageType,
       status: message.status,
       createdAt: message.createdAt.toISOString(),

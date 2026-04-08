@@ -18,11 +18,36 @@ export class Session_Router {
         sessionController.cancelSession(req, res, next);
       }
     );
+
     this._route.post(
       ROUTES.SESSION.ADD_FEEDBACK,
       ...investorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         sessionController.addSessionFeedback(req, res, next);
+      }
+    );
+
+    this._route.post(
+      ROUTES.SESSION.JOIN_REQUEST,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        sessionController.joinSession(req, res, next);
+      }
+    );
+
+    this._route.post(
+      ROUTES.SESSION.APPROVE_USER,
+      ...investorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        sessionController.approveUser(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ROUTES.SESSION.GET_STATUS,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        sessionController.getSessionStatus(req, res, next);
       }
     );
   }

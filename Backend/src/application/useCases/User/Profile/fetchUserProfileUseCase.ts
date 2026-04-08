@@ -42,7 +42,6 @@ export class FetchUserProfileUseCase implements IFetchUserProfileUseCase {
 
     profileData.projectCount = await this._projectRepo.countProjectsByAuthor(id);
 
-    console.log("user detaild fetchedd data of usecase : :   :", profileData);
     return profileData;
   }
 }

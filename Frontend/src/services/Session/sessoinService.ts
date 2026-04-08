@@ -4,6 +4,7 @@ import type {
   AddSessionFeedbackDTO,
   CancelledSessionResponseDTO,
   CancelSessionDTO,
+  JoinSessionResponseDTO,
   SessionFeedbackResponseDTO,
 } from "../../types/session";
 
@@ -30,5 +31,30 @@ export const sessionService = {
     );
 
     return data.data;
-  }
+  },
+
+  joinSession: async (sessionId: string): Promise<JoinSessionResponseDTO> => {
+    const { data } = await AxiosInstance.post(
+      API_ROUTES.SESSION.JOIN_REQUEST.replace(":sessionId", sessionId),
+    );
+
+    return data.data;
+  },
+
+  approveUser: async (sessionId: string, userId: string) => {
+    const { data } = await AxiosInstance.post(
+      API_ROUTES.SESSION.APPROVE_USER.replace(":sessionId", sessionId),
+      { userId },
+    );
+
+    return data.data;
+  },
+
+  getSessionStatus: async (sessionId: string) => {
+    const { data } = await AxiosInstance.get(
+      API_ROUTES.SESSION.GET_STATUS.replace(":sessionId", sessionId),
+    );
+
+    return data.data;
+  },
 };

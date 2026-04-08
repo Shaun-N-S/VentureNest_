@@ -18,6 +18,10 @@ export interface ISessionModel extends Document {
   cancelledBy?: SessionCancelledBy;
   cancelReason?: string;
   feedback?: string;
+  waitingUsers?: string[];
+  allowedUsers?: string[];
+  hostJoined?: boolean;
+  roomId?: string;
   createdAt: Date;
   updatedAt: Date;
 }

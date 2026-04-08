@@ -69,6 +69,9 @@ export const API_ROUTES = {
     WITHDRAWALS: "/admin/withdrawals",
     APPROVE_WITHDRAWAL: "/admin/withdrawal/:id/approve",
     REJECT_WITHDRAWAL: "/admin/withdrawal/:id/reject",
+    DASHBOARD_SUMMARY: "/admin/dashboard-summary",
+    DASHBOARD_GRAPH: "/admin/dashboard-graph",
+    DASHBOARD_TOP: "/admin/dashboard-top",
   },
 
   INVESTOR: {
@@ -156,6 +159,9 @@ export const API_ROUTES = {
   SESSION: {
     CANCEL_SESSION: "/sessions/:sessionId/cancel",
     ADD_FEEDBACK: "/sessions/:sessionId/feedback",
+    JOIN_REQUEST: "/sessions/:sessionId/join-request",
+    APPROVE_USER: "/sessions/:sessionId/approve-user",
+    GET_STATUS: "/sessions/:sessionId/status",
   },
 
   PITCH: {
@@ -211,5 +217,12 @@ export const API_ROUTES = {
     GET_INSTALLMENTS: "/deals/:dealId/installments",
     INSTALLMENT_CHECKOUT: "/deals/:dealId/installment-checkout",
     RELEASE_INSTALLMENT: "/deals/:dealId/release-installment",
+  },
+
+  DASHBOARD: {
+    USER: "/dashboard/user",
+    PROJECT_ANALYTICS: "/dashboard/reports",
+    INVESTOR_SUMMARY: "/dashboard/investor",
+    INVESTOR_PORTFOLIO: "/dashboard/investor-portfolio",
   },
 };

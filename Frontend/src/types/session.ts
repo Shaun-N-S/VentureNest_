@@ -81,3 +81,7 @@ export interface SessionFeedbackResponseDTO {
   decision: string;
   updatedAt: string;
 }
+
+export interface JoinSessionResponseDTO {
+  role: "host" | "waiting";
+}

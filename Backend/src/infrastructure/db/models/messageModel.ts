@@ -12,7 +12,10 @@ export interface IMessageModel extends Document {
   senderId: string;
   senderRole: UserRole;
 
-  content: string;
+  content?: string;
+
+  fileUrl?: string;
+  fileName?: string;
 
   messageType: MessageType;
 

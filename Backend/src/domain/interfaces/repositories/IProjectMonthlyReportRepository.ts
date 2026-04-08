@@ -18,4 +18,16 @@ export interface IProjectMonthlyReportRepository
     month: string,
     year: number
   ): Promise<ProjectMonthlyReportEntity | null>;
+
+  findLatestByProjectId(projectId: string): Promise<ProjectMonthlyReportEntity | null>;
+
+  findReportsForAnalytics(
+    projectId: string,
+    filters: {
+      fromDate?: Date;
+      toDate?: Date;
+      month?: string;
+      year?: number;
+    }
+  ): Promise<ProjectMonthlyReportEntity[]>;
 }

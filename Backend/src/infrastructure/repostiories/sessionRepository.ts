@@ -56,4 +56,55 @@ export class SessionRepository
 
     return doc ? SessionMapper.toEntity(doc) : null;
   }
+
+  async joinSession(sessionId: string, userId: string): Promise<SessionEntity | null> {
+    const session = await this._model.findById(sessionId);
+
+    if (!session) return null;
+
+    session.waitingUsers = session.waitingUsers || [];
+    session.allowedUsers = session.allowedUsers || [];
+
+    // ✅ FIX 1: if already allowed → DO NOTHING
+    const isAllowed = session.allowedUsers.some((id) => id.toString() === userId);
+
+    if (isAllowed) {
+      return SessionMapper.toEntity(session);
+    }
+
+    if (session.investorId.toString() === userId) {
+      session.hostJoined = true;
+    } else {
+      const alreadyWaiting = session.waitingUsers.some((id) => id.toString() === userId);
+
+      if (!alreadyWaiting) {
+        session.waitingUsers.push(userId);
+      }
+    }
+
+    await session.save();
+
+    return SessionMapper.toEntity(session);
+  }
+
+  async approveUser(sessionId: string, userId: string): Promise<SessionEntity | null> {
+    const session = await this._model.findById(sessionId);
+
+    if (!session) return null;
+
+    session.waitingUsers = session.waitingUsers || [];
+    session.allowedUsers = session.allowedUsers || [];
+
+    session.waitingUsers = session.waitingUsers.filter((id) => id.toString() !== userId);
+
+    const exists = session.allowedUsers.some((id) => id.toString() === userId);
+
+    if (!exists) {
+      session.allowedUsers.push(userId);
+    }
+
+    await session.save();
+
+    return SessionMapper.toEntity(session);
+  }
 }

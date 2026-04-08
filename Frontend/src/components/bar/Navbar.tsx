@@ -16,13 +16,13 @@ import NotificationModal from "../modals/NotificationModal";
 
 const menuItems: Record<UserRole, { name: string; path: string }[]> = {
   ADMIN: [
-    { name: "Home", path: "/admin/dashboard" },
+    { name: "Dashboard", path: "/admin/dashboard" },
     { name: "Wallet", path: "/admin/wallet" },
     { name: "Users", path: "/admin/users" },
     { name: "Projects", path: "/admin/projects" },
     { name: "Investors", path: "/admin/investors" },
     { name: "Verifications", path: "/admin/verifications" },
-    {name :"Withdrawal Request", path: "/admin/withdrawals"},
+    { name: "Withdrawal Request", path: "/admin/withdrawals" },
     { name: "Reports", path: "/admin/reports" },
     { name: "Subscriptions", path: "/admin/subscriptions" },
   ],
@@ -31,6 +31,7 @@ const menuItems: Record<UserRole, { name: string; path: string }[]> = {
     { name: "My Network", path: "/mynetwork" },
     { name: "Projects", path: "/projects" },
     { name: "Wallet", path: "/wallet" },
+    { name: "Dashboard", path: "/dashboard" },
     { name: "My offers", path: "/offers" },
     { name: "My Sessions", path: "/sessions" },
     { name: "Plans", path: "/plans" },

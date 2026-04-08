@@ -43,7 +43,6 @@ export class UserProfileController {
       const userId = req.body?.id;
       const formData = req.body?.formData ? JSON.parse(req.body.formData) : null;
       const files = req.files as MulterFiles<"profileImg">;
-      console.log("user ID : : ", userId, "formdata : : : ", formData, "files img : : : ", files);
 
       const data: UserProfileUpdateReqDTO = { id: userId, formData };
 

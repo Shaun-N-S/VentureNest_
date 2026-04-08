@@ -22,6 +22,9 @@ import InvestorInboxPage from "../pages/Investor/InvestorInboxPage";
 import SendInvestmentOfferPage from "../pages/Investor/SentInvestmentOfferPage";
 import ChatPage from "../pages/Common/ChatPage";
 import WalletPage from "../pages/Common/WalletPage";
+import WaitingPage from "../pages/Common/WaitingPage";
+import VideoPage from "../pages/Common/VideoPage";
+import InvestorDashboardPage from "../pages/Investor/InvestorDashboardPage";
 
 const InvestorRoutes = () => {
   return (
@@ -100,10 +103,27 @@ const InvestorRoutes = () => {
           />
 
           <Route path={FRONTEND_ROUTES.INVESTOR.CHAT} element={<ChatPage />} />
-          <Route path={FRONTEND_ROUTES.INVESTOR.WALLET} element={<WalletPage />} />
+          <Route
+            path={FRONTEND_ROUTES.INVESTOR.WALLET}
+            element={<WalletPage />}
+          />
           <Route
             path={FRONTEND_ROUTES.INVESTOR.CHAT_CONVERSATION}
             element={<ChatPage />}
+          />
+
+          <Route
+            path={FRONTEND_ROUTES.INVESTOR.VIDEO_CALL}
+            element={<VideoPage />}
+          />
+          <Route
+            path={FRONTEND_ROUTES.INVESTOR.WAITING_AREA}
+            element={<WaitingPage />}
+          />
+
+          <Route
+            path={FRONTEND_ROUTES.INVESTOR.DASHBOARD}
+            element={<InvestorDashboardPage />}
           />
         </Route>
       </Route>

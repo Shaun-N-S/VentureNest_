@@ -18,6 +18,9 @@ export const FRONTEND_ROUTES = {
     WALLET: "/wallet",
     CHAT: "/chat",
     CHAT_CONVERSATION: "/chat/:conversationId",
+    DASHBOARD: "/dashboard",
+    VIDEO_CALL: "/video/:sessionId",
+    WAITING_AREA: "/waiting/:sessionId",
   },
 
   INVESTOR: {
@@ -40,6 +43,9 @@ export const FRONTEND_ROUTES = {
     SEND_OFFER: "/send-offer",
     CHAT: "/chat",
     CHAT_CONVERSATION: "/chat/:conversationId",
+    VIDEO_CALL: "/video/:sessionId",
+    WAITING_AREA: "/waiting/:sessionId",
+    DASHBOARD: "/dashboard",
   },
 
   ADMIN: {

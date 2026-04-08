@@ -28,6 +28,9 @@ export const MESSAGES = {
     UPDATE_STATUS: "User status updated",
     TRANSACTIONS_FETCHED: "Transactions fetched successfully",
     FINANCE_SUMMARY_FETCHED: "Finance summary fetched successfully",
+    DASHBOARD_SUMMARY_FETCHED: "Dashboard summary fetched successfully",
+    TOP_DATA_FETCHED: "Dashboard top data fetched successfully",
+    GRAPH_FETCHED: "Dashboard graph data fetched successfully",
   },
 
   OTP: {
@@ -135,6 +138,9 @@ export const MESSAGES = {
   SESSION: {
     SESSION_CANCELLED: "Session cancelled successfully",
     SESSION_FEEDBACK_ADDED: "Session feedback added successfully",
+    JOIN_REQUEST_SUCCESSFUL: "Session join request successful",
+    USER_APPROVED: "User approved successfully",
+    STATUS_FETCHED: "Session status fetched",
   },
 
   PITCH: {
@@ -193,5 +199,9 @@ export const MESSAGES = {
     DEAL_FETCHED: "Deal details fetched successfully",
     INSTALLMENTS_FETCHED: "Installment details fetched",
     INSTALLMENT_RELEASED: "Installment released successfully",
+  },
+
+  DASHBOARD: {
+    FETCHED: "Dashboard fetched",
   },
 };

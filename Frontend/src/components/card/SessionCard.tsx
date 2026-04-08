@@ -1,4 +1,4 @@
-import { Calendar, Clock, Video, Eye, MapPin, Users2, Dot } from "lucide-react";
+import { Calendar, Clock, Eye, Users2, Dot } from "lucide-react";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -6,6 +6,9 @@ import { Badge } from "../ui/badge";
 import type { PersonDTO, SessionDTO } from "../../types/session";
 import { useState } from "react";
 import { SessionDetailsModal } from "../modals/SessionDetailsModal";
+import { useNavigate } from "react-router-dom";
+import { useJoinSession } from "../../hooks/Session/sessionHooks";
+import { initSocket } from "../../lib/socket";
 
 interface Props {
   session: SessionDTO;
@@ -33,6 +36,26 @@ export function SessionCard({
   const isScheduled = session.status === "scheduled";
   const isCompleted = session.status === "completed";
   const isCancelled = session.status === "cancelled";
+
+  const { mutate: joinSession } = useJoinSession();
+  const navigate = useNavigate();
+
+  const handleJoin = () => {
+    joinSession(session.id, {
+      onSuccess: (data) => {
+        const socket = initSocket();
+        socket?.emit("session:request-join", {
+          sessionId: session.id,
+        });
+
+        if (data.role === "host") {
+          navigate(`/video/${session.id}`);
+        } else {
+          navigate(`/waiting/${session.id}`);
+        }
+      },
+    });
+  };
 
   // Format date elegantly
   const formattedDate = date.toLocaleDateString("en-US", {
@@ -168,13 +191,7 @@ export function SessionCard({
 
           {/* ACTION BUTTONS */}
           <div className="space-y-2.5">
-            {isScheduled && (
-              <Button className="w-full h-11 gap-2 shadow-md hover:shadow-lg transition-all font-semibold">
-                <Video className="w-4 h-4" />
-                Join Session
-              </Button>
-            )}
-
+            {isScheduled && <Button onClick={handleJoin}>Join Session</Button>}{" "}
             <Button
               variant="outline"
               className="w-full h-10 gap-2 font-medium hover:bg-accent transition-all"

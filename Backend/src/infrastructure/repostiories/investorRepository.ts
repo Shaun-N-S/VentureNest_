@@ -133,4 +133,12 @@ export class InvestorRepository
 
     return this._model.countDocuments(query);
   }
+
+  async findByIds(ids: string[]): Promise<InvestorEntity[]> {
+    const docs = await this._model.find({
+      _id: { $in: ids },
+    });
+
+    return docs.map(InvestorMapper.fromMongooseDocument);
+  }
 }

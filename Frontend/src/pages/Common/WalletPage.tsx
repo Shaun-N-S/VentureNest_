@@ -155,13 +155,13 @@ export default function WalletPage() {
                   <Plus className="w-5 h-5" /> Add Funds
                 </Button>
                 {/* Withdraw Button */}
-                <Button
+                {/* <Button
                   variant="outline"
                   className="w-full h-12 rounded-xl text-slate-600"
                   onClick={() => setShowBankWithdrawModal(true)}
                 >
                   Withdraw to Bank
-                </Button>
+                </Button> */}
               </div>
             </div>
 

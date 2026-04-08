@@ -22,6 +22,6 @@ export interface IInvestorRepository extends IBaseRepository<InvestorEntity> {
     limit: number,
     search?: string
   ): Promise<InvestorEntity[]>;
-
+  findByIds(ids: string[]): Promise<InvestorEntity[]>;
   countByIds(ids: string[], search?: string): Promise<number>;
 }

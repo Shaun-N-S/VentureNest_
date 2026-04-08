@@ -1,6 +1,6 @@
 import { TransactionEntity } from "@domain/entities/Transaction/transactionEntity";
 import { IBaseRepository } from "./IBaseRepository";
-import { TransactionAction } from "@domain/enum/transactionType";
+import { TransactionAction, TransactionReason } from "@domain/enum/transactionType";
 import { ClientSession } from "mongoose";
 import { TransactionStatus } from "@domain/enum/transactionStatus";
 
@@ -38,4 +38,14 @@ export interface ITransactionRepository extends IBaseRepository<TransactionEntit
   ): Promise<TransactionEntity[]>;
 
   countByWallet(walletId: string, action?: TransactionAction): Promise<number>;
+
+  getRevenueByReasonWithFilter(
+    reason: TransactionReason,
+    filter: {
+      fromDate?: Date;
+      toDate?: Date;
+      year?: number;
+      month?: number;
+    }
+  ): Promise<{ _id: number; total: number }[]>;
 }

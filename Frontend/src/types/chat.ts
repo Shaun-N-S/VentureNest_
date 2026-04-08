@@ -30,8 +30,9 @@ export interface MessageDTO {
   senderId: string;
   senderRole: UserRole;
 
-  content: string;
-
+  content?: string;
+  fileUrl?: string;
+  fileName?: string;
   messageType: MessageType;
   status: MessageStatus;
 
@@ -63,7 +64,9 @@ export interface ChatMessage {
   senderId: string;
   senderRole: UserRole;
 
-  content: string;
+  content?: string;
+  fileUrl?: string;
+  fileName?: string;
 
   messageType: MessageType;
   status: MessageStatus;

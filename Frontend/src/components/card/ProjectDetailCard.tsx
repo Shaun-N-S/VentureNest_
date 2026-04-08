@@ -17,7 +17,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Document, Page } from "react-pdf";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { VerifiedBadge } from "../Comments/VerifiedBadge";
 
 interface Founder {
@@ -79,6 +79,21 @@ export function ProjectDetailCard({
 }: ProjectDetailCardProps) {
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [numPages, setNumPages] = useState<number | null>(null);
+
+  const navigate = useNavigate();
+
+  const handleFounderClick = (founder: Founder) => {
+    const isSelf = false;
+    const isInvestor = founder.userRole === "INVESTOR";
+
+    if (isInvestor) {
+      navigate(
+        isSelf ? "/investor/profile" : `/investor/profile/${founder.id}`,
+      );
+    } else {
+      navigate(isSelf ? "/profile" : `/profile/${founder.id}`);
+    }
+  };
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -227,6 +242,7 @@ export function ProjectDetailCard({
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + index * 0.1 }}
+                  onClick={() => handleFounderClick(founder)}
                   className="flex items-center gap-4 p-4 bg-secondary/50 rounded-xl hover:bg-secondary transition-colors cursor-pointer group"
                 >
                   <Avatar className="w-14 h-14 ring-2 ring-primary/10 ring-offset-2 ring-offset-card">

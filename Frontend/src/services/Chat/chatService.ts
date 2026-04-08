@@ -4,10 +4,8 @@ import type {
   ConversationListResponse,
   MessageListResponse,
   CreateConversationResponse,
-  SendMessageResponse,
   UnreadCountResponse,
 } from "../../types/chat";
-import type { MessageType } from "../../types/messageType";
 import type { UserRole } from "../../types/UserRole";
 
 export const createConversation = async (
@@ -51,16 +49,16 @@ export const getMessages = async (
   return response.data.data;
 };
 
-export const sendMessage = async (
-  conversationId: string,
-  content: string,
-  messageType: MessageType,
-): Promise<SendMessageResponse> => {
-  const response = await AxiosInstance.post(API_ROUTES.CHAT.SEND_MESSAGE, {
-    conversationId,
-    content,
-    messageType,
-  });
+export const sendMessage = async (formData: FormData) => {
+  const response = await AxiosInstance.post(
+    API_ROUTES.CHAT.SEND_MESSAGE,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
 
   return response.data.data;
 };

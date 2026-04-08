@@ -34,4 +34,72 @@ export class ProjectMonthlyReportRepository
 
     return doc ? ProjectMonthlyReportMapper.fromMongooseDocument(doc) : null;
   }
+
+  async findLatestByProjectId(projectId: string): Promise<ProjectMonthlyReportEntity | null> {
+    const doc = await this._model.findOne({ projectId }).sort({ year: -1, month: -1 });
+
+    return doc ? ProjectMonthlyReportMapper.fromMongooseDocument(doc) : null;
+  }
+
+  async findReportsForAnalytics(
+    projectId: string,
+    filters: {
+      fromDate?: Date;
+      toDate?: Date;
+      month?: string;
+      year?: number;
+    }
+  ): Promise<ProjectMonthlyReportEntity[]> {
+    const query: any = { projectId };
+
+    if (filters.month) {
+      query.month = filters.month;
+    }
+
+    if (filters.year) {
+      query.year = filters.year;
+    }
+
+    const docs = await this._model.find(query);
+
+    let filteredDocs = docs;
+
+    if (filters.fromDate || filters.toDate) {
+      const from = filters.fromDate ? new Date(filters.fromDate) : null;
+      const to = filters.toDate ? new Date(filters.toDate) : null;
+
+      filteredDocs = docs.filter((doc) => {
+        const reportMonth = new Date(`${doc.month} 1, ${doc.year}`).getMonth();
+        const reportYear = doc.year;
+
+        if (from) {
+          const fromMonth = from.getMonth();
+          const fromYear = from.getFullYear();
+
+          if (reportYear < fromYear || (reportYear === fromYear && reportMonth < fromMonth)) {
+            return false;
+          }
+        }
+
+        if (to) {
+          const toMonth = to.getMonth();
+          const toYear = to.getFullYear();
+
+          if (reportYear > toYear || (reportYear === toYear && reportMonth > toMonth)) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+    }
+
+    filteredDocs.sort((a, b) => {
+      const d1 = new Date(`${a.month} 1, ${a.year}`).getTime();
+      const d2 = new Date(`${b.month} 1, ${b.year}`).getTime();
+      return d1 - d2;
+    });
+
+    return filteredDocs.map(ProjectMonthlyReportMapper.fromMongooseDocument);
+  }
 }
