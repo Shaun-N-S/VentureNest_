@@ -12,7 +12,6 @@ import z from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-
 const EmailSchema = z.object({
   email: z.email("Enter a valid email address"),
 });
@@ -39,10 +38,6 @@ const PasswordSchema = z
     message: "Passwords do not match",
   });
 
-type EmailFormData = z.infer<typeof EmailSchema>;
-type OtpFormData = z.infer<typeof OtpSchema>;
-type PasswordFormData = z.infer<typeof PasswordSchema>;
-
 const ForgotPasswordPage = () => {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
@@ -54,12 +49,12 @@ const ForgotPasswordPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const { mutate: forgetpasswordEmail } = useUserForgetPassword();
   const { mutate: forgetpasswordVerifyOtp } = useForgetPasswordVerifyOtp();
-  const { mutate: forgetPasswordResetPassword } = useForgetPasswordResetPassword();
-
+  const { mutate: forgetPasswordResetPassword } =
+    useForgetPasswordResetPassword();
 
   const handleEmailSubmit = async () => {
     const result = EmailSchema.safeParse({ email });
@@ -69,7 +64,7 @@ const ForgotPasswordPage = () => {
     }
     setErrors({});
     forgetpasswordEmail(email, {
-      onSuccess: (res) => {
+      onSuccess: () => {
         toast.success("OTP sent successfully");
         setStep(2);
       },
@@ -78,11 +73,9 @@ const ForgotPasswordPage = () => {
           console.log(err);
           toast.error(err.response?.data?.message);
         }
-
       },
     });
   };
-
 
   const handleOtpSubmit = async () => {
     const result = OtpSchema.safeParse({ otp });
@@ -91,45 +84,55 @@ const ForgotPasswordPage = () => {
       return;
     }
     setErrors({});
-    forgetpasswordVerifyOtp({ email, otp }, {
-      onSuccess: (res) => {
-        console.log(res)
-        setToken(res.data);
-        setStep(3);
-        toast.success("OTP verified successfully");
+    forgetpasswordVerifyOtp(
+      { email, otp },
+      {
+        onSuccess: (res) => {
+          console.log(res);
+          setToken(res.data);
+          setStep(3);
+          toast.success("OTP verified successfully");
+        },
+        onError: (err) => {
+          if (err instanceof AxiosError)
+            toast.error(err.response?.data?.message);
+        },
       },
-      onError: (err) => {
-        if (err instanceof AxiosError) toast.error(err.response?.data?.message);
-      },
-    });
+    );
   };
-
 
   const handleResetPassword = async () => {
     const result = PasswordSchema.safeParse({ password, confirmPassword });
     if (!result.success) {
       const fieldErrors: { [key: string]: string } = {};
-      result.error.issues.forEach((e: typeof result.error.issues[0]) => (fieldErrors[e.path[0].toString()] = e.message));
+      result.error.issues.forEach(
+        (e: (typeof result.error.issues)[0]) =>
+          (fieldErrors[e.path[0].toString()] = e.message),
+      );
       setErrors(fieldErrors);
       return;
     }
     setErrors({});
-    console.log({ email, token, password })
-    forgetPasswordResetPassword({ email, token, password }, {
-      onSuccess: (res) => {
-        console.log(res);
-        navigate("/login")
-        setStep(1);
-        setEmail("");
-        setOtp("");
-        setPassword("");
-        setConfirmPassword("");
-        toast.success("Password reset successfully");
+    console.log({ email, token, password });
+    forgetPasswordResetPassword(
+      { email, token, password },
+      {
+        onSuccess: (res) => {
+          console.log(res);
+          navigate("/login");
+          setStep(1);
+          setEmail("");
+          setOtp("");
+          setPassword("");
+          setConfirmPassword("");
+          toast.success("Password reset successfully");
+        },
+        onError: (err) => {
+          if (err instanceof AxiosError)
+            toast.error(err.response?.data?.message);
+        },
       },
-      onError: (err) => {
-        if (err instanceof AxiosError) toast.error(err.response?.data?.message);
-      },
-    });
+    );
   };
 
   return (
@@ -170,7 +173,9 @@ const ForgotPasswordPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="rounded-md border border-border px-4 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   />
-                  {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+                  {errors.email && (
+                    <p className="text-red-500 text-sm">{errors.email}</p>
+                  )}
                   <button
                     onClick={handleEmailSubmit}
                     className="w-full py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition"
@@ -190,7 +195,9 @@ const ForgotPasswordPage = () => {
                     onChange={(e) => setOtp(e.target.value)}
                     className="rounded-md border border-border px-4 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   />
-                  {errors.otp && <p className="text-red-500 text-sm">{errors.otp}</p>}
+                  {errors.otp && (
+                    <p className="text-red-500 text-sm">{errors.otp}</p>
+                  )}
                   <button
                     onClick={handleOtpSubmit}
                     className="w-full py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition"
@@ -220,7 +227,9 @@ const ForgotPasswordPage = () => {
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
-                  {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+                  {errors.password && (
+                    <p className="text-red-500 text-sm">{errors.password}</p>
+                  )}
 
                   {/* Confirm Password */}
                   <div className="relative">
@@ -233,14 +242,22 @@ const ForgotPasswordPage = () => {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-3 top-2.5 text-muted-foreground"
                     >
-                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showConfirmPassword ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+                    <p className="text-red-500 text-sm">
+                      {errors.confirmPassword}
+                    </p>
                   )}
 
                   <button
@@ -255,7 +272,10 @@ const ForgotPasswordPage = () => {
 
             <div className="px-6 pb-6 text-sm text-muted-foreground text-center">
               Remember your password?{" "}
-              <a href="/login" className="text-primary font-medium hover:underline">
+              <a
+                href="/login"
+                className="text-primary font-medium hover:underline"
+              >
                 Login
               </a>
             </div>

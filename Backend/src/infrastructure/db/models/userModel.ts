@@ -30,6 +30,7 @@ export interface IUserModel extends Document {
   googleId?: string;
   stripeAccountId?: string;
   stripeOnboardingComplete?: boolean;
+  lastSeen?: Date;
   createdAt: Date;
   updatedAt: Date;
   kycHistory: {

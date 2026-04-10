@@ -36,7 +36,7 @@ const ProtectedLogin: React.FC = () => {
     };
 
     return () => clearTimeout(timeout);
-  }, [accessToken, navigate, userData.role]);
+  }, [accessToken, navigate, userData.role, userData.isFirstLogin]);
 
   if (isChecking) return null;
 

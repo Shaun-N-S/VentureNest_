@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Send, Heart, MessageCircle } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
 import { useInfiniteReplies, useLikeReply } from "../../hooks/Reply/replyHooks";
-import type { ReplyApiResponse } from "../../types/replyFeedType";
 
 export interface Comment {
   id: string;
@@ -34,7 +33,7 @@ export function CommentSection({
 }: CommentSectionProps) {
   const [input, setInput] = useState("");
   const userProfileImg = useSelector(
-    (state: Rootstate) => state.authData?.profileImg
+    (state: Rootstate) => state.authData?.profileImg,
   );
 
   const handleSubmit = () => {
@@ -120,7 +119,7 @@ export function SingleComment({
         text: reply.replyText,
         liked: reply.liked,
         likes: reply.likes,
-      }))
+      })),
     ) ?? [];
 
   const { mutate: likeReplyMutation } = useLikeReply();
@@ -136,8 +135,6 @@ export function SingleComment({
   const handleToggleReplyLike = (replyId: string) => {
     likeReplyMutation(replyId);
   };
-
-  const totalReplies = comment.repliesCount ?? 0;
 
   return (
     <div className="flex gap-3">

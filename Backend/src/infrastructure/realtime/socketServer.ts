@@ -3,8 +3,12 @@ import { Server as HttpServer } from "http";
 import { CONFIG } from "@config/config";
 import { socketAuthMiddleware } from "interfaceAdapters/middleware/socketAuthMiddleware";
 import { SocketRooms } from "./socketRooms";
+import { userModel } from "@infrastructure/db/models/userModel";
+import { investorModel } from "@infrastructure/db/models/investorModel";
 
 export let io: Server;
+
+const onlineUsers = new Set<string>();
 
 export function initSocket(server: HttpServer) {
   io = new Server(server, {
@@ -19,6 +23,12 @@ export function initSocket(server: HttpServer) {
   io.on("connection", (socket) => {
     const { userId, role } = socket.data.user;
 
+    onlineUsers.add(userId);
+
+    io.emit("users:online-list", Array.from(onlineUsers));
+
+    io.emit("user:online", { userId });
+
     socket.join(SocketRooms.user(userId));
 
     socket.join(SocketRooms.feed());
@@ -27,6 +37,10 @@ export function initSocket(server: HttpServer) {
       socketId: socket.id,
       userId,
       role,
+    });
+
+    socket.on("get:online-users", () => {
+      socket.emit("users:online-list", Array.from(onlineUsers));
     });
 
     socket.on("post:join", (postId: string) => {
@@ -50,6 +64,8 @@ export function initSocket(server: HttpServer) {
     });
 
     socket.on("chat:typing", ({ conversationId }) => {
+      if (!conversationId) return;
+
       socket.to(SocketRooms.conversation(conversationId)).emit("chat:user-typing", {
         userId: socket.data.user.userId,
         conversationId,
@@ -57,6 +73,8 @@ export function initSocket(server: HttpServer) {
     });
 
     socket.on("chat:stop-typing", ({ conversationId }) => {
+      if (!conversationId) return;
+
       socket.to(SocketRooms.conversation(conversationId)).emit("chat:user-stop-typing", {
         userId: socket.data.user.userId,
         conversationId,
@@ -65,6 +83,19 @@ export function initSocket(server: HttpServer) {
 
     socket.onAny((event, ...args) => {
       console.log(" Event received:", event, args);
+    });
+
+    socket.on("disconnect", async () => {
+      onlineUsers.delete(userId);
+
+      const now = new Date();
+
+      await Promise.all([
+        userModel.findByIdAndUpdate(userId, { lastSeen: now }),
+        investorModel.findByIdAndUpdate(userId, { lastSeen: now }),
+      ]);
+
+      io.emit("user:offline", { userId });
     });
 
     /* ------------------ VIDEO CALL ------------------ */

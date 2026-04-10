@@ -19,6 +19,7 @@ export interface ConversationListItemDTO {
     userName: string;
     profileImg?: string;
     role: UserRole;
+    lastSeen?: Date;
   };
 
   lastMessage?: {
@@ -32,6 +33,7 @@ export interface PopulatedParticipantDTO {
   role: UserRole;
   userName: string;
   profileImg?: string;
+  lastSeen?: Date;
 }
 
 export interface PopulatedConversationRepoDTO {

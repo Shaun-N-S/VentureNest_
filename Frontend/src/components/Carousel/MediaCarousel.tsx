@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { ChevronLeft, ChevronRight, Dot } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 export function MediaCarousel({ mediaUrls }: { mediaUrls: string[] }) {
     const [current, setCurrent] = useState(0)

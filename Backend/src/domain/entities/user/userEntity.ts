@@ -38,6 +38,8 @@ export interface UserEntity {
   stripeAccountId?: string;
   stripeOnboardingComplete?: boolean;
 
+  lastSeen?: Date;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

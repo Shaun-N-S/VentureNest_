@@ -42,12 +42,6 @@ const statusConfig: Record<
   },
 };
 
-const statusColor: Record<PitchStatus, string> = {
-  SENT: "bg-amber-50 border border-amber-200 text-amber-700",
-  VIEWED: "bg-blue-50 border border-blue-200 text-blue-700",
-  RESPONDED: "bg-green-50 border border-green-200 text-green-700",
-};
-
 interface Props {
   open: boolean;
   onClose: () => void;

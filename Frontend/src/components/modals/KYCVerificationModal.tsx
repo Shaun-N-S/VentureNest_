@@ -120,14 +120,16 @@ export default function KYCVerificationModal({
       setAadharImg(croppedFile);
       setAadharPreview(previewUrl);
       setErrors((prev) => {
-        const { aadharImg, ...rest } = prev;
+        const rest = { ...prev };
+        delete rest.aadharImg;
         return rest;
       });
     } else {
       setSelfieImg(croppedFile);
       setSelfiePreview(previewUrl);
       setErrors((prev) => {
-        const { selfieImg, ...rest } = prev;
+        const rest = { ...prev };
+        delete rest.selfieImg;
         return rest;
       });
     }
@@ -156,7 +158,8 @@ export default function KYCVerificationModal({
       setAadharImg(null);
       setAadharPreview(null);
       setErrors((prev) => {
-        const { aadharImg, ...rest } = prev;
+        const rest = { ...prev };
+        delete rest.aadharImg;
         return rest;
       });
     } else {
@@ -164,7 +167,8 @@ export default function KYCVerificationModal({
       setSelfieImg(null);
       setSelfiePreview(null);
       setErrors((prev) => {
-        const { selfieImg, ...rest } = prev;
+        const rest = { ...prev };
+        delete rest.selfieImg;
         return rest;
       });
     }
@@ -183,7 +187,8 @@ export default function KYCVerificationModal({
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => {
-      const { [name]: _, ...rest } = prev;
+      const rest = { ...prev };
+      delete rest[name];
       return rest;
     });
   };
@@ -319,7 +324,8 @@ export default function KYCVerificationModal({
                       dateOfBirth: date ?? undefined,
                     });
                     setErrors((prev) => {
-                      const { dateOfBirth, ...rest } = prev;
+                      const rest = { ...prev };
+                      delete rest.dateOfBirth;
                       return rest;
                     });
                   }}

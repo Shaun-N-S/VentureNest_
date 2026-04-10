@@ -5,7 +5,7 @@ import {
 } from "../../hooks/Chat/chatHooks";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { getSocket } from "../../lib/socket";
 import {
   MessageSquareDashed,
@@ -28,6 +28,8 @@ const ChatWindow = () => {
   } = useInfiniteMessages(conversationId ?? "");
   const messages =
     messageData?.pages.flatMap((page) => page.messages).reverse() ?? [];
+  const [isTyping, setIsTyping] = useState(false);
+  const [isOnline, setIsOnline] = useState<boolean | null>(null);
 
   const { data: conversationData } = useInfiniteConversations();
 
@@ -43,11 +45,81 @@ const ChatWindow = () => {
   useEffect(() => {
     const socket = getSocket();
     if (!socket || !conversationId) return;
-    socket.emit("conversation:join", conversationId);
+
+    const join = () => {
+      console.log("🔥 Joining room:", conversationId);
+
+      socket.emit("conversation:join", conversationId);
+      socket.emit("get:online-users");
+    };
+
+    if (socket.connected) {
+      join();
+    } else {
+      socket.on("connect", join);
+    }
+
     return () => {
       socket.emit("conversation:leave", conversationId);
+      socket.off("connect", join);
     };
   }, [conversationId]);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket || !currentConversation) return;
+
+    const otherUserId = currentConversation.otherUser.id;
+
+    const handleTyping = ({ userId }: { userId: string }) => {
+      if (userId === otherUserId) {
+        setIsTyping(true);
+      }
+    };
+
+    const handleStopTyping = ({ userId }: { userId: string }) => {
+      if (userId === otherUserId) {
+        setIsTyping(false);
+      }
+    };
+
+    socket.on("chat:user-typing", handleTyping);
+    socket.on("chat:user-stop-typing", handleStopTyping);
+
+    return () => {
+      socket.off("chat:user-typing", handleTyping);
+      socket.off("chat:user-stop-typing", handleStopTyping);
+    };
+  }, [currentConversation]);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket || !currentConversation) return;
+
+    const otherUserId = currentConversation.otherUser.id;
+
+    const handleOnlineList = (users: string[]) => {
+      setIsOnline(users.includes(otherUserId));
+    };
+
+    const handleOnline = ({ userId }: { userId: string }) => {
+      if (userId === otherUserId) setIsOnline(true);
+    };
+
+    const handleOffline = ({ userId }: { userId: string }) => {
+      if (userId === otherUserId) setIsOnline(false);
+    };
+
+    socket.on("users:online-list", handleOnlineList);
+    socket.on("user:online", handleOnline);
+    socket.on("user:offline", handleOffline);
+
+    return () => {
+      socket.off("users:online-list", handleOnlineList);
+      socket.off("user:online", handleOnline);
+      socket.off("user:offline", handleOffline);
+    };
+  }, [currentConversation]);
 
   // Auto-scroll
   useEffect(() => {
@@ -58,7 +130,7 @@ const ChatWindow = () => {
       top: container.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages.length]);
+  }, [messages.length, isTyping]);
 
   if (!conversationId) {
     return (
@@ -112,10 +184,15 @@ const ChatWindow = () => {
               <span className="font-bold text-slate-800 text-sm md:text-base leading-tight">
                 {otherUser.userName}
               </span>
-              {/* <span className="text-xs text-green-600 font-medium flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                Active now
-              </span> */}
+              <span className="text-xs text-slate-500">
+                {isTyping
+                  ? "Typing..."
+                  : isOnline === null
+                    ? "Checking..."
+                    : isOnline
+                      ? "Online"
+                      : "Offline"}
+              </span>
             </div>
           </div>
         </div>
@@ -155,6 +232,17 @@ const ChatWindow = () => {
             <MessageBubble key={message._id} message={message} />
           ))}
         </div>
+        {isTyping && (
+          <div className="flex justify-start mb-2">
+            <div className="bg-white border border-slate-200 rounded-2xl px-4 py-2 text-sm shadow-sm">
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* --- INPUT AREA --- */}

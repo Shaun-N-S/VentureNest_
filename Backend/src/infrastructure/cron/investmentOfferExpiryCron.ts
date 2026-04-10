@@ -5,7 +5,7 @@ export class InvestmentOfferExpiryCron {
   constructor(private _expireOffersUC: IExpireInvestmentOffersUseCase) {}
 
   start() {
-    cron.schedule("*/1 * * * *", async () => {
+    cron.schedule("0 0 * * *", async () => {
       console.log(" Running investment offer expiry cron...");
 
       try {

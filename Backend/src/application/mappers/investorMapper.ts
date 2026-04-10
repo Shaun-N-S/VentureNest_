@@ -111,6 +111,7 @@ export class InvestorMapper {
       verifiedAt: investor.verifiedAt,
       ...(investor.googleId && { googleId: investor.googleId }),
       ...(investor.stripeAccountId && { stripeAccountId: investor.stripeAccountId }),
+      lastSeen: investor.lastSeen,
       stripeOnboardingComplete: investor.stripeOnboardingComplete,
       createdAt: investor.createdAt,
       updatedAt: investor.updatedAt,
@@ -155,6 +156,7 @@ export class InvestorMapper {
       ...(doc.stripeOnboardingComplete !== undefined && {
         stripeOnboardingComplete: doc.stripeOnboardingComplete,
       }),
+      ...(doc.lastSeen && { lastSeen: doc.lastSeen }),
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
 

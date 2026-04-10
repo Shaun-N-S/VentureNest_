@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
 import {
   Loader2,
@@ -13,18 +12,16 @@ import {
   AlertCircle,
   CreditCard,
   History,
-  ChevronRight,
   Info,
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent } from "../ui/dialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Card } from "../ui/card";
-import { Separator } from "../ui/separator";
 import { Progress } from "../ui/progress";
 
 import {
@@ -82,7 +79,7 @@ interface Props {
 }
 
 export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
-  const { data, isLoading, isError } = useFetchInvestmentOfferDetails(offerId);
+  const { data, isLoading } = useFetchInvestmentOfferDetails(offerId);
   const { mutate: acceptOffer, isPending: accepting } =
     useAcceptInvestmentOffer();
   const { mutate: rejectOffer, isPending: rejecting } =
