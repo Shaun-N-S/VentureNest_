@@ -119,7 +119,7 @@ class Express_app {
     initSocket(server);
 
     server.listen(CONFIG.PORT, () => {
-      console.log(`🚀 Server running on PORT: ${CONFIG.PORT}`);
+      console.log(` Server running on PORT: ${CONFIG.PORT}`);
     });
   }
 }
