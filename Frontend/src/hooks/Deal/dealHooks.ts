@@ -8,7 +8,6 @@ import {
 } from "../../services/Deal/dealService";
 import type { DealInstallment, DealSummary } from "../../types/dealTypes";
 import toast from "react-hot-toast";
-import { queryClient } from "../../main";
 
 export const useGetMyDeals = () => {
   return useQuery<DealSummary[]>({
@@ -53,13 +52,8 @@ export const useReleaseDealInstallment = () => {
   return useMutation<void, Error, { dealId: string; amount: number }>({
     mutationFn: ({ dealId, amount }) => releaseDealInstallment(dealId, amount),
 
-    onSuccess: (_, { dealId }) => {
-      // // Refetch deal details
-      // queryClient.invalidateQueries(["deal-details", dealId]);
-      // queryClient.invalidateQueries(["deal-installments", dealId]);
-      // queryClient.invalidateQueries(["my-wallet"]);
-
-      toast.success("Installment released successfully ✅");
+    onSuccess: () => {
+      toast.success("Installment released successfully ");
     },
 
     onError: (error) => {

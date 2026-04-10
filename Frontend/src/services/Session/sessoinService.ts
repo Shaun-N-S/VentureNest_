@@ -57,4 +57,12 @@ export const sessionService = {
 
     return data.data;
   },
+
+  completeSession: async (sessionId: string) => {
+    const { data } = await AxiosInstance.post(
+      API_ROUTES.SESSION.COMPLETE_SESSION.replace(":sessionId", sessionId),
+    );
+
+    return data.data;
+  },
 };

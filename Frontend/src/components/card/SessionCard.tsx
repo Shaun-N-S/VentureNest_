@@ -35,7 +35,6 @@ export function SessionCard({
   const [open, setOpen] = useState(false);
   const isScheduled = session.status === "scheduled";
   const isCompleted = session.status === "completed";
-  const isCancelled = session.status === "cancelled";
 
   const { mutate: joinSession } = useJoinSession();
   const navigate = useNavigate();
@@ -76,8 +75,6 @@ export function SessionCard({
         minute: "2-digit",
         hour12: true,
       });
-
-  const isUpcoming = session.status === "scheduled";
 
   return (
     <>

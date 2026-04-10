@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useSendMessage } from "../../hooks/Chat/chatHooks";
 import { MESSAGE_TYPE } from "../../types/messageType";
 import { getSocket } from "../../lib/socket";
@@ -13,6 +13,7 @@ const MessageInput = ({ conversationId }: Props) => {
   const [text, setText] = useState<string>("");
   const [showEmoji, setShowEmoji] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const sendMessage = useSendMessage();
   const socket = getSocket();
@@ -55,16 +56,6 @@ const MessageInput = ({ conversationId }: Props) => {
     }
   };
 
-  useEffect(() => {
-    if (!text) return;
-
-    const timeout = setTimeout(() => {
-      socket?.emit("chat:stop-typing", { conversationId });
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [text, conversationId, socket]);
-
   return (
     <div className="w-full bg-white border-t border-slate-200 px-4 py-3">
       <div className="max-w-4xl mx-auto flex items-center gap-3">
@@ -83,8 +74,18 @@ const MessageInput = ({ conversationId }: Props) => {
             value={text}
             onKeyDown={handleKeyDown}
             onChange={(e) => {
-              setText(e.target.value);
+              const value = e.target.value;
+              setText(value);
+
               socket?.emit("chat:typing", { conversationId });
+
+              if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current);
+              }
+
+              typingTimeoutRef.current = setTimeout(() => {
+                socket?.emit("chat:stop-typing", { conversationId });
+              }, 1000);
             }}
             className="
               w-full bg-slate-100 rounded-full px-5 py-3 pr-12

@@ -5,9 +5,13 @@ import { ForbiddenException, NotFoundExecption } from "application/constants/exc
 import { SESSION_ERRORS, Errors } from "@shared/constants/error";
 import { io } from "@infrastructure/realtime/socketServer";
 import { SocketRooms } from "@infrastructure/realtime/socketRooms";
+import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 
 export class ApproveUserUseCase implements IApproveUserUseCase {
-  constructor(private _sessionRepo: ISessionRepository) {}
+  constructor(
+    private _sessionRepo: ISessionRepository,
+    private _userRepo: IUserRepository
+  ) {}
 
   async execute(data: ApproveUserDTO): Promise<ApproveUserResponseDTO> {
     const session = await this._sessionRepo.findById(data.sessionId);
@@ -32,12 +36,19 @@ export class ApproveUserUseCase implements IApproveUserUseCase {
       throw new NotFoundExecption(SESSION_ERRORS.SESSION_NOT_FOUND);
     }
 
+    const users = await this._userRepo.findByIds(updated.waitingUsers || []);
+
+    const waitingUsers = users.map((user) => ({
+      userId: user._id!,
+      name: user.userName,
+    }));
+
     io.to(SocketRooms.user(data.userId.toString())).emit("session:approved", {
       sessionId: data.sessionId,
     });
 
     io.to(SocketRooms.session(data.sessionId)).emit("session:waiting-list-updated", {
-      waitingUsers: updated.waitingUsers || [],
+      waitingUsers,
     });
 
     return {

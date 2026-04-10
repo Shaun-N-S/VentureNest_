@@ -2,7 +2,7 @@ import z from "zod";
 
 export const userProfileUpdateSchema = z.object({
   id: z.string().min(1, "User ID is required"),
-  profileImg: z.instanceof(File).optional(),
+  profileImg: z.any().optional(),
   formData: z.object({
     userName: z.string().trim().optional(),
     bio: z.string().trim().optional(),

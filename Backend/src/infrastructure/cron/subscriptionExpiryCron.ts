@@ -6,13 +6,13 @@ export class SubscriptionExpiryCron {
 
   start() {
     cron.schedule("0 0 * * *", async () => {
-      console.log("⏳ Running subscription expiry cron...");
+      console.log(" Running subscription expiry cron...");
 
       try {
         await this._expireSubscriptionsUC.execute();
-        console.log("✅ Expired subscriptions updated");
+        console.log(" Expired subscriptions updated");
       } catch (error) {
-        console.error("❌ Cron error:", error);
+        console.error(" Cron error:", error);
       }
     });
   }

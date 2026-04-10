@@ -2,13 +2,41 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useInfiniteConversations } from "../../hooks/Chat/chatHooks";
 import type { ConversationPreview } from "../../types/chat";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useEffect, useState } from "react";
+import { getSocket } from "../../lib/socket";
 
 const ConversationList = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteConversations();
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.on("users:online-list", (users: string[]) => {
+      setOnlineUsers(users);
+    });
+
+    socket.on("user:online", ({ userId }) => {
+      setOnlineUsers((prev) => [...new Set([...prev, userId])]);
+    });
+
+    socket.on("user:offline", ({ userId }) => {
+      setOnlineUsers((prev) => prev.filter((id) => id !== userId));
+    });
+
+    socket.emit("get:online-users");
+
+    return () => {
+      socket.off("users:online-list");
+      socket.off("user:online");
+      socket.off("user:offline");
+    };
+  }, []);
 
   const conversations: ConversationPreview[] =
     data?.pages.flatMap((page) => page.conversations) ?? [];
@@ -51,15 +79,18 @@ const ConversationList = () => {
                 ${isActive ? "bg-indigo-50" : "hover:bg-slate-50"}
               `}
             >
-              <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
-                <AvatarImage
-                  src={conversation.otherUser.profileImg}
-                  className="object-cover"
-                />
-                <AvatarFallback className="bg-slate-200 text-slate-500 font-bold">
-                  {conversation.otherUser.userName.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
+                  <AvatarImage src={conversation.otherUser.profileImg} />
+                  <AvatarFallback>
+                    {conversation.otherUser.userName.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+
+                {onlineUsers.includes(conversation.otherUser.id) && (
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                )}
+              </div>
 
               <div className="flex-1 min-w-0 border-b border-slate-50 pb-3.5 pt-1">
                 <div className="flex justify-between items-center mb-1">

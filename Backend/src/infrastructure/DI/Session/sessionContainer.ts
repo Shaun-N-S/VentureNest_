@@ -10,6 +10,7 @@ import { SessionCancelledEmailContentGenerator } from "@infrastructure/services/
 import { EmailService } from "@infrastructure/services/Email/emailService";
 import { ApproveUserUseCase } from "application/useCases/Session/approveUserUseCase";
 import { CancelSessionUseCase } from "application/useCases/Session/cancelSessionUseCase";
+import { CompleteSessionUseCase } from "application/useCases/Session/completeSessionUseCase";
 import { CreateSessionFeedbackUseCase } from "application/useCases/Session/createSessionFeedbackUseCase";
 import { GetSessionStatusUseCase } from "application/useCases/Session/getSessionStatusUseCase";
 import { JoinSessionUseCase } from "application/useCases/Session/joinSessionUseCase";
@@ -32,14 +33,16 @@ const cancelSessionUseCase = new CancelSessionUseCase(
 );
 
 const createSessionFeedbackUseCase = new CreateSessionFeedbackUseCase(sessionrepo);
-const joinSessionUseCase = new JoinSessionUseCase(sessionrepo);
-const approveUserUseCase = new ApproveUserUseCase(sessionrepo);
+const joinSessionUseCase = new JoinSessionUseCase(sessionrepo, userRepo);
+const approveUserUseCase = new ApproveUserUseCase(sessionrepo, userRepo);
 const getSessionStatusUseCase = new GetSessionStatusUseCase(sessionrepo);
+const completeSessionUseCase = new CompleteSessionUseCase(sessionrepo);
 
 export const sessionController = new SessionController(
   cancelSessionUseCase,
   createSessionFeedbackUseCase,
   joinSessionUseCase,
   approveUserUseCase,
-  getSessionStatusUseCase
+  getSessionStatusUseCase,
+  completeSessionUseCase
 );

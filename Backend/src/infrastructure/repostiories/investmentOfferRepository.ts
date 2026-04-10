@@ -139,4 +139,13 @@ export class InvestmentOfferRepository
 
     return updated ? InvestmentOfferMapper.fromMongooseDocument(updated) : null;
   }
+
+  async findExpiredOffers(date: Date): Promise<InvestmentOfferEntity[]> {
+    const docs = await this._model.find({
+      expiresAt: { $lte: date },
+      status: OfferStatus.PENDING,
+    });
+
+    return docs.map(InvestmentOfferMapper.fromMongooseDocument);
+  }
 }

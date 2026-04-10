@@ -179,6 +179,7 @@ export const ROUTES = {
     JOIN_REQUEST: "/:sessionId/join-request",
     APPROVE_USER: "/:sessionId/approve-user",
     GET_STATUS: "/:sessionId/status",
+    COMPLETE_SESSION: "/:sessionId/complete",
   },
 
   PITCH: {

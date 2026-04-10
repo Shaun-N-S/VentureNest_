@@ -125,6 +125,7 @@ export class UserMapper {
 
       ...(user.googleId && { googleId: user.googleId }),
       ...(user.stripeAccountId && { stripeAccountId: user.stripeAccountId }),
+      lastSeen: user.lastSeen,
 
       stripeOnboardingComplete: user.stripeOnboardingComplete,
 
@@ -166,6 +167,7 @@ export class UserMapper {
       ...(doc.stripeOnboardingComplete !== undefined && {
         stripeOnboardingComplete: doc.stripeOnboardingComplete,
       }),
+      ...(doc.lastSeen && { lastSeen: doc.lastSeen }),
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
     };

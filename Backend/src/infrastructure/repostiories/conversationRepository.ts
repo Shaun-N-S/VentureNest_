@@ -15,6 +15,7 @@ interface PopulatedUserDoc {
   userName?: string;
   companyName?: string;
   profileImg?: string;
+  lastSeen?: Date;
 }
 
 interface PopulatedParticipantDoc {
@@ -69,7 +70,7 @@ export class ConversationRepository
       .limit(limit)
       .populate({
         path: "participants.userId",
-        select: "userName companyName profileImg",
+        select: "userName companyName profileImg lastSeen",
       })
       .lean<PopulatedConversationDoc[]>();
     return docs.map((doc) => {
@@ -80,6 +81,9 @@ export class ConversationRepository
           userName: p.userId.userName ?? p.userId.companyName ?? "Unknown",
           ...(p.userId.profileImg && {
             profileImg: p.userId.profileImg,
+          }),
+          ...(p.userId.lastSeen && {
+            lastSeen: p.userId.lastSeen,
           }),
         })
       ) as [PopulatedParticipantDTO, PopulatedParticipantDTO];

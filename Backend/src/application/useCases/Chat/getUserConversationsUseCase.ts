@@ -24,7 +24,6 @@ export class GetUserConversationsUseCase implements IGetUserConversationsUseCase
       skip,
       limit
     );
-    console.log("hello conversations :  : ", conversations);
     const total = await this._conversationRepository.countUserConversations(userId);
 
     const result: ConversationListItemDTO[] = [];
@@ -48,6 +47,7 @@ export class GetUserConversationsUseCase implements IGetUserConversationsUseCase
           userName: other.userName,
           role: other.role,
           ...(signedProfileImg && { profileImg: signedProfileImg }),
+          ...(other.lastSeen && { lastSeen: other.lastSeen }),
         },
         ...(c.lastMessage && {
           lastMessage: {
@@ -57,8 +57,6 @@ export class GetUserConversationsUseCase implements IGetUserConversationsUseCase
         }),
       });
     }
-
-    console.log(result);
 
     return {
       conversations: result,

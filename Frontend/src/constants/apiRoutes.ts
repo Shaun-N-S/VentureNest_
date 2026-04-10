@@ -162,6 +162,7 @@ export const API_ROUTES = {
     JOIN_REQUEST: "/sessions/:sessionId/join-request",
     APPROVE_USER: "/sessions/:sessionId/approve-user",
     GET_STATUS: "/sessions/:sessionId/status",
+    COMPLETE_SESSION: "/sessions/:sessionId/complete",
   },
 
   PITCH: {

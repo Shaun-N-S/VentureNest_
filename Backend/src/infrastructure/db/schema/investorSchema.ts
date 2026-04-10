@@ -39,6 +39,7 @@ const investorSchema = new mongoose.Schema(
     googleId: { type: String, unique: true, sparse: true },
     stripeAccountId: { type: String },
     stripeOnboardingComplete: { type: Boolean, default: false },
+    lastSeen: { type: Date },
     kycStatus: { type: String, enum: Object.values(KYCStatus), default: KYCStatus.PENDING },
     kycHistory: [
       {

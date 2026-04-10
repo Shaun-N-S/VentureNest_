@@ -141,6 +141,7 @@ export const MESSAGES = {
     JOIN_REQUEST_SUCCESSFUL: "Session join request successful",
     USER_APPROVED: "User approved successfully",
     STATUS_FETCHED: "Session status fetched",
+    SESSION_COMPLETED: "Session completed successfully",
   },
 
   PITCH: {

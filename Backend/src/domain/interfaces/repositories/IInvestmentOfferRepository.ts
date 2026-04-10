@@ -25,4 +25,5 @@ export interface IInvestmentOfferRepository extends IBaseRepository<InvestmentOf
   ): Promise<{ items: ReceivedInvestmentOfferPopulated[]; total: number }>;
   findDetailsById(offerId: string): Promise<InvestmentOfferDetailsPopulated | null>;
   updateStatus(offerId: string, status: OfferStatus): Promise<InvestmentOfferEntity | null>;
+  findExpiredOffers(date: Date): Promise<InvestmentOfferEntity[]>;
 }
