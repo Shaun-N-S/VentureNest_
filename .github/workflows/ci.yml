@@ -20,21 +20,21 @@ jobs:
       # Backend
       - name: Install backend dependencies
         run: |
-          cd backend
+          cd Backend
           npm install
 
       - name: Build backend
         run: |
-          cd backend
+          cd Backend
           npm run build || echo "No build step"
 
       # Frontend
       - name: Install frontend dependencies
         run: |
-          cd frontend
+          cd Frontend
           npm install
 
       - name: Build frontend
         run: |
-          cd frontend
+          cd Frontend
           npm run build || echo "No build step"
