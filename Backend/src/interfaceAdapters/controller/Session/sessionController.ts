@@ -15,6 +15,7 @@ import { ICreateSessionFeedbackUseCase } from "@domain/interfaces/useCases/sessi
 import { IJoinSessionUseCase } from "@domain/interfaces/useCases/session/IJoinSessionUseCase";
 import { IApproveUserUseCase } from "@domain/interfaces/useCases/session/IApproveUserUseCase";
 import { IGetSessionStatusUseCase } from "@domain/interfaces/useCases/session/IGetSessionStatusUseCase";
+import { ICompleteSessionUseCase } from "@domain/interfaces/useCases/session/ICompleteSessionUseCase";
 
 export class SessionController {
   constructor(
@@ -22,7 +23,8 @@ export class SessionController {
     private _addSessionFeedbackUseCase: ICreateSessionFeedbackUseCase,
     private _joinSessionUseCase: IJoinSessionUseCase,
     private _approveUserUseCase: IApproveUserUseCase,
-    private _getSessionStatusUseCase: IGetSessionStatusUseCase
+    private _getSessionStatusUseCase: IGetSessionStatusUseCase,
+    private _completeSessionUseCase: ICompleteSessionUseCase
   ) {}
 
   async cancelSession(req: Request, res: Response, next: NextFunction) {
@@ -137,6 +139,24 @@ export class SessionController {
       });
 
       ResponseHelper.success(res, MESSAGES.SESSION.STATUS_FETCHED, result, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async completeSession(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { sessionId } = req.params;
+
+      if (!sessionId) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const userId = res.locals.user.userId;
+
+      await this._completeSessionUseCase.execute(sessionId, userId);
+
+      ResponseHelper.success(res, MESSAGES.SESSION.SESSION_COMPLETED, null, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

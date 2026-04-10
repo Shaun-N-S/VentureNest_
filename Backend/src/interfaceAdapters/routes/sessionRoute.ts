@@ -50,6 +50,14 @@ export class Session_Router {
         sessionController.getSessionStatus(req, res, next);
       }
     );
+
+    this._route.post(
+      ROUTES.SESSION.COMPLETE_SESSION,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        sessionController.completeSession(req, res, next);
+      }
+    );
   }
 
   public get_router(): Router {

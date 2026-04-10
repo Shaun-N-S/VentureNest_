@@ -3,6 +3,7 @@ import { initSocket } from "../../lib/socket";
 import { registerVideoSocket } from "../../sockets/video.socket";
 import {
   useApproveUser,
+  useCompleteSession,
   useSessionStatus,
 } from "../../hooks/Session/sessionHooks";
 import { useNavigate } from "react-router-dom";
@@ -32,6 +33,7 @@ export default function VideoCall({ sessionId }: Props) {
   const startedRef = useRef(false);
 
   const { mutate: approveUserApi } = useApproveUser();
+  const { mutate: completeSession } = useCompleteSession();
   const { data } = useSessionStatus(sessionId);
 
   const navigate = useNavigate();
@@ -236,6 +238,10 @@ export default function VideoCall({ sessionId }: Props) {
     localStreamRef.current?.getTracks().forEach((t) => t.stop());
 
     socketRef.current?.emit("session:leave", { sessionId });
+
+    if (isHost) {
+      completeSession(sessionId);
+    }
 
     navigate("/sessions");
   };

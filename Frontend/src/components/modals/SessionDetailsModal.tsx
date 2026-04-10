@@ -8,7 +8,6 @@ import {
   Building2,
   Users,
   ArrowRight,
-  Video,
   Tag,
   ExternalLink,
   XCircle,
@@ -338,11 +337,6 @@ export function SessionDetailsModal({
           {/* FOOTER ACTION - Fixed at bottom */}
           {isScheduled && (
             <div className="border-t p-4 space-y-3">
-              <Button className="w-full gap-2">
-                <Video className="w-4 h-4" />
-                Join Session
-              </Button>
-
               <Button
                 variant="destructive"
                 onClick={() => setOpenCancelModal(true)}

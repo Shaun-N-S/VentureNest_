@@ -62,3 +62,18 @@ export const useSessionStatus = (sessionId: string) => {
     enabled: !!sessionId,
   });
 };
+
+export const useCompleteSession = () => {
+  return useMutation({
+    mutationFn: (sessionId: string) =>
+      sessionService.completeSession(sessionId),
+
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        const message =
+          error?.response?.data?.message || "Something went wrong";
+        toast.error(message);
+      }
+    },
+  });
+};
