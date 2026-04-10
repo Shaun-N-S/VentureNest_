@@ -1,20 +1,18 @@
 services:
   backend:
-    build:
-      context: ./Backend
+    image: shaun1092/venturenest-backend
     container_name: backend
     ports:
       - "4000:4000"
     env_file:
       - ./Backend/.env
+    restart: always
 
   frontend:
-    build:
-      context: ./Frontend
-      args:
-        VITE_API_BASE_URL: /api
+    image: shaun1092/venturenest-frontend
     container_name: frontend
     ports:
       - "3000:80"
     depends_on:
       - backend
+    restart: always
