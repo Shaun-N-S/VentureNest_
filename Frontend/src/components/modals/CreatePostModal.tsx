@@ -12,6 +12,7 @@ import { updateUserData } from "../../store/Slice/authDataSlice";
 import type { Rootstate } from "../../store/store";
 import type { AllPost, PostsPage } from "../../types/postFeed";
 import type { InfiniteData } from "@tanstack/react-query";
+import type { UserRole } from "@/types/UserRole";
 
 interface MediaPreview {
   url: string;
@@ -23,7 +24,7 @@ interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
   authorId: string;
-  authorRole: string;
+  authorRole: UserRole;
 }
 
 const MAX_MEDIA = 3;
@@ -203,6 +204,9 @@ export default function CreatePostModal({
             likeCount: 0,
             liked: false,
             commentsCount: 0,
+            name: userData.userName,
+            authorAvatar: userData.profileImg,
+            authorRole: authorRole,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
@@ -217,6 +221,7 @@ export default function CreatePostModal({
             liked: false,
             authorName: userData.userName,
             authorProfileImg: userData.profileImg,
+            authorRole: authorRole,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
