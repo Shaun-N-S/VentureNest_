@@ -1,16 +1,16 @@
 services:
   backend:
     build:
-      context: ./backend
+      context: ./Backend
     container_name: backend
     ports:
       - "4000:4000"
     env_file:
-      - ./backend/.env
+      - ./Backend/.env
 
   frontend:
     build:
-      context: ./frontend
+      context: ./Frontend
       args:
         VITE_API_BASE_URL: /api
     container_name: frontend
