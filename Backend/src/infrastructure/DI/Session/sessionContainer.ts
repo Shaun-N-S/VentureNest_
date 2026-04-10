@@ -32,8 +32,8 @@ const cancelSessionUseCase = new CancelSessionUseCase(
 );
 
 const createSessionFeedbackUseCase = new CreateSessionFeedbackUseCase(sessionrepo);
-const joinSessionUseCase = new JoinSessionUseCase(sessionrepo);
-const approveUserUseCase = new ApproveUserUseCase(sessionrepo);
+const joinSessionUseCase = new JoinSessionUseCase(sessionrepo, userRepo);
+const approveUserUseCase = new ApproveUserUseCase(sessionrepo, userRepo);
 const getSessionStatusUseCase = new GetSessionStatusUseCase(sessionrepo);
 
 export const sessionController = new SessionController(

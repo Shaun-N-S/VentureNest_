@@ -84,6 +84,13 @@ export function initSocket(server: HttpServer) {
     socket.on("video:offer", ({ sessionId, offer }) => {
       socket.to(SocketRooms.session(sessionId)).emit("video:offer", {
         offer,
+        from: socket.data.user.userId,
+      });
+    });
+
+    socket.on("video:ready", ({ sessionId }) => {
+      socket.to(SocketRooms.session(sessionId)).emit("video:ready", {
+        userId: socket.data.user.userId,
       });
     });
 
@@ -91,6 +98,7 @@ export function initSocket(server: HttpServer) {
     socket.on("video:answer", ({ sessionId, answer }) => {
       socket.to(SocketRooms.session(sessionId)).emit("video:answer", {
         answer,
+        from: socket.data.user.userId,
       });
     });
 
@@ -98,11 +106,24 @@ export function initSocket(server: HttpServer) {
     socket.on("video:ice-candidate", ({ sessionId, candidate }) => {
       socket.to(SocketRooms.session(sessionId)).emit("video:ice-candidate", {
         candidate,
+        from: socket.data.user.userId,
       });
     });
 
-    socket.on("disconnect", () => {
-      console.log(" Socket disconnected:", socket.id);
+    socket.on("session:leave", ({ sessionId }) => {
+      socket.leave(SocketRooms.session(sessionId));
+
+      socket.to(SocketRooms.session(sessionId)).emit("video:user-left", {
+        userId: socket.data.user.userId,
+      });
+    });
+
+    socket.on("disconnecting", () => {
+      socket.rooms.forEach((room) => {
+        socket.to(room).emit("video:user-left", {
+          userId: socket.data.user.userId,
+        });
+      });
     });
   });
 

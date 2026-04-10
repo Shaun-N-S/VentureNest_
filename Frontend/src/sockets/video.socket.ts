@@ -8,7 +8,8 @@ export const registerVideoSocket = (
   const pendingCandidates: RTCIceCandidateInit[] = [];
 
   /* ---------- OFFER ---------- */
-  socket.on("video:offer", async ({ offer }) => {
+  socket.on("video:offer", async ({ offer, from }) => {
+    console.log("Offer from:", from);
     try {
       console.log("📩 Received offer");
 
@@ -19,7 +20,6 @@ export const registerVideoSocket = (
 
       socket.emit("video:answer", { sessionId, answer });
 
-      // ✅ APPLY buffered ICE
       pendingCandidates.forEach((c) =>
         peerConnection.addIceCandidate(new RTCIceCandidate(c)),
       );
@@ -36,7 +36,6 @@ export const registerVideoSocket = (
 
       await peerConnection.setRemoteDescription(answer);
 
-      // ✅ APPLY buffered ICE
       pendingCandidates.forEach((c) =>
         peerConnection.addIceCandidate(new RTCIceCandidate(c)),
       );
@@ -48,16 +47,19 @@ export const registerVideoSocket = (
 
   /* ---------- ICE ---------- */
   socket.on("video:ice-candidate", async ({ candidate }) => {
+    console.log("❄️ ICE RECEIVED:", candidate);
+
     try {
       if (!candidate) return;
 
-      // ✅ IF remote not ready → buffer
       if (!peerConnection.remoteDescription) {
+        console.log("⏳ Queueing ICE");
         pendingCandidates.push(candidate);
         return;
       }
 
-      await peerConnection.addIceCandidate(candidate);
+      console.log("✅ Adding ICE");
+      await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     } catch (err) {
       console.log("ICE ERROR:", err);
     }

@@ -17,7 +17,9 @@ interface Props {
 }
 
 export default function VideoCall({ sessionId }: Props) {
-  const [waitingUsers, setWaitingUsers] = useState<string[]>([]);
+  const [waitingUsers, setWaitingUsers] = useState<
+    { userId: string; name: string }[]
+  >([]);
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
 
@@ -42,9 +44,7 @@ export default function VideoCall({ sessionId }: Props) {
 
     socketRef.current = socket;
 
-    return () => {
-      socket.off("session:user-waiting");
-    };
+    return () => {};
   }, []);
 
   /* ------------------ ACCESS CONTROL ------------------ */
@@ -96,7 +96,13 @@ export default function VideoCall({ sessionId }: Props) {
           }
         });
 
+        setTimeout(() => {
+          console.log("📢 SENDING READY");
+          socket.emit("video:ready", { sessionId });
+        }, 500);
+
         peerConnection.ontrack = (event) => {
+          console.log("🎥 Remote stream received");
           if (remoteVideoRef.current) {
             remoteVideoRef.current.srcObject = event.streams[0];
           }
@@ -104,6 +110,8 @@ export default function VideoCall({ sessionId }: Props) {
 
         peerConnection.onicecandidate = (event) => {
           if (event.candidate) {
+            console.log("❄️ ICE SENDING:", event.candidate);
+
             socket.emit("video:ice-candidate", {
               sessionId,
               candidate: event.candidate,
@@ -113,17 +121,10 @@ export default function VideoCall({ sessionId }: Props) {
 
         registerVideoSocket(socket, peerConnection, sessionId);
 
-        socket.on("video:user-joined", async () => {
-          if (!isHost) return;
-
-          await new Promise((r) => setTimeout(r, 300));
-
-          if (peerConnection.signalingState !== "stable") return;
-
-          const offer = await peerConnection.createOffer();
-          await peerConnection.setLocalDescription(offer);
-
-          socket.emit("video:offer", { sessionId, offer });
+        socket.on("video:user-left", () => {
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = null;
+          }
         });
       } catch (err) {
         console.error("Media error:", err);
@@ -139,6 +140,9 @@ export default function VideoCall({ sessionId }: Props) {
       socket.off("video:answer");
       socket.off("video:ice-candidate");
       socket.off("video:user-joined");
+
+      peerConnectionRef.current?.close();
+      peerConnectionRef.current = null;
     };
   }, [sessionId]);
 
@@ -148,7 +152,11 @@ export default function VideoCall({ sessionId }: Props) {
 
     const socket = socketRef.current;
 
-    const listHandler = ({ waitingUsers }: { waitingUsers: string[] }) => {
+    const listHandler = ({
+      waitingUsers,
+    }: {
+      waitingUsers: { userId: string; name: string }[];
+    }) => {
       setWaitingUsers(waitingUsers);
     };
 
@@ -159,6 +167,32 @@ export default function VideoCall({ sessionId }: Props) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!socketRef.current || !peerConnectionRef.current || !data) return;
+
+    const socket = socketRef.current;
+    const peerConnection = peerConnectionRef.current;
+
+    if (data.role !== "host") return;
+
+    const handleReady = async () => {
+      console.log("🔥 READY RECEIVED → creating offer");
+
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+
+      console.log("📡 SENDING OFFER");
+
+      socket.emit("video:offer", { sessionId, offer });
+    };
+
+    socket.on("video:ready", handleReady);
+
+    return () => {
+      socket.off("video:ready", handleReady);
+    };
+  }, [data, sessionId]);
+
   /* ------------------ ACTIONS ------------------ */
 
   const approveUser = (userId: string) => {
@@ -166,7 +200,13 @@ export default function VideoCall({ sessionId }: Props) {
       { sessionId, userId },
       {
         onSuccess: () => {
-          setWaitingUsers((prev) => prev.filter((id) => id !== userId));
+          setWaitingUsers((prev) =>
+            prev.filter((user) => user.userId !== userId),
+          );
+
+          setTimeout(() => {
+            socketRef.current?.emit("video:ready", { sessionId });
+          }, 500);
         },
       },
     );
@@ -230,15 +270,15 @@ export default function VideoCall({ sessionId }: Props) {
             <p className="text-gray-400">No users waiting</p>
           )}
 
-          {waitingUsers.map((userId) => (
+          {waitingUsers.map((user) => (
             <div
-              key={userId}
+              key={user.userId}
               className="flex justify-between items-center mb-2 bg-gray-700 px-3 py-2 rounded"
             >
-              <span>User {userId.slice(-4)}</span>
+              <span>{user.name}</span>
 
               <button
-                onClick={() => approveUser(userId)}
+                onClick={() => approveUser(user.userId)}
                 className="bg-green-500 hover:bg-green-600 px-3 py-1 rounded"
               >
                 Allow
