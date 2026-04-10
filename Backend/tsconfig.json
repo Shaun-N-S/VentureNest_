@@ -18,6 +18,8 @@
       "@domain/*":["domain/*"]
     },
 
+    "ignoreDeprecations": "6.0",
+
     /* Strictness + Safety */
     "strict": true,
     "noUncheckedIndexedAccess": true,
