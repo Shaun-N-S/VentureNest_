@@ -19,6 +19,9 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+          cache-dependency-path: |
+            Backend/package-lock.json
+            Frontend/package-lock.json
 
       # 3. Backend
       - name: Install Backend
@@ -44,7 +47,7 @@ jobs:
       - name: Docker Login
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # 6. Build Docker Image (IMPORTANT FIX)
+      # 6. Build Docker Image
       - name: Build Docker Image
         run: docker build -t shaun1092/venturenest-backend ./Backend
 
