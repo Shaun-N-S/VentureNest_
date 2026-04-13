@@ -6,10 +6,10 @@
     /* Module + Target */
     "target": "ES2021",
     "module": "CommonJS",
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
 
     /* Path Aliases */
-    // "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "6.0",
     "baseUrl": "./src",
     "paths": {
       "@shared/*": ["shared/*"],
