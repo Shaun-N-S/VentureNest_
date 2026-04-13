@@ -61,15 +61,15 @@ type InboxTab = "pitches" | "offers";
 
 const formatCurrency = (amount: number) => {
   if (amount >= 10000000) {
-    return `$${(amount / 10000000).toFixed(1)}Cr`;
+    return `₹${(amount / 10000000).toFixed(1)}Cr`;
   }
   if (amount >= 1000000) {
-    return `$${(amount / 1000000).toFixed(1)}M`;
+    return `₹${(amount / 1000000).toFixed(1)}M`;
   }
   if (amount >= 1000) {
-    return `$${(amount / 1000).toFixed(0)}k`;
+    return `₹${(amount / 1000).toFixed(0)}k`;
   }
-  return `$${amount}`;
+  return `₹${amount}`;
 };
 
 const pitchStatusConfig: Record<

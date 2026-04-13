@@ -15,4 +15,7 @@ export interface IDealRepository extends IBaseRepository<DealEntity> {
   getTopInvestors(limit: number): Promise<{ investorId: string; totalInvested: number }[]>;
   getTopFundedCategories(limit: number): Promise<{ category: string; totalFunding: number }[]>;
   getTopFundedStages(limit: number): Promise<{ stage: string; totalFunding: number }[]>;
+  getInvestorProjectInvestment(
+    investorId: string
+  ): Promise<{ projectId: string; totalInvested: number }[]>;
 }

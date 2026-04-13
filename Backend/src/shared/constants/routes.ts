@@ -244,5 +244,6 @@ export const ROUTES = {
     PROJECT_ANALYTICS: "/reports",
     INVESTOR_SUMMARY: "/investor",
     INVESTOR_PORTFOLIO: "/investor-portfolio",
+    INVESTOR_DISTRIBUTION: "/investor-distribution",
   },
 };

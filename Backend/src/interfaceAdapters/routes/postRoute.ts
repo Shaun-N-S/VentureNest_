@@ -2,7 +2,7 @@ import { postController } from "@infrastructure/DI/Post/PostContainer";
 import { ROUTES } from "../../shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
 import { uploadMulter } from "interfaceAdapters/middleware/multer";
-import { adminGuard, userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
+import { userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 
 export class Post_Router {
   private _route: Router;

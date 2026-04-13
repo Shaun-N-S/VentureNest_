@@ -65,3 +65,13 @@ export interface InvestmentChartItemDTO {
 }
 
 export type InvestmentChartDTO = InvestmentChartItemDTO[];
+
+export interface DistributionItem {
+  name: string;
+  value: number;
+}
+
+export interface InvestorDistribution {
+  investmentDistribution: DistributionItem[];
+  stageDistribution: DistributionItem[];
+}

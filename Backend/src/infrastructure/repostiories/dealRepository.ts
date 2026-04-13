@@ -1,4 +1,4 @@
-import { ClientSession, Model } from "mongoose";
+import mongoose, { ClientSession, Model } from "mongoose";
 import { BaseRepository } from "./baseRepository";
 import { IDealRepository } from "@domain/interfaces/repositories/IDealRepository";
 import { IDealModel } from "@infrastructure/db/models/dealModel";
@@ -191,6 +191,26 @@ export class DealRepository
     return result.map((r) => ({
       stage: r._id,
       totalFunding: r.totalFunding,
+    }));
+  }
+  async getInvestorProjectInvestment(investorId: string) {
+    const result = await this._model.aggregate([
+      {
+        $match: {
+          investorId: new mongoose.Types.ObjectId(investorId),
+        },
+      },
+      {
+        $group: {
+          _id: "$projectId",
+          totalInvested: { $sum: "$amountPaid" },
+        },
+      },
+    ]);
+
+    return result.map((r) => ({
+      projectId: r._id.toString(),
+      totalInvested: r.totalInvested,
     }));
   }
 }

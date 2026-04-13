@@ -50,3 +50,11 @@ export const getInvestorPortfolio = async (): Promise<InvestorPortfolio> => {
 
   return response.data.data;
 };
+
+export const getInvestorDistribution = async () => {
+  const response = await AxiosInstance.get(
+    API_ROUTES.DASHBOARD.INVESTOR_DISTRIBUTION,
+  );
+
+  return response.data.data;
+};

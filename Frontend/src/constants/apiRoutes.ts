@@ -227,5 +227,6 @@ export const API_ROUTES = {
     PROJECT_ANALYTICS: "/dashboard/reports",
     INVESTOR_SUMMARY: "/dashboard/investor",
     INVESTOR_PORTFOLIO: "/dashboard/investor-portfolio",
+    INVESTOR_DISTRIBUTION: "/dashboard/investor-distribution",
   },
 };
