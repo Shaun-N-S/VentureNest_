@@ -73,6 +73,7 @@ export const API_ROUTES = {
     DASHBOARD_SUMMARY: "/admin/dashboard-summary",
     DASHBOARD_GRAPH: "/admin/dashboard-graph",
     DASHBOARD_TOP: "/admin/dashboard-top",
+    DASHBOARD_INSIGHTS: "/admin/dashboard-insights",
   },
 
   INVESTOR: {

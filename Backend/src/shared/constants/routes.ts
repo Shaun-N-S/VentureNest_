@@ -83,6 +83,7 @@ export const ROUTES = {
     DASHBOARD_SUMMARY: "/dashboard-summary",
     DASHBOARD_GRAPH: "/dashboard-graph",
     DASHBOARD_TOP: "/dashboard-top",
+    DASHBOARD_INSIGHTS: "/dashboard-insights",
   },
 
   USERS: {

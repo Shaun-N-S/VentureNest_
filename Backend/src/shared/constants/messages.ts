@@ -205,5 +205,6 @@ export const MESSAGES = {
 
   DASHBOARD: {
     FETCHED: "Dashboard fetched",
+    TOP_CATEGORIES_FETCHED: "Top categories fetched successfully",
   },
 };

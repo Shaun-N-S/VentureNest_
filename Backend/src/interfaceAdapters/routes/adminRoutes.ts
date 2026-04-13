@@ -280,6 +280,13 @@ export class Admin_Routes {
       (req: Request, res: Response, next: NextFunction) =>
         adminDashboardController.getTop(req, res, next)
     );
+
+    this._route.get(
+      ADMIN.DASHBOARD_INSIGHTS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminDashboardController.getInsights(req, res, next)
+    );
   }
 
   public get_router(): Router {

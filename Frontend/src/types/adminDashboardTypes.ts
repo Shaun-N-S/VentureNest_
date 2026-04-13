@@ -34,3 +34,13 @@ export interface AdminDashboardTop {
   topStartups: TopStartup[];
   topInvestors: TopInvestor[];
 }
+
+export interface PieChartData {
+  name: string;
+  value: number;
+}
+
+export interface AdminDashboardInsights {
+  categoryDistribution: PieChartData[];
+  stageDistribution: PieChartData[];
+}

@@ -129,4 +129,68 @@ export class DealRepository
       totalInvested: r.totalInvested,
     }));
   }
+
+  async getTopFundedCategories(
+    limit: number
+  ): Promise<{ category: string; totalFunding: number }[]> {
+    const result = await this._model.aggregate([
+      {
+        $lookup: {
+          from: "projects",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "project",
+        },
+      },
+      {
+        $unwind: "$project",
+      },
+      {
+        $group: {
+          _id: "$project.category",
+          totalFunding: { $sum: "$amountPaid" },
+        },
+      },
+      {
+        $sort: { totalFunding: -1 },
+      },
+      {
+        $limit: limit,
+      },
+    ]);
+
+    return result.map((r) => ({
+      category: r._id,
+      totalFunding: r.totalFunding,
+    }));
+  }
+
+  async getTopFundedStages(limit: number): Promise<{ stage: string; totalFunding: number }[]> {
+    const result = await this._model.aggregate([
+      {
+        $lookup: {
+          from: "projects",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "project",
+        },
+      },
+      { $unwind: "$project" },
+
+      {
+        $group: {
+          _id: "$project.stage",
+          totalFunding: { $sum: "$amountPaid" },
+        },
+      },
+
+      { $sort: { totalFunding: -1 } },
+      { $limit: limit },
+    ]);
+
+    return result.map((r) => ({
+      stage: r._id,
+      totalFunding: r.totalFunding,
+    }));
+  }
 }
