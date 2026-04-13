@@ -9,15 +9,14 @@
     "moduleResolution": "Node",
 
     /* Path Aliases */
-    // "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "6.0",
     "baseUrl": "./src",
     "paths": {
       "@shared/*": ["shared/*"],
       "@infrastructure/*": ["infrastructure/*"],
       "@config/*": ["config/*"],
-      "@domain/*":["domain/*"]
+      "@domain/*": ["domain/*"]
     },
-
 
     /* Strictness + Safety */
     "strict": true,

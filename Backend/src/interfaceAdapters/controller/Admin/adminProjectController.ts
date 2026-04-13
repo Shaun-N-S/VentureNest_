@@ -35,8 +35,6 @@ export class AdminProjectController {
         search
       );
 
-      console.log("Result in controller:", result);
-
       if (!result || result.projects.length === 0) {
         throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);
       }
