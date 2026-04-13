@@ -5,6 +5,7 @@ import { IGetPostByIdUseCase } from "@domain/interfaces/useCases/admin/post/IGet
 import { IGetProjectByIdUseCase } from "@domain/interfaces/useCases/admin/project/IGetProjectByIdUseCase";
 import { InvalidDataException } from "application/constants/exceptions";
 import { Errors } from "@shared/constants/error";
+import { MESSAGES } from "@shared/constants/messages";
 
 export class AdminContentController {
   constructor(
@@ -22,7 +23,7 @@ export class AdminContentController {
 
       const data = await this._getPostByIdUseCase.execute(postId);
 
-      ResponseHelper.success(res, "Post fetched", data, HTTPSTATUS.OK);
+      ResponseHelper.success(res, MESSAGES.POST.POST_FETCHED_SUCCESSFULLY, data, HTTPSTATUS.OK);
     } catch (err) {
       next(err);
     }
@@ -38,7 +39,7 @@ export class AdminContentController {
 
       const data = await this._getProjectByIdUseCase.execute(projectId);
 
-      ResponseHelper.success(res, "Project fetched", data, HTTPSTATUS.OK);
+      ResponseHelper.success(res, MESSAGES.PROJECT.PROJECT_FETCH_SUCCESS, data, HTTPSTATUS.OK);
     } catch (err) {
       next(err);
     }

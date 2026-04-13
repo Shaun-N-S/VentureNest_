@@ -167,6 +167,7 @@ const AdminPlansPage = () => {
         planId: editingPlan._id,
         payload: mapFormToPayload(data),
       });
+      console.log("Updated Plan:", updatedPlan);
 
       queryClient.setQueryData<PaginatedPlansExplaination>(
         [

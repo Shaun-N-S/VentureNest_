@@ -12,6 +12,7 @@ import { updateReportStatusSchema } from "@shared/validations/updateReportStatus
 import { IUpdateReportStatusUseCase } from "@domain/interfaces/useCases/admin/report/IUpdateReportStatusUseCase";
 import { ReportStatus } from "@domain/enum/reportStatus";
 import { ReportReason } from "@domain/enum/reportReason";
+import { IAdminRemovePostUseCase } from "@domain/interfaces/useCases/admin/post/IAdminRemovePostUseCase";
 
 export class AdminReportController {
   constructor(
@@ -19,7 +20,8 @@ export class AdminReportController {
     private _getReportedProjectsUseCase: IGetReportedProjectsUseCase,
     private _getPostReportsUseCase: IGetPostReportsUseCase,
     private _getProjectReportsUseCase: IGetProjectReportsUseCase,
-    private _updateReportStatusUseCase: IUpdateReportStatusUseCase
+    private _updateReportStatusUseCase: IUpdateReportStatusUseCase,
+    private _adminRemovePost: IAdminRemovePostUseCase
   ) {}
 
   async getReportedPosts(req: Request, res: Response, next: NextFunction) {
@@ -121,6 +123,22 @@ export class AdminReportController {
       const result = await this._updateReportStatusUseCase.execute(reportId, adminId, dto);
 
       ResponseHelper.success(res, MESSAGES.REPORT.REPORT_STATUS_UPDATED, result, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async adminRemovePost(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const postId = req.params.id;
+
+      if (!postId) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const result = await this._adminRemovePost.execute(postId);
+
+      ResponseHelper.success(res, MESSAGES.POST.POST_STATUS_UPDATED, result, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

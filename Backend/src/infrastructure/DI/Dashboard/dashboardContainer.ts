@@ -10,6 +10,7 @@ import { ProjectRepository } from "@infrastructure/repostiories/projectRepositor
 import { WalletRepository } from "@infrastructure/repostiories/walletRepository";
 import { StorageService } from "@infrastructure/services/storageService";
 import { GetInvestorDashboardSummaryUseCase } from "application/useCases/Dashboard/getInvestorDashboardSummaryUseCase";
+import { GetInvestorDistributionUseCase } from "application/useCases/Dashboard/getInvestorDistributionUseCase";
 import { GetInvestorPortfolioUseCase } from "application/useCases/Dashboard/getInvestorPortfolioUseCase";
 import { GetProjectReportAnalyticsUseCase } from "application/useCases/Dashboard/getProjectReportAnalyticsUseCase";
 import { GetUserDashboardUseCase } from "application/useCases/Dashboard/getUserDashboardUseCase";
@@ -34,10 +35,12 @@ const getInvestorDashboardSummaryUseCase = new GetInvestorDashboardSummaryUseCas
   walletRepo
 );
 const getInvestorPortfolioUseCase = new GetInvestorPortfolioUseCase(dealRepo, storageService);
+const getInvestorDistributionUseCase = new GetInvestorDistributionUseCase(dealRepo, projectRepo);
 
 export const dashboardController = new DashboardController(
   getUserDashboardUseCase,
   getProjectAnalyticsUseCase,
   getInvestorDashboardSummaryUseCase,
-  getInvestorPortfolioUseCase
+  getInvestorPortfolioUseCase,
+  getInvestorDistributionUseCase
 );

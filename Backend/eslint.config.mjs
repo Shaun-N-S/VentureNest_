@@ -10,22 +10,22 @@ export default [
       parser: tseslint.parser,
       parserOptions: {
         ecmaVersion: "latest",
-        sourceType: "module"
+        sourceType: "module",
       },
       globals: {
         ...globals.node,
-        ...globals.es2021
-      }
+        ...globals.es2021,
+      },
     },
     plugins: {
       "@typescript-eslint": tseslint.plugin,
-      prettier: prettierPlugin
+      prettier: prettierPlugin,
     },
     rules: {
       ...tseslint.configs.recommended.rules,
       "prettier/prettier": "error",
       "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/explicit-module-boundary-types": "off"
-    }
-  }
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+    },
+  },
 ];

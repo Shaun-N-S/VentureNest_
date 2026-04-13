@@ -1,10 +1,13 @@
 import { investorModel } from "@infrastructure/db/models/investorModel";
+import { postModel } from "@infrastructure/db/models/postModel";
 import { reportModel } from "@infrastructure/db/models/reportModel";
 import { userModel } from "@infrastructure/db/models/userModel";
 import { InvestorRepository } from "@infrastructure/repostiories/investorRepository";
+import { PostRepository } from "@infrastructure/repostiories/postRepository";
 import { ReportRepository } from "@infrastructure/repostiories/reportRepository";
 import { UserRepository } from "@infrastructure/repostiories/userRepository";
 import { StorageService } from "@infrastructure/services/storageService";
+import { AdminRemovePostUseCase } from "application/useCases/Admin/post/adminRemovePostUseCase";
 import { GetPostReportsUseCase } from "application/useCases/Admin/report/getPostReportsUseCase";
 import { GetProjectReportsUseCase } from "application/useCases/Admin/report/getProjectReportsUseCase";
 import { GetReportedPostsUseCase } from "application/useCases/Admin/report/getReportedPostsUseCase";
@@ -16,6 +19,7 @@ import { AdminReportController } from "interfaceAdapters/controller/Admin/adminR
 const reportRepository = new ReportRepository(reportModel);
 const userRepository = new UserRepository(userModel);
 const investorRepository = new InvestorRepository(investorModel);
+const postRepository = new PostRepository(postModel);
 const storageService = new StorageService();
 
 //usecase
@@ -34,6 +38,7 @@ const getProjectReportsUseCase = new GetProjectReportsUseCase(
   storageService
 );
 const updateReportStatusUseCase = new UpdateReportStatusUseCase(reportRepository);
+const removePostUseCase = new AdminRemovePostUseCase(postRepository, storageService);
 
 //controller
 export const adminReportController = new AdminReportController(
@@ -41,5 +46,6 @@ export const adminReportController = new AdminReportController(
   getReportedProjectsUseCase,
   getPostReportsUseCase,
   getProjectReportsUseCase,
-  updateReportStatusUseCase
+  updateReportStatusUseCase,
+  removePostUseCase
 );

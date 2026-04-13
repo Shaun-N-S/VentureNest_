@@ -88,7 +88,6 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
       const platformFee = Number((dto.amount * PLATFORM_COMMISSION_RATE).toFixed(2));
       const founderReceives = dto.amount - platformFee;
 
-      await this._walletRepo.decrementBalance(investorWallet._id!, dto.amount, session);
       await this._walletRepo.incrementBalance(projectWallet._id!, founderReceives, session);
       await this._walletRepo.incrementBalance(platformWallet._id!, platformFee, session);
 
@@ -104,10 +103,8 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
         session
       );
 
+      const newRemaining = deal.remainingAmount - dto.amount;
       await this._dealRepo.incrementPaidAmount(deal._id!, dto.amount, session);
-      const updatedDeal = await this._dealRepo.findById(deal._id!);
-
-      if (!updatedDeal) throw new NotFoundExecption(DEAL_ERRORS.DEAL_NOT_FOUND);
 
       await this._transactionRepo.save(
         {
@@ -122,17 +119,19 @@ export class ReleaseDealInstallmentUseCase implements IReleaseDealInstallmentUse
         session
       );
 
-      const isCompleted = updatedDeal.remainingAmount === 0;
-
+      const isCompleted = newRemaining <= 0;
       await this._dealRepo.update(
-        updatedDeal._id!,
+        deal._id!,
         {
           status: isCompleted ? DealStatus.COMPLETED : DealStatus.PARTIALLY_PAID,
         },
         session
       );
-
-      await this._equityService.allocateEquity(updatedDeal, dto.amount, session!);
+      await this._equityService.allocateEquity(
+        { ...deal, remainingAmount: newRemaining },
+        dto.amount,
+        session!
+      );
 
       await this._unitOfWork.commit();
     } catch (error) {

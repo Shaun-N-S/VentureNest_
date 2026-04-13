@@ -12,6 +12,7 @@ import { TransactionRepository } from "@infrastructure/repostiories/transactionR
 import { UserRepository } from "@infrastructure/repostiories/userRepository";
 import { StorageService } from "@infrastructure/services/storageService";
 import { GetAdminDashboardGraphUseCase } from "application/useCases/Admin/dashboard/getAdminDashboardGraphUseCase";
+import { GetAdminDashboardInsightsUseCase } from "application/useCases/Admin/dashboard/getAdminDashboardInsightsUseCase";
 import { GetAdminDashboardSummaryUseCase } from "application/useCases/Admin/dashboard/getAdminDashboardSummaryUseCase";
 import { GetAdminDashboardTopUseCase } from "application/useCases/Admin/dashboard/getAdminDashboardTopUseCase";
 import { AdminDashboardController } from "interfaceAdapters/controller/Admin/adminDashboardController";
@@ -39,9 +40,11 @@ const getTopUseCase = new GetAdminDashboardTopUseCase(
   investorRepo,
   storageService
 );
+const getInsightsUseCase = new GetAdminDashboardInsightsUseCase(dealRepo);
 
 export const adminDashboardController = new AdminDashboardController(
   getSummaryUseCase,
   getGraphUseCase,
-  getTopUseCase
+  getTopUseCase,
+  getInsightsUseCase
 );

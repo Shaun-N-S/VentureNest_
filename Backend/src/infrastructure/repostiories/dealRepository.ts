@@ -1,4 +1,4 @@
-import { ClientSession, Model } from "mongoose";
+import mongoose, { ClientSession, Model } from "mongoose";
 import { BaseRepository } from "./baseRepository";
 import { IDealRepository } from "@domain/interfaces/repositories/IDealRepository";
 import { IDealModel } from "@infrastructure/db/models/dealModel";
@@ -126,6 +126,90 @@ export class DealRepository
 
     return result.map((r) => ({
       investorId: r._id.toString(),
+      totalInvested: r.totalInvested,
+    }));
+  }
+
+  async getTopFundedCategories(
+    limit: number
+  ): Promise<{ category: string; totalFunding: number }[]> {
+    const result = await this._model.aggregate([
+      {
+        $lookup: {
+          from: "projects",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "project",
+        },
+      },
+      {
+        $unwind: "$project",
+      },
+      {
+        $group: {
+          _id: "$project.category",
+          totalFunding: { $sum: "$amountPaid" },
+        },
+      },
+      {
+        $sort: { totalFunding: -1 },
+      },
+      {
+        $limit: limit,
+      },
+    ]);
+
+    return result.map((r) => ({
+      category: r._id,
+      totalFunding: r.totalFunding,
+    }));
+  }
+
+  async getTopFundedStages(limit: number): Promise<{ stage: string; totalFunding: number }[]> {
+    const result = await this._model.aggregate([
+      {
+        $lookup: {
+          from: "projects",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "project",
+        },
+      },
+      { $unwind: "$project" },
+
+      {
+        $group: {
+          _id: "$project.stage",
+          totalFunding: { $sum: "$amountPaid" },
+        },
+      },
+
+      { $sort: { totalFunding: -1 } },
+      { $limit: limit },
+    ]);
+
+    return result.map((r) => ({
+      stage: r._id,
+      totalFunding: r.totalFunding,
+    }));
+  }
+  async getInvestorProjectInvestment(investorId: string) {
+    const result = await this._model.aggregate([
+      {
+        $match: {
+          investorId: new mongoose.Types.ObjectId(investorId),
+        },
+      },
+      {
+        $group: {
+          _id: "$projectId",
+          totalInvested: { $sum: "$amountPaid" },
+        },
+      },
+    ]);
+
+    return result.map((r) => ({
+      projectId: r._id.toString(),
       totalInvested: r.totalInvested,
     }));
   }

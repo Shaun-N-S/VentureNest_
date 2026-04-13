@@ -200,7 +200,7 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <StatCard
                     label="Total Investment"
-                    value={`$${data!.amount.toLocaleString()}`}
+                    value={`₹${data!.amount.toLocaleString()}`}
                     icon={<DollarSign className="text-emerald-500" />}
                   />
                   <StatCard
@@ -210,7 +210,7 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                   />
                   <StatCard
                     label="Post-Money Valuation"
-                    value={`$${data!.valuation?.toLocaleString() || "N/A"}`}
+                    value={`₹${data!.valuation?.toLocaleString() || "N/A"}`}
                     icon={<TrendingUp className="text-purple-500" />}
                   />
                 </div>
@@ -225,7 +225,7 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                         Funding Progress
                       </h4>
                       <p className="text-xs text-muted-foreground">
-                        Paid: ${data.deal.amountPaid.toLocaleString()} / $
+                        Paid: ₹{data.deal.amountPaid.toLocaleString()} / ₹
                         {data.deal.totalAmount.toLocaleString()}
                       </p>
                     </div>
@@ -271,7 +271,7 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                             </div>
                             <div>
                               <p className="font-medium">
-                                ${inst.amount.toLocaleString()}
+                                ₹{inst.amount.toLocaleString()}
                               </p>
                               <p className="text-[10px] text-muted-foreground">
                                 {new Date(inst.createdAt).toLocaleDateString()}
@@ -332,7 +332,7 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                       className="w-full sm:w-auto bg-primary shadow-lg shadow-primary/20"
                       onClick={() => setShowTransferModal(true)}
                     >
-                      Initiate Transfer ($
+                      Initiate Transfer (₹
                       {data!.deal.remainingAmount.toLocaleString()})
                     </Button>
                   )}

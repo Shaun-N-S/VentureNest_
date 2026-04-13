@@ -132,6 +132,14 @@ export class Admin_Routes {
       }
     );
 
+    this._route.patch(
+      ADMIN.REMOVE_POST,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        adminReportController.adminRemovePost(req, res, next);
+      }
+    );
+
     this._route.get(
       ADMIN.REPORTED_PROJECT_DETAILS,
       ...adminGuard,
@@ -271,6 +279,13 @@ export class Admin_Routes {
       ...adminGuard,
       (req: Request, res: Response, next: NextFunction) =>
         adminDashboardController.getTop(req, res, next)
+    );
+
+    this._route.get(
+      ADMIN.DASHBOARD_INSIGHTS,
+      ...adminGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        adminDashboardController.getInsights(req, res, next)
     );
   }
 

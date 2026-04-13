@@ -3,10 +3,12 @@ import { useState } from "react";
 import TopItem from "../../components/dashboard/TopItem";
 import {
   useAdminDashboardGraph,
+  useAdminDashboardInsights,
   useAdminDashboardSummary,
   useAdminDashboardTop,
 } from "../../hooks/Admin/DashboardHooks";
 import AdminRevenueChart from "../../components/dashboard/AdminRevenueChart";
+import AdminPieChart from "@/components/dashboard/AdminPieChart";
 
 const CoinIcon = () => (
   <svg
@@ -126,6 +128,8 @@ const AdminDashboardPage = () => {
     fromDate: fromDate || undefined,
     toDate: toDate || undefined,
   });
+
+  const { data: insights } = useAdminDashboardInsights();
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800">
@@ -426,6 +430,21 @@ const AdminDashboardPage = () => {
             <div className="p-4 sm:p-5">
               {graph && <AdminRevenueChart data={graph} chartType={type} />}
             </div>
+          </div>
+
+          {/* ── INSIGHTS CHARTS ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Top Funded Sectors */}
+            <AdminPieChart
+              title="Top Funded Sectors"
+              data={insights?.categoryDistribution || []}
+            />
+
+            {/* Top Startup Stages */}
+            <AdminPieChart
+              title="Top Startup Stages"
+              data={insights?.stageDistribution || []}
+            />
           </div>
 
           {/* ── TOP SECTION ── */}

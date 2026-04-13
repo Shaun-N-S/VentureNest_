@@ -87,21 +87,33 @@ export class HandleDealInstallmentStripeCompletedUseCase
         session
       );
 
+      // calculate new remaining
+      const newRemaining = deal.remainingAmount - dto.amount;
+
+      // update paid amount
       await this._dealRepo.incrementPaidAmount(deal._id!, dto.amount, session);
-      const updatedDeal = await this._dealRepo.findById(deal._id!);
-      if (!updatedDeal) throw new NotFoundExecption(DEAL_ERRORS.DEAL_NOT_FOUND);
 
-      const isCompleted = updatedDeal.remainingAmount === 0;
+      // check completion
+      const isCompleted = newRemaining <= 0;
 
+      console.log("Updated Deal Remaining Amount:", newRemaining);
+      console.log("Is Deal Completed?", isCompleted);
+
+      // update status
       await this._dealRepo.update(
-        updatedDeal._id!,
+        deal._id!,
         {
           status: isCompleted ? DealStatus.COMPLETED : DealStatus.PARTIALLY_PAID,
         },
         session
       );
 
-      await this._equityService.allocateEquity(updatedDeal, dto.amount, session!);
+      // allocate equity with correct data
+      await this._equityService.allocateEquity(
+        { ...deal, remainingAmount: newRemaining },
+        dto.amount,
+        session!
+      );
 
       await this._transactionRepo.save(
         {

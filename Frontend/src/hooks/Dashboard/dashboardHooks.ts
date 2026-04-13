@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   getInvestorDashboardSummary,
+  getInvestorDistribution,
   getInvestorPortfolio,
   getProjectAnalytics,
   getUserDashboard,
@@ -41,5 +42,12 @@ export const useInvestorPortfolio = () => {
   return useQuery<InvestorPortfolio>({
     queryKey: ["investor-portfolio"],
     queryFn: getInvestorPortfolio,
+  });
+};
+
+export const useInvestorDistribution = () => {
+  return useQuery({
+    queryKey: ["investor-distribution"],
+    queryFn: getInvestorDistribution,
   });
 };

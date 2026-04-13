@@ -64,6 +64,40 @@ interface Props {
 
 export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
   const [role, setRole] = useState<PlanRole>(initialData?.role ?? "USER");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!form.name.trim()) newErrors.name = "Plan name is required";
+    if (!form.description.trim())
+      newErrors.description = "Description is required";
+
+    if (form.billing.price <= 0)
+      newErrors.price = "Price must be greater than 0";
+    if (form.billing.durationDays <= 0)
+      newErrors.durationDays = "Duration must be greater than 0";
+
+    if (form.limits.projects !== undefined && form.limits.projects < 0)
+      newErrors.projects = "Projects limit must be a positive number";
+
+    if (
+      form.limits.proposalsPerMonth !== undefined &&
+      form.limits.proposalsPerMonth < 0
+    )
+      newErrors.proposalsPerMonth = "Proposals limit must be a positive number";
+
+    if (
+      form.limits.investmentOffers !== undefined &&
+      form.limits.investmentOffers < 0
+    )
+      newErrors.investmentOffers =
+        "Investment offers limit must be a positive number";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const [form, setForm] = useState<CreatePlanFormData>(
     initialData ?? {
@@ -93,6 +127,7 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
   );
 
   useEffect(() => {
+    setErrors({});
     if (initialData) {
       setForm(initialData);
       setRole(initialData.role);
@@ -150,7 +185,16 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
   };
 
   const handleSubmit = async () => {
-    await onSubmit({ ...form, role });
+    if (!validate()) return;
+
+    try {
+      setLoading(true);
+      await onSubmit({ ...form, role });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -175,52 +219,64 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
               <Field label="Plan Name">
                 <Input
                   value={form.name}
+                  className={errors.name ? "border-red-500" : ""}
                   onChange={(e) => updateField("name", e.target.value)}
                 />
+                {errors.name && (
+                  <p className="text-red-500 text-xs">{errors.name}</p>
+                )}
               </Field>
 
               <Field label="Role">
-                <Select
-                  value={role}
-                  onValueChange={(val) => {
-                    const role = val as PlanRole;
-                    setRole(role);
-                    setForm((prev) => ({
-                      ...prev,
-                      role,
-                      limits:
-                        role === "USER"
-                          ? {
-                              projects: prev.limits.projects ?? 0,
-                              proposalsPerMonth:
-                                prev.limits.proposalsPerMonth ?? 0,
-                              investmentOffers: 0,
-                            }
-                          : {
-                              projects: 0,
-                              proposalsPerMonth: 0,
-                              investmentOffers:
-                                prev.limits.investmentOffers ?? 0,
-                            },
-                    }));
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="USER">User (Founder)</SelectItem>
-                    <SelectItem value="INVESTOR">Investor</SelectItem>
-                  </SelectContent>
-                </Select>
+                {initialData ? (
+                  <Input value={role} disabled />
+                ) : (
+                  <Select
+                    value={role}
+                    onValueChange={(val) => {
+                      const role = val as PlanRole;
+                      setRole(role);
+                      setForm((prev) => ({
+                        ...prev,
+                        role,
+                        limits:
+                          role === "USER"
+                            ? {
+                                projects: prev.limits.projects ?? 0,
+                                proposalsPerMonth:
+                                  prev.limits.proposalsPerMonth ?? 0,
+                                investmentOffers: 0,
+                              }
+                            : {
+                                projects: 0,
+                                proposalsPerMonth: 0,
+                                investmentOffers:
+                                  prev.limits.investmentOffers ?? 0,
+                              },
+                      }));
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USER">User (Founder)</SelectItem>
+                      <SelectItem value="INVESTOR">Investor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </Field>
             </div>
 
             <Field label="Description">
               <Textarea
                 value={form.description}
+                className={errors.description ? "border-red-500" : ""}
                 onChange={(e) => updateField("description", e.target.value)}
               />
+              {errors.description && (
+                <p className="text-red-500 text-xs">{errors.description}</p>
+              )}
             </Field>
           </Section>
 
@@ -230,27 +286,41 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
               <Field label="Price">
                 <Input
                   type="number"
+                  className={errors.price ? "border-red-500" : ""}
                   value={form.billing.price}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const num = val === "" ? 0 : Math.max(0, Number(val));
+
                     updateField("billing", {
                       ...form.billing,
-                      price: Number(e.target.value),
-                    })
-                  }
+                      price: num,
+                    });
+                  }}
                 />
+                {errors.price && (
+                  <p className="text-red-500 text-xs">{errors.price}</p>
+                )}
               </Field>
 
               <Field label="Duration (Days)">
                 <Input
                   type="number"
+                  className={errors.durationDays ? "border-red-500" : ""}
                   value={form.billing.durationDays}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const num = val === "" ? 0 : Math.max(0, Number(val));
+
                     updateField("billing", {
                       ...form.billing,
-                      durationDays: Number(e.target.value),
-                    })
-                  }
+                      durationDays: num,
+                    });
+                  }}
                 />
+                {errors.durationDays && (
+                  <p className="text-red-500 text-xs">{errors.durationDays}</p>
+                )}
               </Field>
             </div>
           </Section>
@@ -263,11 +333,14 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
                   label="Projects"
                   value={form.limits.projects}
                   onChange={(v) => updateLimits("projects", v)}
+                  error={errors.projects}
                 />
+
                 <NumberInput
                   label="Proposals / Month"
                   value={form.limits.proposalsPerMonth}
                   onChange={(v) => updateLimits("proposalsPerMonth", v)}
+                  error={errors.proposalsPerMonth}
                 />
               </LimitsGrid>
 
@@ -298,6 +371,7 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
                   label="Investment Offers"
                   value={form.limits.investmentOffers}
                   onChange={(v) => updateLimits("investmentOffers", v)}
+                  error={errors.investmentOffers}
                 />
               </LimitsGrid>
 
@@ -331,8 +405,12 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
-            {initialData ? "Update Plan" : "Create Plan"}
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading
+              ? "Processing..."
+              : initialData
+                ? "Update Plan"
+                : "Create Plan"}
           </Button>
         </div>
       </DialogContent>
@@ -380,17 +458,28 @@ const NumberInput = ({
   label,
   value,
   onChange,
+  error,
 }: {
   label: string;
   value?: number;
   onChange: (v: number) => void;
+  error?: string;
 }) => (
   <Field label={label}>
     <Input
       type="number"
+      className={error ? "border-red-500" : ""}
+      min="0"
       value={value ?? ""}
-      onChange={(e) => onChange(Number(e.target.value))}
+      onChange={(e) => {
+        const val = e.target.value;
+        const num = val === "" ? 0 : Math.max(0, Number(val));
+        onChange(num);
+      }}
     />
+
+    {/* ✅ ERROR INSIDE */}
+    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </Field>
 );
 

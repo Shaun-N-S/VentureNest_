@@ -9,13 +9,15 @@ import { Errors } from "@shared/constants/error";
 import { GetProjectReportAnalyticsRequestDTO } from "application/dto/dashboard/projectReportAnalyticsDTO";
 import { IGetInvestorDashboardSummaryUseCase } from "@domain/interfaces/useCases/dashboard/IGetInvestorDashboardSummaryUseCase";
 import { IGetInvestorPortfolioUseCase } from "@domain/interfaces/useCases/dashboard/IGetInvestorPortfolioUseCase";
+import { IGetInvestorDistributionUseCase } from "@domain/interfaces/useCases/dashboard/IGetInvestorDistributionUseCase";
 
 export class DashboardController {
   constructor(
     private getUserDashboardUseCase: IGetUserDashboardUseCase,
     private _getProjectAnalyticsUseCase: IGetProjectReportAnalyticsUseCase,
     private _getInvestorDashboardSummaryUseCase: IGetInvestorDashboardSummaryUseCase,
-    private _getInvestorPortfolioUseCase: IGetInvestorPortfolioUseCase
+    private _getInvestorPortfolioUseCase: IGetInvestorPortfolioUseCase,
+    private _getInvestorDistributionUseCase: IGetInvestorDistributionUseCase
   ) {}
 
   async getUserDashboard(req: Request, res: Response, next: NextFunction) {
@@ -72,6 +74,18 @@ export class DashboardController {
       const user = res.locals.user;
 
       const data = await this._getInvestorPortfolioUseCase.execute(user.userId);
+
+      ResponseHelper.success(res, MESSAGES.DASHBOARD.FETCHED, data, HTTPSTATUS.OK);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getInvestorDistribution(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = res.locals.user;
+
+      const data = await this._getInvestorDistributionUseCase.execute(user.userId);
 
       ResponseHelper.success(res, MESSAGES.DASHBOARD.FETCHED, data, HTTPSTATUS.OK);
     } catch (err) {

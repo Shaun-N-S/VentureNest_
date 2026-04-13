@@ -52,6 +52,7 @@ export const API_ROUTES = {
     PROJECTS_UPDATE_STATUS: "/admin/projects/update-status",
     REPORTED_POSTS: "/admin/reports/posts",
     REPORTED_POST: "/admin/reports/posts/:postId",
+    REMOVE_POST: "/admin/reports/post/remove/:id",
     REPORTED_PROJECTS: "/admin/reports/projects",
     REPORTED_PROJECT: "/admin/reports/projects/:projectId",
     UPDATE_REPORT_STATUS: "/admin/reports/:reportId/status",
@@ -72,6 +73,7 @@ export const API_ROUTES = {
     DASHBOARD_SUMMARY: "/admin/dashboard-summary",
     DASHBOARD_GRAPH: "/admin/dashboard-graph",
     DASHBOARD_TOP: "/admin/dashboard-top",
+    DASHBOARD_INSIGHTS: "/admin/dashboard-insights",
   },
 
   INVESTOR: {
@@ -225,5 +227,6 @@ export const API_ROUTES = {
     PROJECT_ANALYTICS: "/dashboard/reports",
     INVESTOR_SUMMARY: "/dashboard/investor",
     INVESTOR_PORTFOLIO: "/dashboard/investor-portfolio",
+    INVESTOR_DISTRIBUTION: "/dashboard/investor-distribution",
   },
 };

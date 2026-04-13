@@ -8,7 +8,6 @@ import {
   TooltipTrigger,
   TooltipContent,
   TooltipArrow,
-  type TooltipProviderProps,
   type TooltipProps,
   type TooltipContentProps,
   type TooltipArrowProps,
@@ -63,7 +62,7 @@ type AvatarGroupProps = Omit<React.ComponentProps<"div">, "translate"> & {
   translate?: string | number;
   transition?: Transition;
   tooltipTransition?: Transition;
-} & Omit<TooltipProviderProps, "children"> &
+} & Omit<React.ComponentProps<typeof TooltipProvider>, "children"> &
   Omit<TooltipProps, "children">;
 
 function AvatarGroup({

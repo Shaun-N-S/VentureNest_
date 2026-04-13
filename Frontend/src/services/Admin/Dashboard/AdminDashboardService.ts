@@ -1,6 +1,11 @@
 import AxiosInstance from "../../../axios/axios";
 import { API_ROUTES } from "../../../constants/apiRoutes";
-import type { AdminDashboardSummary, AdminDashboardTop, MonthlyRevenue } from "../../../types/adminDashboardTypes";
+import type {
+  AdminDashboardInsights,
+  AdminDashboardSummary,
+  AdminDashboardTop,
+  MonthlyRevenue,
+} from "../../../types/adminDashboardTypes";
 
 export const getAdminDashboardSummary =
   async (): Promise<AdminDashboardSummary> => {
@@ -34,3 +39,9 @@ export const getAdminDashboardTop = async (): Promise<AdminDashboardTop> => {
 
   return response.data.data;
 };
+
+export const getAdminDashboardInsights =
+  async (): Promise<AdminDashboardInsights> => {
+    const res = await AxiosInstance.get(API_ROUTES.ADMIN.DASHBOARD_INSIGHTS);
+    return res.data.data;
+  };

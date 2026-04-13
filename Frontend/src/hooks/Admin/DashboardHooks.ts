@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   getAdminDashboardGraph,
+  getAdminDashboardInsights,
   getAdminDashboardSummary,
   getAdminDashboardTop,
   type GraphParams,
@@ -31,7 +32,13 @@ export const useAdminDashboardTop = (enabled: boolean = true) => {
   return useQuery({
     queryKey: ["admin-dashboard-top"],
     queryFn: getAdminDashboardTop,
-    staleTime: 1000 * 60 * 5,
     enabled,
+  });
+};
+
+export const useAdminDashboardInsights = () => {
+  return useQuery({
+    queryKey: ["admin-dashboard-insights"],
+    queryFn: getAdminDashboardInsights,
   });
 };

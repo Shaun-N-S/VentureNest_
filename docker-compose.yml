@@ -1,3 +1,16 @@
+# services:
+#   backend:
+#     image: shaun1092/venturenest-backend
+#     container_name: backend
+#     ports:
+#       - "4000:4000"
+#     env_file:
+#       - ./Backend/.env
+#     restart: always
+
+
+version: "3.8"
+
 services:
   backend:
     image: shaun1092/venturenest-backend
@@ -5,5 +18,27 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - ./Backend/.env
+      - .env
     restart: always
+
+    # Security + stability
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+    # Logging control (avoid disk full issue)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Optional but recommended
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

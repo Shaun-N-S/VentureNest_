@@ -103,15 +103,6 @@ const ReportManagementPage = () => {
 
   const commonHeaders = [
     {
-      id: "count",
-      label: "Reports",
-      render: (row: BaseReportRow) => (
-        <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs">
-          {row.reportCount}
-        </span>
-      ),
-    },
-    {
       id: "reasons",
       label: "Reasons",
       render: (row: BaseReportRow) => (
@@ -125,6 +116,15 @@ const ReportManagementPage = () => {
             </span>
           ))}
         </div>
+      ),
+    },
+    {
+      id: "count",
+      label: "Reports",
+      render: (row: BaseReportRow) => (
+        <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs">
+          {row.reportCount}
+        </span>
       ),
     },
     {
@@ -159,27 +159,9 @@ const ReportManagementPage = () => {
     },
   ];
 
-  const postHeaders = [
-    {
-      id: "postId",
-      label: "Post ID",
-      render: (row: ReportedPostRow) => (
-        <span className="font-mono text-xs">{row.postId}</span>
-      ),
-    },
-    ...commonHeaders,
-  ];
+  const postHeaders = [...commonHeaders];
 
-  const projectHeaders = [
-    {
-      id: "projectId",
-      label: "Project ID",
-      render: (row: ReportedProjectRow) => (
-        <span className="font-mono text-xs">{row.projectId}</span>
-      ),
-    },
-    ...commonHeaders,
-  ];
+  const projectHeaders = [...commonHeaders];
 
   /* ===================== JSX ===================== */
 

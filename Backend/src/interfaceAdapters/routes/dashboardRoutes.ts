@@ -43,6 +43,13 @@ export class Dashboard_Router {
         dashboardController.getInvestorPortfolio(req, res, next);
       }
     );
+
+    this._route.get(
+      ROUTES.DASHBOARD.INVESTOR_DISTRIBUTION,
+      ...investorGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        dashboardController.getInvestorDistribution(req, res, next)
+    );
   }
 
   public get_router(): Router {

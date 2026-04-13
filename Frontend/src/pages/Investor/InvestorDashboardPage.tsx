@@ -1,5 +1,6 @@
 import {
   useInvestorDashboardSummary,
+  useInvestorDistribution,
   useInvestorPortfolio,
   useProjectAnalytics,
 } from "../../hooks/Dashboard/dashboardHooks";
@@ -10,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useDebounce } from "../../hooks/Debounce/useDebounce";
 import type { MonthlyReport } from "../../types/monthlyReport";
 import Pagination from "../../components/pagination/Pagination";
+import AdminPieChart from "@/components/dashboard/AdminPieChart";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const WalletIcon = () => (
@@ -163,6 +165,12 @@ const statusConfig: Record<
     text: "text-slate-500",
     dot: "bg-slate-400",
     label: "Pending",
+  },
+  COMPLETED: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-600",
+    dot: "bg-emerald-400",
+    label: "Paid",
   },
 };
 
@@ -498,7 +506,7 @@ const CountBadge = ({ count }: { count: number }) => (
 const InvestorDashboardPage = () => {
   const { data: summary, isLoading } = useInvestorDashboardSummary();
   const { data: portfolio } = useInvestorPortfolio();
-
+  const { data: distribution } = useInvestorDistribution();
   const [selectedProjectId, setSelectedProjectId] = useState<string>();
   const [yearInput, setYearInput] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
@@ -771,6 +779,17 @@ const InvestorDashboardPage = () => {
         </div>
       </SectionCard>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <AdminPieChart
+          title="Investment Distribution"
+          data={distribution?.investmentDistribution || []}
+        />
+
+        <AdminPieChart
+          title="Stage Distribution"
+          data={distribution?.stageDistribution || []}
+        />
+      </div>
       {/* ── Portfolio Table ── */}
       <SectionCard>
         <SectionHeader

@@ -5,12 +5,14 @@ import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { MESSAGES } from "@shared/constants/messages";
 import { IGetAdminDashboardGraphUseCase } from "@domain/interfaces/useCases/admin/dashboard/IGetAdminDashboardGraphUseCase";
 import { IGetAdminDashboardTopUseCase } from "@domain/interfaces/useCases/admin/dashboard/IGetAdminDashboardTopUseCase";
+import { IGetAdminDashboardInsightsUseCase } from "@domain/interfaces/useCases/admin/dashboard/IGetAdminDashboardInsightsUseCase";
 
 export class AdminDashboardController {
   constructor(
     private _getSummaryUseCase: IGetAdminDashboardSummaryUseCase,
     private _getGraphUseCase: IGetAdminDashboardGraphUseCase,
-    private _getTopUseCase: IGetAdminDashboardTopUseCase
+    private _getTopUseCase: IGetAdminDashboardTopUseCase,
+    private _getInsightsUseCase: IGetAdminDashboardInsightsUseCase
   ) {}
 
   async getSummary(req: Request, res: Response, next: NextFunction) {
@@ -46,6 +48,16 @@ export class AdminDashboardController {
       const result = await this._getTopUseCase.execute();
 
       ResponseHelper.success(res, MESSAGES.ADMIN.TOP_DATA_FETCHED, result, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getInsights(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await this._getInsightsUseCase.execute();
+
+      ResponseHelper.success(res, MESSAGES.DASHBOARD.TOP_CATEGORIES_FETCHED, result, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }
