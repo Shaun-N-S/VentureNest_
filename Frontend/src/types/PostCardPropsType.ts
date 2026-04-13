@@ -22,5 +22,6 @@ export interface PostCardProps {
   onLike?: () => void;
   onRemove?: (id: string) => void;
   onReport?: (id: string) => void;
-  context?: "home" | "profile";
+  context?: "home" | "profile" | "admin";
+  isActive?: boolean;
 }

@@ -17,6 +17,7 @@ import {
 } from "lucide-react"; // REMOVED: Calendar (unused)
 import { useMemo, useState } from "react";
 import {
+  useAdminRemovePost,
   useGetPostById,
   useGetProjectById,
   useGetReportedPost,
@@ -25,6 +26,9 @@ import {
 } from "../../hooks/Admin/ReportHooks";
 import { ProjectDetailCard } from "../card/ProjectDetailCard";
 import { PostCard } from "../card/PostCard";
+import { useUpdateProjectStatus } from "@/hooks/Admin/ProjectHooks";
+import StatusChangeModal from "./StatusChangeModal";
+import { useQueryClient } from "@tanstack/react-query";
 
 /* ===================== TYPES ===================== */
 type ReportStatus =
@@ -63,11 +67,19 @@ interface Props {
 const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
   const isPost = Boolean(data?.postId);
   const [activeTab, setActiveTab] = useState("reports");
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<{
+    id: string;
+    name: string;
+    isActive: boolean;
+  } | null>(null);
 
   /* ===================== API ===================== */
   const postReports = useGetReportedPost(data?.postId);
   const projectReports = useGetReportedProject(data?.projectId);
-
+  const { mutate: updateProjectStatus } = useUpdateProjectStatus();
+  const { mutate: adminRemovePost } = useAdminRemovePost();
+  const queryClient = useQueryClient();
   const postQuery = useGetPostById(
     data?.postId,
     activeTab === "content" && isPost,
@@ -102,6 +114,40 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
         ...(status === "action_taken" && { actionTaken }),
       },
     });
+  };
+
+  const handleProjectStatusChange = () => {
+    if (!selectedProject) return;
+
+    updateProjectStatus(
+      {
+        projectId: selectedProject.id,
+        currentStatus: selectedProject.isActive ? "ACTIVE" : "BLOCKED",
+      },
+      {
+        onSuccess: (res) => {
+          const updatedProject = res?.data?.data;
+
+          queryClient.setQueryData(
+            ["admin-project", data?.projectId],
+            (oldData: typeof projectQuery.data | undefined) => {
+              if (!oldData) return oldData;
+
+              return {
+                ...oldData,
+                isActive: updatedProject.isActive,
+              };
+            },
+          );
+
+          setSelectedProject((prev) =>
+            prev ? { ...prev, isActive: updatedProject.isActive } : prev,
+          );
+
+          setStatusModalOpen(false);
+        },
+      },
+    );
   };
 
   if (!data) return null;
@@ -208,6 +254,16 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
                         image={projectQuery.data.coverImageUrl}
                         logo={projectQuery.data.logoUrl}
                         likes={0}
+                        isAdmin={true}
+                        isActive={projectQuery.data.isActive}
+                        onStatusChange={(id, isActive) => {
+                          setSelectedProject({
+                            id,
+                            name: projectQuery.data.startupName,
+                            isActive,
+                          });
+                          setStatusModalOpen(true);
+                        }}
                         founders={[
                           {
                             id: projectQuery.data.owner.id,
@@ -238,7 +294,11 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
                         mediaUrls={postQuery.data.mediaUrls}
                         likes={postQuery.data.likeCount}
                         comments={postQuery.data.commentsCount}
-                        context="home"
+                        isActive={postQuery.data.isActive}
+                        context="admin"
+                        onRemove={(id) => {
+                          adminRemovePost(id);
+                        }}
                       />
                     )}
                   </div>
@@ -398,6 +458,15 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
             </TabsContent>
           </div>
         </Tabs>
+        {selectedProject && (
+          <StatusChangeModal
+            isOpen={statusModalOpen}
+            onClose={() => setStatusModalOpen(false)}
+            name={selectedProject.name}
+            currentStatus={selectedProject.isActive ? "ACTIVE" : "BLOCKED"}
+            onConfirm={handleProjectStatusChange}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

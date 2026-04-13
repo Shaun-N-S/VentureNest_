@@ -40,6 +40,7 @@ export function PostCard({
   context,
   onRemove,
   onReport,
+  isActive,
 }: PostCardProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -251,6 +252,7 @@ export function PostCard({
                   Report
                 </button>
               )}
+
               {context === "profile" && (
                 <button
                   onClick={() => {
@@ -260,6 +262,23 @@ export function PostCard({
                   className="w-full text-left px-4 py-2.5 hover:bg-gray-100 text-red-600"
                 >
                   Remove Post
+                </button>
+              )}
+
+              {context === "admin" && (
+                <button
+                  onClick={() => {
+                    onRemove?.(id);
+                    setOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-2.5 transition-all duration-200
+      ${
+        isActive
+          ? "text-red-600 hover:bg-red-100"
+          : "text-green-600 hover:bg-green-100"
+      }`}
+                >
+                  {isActive ? "Block Post" : "Activate Post"}
                 </button>
               )}
             </motion.div>

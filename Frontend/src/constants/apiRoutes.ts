@@ -52,6 +52,7 @@ export const API_ROUTES = {
     PROJECTS_UPDATE_STATUS: "/admin/projects/update-status",
     REPORTED_POSTS: "/admin/reports/posts",
     REPORTED_POST: "/admin/reports/posts/:postId",
+    REMOVE_POST: "/admin/reports/post/remove/:id",
     REPORTED_PROJECTS: "/admin/reports/projects",
     REPORTED_PROJECT: "/admin/reports/projects/:projectId",
     UPDATE_REPORT_STATUS: "/admin/reports/:reportId/status",

@@ -63,6 +63,7 @@ export const ROUTES = {
     UPDATE_INVESTOR_KYC: "/investors/update-kyc",
     REPORTED_POSTS: "/reports/posts",
     REPORTED_POST_DETAILS: "/reports/posts/:postId",
+    REMOVE_POST: "/reports/post/remove/:id",
     REPORTED_PROJECTS: "/reports/projects",
     REPORTED_PROJECT_DETAILS: "/reports/projects/:projectId",
     UPDATE_REPORT_STATUS: "/reports/:reportId/status",

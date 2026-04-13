@@ -49,6 +49,9 @@ interface ProjectDetailCardProps {
   isLikeLoading?: boolean;
   onReport?: (id: string) => void;
   showScheduleButton?: boolean;
+  isAdmin?: boolean;
+  onStatusChange?: (id: string, isActive: boolean) => void;
+  isActive?: boolean;
 }
 
 const stageColors: Record<string, string> = {
@@ -76,6 +79,9 @@ export function ProjectDetailCard({
   isOwner,
   onReport,
   showScheduleButton,
+  isAdmin,
+  onStatusChange,
+  isActive,
 }: ProjectDetailCardProps) {
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -347,14 +353,31 @@ export function ProjectDetailCard({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
-            <Button
-              variant="ghost"
-              onClick={() => onReport?.(id)}
-              className="w-full mt-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
-            >
-              <Flag className="w-4 h-4" />
-              Report this project
-            </Button>
+            {isAdmin ? (
+              <Button
+                onClick={() => {
+                  if (isActive !== undefined) {
+                    onStatusChange?.(id, isActive);
+                  }
+                }}
+                className={`w-full mt-5 text-white ${
+                  isActive
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {isActive ? "Block Project" : "Activate Project"}
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                onClick={() => onReport?.(id)}
+                className="w-full mt-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
+              >
+                <Flag className="w-4 h-4" />
+                Report this project
+              </Button>
+            )}
           </motion.div>
         </div>
       </motion.article>

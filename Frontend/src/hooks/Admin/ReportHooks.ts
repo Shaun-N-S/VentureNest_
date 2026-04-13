@@ -1,6 +1,6 @@
-// hooks/Admin/useAdminReports.ts
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
+  adminRemovePost,
   getAllReportedPosts,
   getAllReportedProjects,
   getPostById,
@@ -13,6 +13,9 @@ import { QUERY_KEYS } from "../../constants/queryKey";
 import type { ReportStatus } from "../../types/report";
 import type { ReportReason } from "../../types/reportReason";
 import type { ReportedPostRow } from "../../pages/Admin/ReportsListingPage";
+import toast from "react-hot-toast";
+import { queryClient } from "@/main";
+import type { AdminPost } from "@/types/adminPostType";
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -86,5 +89,33 @@ export const useGetProjectById = (projectId?: string, enabled = false) => {
     queryKey: ["admin-project", projectId],
     queryFn: () => getProjectById(projectId!),
     enabled: !!projectId && enabled,
+  });
+};
+
+export const useAdminRemovePost = () => {
+
+  return useMutation({
+    mutationFn: (postId: string) => adminRemovePost(postId),
+
+    onSuccess: (data, postId) => {
+      queryClient.setQueryData<AdminPost>(["admin-post", postId], (oldData) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          isActive: data.isActive,
+        };
+      });
+
+      if (data.isActive) {
+        toast.success("Post activated successfully");
+      } else {
+        toast.success("Post blocked successfully");
+      }
+    },
+
+    onError: () => {
+      toast.error("Failed to update post status");
+    },
   });
 };

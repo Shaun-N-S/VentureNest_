@@ -66,6 +66,7 @@ export const MESSAGES = {
     POST_FETCHED_SUCCESSFULLY: "Post fetched successfully",
     POST_REMOVED_SUCCESSFULLY: "Post removed successfully",
     POST_LIKED_SUCCESSFULY: "Post liked successfully",
+    POST_STATUS_UPDATED: "Post status updated successfully",
   },
 
   PROJECT: {

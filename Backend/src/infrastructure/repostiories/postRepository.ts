@@ -20,11 +20,11 @@ export class PostRepository
   async findPersonalPostWithCount(authorId: string, skip: number, limit: number) {
     const [docs, total] = await Promise.all([
       this._model
-        .find({ authorId, isDeleted: false })
+        .find({ authorId, isDeleted: false, isActive: true })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
-      this._model.countDocuments({ authorId }),
+      this._model.countDocuments({ authorId, isDeleted: false, isActive: true }),
     ]);
 
     const posts = docs.map(PostMapper.fromMongooseDocument);
@@ -32,7 +32,7 @@ export class PostRepository
   }
 
   async findAllPosts(skip: number, limit: number) {
-    const filter = { isDeleted: false };
+    const filter = { isDeleted: false, isActive: true };
     const [docs, total] = await Promise.all([
       this._model.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).populate("author"),
       this._model.countDocuments(filter),
@@ -51,6 +51,7 @@ export class PostRepository
       .find({
         content: { $regex: interests.join("|"), $options: "i" },
         isDeleted: false,
+        isActive: true,
       })
       .sort({ createdAt: -1 })
       .populate("author");
@@ -81,6 +82,7 @@ export class PostRepository
       .find({
         authorId: { $in: authorIds },
         isDeleted: false,
+        isActive: true,
       })
       .sort({ createdAt: -1 })
       .populate("author");
@@ -114,6 +116,7 @@ export class PostRepository
       .find({
         authorId: { $in: authorIds },
         isDeleted: false,
+        isActive: true,
       })
       .sort({ createdAt: -1 })
       .populate("author");
@@ -145,6 +148,7 @@ export class PostRepository
     return this._model.countDocuments({
       authorId,
       isDeleted: false,
+      isActive: true,
     });
   }
 

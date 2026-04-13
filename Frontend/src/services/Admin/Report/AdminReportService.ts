@@ -1,6 +1,10 @@
 import AxiosInstance from "../../../axios/axios";
 import { API_ROUTES } from "../../../constants/apiRoutes";
 
+export type AdminRemovePostResponse = {
+  isActive: boolean;
+};
+
 export const getAllReportedPosts = async (params: {
   page: number;
   limit: number;
@@ -28,14 +32,14 @@ export const getAllReportedProjects = async (params: {
 
 export const getReportedPost = async (postId: string) => {
   const response = await AxiosInstance.get(
-    API_ROUTES.ADMIN.REPORTED_POST.replace(":postId", postId)
+    API_ROUTES.ADMIN.REPORTED_POST.replace(":postId", postId),
   );
   return response.data.data;
 };
 
 export const getReportedProject = async (projectId: string) => {
   const response = await AxiosInstance.get(
-    API_ROUTES.ADMIN.REPORTED_PROJECT.replace(":projectId", projectId)
+    API_ROUTES.ADMIN.REPORTED_PROJECT.replace(":projectId", projectId),
   );
   return response.data.data;
 };
@@ -45,11 +49,11 @@ export const updateReportStatus = async (
   payload: {
     status: string;
     actionTaken?: string;
-  }
+  },
 ) => {
   const response = await AxiosInstance.patch(
     API_ROUTES.ADMIN.UPDATE_REPORT_STATUS.replace(":reportId", reportId),
-    payload
+    payload,
   );
 
   return response.data.data;
@@ -57,7 +61,7 @@ export const updateReportStatus = async (
 
 export const getPostById = async (postId: string) => {
   const response = await AxiosInstance.get(
-    API_ROUTES.ADMIN.POST_BY_ID.replace(":postId", postId)
+    API_ROUTES.ADMIN.POST_BY_ID.replace(":postId", postId),
   );
 
   return response.data.data;
@@ -65,7 +69,17 @@ export const getPostById = async (postId: string) => {
 
 export const getProjectById = async (projectId: string) => {
   const response = await AxiosInstance.get(
-    API_ROUTES.ADMIN.PROJECT_BY_ID.replace(":projectId", projectId)
+    API_ROUTES.ADMIN.PROJECT_BY_ID.replace(":projectId", projectId),
+  );
+
+  return response.data.data;
+};
+
+export const adminRemovePost = async (
+  postId: string,
+): Promise<AdminRemovePostResponse> => {
+  const response = await AxiosInstance.patch(
+    API_ROUTES.ADMIN.REMOVE_POST.replace(":id", postId),
   );
 
   return response.data.data;

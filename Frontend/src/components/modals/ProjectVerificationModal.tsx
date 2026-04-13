@@ -103,7 +103,6 @@ const ProjectVerificationModal: React.FC<ProjectVerificationModalProps> = ({
               <h2 className="text-2xl font-bold text-gray-800">
                 Project Verification
               </h2>
-              <p className="text-xs text-gray-500">ID: {data.registrationId}</p>
             </div>
             <button
               onClick={onClose}
