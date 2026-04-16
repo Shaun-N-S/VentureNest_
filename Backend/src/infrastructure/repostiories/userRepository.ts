@@ -144,4 +144,10 @@ export class UserRepository
       { $set: { stripeOnboardingComplete: status } }
     );
   }
+
+  async updateLastSeen(userId: string, lastSeen: Date): Promise<void> {
+    await this._model.findByIdAndUpdate(new mongoose.Types.ObjectId(userId), {
+      $set: { lastSeen },
+    });
+  }
 }

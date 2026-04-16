@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { queryClient } from "../../main";
 import { useGetNotifications } from "../../hooks/Notification/notificationHooks";
 import NotificationModal from "../modals/NotificationModal";
+import { disconnectSocket } from "@/lib/socket";
 
 const menuItems: Record<UserRole, { name: string; path: string }[]> = {
   ADMIN: [
@@ -98,6 +99,7 @@ const Navbar: React.FC = () => {
 
     logout(undefined, {
       onSuccess: async () => {
+        disconnectSocket();
         dispatch(clearData());
         dispatch(deleteToken());
 

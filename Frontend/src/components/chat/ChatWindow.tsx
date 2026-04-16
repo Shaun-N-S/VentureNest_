@@ -15,6 +15,7 @@ import {
   // MoreVertical,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { formatLastSeen } from "@/utils/timeFormatter";
 
 const ChatWindow = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
@@ -29,7 +30,8 @@ const ChatWindow = () => {
   const messages =
     messageData?.pages.flatMap((page) => page.messages).reverse() ?? [];
   const [isTyping, setIsTyping] = useState(false);
-  const [isOnline, setIsOnline] = useState<boolean | null>(null);
+  const [isOnline, setIsOnline] = useState(false);
+  const [lastSeen, setLastSeen] = useState<string | null>(null);
 
   const { data: conversationData } = useInfiniteConversations();
 
@@ -103,7 +105,10 @@ const ChatWindow = () => {
     };
 
     const handleOnline = ({ userId }: { userId: string }) => {
-      if (userId === otherUserId) setIsOnline(true);
+      if (userId === otherUserId) {
+        setIsOnline(true);
+        setLastSeen(null);
+      }
     };
 
     const handleOffline = ({ userId }: { userId: string }) => {
@@ -119,6 +124,58 @@ const ChatWindow = () => {
       socket.off("user:online", handleOnline);
       socket.off("user:offline", handleOffline);
     };
+  }, [currentConversation]);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket || !currentConversation) return;
+
+    const otherUserId = currentConversation.otherUser.id;
+
+    const handleLastSeen = ({
+      userId,
+      lastSeen,
+    }: {
+      userId: string;
+      lastSeen: string;
+    }) => {
+      if (userId === otherUserId) {
+        setLastSeen(lastSeen);
+      }
+    };
+
+    socket.on("user:last-seen", handleLastSeen);
+
+    return () => {
+      socket.off("user:last-seen", handleLastSeen);
+    };
+  }, [currentConversation]);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const interval = setInterval(() => {
+      socket.emit("user:heartbeat");
+    }, 25000); // every 25 sec
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (!currentConversation) return;
+
+    setIsOnline(false);
+    setIsTyping(false);
+
+    setLastSeen(currentConversation.otherUser.lastSeen ?? null);
+  }, [currentConversation]);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket || !currentConversation) return;
+
+    socket.emit("get:online-users");
   }, [currentConversation]);
 
   // Auto-scroll
@@ -187,10 +244,10 @@ const ChatWindow = () => {
               <span className="text-xs text-slate-500">
                 {isTyping
                   ? "Typing..."
-                  : isOnline === null
-                    ? "Checking..."
-                    : isOnline
-                      ? "Online"
+                  : isOnline
+                    ? "Online"
+                    : lastSeen
+                      ? `Last seen ${formatLastSeen(lastSeen)}`
                       : "Offline"}
               </span>
             </div>

@@ -4,6 +4,7 @@ import type { ConversationPreview } from "../../types/chat";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useEffect, useState } from "react";
 import { getSocket } from "../../lib/socket";
+import { formatLastSeen } from "@/utils/timeFormatter";
 
 const ConversationList = () => {
   const navigate = useNavigate();
@@ -101,7 +102,11 @@ const ConversationList = () => {
                   </span>
                   {/* Mock Time - You can replace with real date if available */}
                   <span className="text-[11px] text-slate-400 font-medium">
-                    Now
+                    {onlineUsers.includes(conversation.otherUser.id)
+                      ? "Online"
+                      : conversation.otherUser.lastSeen
+                        ? formatLastSeen(conversation.otherUser.lastSeen)
+                        : ""}
                   </span>
                 </div>
 

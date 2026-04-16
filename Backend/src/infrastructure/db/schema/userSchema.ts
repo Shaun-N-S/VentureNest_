@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema(
     googleId: { type: String, unique: true, sparse: true },
     stripeAccountId: { type: String },
     stripeOnboardingComplete: { type: Boolean, default: false },
-    lastSeen: { type: Date },
+    lastSeen: { type: Date, default: null },
     role: {
       type: String,
       enum: Object.values(UserRole),

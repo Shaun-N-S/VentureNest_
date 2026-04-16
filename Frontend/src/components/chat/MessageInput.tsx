@@ -13,7 +13,7 @@ const MessageInput = ({ conversationId }: Props) => {
   const [text, setText] = useState<string>("");
   const [showEmoji, setShowEmoji] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const sendMessage = useSendMessage();
   const socket = getSocket();
