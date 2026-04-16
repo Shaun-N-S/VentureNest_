@@ -3,12 +3,14 @@ import { Server as HttpServer } from "http";
 import { CONFIG } from "@config/config";
 import { socketAuthMiddleware } from "interfaceAdapters/middleware/socketAuthMiddleware";
 import { SocketRooms } from "./socketRooms";
-import { userModel } from "@infrastructure/db/models/userModel";
-import { investorModel } from "@infrastructure/db/models/investorModel";
+import { updateLastSeenUseCase } from "@infrastructure/DI/Chat/chatContainer";
 
 export let io: Server;
 
 const onlineUsers = new Set<string>();
+const userSocketCount = new Map<string, number>();
+const userLastActive = new Map<string, number>();
+const userRoles = new Map<string, string>();
 
 export function initSocket(server: HttpServer) {
   io = new Server(server, {
@@ -22,12 +24,16 @@ export function initSocket(server: HttpServer) {
 
   io.on("connection", (socket) => {
     const { userId, role } = socket.data.user;
+    userRoles.set(userId, role);
+
+    const count = userSocketCount.get(userId) || 0;
+    userSocketCount.set(userId, count + 1);
 
     onlineUsers.add(userId);
 
-    io.emit("users:online-list", Array.from(onlineUsers));
-
     io.emit("user:online", { userId });
+    io.emit("users:online-list", Array.from(onlineUsers));
+    userLastActive.set(userId, Date.now());
 
     socket.join(SocketRooms.user(userId));
 
@@ -85,17 +91,35 @@ export function initSocket(server: HttpServer) {
       console.log(" Event received:", event, args);
     });
 
-    socket.on("disconnect", async () => {
-      onlineUsers.delete(userId);
+    socket.on("user:heartbeat", () => {
+      userLastActive.set(userId, Date.now());
+    });
 
+    socket.on("disconnect", async () => {
+      console.log("🔥 DISCONNECT CALLED:", userId);
+
+      const count = userSocketCount.get(userId) || 0;
       const now = new Date();
 
-      await Promise.all([
-        userModel.findByIdAndUpdate(userId, { lastSeen: now }),
-        investorModel.findByIdAndUpdate(userId, { lastSeen: now }),
-      ]);
+      await updateLastSeenUseCase.execute(userId, role);
 
-      io.emit("user:offline", { userId });
+      console.log("✅ lastSeen updated for:", userId);
+
+      if (count <= 1) {
+        userSocketCount.delete(userId);
+        onlineUsers.delete(userId);
+        userLastActive.delete(userId);
+        userRoles.delete(userId);
+
+        io.emit("user:offline", { userId });
+
+        io.emit("user:last-seen", {
+          userId,
+          lastSeen: now.toISOString(),
+        });
+      } else {
+        userSocketCount.set(userId, count - 1);
+      }
     });
 
     /* ------------------ VIDEO CALL ------------------ */
@@ -160,3 +184,33 @@ export function initSocket(server: HttpServer) {
 
   console.log(" Socket.IO initialized");
 }
+
+setInterval(async () => {
+  if (!io) return;
+
+  const now = Date.now();
+
+  for (const userId of onlineUsers) {
+    const lastActive = userLastActive.get(userId);
+
+    if (!lastActive || now - lastActive > 60000) {
+      const role = userRoles.get(userId);
+      if (!role) continue;
+
+      const lastSeen = new Date();
+
+      await updateLastSeenUseCase.execute(userId, role);
+
+      onlineUsers.delete(userId);
+      userLastActive.delete(userId);
+      userSocketCount.delete(userId);
+
+      io.emit("user:offline", { userId });
+
+      io.emit("user:last-seen", {
+        userId,
+        lastSeen: lastSeen.toISOString(),
+      });
+    }
+  }
+}, 30000);

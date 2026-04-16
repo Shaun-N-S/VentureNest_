@@ -141,4 +141,10 @@ export class InvestorRepository
 
     return docs.map(InvestorMapper.fromMongooseDocument);
   }
+
+  async updateLastSeen(userId: string, lastSeen: Date): Promise<void> {
+    await this._model.findByIdAndUpdate(new mongoose.Types.ObjectId(userId), {
+      $set: { lastSeen },
+    });
+  }
 }

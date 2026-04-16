@@ -4,26 +4,61 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, X, Sparkles, Clock, Shield } from "lucide-react";
 import type { Plan } from "../../types/planType";
 import { useCreateCheckout } from "../../hooks/Subscription/subscriptionHooks";
+import { getPlanPermissions } from "@/utils/planPermissions";
 
 interface Props {
   plan: Plan;
   onClose: () => void;
 }
 
+type Feature = {
+  label: string;
+  value: number | boolean;
+};
+
 export default function PurchasePlanModal({ plan, onClose }: Props) {
   const { mutate: startCheckout, isPending } = useCreateCheckout();
 
-  const features =
+  const baseFeatures: Feature[] =
     plan.role === "USER"
       ? [
-          { label: "Projects", value: plan.limits.projects },
-          {
-            label: "Proposals per month",
-            value: plan.limits.proposalsPerMonth,
-          },
+          ...(plan.limits.projects > 0
+            ? [
+                {
+                  label: "Projects",
+                  value: plan.limits.projects,
+                },
+              ]
+            : []),
+
+          ...(plan.limits.proposalsPerMonth > 0
+            ? [
+                {
+                  label: "Proposals per month",
+                  value: plan.limits.proposalsPerMonth,
+                },
+              ]
+            : []),
         ]
-      : [{ label: "Investment offers", value: plan.limits.investmentOffers }];
-  
+      : [
+          ...(plan.limits.investmentOffers > 0
+            ? [
+                {
+                  label: "Investment offers",
+                  value: plan.limits.investmentOffers,
+                },
+              ]
+            : []),
+        ];
+
+  const features: Feature[] = [
+    ...baseFeatures,
+    ...getPlanPermissions(plan.permissions).map((p) => ({
+      label: p.label,
+      value: true,
+    })),
+  ];
+
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-xl sm:max-w-2xl p-0 overflow-hidden rounded-2xl sm:rounded-3xl border-0 shadow-2xl bg-white">
@@ -143,8 +178,9 @@ export default function PurchasePlanModal({ plan, onClose }: Props) {
                         </div>
                       </div>
                       <span className="text-base text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
-                        {feature.value === -1 ? "Unlimited" : feature.value}{" "}
-                        {feature.label}
+                        {typeof feature.value === "number"
+                          ? `${feature.value === -1 ? "Unlimited" : feature.value} ${feature.label}`
+                          : feature.label}
                       </span>
                     </motion.div>
                   ))}

@@ -14,11 +14,16 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 COPY --from=build /app/dist ./dist
 
+RUN mkdir -p /app/dist/logs/accesslogs
+
 RUN addgroup app && adduser -S -G app app
+
+RUN chown -R app:app /app/dist/logs
+
 USER app
 
 EXPOSE 4000

@@ -23,6 +23,7 @@ import ChatPage from "../pages/Common/ChatPage";
 import UserDashboardPage from "../pages/User/UserDashboardPage";
 import VideoPage from "../pages/Common/VideoPage";
 import WaitingPage from "../pages/Common/WaitingPage";
+import PaymentCancelled from "@/pages/Common/PaymentCancelled";
 
 const UserRoutes = () => {
   return (
@@ -75,6 +76,10 @@ const UserRoutes = () => {
             path={FRONTEND_ROUTES.USER.PAYMENT_SUCCESS}
             element={<PaymentSuccess />}
           />
+            <Route
+              path={FRONTEND_ROUTES.USER.PAYMENT_CANCELLED}
+              element={<PaymentCancelled />}
+            />
           <Route
             path={FRONTEND_ROUTES.USER.COMMON_PROFILE}
             element={<CommonProfilePage />}

@@ -10,6 +10,7 @@ export interface ConversationPreview {
     userName: string;
     profileImg?: string;
     role: UserRole;
+    lastSeen?: string;
   };
 
   lastMessage?: {

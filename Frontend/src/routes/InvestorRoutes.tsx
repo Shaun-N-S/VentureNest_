@@ -25,6 +25,7 @@ import WalletPage from "../pages/Common/WalletPage";
 import WaitingPage from "../pages/Common/WaitingPage";
 import VideoPage from "../pages/Common/VideoPage";
 import InvestorDashboardPage from "../pages/Investor/InvestorDashboardPage";
+import PaymentCancelled from "@/pages/Common/PaymentCancelled";
 
 const InvestorRoutes = () => {
   return (
@@ -80,6 +81,10 @@ const InvestorRoutes = () => {
           <Route
             path={`${FRONTEND_ROUTES.INVESTOR.PAYMENT_SUCCESS}`}
             element={<PaymentSuccess />}
+          />
+          <Route
+            path={`${FRONTEND_ROUTES.INVESTOR.PAYMENT_CANCELLED}`}
+            element={<PaymentCancelled />}
           />
           <Route
             path={FRONTEND_ROUTES.USER.COMMON_PROFILE}

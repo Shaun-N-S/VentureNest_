@@ -21,4 +21,5 @@ export interface IUserRepository extends IBaseRepository<UserEntity> {
   countByIds(ids: string[], search?: string): Promise<number>;
   findByRole(role: UserRole): Promise<UserEntity | null>;
   updateStripeOnboardingStatus(accountId: string, status: boolean): Promise<void>;
+  updateLastSeen(userId: string, lastSeen: Date): Promise<void>;
 }
