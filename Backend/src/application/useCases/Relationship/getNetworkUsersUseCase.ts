@@ -56,12 +56,8 @@ export class GetNetworkUsersUseCase implements IGetNetworkUsersUseCase {
       })
     );
 
-    const eligibleUsers = results.filter(
-      (user) => user.connectionStatus !== ConnectionStatus.ACCEPTED
-    );
-
     return {
-      users: eligibleUsers,
+      users: results,
       totalUsers: results.length,
       totalPages: Math.ceil(results.length / limit),
       currentPage: page,

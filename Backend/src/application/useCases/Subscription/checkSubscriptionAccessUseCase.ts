@@ -5,6 +5,8 @@ import { ForbiddenException } from "application/constants/exceptions";
 import { SubscriptionAction } from "@domain/enum/subscriptionActions";
 import { UserRole } from "@domain/enum/userRole";
 import { SUBSCRIPTION_ERRORS } from "@shared/constants/error";
+import { actionLimitMap } from "@config/subscriptionAccess.config";
+import { mapUserRoleToPlanRole } from "application/mappers/roleMapper";
 
 export class CheckSubscriptionAccessUseCase implements ICheckSubscriptionAccessUseCase {
   constructor(
@@ -17,50 +19,44 @@ export class CheckSubscriptionAccessUseCase implements ICheckSubscriptionAccessU
     ownerRole: UserRole;
     action: SubscriptionAction;
   }): Promise<void> {
-    const subscription = await this._subscriptionRepo.findActiveByOwner(
-      data.ownerId,
-      data.ownerRole
-    );
+    const { ownerId, ownerRole, action } = data;
+
+    const subscription = await this._subscriptionRepo.findActiveByOwner(ownerId, ownerRole);
 
     if (!subscription) {
       throw new ForbiddenException(SUBSCRIPTION_ERRORS.NO_ACTIVE_SUBSCRIPTION);
     }
 
+    if (subscription.expiresAt && new Date(subscription.expiresAt) < new Date()) {
+      throw new ForbiddenException(SUBSCRIPTION_ERRORS.SUBSCRIPTION_EXPIRED);
+    }
+
     const plan = await this._planRepo.findById(subscription.planId);
+
     if (!plan) {
       throw new ForbiddenException(SUBSCRIPTION_ERRORS.INVALID_PLAN);
     }
 
-    // PERMISSION CHECK
-    if (!plan.permissions[data.action]) {
+    const expectedPlanRole = mapUserRoleToPlanRole(ownerRole);
+
+    if (!expectedPlanRole || plan.role !== expectedPlanRole) {
+      throw new ForbiddenException(SUBSCRIPTION_ERRORS.INVALID_PLAN);
+    }
+
+    if (!plan.permissions[action]) {
       throw new ForbiddenException(SUBSCRIPTION_ERRORS.ACTION_NOT_ALLOWED);
     }
 
-    // LIMIT CHECKS
-    if (data.action === SubscriptionAction.CREATE_PROJECT) {
-      const used = subscription.usage?.projectsUsed || 0;
-      const limit = plan.limits.projects;
+    const limitConfig = actionLimitMap[action];
 
-      if (limit !== -1 && used >= (limit || 0)) {
-        throw new ForbiddenException(SUBSCRIPTION_ERRORS.PROJECT_LIMIT_EXCEEDED);
-      }
-    }
+    if (limitConfig) {
+      const used =
+        subscription.usage?.[limitConfig.usageKey as keyof typeof subscription.usage] ?? 0;
 
-    if (data.action === SubscriptionAction.SEND_PROPOSAL) {
-      const used = subscription.usage?.proposalsUsed || 0;
-      const limit = plan.limits.proposalsPerMonth;
+      const limit = plan.limits[limitConfig.limitKey as keyof typeof plan.limits];
 
-      if (limit !== -1 && used >= (limit || 0)) {
-        throw new ForbiddenException(SUBSCRIPTION_ERRORS.PROPOSAL_LIMIT_EXCEEDED);
-      }
-    }
-
-    if (data.action === SubscriptionAction.SEND_INVESTMENT_OFFER) {
-      const used = subscription.usage?.investmentOffersUsed || 0;
-      const limit = plan.limits.investmentOffers;
-
-      if (limit !== -1 && used >= (limit || 0)) {
-        throw new ForbiddenException(SUBSCRIPTION_ERRORS.INVESTMENT_OFFER_LIMIT_EXCEEDED);
+      if (limit !== undefined && limit !== -1 && used >= limit) {
+        throw new ForbiddenException(limitConfig.error);
       }
     }
   }
