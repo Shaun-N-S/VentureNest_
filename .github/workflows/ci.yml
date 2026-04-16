@@ -69,7 +69,7 @@ jobs:
             docker rm backend || true
             
             docker run -d \
-              --env-file  ~/VentureNest_/.env \
+              --env-file  ~/VentureNest_/Backend/.env \
               -p 4000:4000 \
               --name backend \
               --restart always \
