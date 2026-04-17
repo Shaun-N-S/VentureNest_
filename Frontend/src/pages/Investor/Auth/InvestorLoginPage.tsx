@@ -26,7 +26,6 @@ const InvestorLoginPage = () => {
     Investorlogin(values, {
       onSuccess: (res) => {
         toast.success("Login Successfull");
-        console.log("login success", res.data.investor);
         dispatch(
           setData({
             _id: res.data.investor._id,
@@ -54,7 +53,6 @@ const InvestorLoginPage = () => {
         if (err instanceof AxiosError) {
           const errMsg = err?.response?.data?.message;
           console.log(err);
-          console.log("Error while login ,", err);
           toast.error(errMsg);
         }
       },

@@ -25,7 +25,6 @@ const ProjectDetailedPage = () => {
   const role = useSelector((state: Rootstate) => state.authData.role);
   const userId = useSelector((state: Rootstate) => state.authData.id);
 
-  console.log("data for detailed page  project    : ,", data);
 
   const handleProjectLike = (projectId: string) => {
     likeProject(projectId, {
@@ -95,7 +94,6 @@ const ProjectDetailedPage = () => {
   }
 
   const project = data?.data?.project;
-  console.log(project);
 
   if (!project) {
     return (

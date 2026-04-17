@@ -24,10 +24,8 @@ export class AuthMiddleware {
       ResponseHelper.error(res, Errors.INVALID_TOKEN, HTTPSTATUS.UNAUTHORIZED);
       return;
     }
-    console.log("bearer");
     const token = header.split(" ")[1];
     const decoded = this._jwtService.verifyAccessToken(token as string);
-    console.log(decoded);
     if (!decoded) {
       ResponseHelper.error(res, Errors.INVALID_TOKEN, HTTPSTATUS.UNAUTHORIZED);
       return;
@@ -48,7 +46,6 @@ export class AuthMiddleware {
     try {
       const userId = res.locals?.user?.userId;
       const role = res.locals?.user?.role;
-      console.log("userid and role : ,", userId, role);
 
       if (!userId || !role) {
         ResponseHelper.error(res, Errors.INVALID_TOKEN, HTTPSTATUS.UNAUTHORIZED);
@@ -56,11 +53,9 @@ export class AuthMiddleware {
       }
       const cacheKey = `USER_STATUS:${userId}`;
       let status = await this._cacheService.getData(cacheKey);
-      console.log("status of users  : ", status);
       if (!status) {
         if (role === UserRole.USER || role === UserRole.ADMIN) {
           status = await this._userRepo.getStatus(userId);
-          console.log("status from user repo : ,", status);
         }
 
         if (role === UserRole.INVESTOR) {

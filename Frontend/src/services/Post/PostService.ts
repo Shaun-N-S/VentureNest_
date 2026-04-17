@@ -45,7 +45,6 @@ export const fetchAllPosts = async (page: number, limit: number) => {
 };
 
 export const removePost = async (postId: string) => {
-  console.log("in service : : :  ", postId);
   const response = await AxiosInstance.patch(
     API_ROUTES.POST.REMOVE.replace(":id", postId),
   );

@@ -113,12 +113,10 @@ const ForgotPasswordPage = () => {
       return;
     }
     setErrors({});
-    console.log({ email, token, password });
     forgetPasswordResetPassword(
       { email, token, password },
       {
-        onSuccess: (res) => {
-          console.log(res);
+        onSuccess: () => {
           navigate("/login");
           setStep(1);
           setEmail("");

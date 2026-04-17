@@ -21,8 +21,6 @@ export class CommentController {
       const userRole = res.locals?.user?.role;
       const postId = req.params.postId!;
       const { commentText } = req.body;
-      console.log("data in local", res.locals.users, "cookies", req.cookies);
-      console.log(userId, userRole, postId, commentText);
 
       if (!commentText) throw new NotFoundExecption(COMMENT_ERRORS.NO_COMMENT_FOUND);
 

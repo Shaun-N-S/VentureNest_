@@ -112,7 +112,6 @@ const ForgotPasswordPage = () => {
       return;
     }
     setErrors({});
-    console.log({ email, token, password });
     forgetPasswordInvestorResetPassword(
       { email, token, password },
       {

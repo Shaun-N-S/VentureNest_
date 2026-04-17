@@ -35,7 +35,6 @@ const InvestorSignUpPage = () => {
 
     signup(payload, {
       onSuccess: (res) => {
-        console.log("Signup otp sent Successfull : ", res);
         setInvestorData(payload);
         if (res.message === "Otp sent successfully") {
           setOtpModalOpen(true);
@@ -54,14 +53,12 @@ const InvestorSignUpPage = () => {
       {
         onSuccess: (res) => {
           if (res) {
-            console.log("Investor response : ; :", res.data);
             toast.success("OTP Verified Successfully");
             setOtpModalOpen(false);
           }
           navigate("/investor/login");
         },
         onError: (err) => {
-          console.log("Error while verifying otp", err);
 
           if (axios.isAxiosError(err)) {
             toast.error(err.response?.data?.message || "Something went wrong");
@@ -84,7 +81,6 @@ const InvestorSignUpPage = () => {
     });
   };
 
-  console.log("Investor data in state : ", investorData);
 
   return (
     <div className=" md:h-screen grid grid-cols-1 md:grid-cols-2 items-stretch bg-background text-foreground md:overflow-hidden">

@@ -151,7 +151,6 @@ export default function PitchesPage() {
 
   const offers = receivedOffersData?.data ?? [];
   const pitches = sentPitchesData?.data ?? [];
-  console.log(receivedOffersData, sentPitchesData);
 
   React.useEffect(() => {
     setPitchPage(1);

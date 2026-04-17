@@ -49,7 +49,6 @@ const ChatWindow = () => {
     if (!socket || !conversationId) return;
 
     const join = () => {
-      console.log("🔥 Joining room:", conversationId);
 
       socket.emit("conversation:join", conversationId);
       socket.emit("get:online-users");

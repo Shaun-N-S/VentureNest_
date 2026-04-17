@@ -31,7 +31,6 @@ export function ProjectCard({
   onRemove,
 }: ProjectCardProps) {
   const [isLiked, setIsLiked] = useState(liked);
-  console.log(liked);
   const navigate = useNavigate();
 
   useEffect(() => {

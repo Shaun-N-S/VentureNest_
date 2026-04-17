@@ -29,10 +29,8 @@ export class PostController {
     try {
       const formData = req.body;
       const files = (req.files as MulterFiles<"mediaUrls">)?.mediaUrls;
-      console.log("RAW MULTER FILES:", files);
 
       const data: any = { ...formData };
-      console.log(data);
 
       if (files && Array.isArray(files) && files.length > 0) {
         data.mediaUrls = files.map((file) => multerFileToFileConverter(file));
@@ -41,7 +39,6 @@ export class PostController {
       const validatedData = createPostSchema.safeParse(data);
 
       if (!validatedData.success) {
-        console.log(validatedData.error);
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
 
@@ -65,7 +62,6 @@ export class PostController {
       }
 
       const data = await this._fetchPersonalPost.fetchPersonalPost(authorId!, page, limit);
-      console.log(data);
 
       ResponseHelper.success(res, MESSAGES.POST.POST_FETCHED_SUCCESSFULLY, { data }, HTTPSTATUS.OK);
     } catch (error) {
@@ -83,7 +79,6 @@ export class PostController {
       }
 
       const data = await this._fetchPersonalPost.fetchPersonalPost(authorId, page, limit);
-      console.log(data);
 
       ResponseHelper.success(res, MESSAGES.POST.POST_FETCHED_SUCCESSFULLY, { data }, HTTPSTATUS.OK);
     } catch (error) {
@@ -98,7 +93,6 @@ export class PostController {
       const limit = Number(req.query.limit) || 10;
 
       const data = await this._fetchAllPosts.fetchAllPosts(currentUserId, page, limit);
-      console.log(data);
 
       ResponseHelper.success(res, MESSAGES.POST.POST_FETCHED_SUCCESSFULLY, { data }, HTTPSTATUS.OK);
     } catch (error) {
