@@ -176,7 +176,6 @@ export default function UserEditProfileModal({
       updateUserProfile(formDataToSend, {
         onSuccess: (res) => {
           toast.success(res.message);
-          console.log("Updated user data:", res.data);
           dispatch(updateUserData(res.data));
 
           queryClient.setQueryData<UserProfileApiResponse>(

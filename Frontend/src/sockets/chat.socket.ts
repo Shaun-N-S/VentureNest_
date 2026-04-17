@@ -6,7 +6,6 @@ import type { MessageDTO, MessageListResponse } from "../types/chat";
 export const registerChatSocket = (socket: Socket) => {
   /* ------------------ NEW MESSAGE ------------------ */
   socket.on("chat:new-message", (message: MessageDTO) => {
-    console.log(" Realtime message:", message);
 
     queryClient.setQueryData<InfiniteData<MessageListResponse>>(
       ["chat-messages", message.conversationId],

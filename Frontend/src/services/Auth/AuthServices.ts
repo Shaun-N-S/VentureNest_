@@ -93,7 +93,6 @@ export const investorResetPassword = async ({
 
 export const loginUser = async (data: LoginPayload) => {
   const response = await AxiosInstance.post(API_ROUTES.AUTH.USER_LOGIN, data);
-  console.log("response", response);
   return response.data;
 };
 
@@ -136,7 +135,6 @@ export const loginInvestor = async (data: LoginPayload) => {
     API_ROUTES.AUTH.INVESTOR_LOGIN,
     data,
   );
-  console.log(response);
   return response.data;
 };
 

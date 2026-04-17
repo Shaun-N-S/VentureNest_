@@ -110,7 +110,6 @@ export class UserAuthController {
       console.log(`Entered OTP : ${otp} AND EMAIL : ${email}`);
 
       const verifiedOtp = await this._verifyOtpUseCase.verifyOtp(email, otp!);
-      console.log("verifiedOtp", verifiedOtp);
 
       if (!verifiedOtp) {
         throw new InvalidOTPExecption(Errors.INVALID_OTP);
@@ -156,7 +155,6 @@ export class UserAuthController {
   async resendOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const validatedEmail = emailSchema.safeParse(req.body.email);
-      console.log(validatedEmail.data);
 
       if (validatedEmail.error) {
         throw new InvalidDataException(Errors.INVALID_EMAIL);
@@ -245,8 +243,6 @@ export class UserAuthController {
   async handleLogout(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const refreshToken = req.cookies.RefreshToken;
-      console.log(refreshToken);
-      console.log(req.cookies);
 
       await this._tokenInvalidationUseCase.refreshToken(refreshToken);
 
@@ -260,7 +256,6 @@ export class UserAuthController {
 
   async googleLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      console.log(req.body);
       const loginData = googleLoginSchema.safeParse(req.body);
 
       if (loginData.error) {
@@ -301,7 +296,6 @@ export class UserAuthController {
       }
 
       const profileImg = await this._getProfileImgUseCase.getProfile(id);
-      console.log(profileImg);
       ResponseHelper.success(res, MESSAGES.USERS.PROFILE_IMG_SUCCESS, profileImg, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
@@ -311,7 +305,6 @@ export class UserAuthController {
   async handleInterestedTopics(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id, interestedTopics } = req.body;
-      console.log("data from frontend : : : ,", id, interestedTopics);
 
       await this._interestedTopics.setTopics(id, interestedTopics);
 
@@ -359,7 +352,6 @@ export class UserAuthController {
       const { userId, role } = res.locals.user;
 
       const email = await this.getEmailFromDB(userId, role);
-      console.log("password : ", password);
       await this._forgetPasswordResetPasswordUseCase.reset({
         email,
         password,

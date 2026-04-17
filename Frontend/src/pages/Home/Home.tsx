@@ -52,7 +52,6 @@ const Home = () => {
 
   const posts = postData?.pages.flatMap((page) => page.posts) ?? [];
 
-  console.log("posts : ", postData);
   const [isCreatePostModal, setIsCreatePostModal] = useState(false);
   const userId = useSelector((state: Rootstate) => state.authData.id);
   const role = useSelector((state: Rootstate) => state.authData.role);

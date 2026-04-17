@@ -59,7 +59,6 @@ export default function ProfilePage() {
   const { data: profileData } = useFetchUserProfile(userId);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfinitePersonalPosts(5);
-  console.log(profileData, "profile data :");
   const posts = data?.pages.flatMap((page) => page.data.data.posts) ?? [];
 
   const { data: projectData } = useFetchPersonalProjects(1, 10);
@@ -98,7 +97,6 @@ export default function ProfilePage() {
   }, [profileData, dispatch]);
 
   const handleRemove = (postId: string) => {
-    console.log("PostId to remove this post : ", postId);
 
     removePost(postId, {
       onSuccess: (res) => {

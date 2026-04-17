@@ -12,7 +12,6 @@ export default function NotificationPage() {
     const [limit] = useState(10);
     const { data, isLoading } = useGetConnectionReq(page, limit);
     const { mutate: updateConnectionReqStatus } = useConnectionStatusUpdate();
-    console.log(data, isLoading);
 
     const requests: NetworkUser[] = data?.data?.users || [];
 

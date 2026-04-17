@@ -10,6 +10,12 @@ import { ICreateTicketWithSessionUseCase } from "@domain/interfaces/useCases/tic
 import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 import { IEmailService } from "@domain/interfaces/services/IEmail/IEmailService";
 import { ISessionCreatedEmailContentGenerator } from "@domain/interfaces/services/IEmail/ISessionCreatedEmailTemplate";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export class CreateTicketWithSessionUseCase implements ICreateTicketWithSessionUseCase {
   constructor(
@@ -46,7 +52,10 @@ export class CreateTicketWithSessionUseCase implements ICreateTicketWithSessionU
     }
 
     const sessionStartTime = data.startTime
-      ? new Date(`${data.date.toISOString().split("T")[0]}T${data.startTime}:00`)
+      ? dayjs
+          .tz(`${data.date.toISOString().split("T")[0]} ${data.startTime}`, "Asia/Kolkata")
+          .utc()
+          .toDate()
       : undefined;
 
     const session = await this._sessionRepo.save(

@@ -28,7 +28,6 @@ export default function UserSignUpPage() {
 
     signup(payload, {
       onSuccess: (res) => {
-        console.log("Signup successful:", res);
         toast.success("Account created successfully!");
         setUserData(payload)
         if (res.message === "Otp sent successfully") {
@@ -36,27 +35,23 @@ export default function UserSignUpPage() {
         }
       },
       onError: (err) => {
-        console.log("Signup error:", err);
         toast.error((err as Error).message || "Something went wrong!");
       },
     });
   };
 
   const handleVerifyOtp = (otp: string) => {
-    console.log(userData)
     verifyOtp(
       { otp, email: userData.email },
       {
         onSuccess: (res) => {
           if (res.success) {
-            console.log("Otp verified succesfully , :", res.data);
             setOtpModalOpen(false);
           }
           navigate('/login')
 
         }, onError: (err) => {
           if (err) {
-            console.log("otp verification failed  : ", err);
             toast.error("Otp verification failed")
           }
         }
@@ -66,10 +61,8 @@ export default function UserSignUpPage() {
 
 
   const handleResendOtp = (email: string) => {
-    console.log("Sending resend OTP...", email);
     resendOtp(email, {
-      onSuccess: (res) => {
-        console.log("response from resend otp :", res);
+      onSuccess: () => {
         toast.success("OTP Resent successfully");
       },
       onError: (err) => {

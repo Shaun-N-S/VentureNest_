@@ -32,7 +32,6 @@ export const useSocketInit = () => {
     registerChatSocket(socket);
 
     return () => {
-      console.log("Cleaning up socket");
       // socket.removeAllListeners();
       // // disconnectSocket();
     };

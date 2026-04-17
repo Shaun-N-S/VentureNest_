@@ -25,7 +25,6 @@ const UserLoginPage = () => {
   const handleUserLogin = (values: LoginFormData) => {
     userLogin(values, {
       onSuccess: (res) => {
-        console.log("response", res);
         toast.success("Login successfull");
         dispatch(
           setData({
@@ -50,11 +49,8 @@ const UserLoginPage = () => {
         navigate("/home");
       },
       onError: (err) => {
-        console.log("cath", err);
-        console.log("axios error  ");
         if (err instanceof AxiosError) {
           const errMsg = err.response?.data.message;
-          console.log("Error while login ,", errMsg);
           toast.error(errMsg);
         }
       },

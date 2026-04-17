@@ -6,7 +6,6 @@ interface propType {
 }
 
 function Pagination({ totalPages, currentPage, setPage }: propType) {
-    console.log("pagination console :::  ",totalPages, currentPage, setPage)
     return (
         <div className="flex items-center justify-center space-x-2 mt-6">
             <Button

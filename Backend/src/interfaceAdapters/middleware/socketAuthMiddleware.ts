@@ -32,7 +32,6 @@ export const socketAuthMiddleware = (socket: Socket, next: (err?: Error) => void
       role: decoded.role,
     };
 
-    console.log(" Socket auth success:", decoded.userId);
     next();
   } catch (err) {
     console.error(" Socket auth exception:", err);

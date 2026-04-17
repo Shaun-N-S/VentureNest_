@@ -132,7 +132,6 @@ export function PostCard({
       { postId, commentText: text },
       {
         onSuccess: (res) => {
-          console.log("add comment response : : : ", res);
           setComments((prev) =>
             prev.map((comment) =>
               comment.id === tempId

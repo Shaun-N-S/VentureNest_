@@ -124,8 +124,6 @@ export class InvestorProfileController {
       const formData = req.body?.formData ? JSON.parse(req.body?.formData) : null;
       const files = req.files as MulterFiles<"aadharImg" | "selfieImg">;
 
-      console.log(id, "formdata ::", formData, "files", files);
-
       const formattedFormData = formData
         ? {
             ...formData,
@@ -152,7 +150,6 @@ export class InvestorProfileController {
       });
 
       if (!validatedData.success) {
-        console.log(validatedData.error);
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
 

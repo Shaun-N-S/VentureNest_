@@ -96,14 +96,10 @@ export function initSocket(server: HttpServer) {
     });
 
     socket.on("disconnect", async () => {
-      console.log("🔥 DISCONNECT CALLED:", userId);
-
       const count = userSocketCount.get(userId) || 0;
       const now = new Date();
 
       await updateLastSeenUseCase.execute(userId, role);
-
-      console.log("✅ lastSeen updated for:", userId);
 
       if (count <= 1) {
         userSocketCount.delete(userId);
