@@ -9,10 +9,12 @@ import { MessageRepository } from "@infrastructure/repostiories/messageRepositor
 import { UserRepository } from "@infrastructure/repostiories/userRepository";
 import { StorageService } from "@infrastructure/services/storageService";
 import { CreateConversationUseCase } from "application/useCases/Chat/createConversationUseCase";
+import { DeleteMessageUseCase } from "application/useCases/Chat/deleteMessageUseCase";
 import { GetMessagesUseCase } from "application/useCases/Chat/getMessagesUseCase";
 import { GetUnreadCountUseCase } from "application/useCases/Chat/getUnreadCountUseCase";
 import { GetUserConversationsUseCase } from "application/useCases/Chat/getUserConversationsUseCase";
 import { MarkConversationReadUseCase } from "application/useCases/Chat/markConversationReadUseCase";
+import { MarkMessageDeliveredUseCase } from "application/useCases/Chat/markMessageDeliveredUseCase";
 import { SendMessageUseCase } from "application/useCases/Chat/sendMessageUseCase";
 import { UpdateLastSeenUseCase } from "application/useCases/Chat/updateLastSeenUseCase";
 import { ChatController } from "interfaceAdapters/controller/Chat/chatController";
@@ -35,10 +37,18 @@ const getUserConversationsUseCase = new GetUserConversationsUseCase(
   conversationRepo,
   storageService
 );
-const markConversationReadUseCase = new MarkConversationReadUseCase(messageRepo);
 const getMessagesUseCase = new GetMessagesUseCase(messageRepo, storageService);
 const getUnreadCountUseCase = new GetUnreadCountUseCase(messageRepo);
+const deleteMessageUseCase = new DeleteMessageUseCase(messageRepo, chatPublisher);
 export const updateLastSeenUseCase = new UpdateLastSeenUseCase(userRepo, investorRepo);
+export const markConversationReadUseCase = new MarkConversationReadUseCase(
+  messageRepo,
+  chatPublisher
+);
+export const markMessageDeliveredUseCase = new MarkMessageDeliveredUseCase(
+  messageRepo,
+  chatPublisher
+);
 
 export const chatController = new ChatController(
   createConversationUseCase,
@@ -46,5 +56,6 @@ export const chatController = new ChatController(
   getUserConversationsUseCase,
   getMessagesUseCase,
   markConversationReadUseCase,
-  getUnreadCountUseCase
+  getUnreadCountUseCase,
+  deleteMessageUseCase
 );

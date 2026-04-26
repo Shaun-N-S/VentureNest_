@@ -4,6 +4,10 @@ import { CONFIG } from "@config/config";
 import { socketAuthMiddleware } from "interfaceAdapters/middleware/socketAuthMiddleware";
 import { SocketRooms } from "./socketRooms";
 import { updateLastSeenUseCase } from "@infrastructure/DI/Chat/chatContainer";
+import {
+  markMessageDeliveredUseCase,
+  markConversationReadUseCase,
+} from "@infrastructure/DI/Chat/chatContainer";
 
 export let io: Server;
 
@@ -75,6 +79,20 @@ export function initSocket(server: HttpServer) {
       socket.to(SocketRooms.conversation(conversationId)).emit("chat:user-typing", {
         userId: socket.data.user.userId,
         conversationId,
+      });
+    });
+
+    socket.on("message:delivered", async ({ conversationId }) => {
+      await markMessageDeliveredUseCase.execute({
+        conversationId,
+        userId: socket.data.user.userId,
+      });
+    });
+
+    socket.on("message:read", async ({ conversationId }) => {
+      await markConversationReadUseCase.execute({
+        conversationId,
+        userId: socket.data.user.userId,
       });
     });
 

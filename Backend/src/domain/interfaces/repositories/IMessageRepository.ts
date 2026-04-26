@@ -8,5 +8,9 @@ export interface IMessageRepository extends IBaseRepository<Message> {
 
   markMessagesAsRead(conversationId: string, userId: string): Promise<void>;
 
+  markAsDelivered(conversationId: string, userId: string): Promise<void>;
+
+  deleteMessage(messageId: string, userId: string): Promise<void>;
+
   countUnreadByUser(userId: string): Promise<number>;
 }

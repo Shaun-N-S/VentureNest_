@@ -43,10 +43,35 @@ export class MessageRepository
       {
         conversationId: new mongoose.Types.ObjectId(conversationId),
         senderId: { $ne: new mongoose.Types.ObjectId(userId) },
-        status: MessageStatus.SENT,
+        status: { $in: [MessageStatus.SENT, MessageStatus.DELIVERED] },
       },
       {
         $set: { status: MessageStatus.READ },
+      }
+    );
+  }
+
+  async markAsDelivered(conversationId: string, userId: string): Promise<void> {
+    await this._model.updateMany(
+      {
+        conversationId: new mongoose.Types.ObjectId(conversationId),
+        senderId: { $ne: new mongoose.Types.ObjectId(userId) },
+        status: MessageStatus.SENT,
+      },
+      {
+        $set: { status: MessageStatus.DELIVERED },
+      }
+    );
+  }
+
+  async deleteMessage(messageId: string, userId: string): Promise<void> {
+    await this._model.updateOne(
+      {
+        _id: new mongoose.Types.ObjectId(messageId),
+        senderId: new mongoose.Types.ObjectId(userId),
+      },
+      {
+        $set: { isDeleted: true },
       }
     );
   }

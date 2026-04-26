@@ -114,7 +114,9 @@ const ConversationList = () => {
                   <p
                     className={`text-sm truncate w-full ${isActive ? "text-indigo-600 font-medium" : "text-slate-500"}`}
                   >
-                    {conversation.lastMessage?.text ?? "No messages yet"}
+                    {conversation.lastMessage?.text
+                      ? conversation.lastMessage.text
+                      : "No messages yet"}
                   </p>
                   {/* Unread Indicator (Optional Mock) */}
                   {/* <div className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0" /> */}

@@ -9,4 +9,10 @@ export interface IChatEventPublisher {
     text: string;
     sentAt: Date;
   }): Promise<void>;
+
+  publishMessageDelivered(data: { conversationId: string; userId: string }): Promise<void>;
+
+  publishMessageRead(data: { conversationId: string; userId: string }): Promise<void>;
+
+  publishMessageDeleted(data: { messageId: string; conversationId: string }): Promise<void>;
 }

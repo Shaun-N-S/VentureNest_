@@ -211,6 +211,7 @@ export const API_ROUTES = {
     GET_MESSAGES: "/chat/messages/:conversationId",
     SEND_MESSAGE: "/chat/message",
     MARK_READ: "/chat/read/:conversationId",
+    DELETE_MESSAGE: "/chat/delete-message/:messageId",
     UNREAD_COUNT: "/chat/unread-count",
   },
 
