@@ -149,6 +149,8 @@ export const WALLET_ERRORS = {
 
 export const CHAT_ERRORS = {
   CONVERSATION_NOT_FOUND: "Conversation not found",
+  MESSAGE_NOT_FOUND: "Message not found",
+  UNAUTHORIZED: "Unauthorized",
 };
 
 export const DEAL_ERRORS = {

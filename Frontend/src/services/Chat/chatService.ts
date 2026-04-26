@@ -76,3 +76,9 @@ export const getUnreadCount = async (): Promise<UnreadCountResponse> => {
 
   return response.data.data;
 };
+
+export const deleteMessage = async (messageId: string) => {
+  await AxiosInstance.patch(
+    API_ROUTES.CHAT.DELETE_MESSAGE.replace(":messageId", messageId),
+  );
+};

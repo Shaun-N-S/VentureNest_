@@ -44,4 +44,16 @@ export class SocketChatPublisher implements IChatEventPublisher {
 
     io.to(SocketRooms.conversation(data.conversationId)).emit("chat:conversation-updated", data);
   }
+
+  async publishMessageDelivered(data: { conversationId: string; userId: string }) {
+    io.to(SocketRooms.conversation(data.conversationId)).emit("chat:message-delivered", data);
+  }
+
+  async publishMessageRead(data: { conversationId: string; userId: string }) {
+    io.to(SocketRooms.conversation(data.conversationId)).emit("chat:message-read", data);
+  }
+
+  async publishMessageDeleted(data: { messageId: string; conversationId: string }) {
+    io.to(SocketRooms.conversation(data.conversationId)).emit("chat:message-deleted", data);
+  }
 }

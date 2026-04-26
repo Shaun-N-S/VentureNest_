@@ -229,6 +229,7 @@ export const ROUTES = {
     SEND_MESSAGE: "/message",
     MARK_READ: "/read/:conversationId",
     UNREAD_COUNT: "/unread-count",
+    DELETE_MESSAGE: "/delete-message/:messageId",
   },
 
   DEAL: {

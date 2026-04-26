@@ -71,11 +71,28 @@ export interface ChatMessage {
 
   messageType: MessageType;
   status: MessageStatus;
-
+  isDeleted?: boolean;
   createdAt: string;
 }
 
 export interface ChatMessagesResponse {
   messages: ChatMessage[];
   total: number;
+}
+
+export interface ConversationPreview {
+  id: string;
+
+  otherUser: {
+    id: string;
+    userName: string;
+    profileImg?: string;
+    role: UserRole;
+    lastSeen?: string;
+  };
+
+  lastMessage?: {
+    text: string;
+    sentAt: string;
+  };
 }

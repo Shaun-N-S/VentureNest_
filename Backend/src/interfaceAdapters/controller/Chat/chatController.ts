@@ -12,6 +12,7 @@ import { IGetUnreadCountUseCase } from "@domain/interfaces/useCases/chat/IGetUnr
 import { MESSAGES } from "@shared/constants/messages";
 import { multerFileToFileConverter } from "@shared/utils/fileConverter";
 import { MulterFiles } from "@domain/types/multerFilesType";
+import { IDeleteMessageUseCase } from "@domain/interfaces/useCases/chat/IDeleteMessageUseCase";
 
 export class ChatController {
   constructor(
@@ -20,7 +21,8 @@ export class ChatController {
     private _getUserConversationsUseCase: IGetUserConversationsUseCase,
     private _getMessagesUseCase: IGetMessagesUseCase,
     private _markConversationReadUseCase: IMarkConversationReadUseCase,
-    private _getUnreadCountUseCase: IGetUnreadCountUseCase
+    private _getUnreadCountUseCase: IGetUnreadCountUseCase,
+    private _deleteMessageUseCase: IDeleteMessageUseCase
   ) {}
 
   async createConversation(req: Request, res: Response, next: NextFunction) {
@@ -159,6 +161,26 @@ export class ChatController {
       });
 
       ResponseHelper.success(res, MESSAGES.CHAT.UNREAD_MESSAGE_COUNT, result, HTTPSTATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteMessage(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = res.locals.user;
+      const { messageId } = req.params;
+
+      if (!messageId) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      await this._deleteMessageUseCase.execute({
+        messageId,
+        userId,
+      });
+
+      ResponseHelper.success(res, "Message deleted", {}, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }

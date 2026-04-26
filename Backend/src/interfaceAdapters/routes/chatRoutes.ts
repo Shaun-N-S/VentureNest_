@@ -55,6 +55,13 @@ export class Chat_Router {
       (req: Request, res: Response, next: NextFunction) =>
         chatController.getUnreadCount(req, res, next)
     );
+
+    this._route.patch(
+      ROUTES.CHAT.DELETE_MESSAGE,
+      ...userOrInvestorGuard,
+      (req: Request, res: Response, next: NextFunction) =>
+        chatController.deleteMessage(req, res, next)
+    );
   }
 
   public get_router(): Router {
