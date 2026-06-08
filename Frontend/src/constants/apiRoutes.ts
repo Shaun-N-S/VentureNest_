@@ -8,6 +8,7 @@ export const API_ROUTES = {
     USER_RESET_PASSWORD: "/auth/users/forget-password/reset-password",
     USER_LOGIN: "/auth/users/login",
     USER_GOOGLE_LOGIN: "/auth/users/google-login",
+    SET_INTERESTED_TOPICS: "/auth/users/interested-topics",
 
     INVESTOR_SIGNUP: "/auth/investors",
     INVESTOR_VERIFY_OTP: "/auth/investors/verify-otp",

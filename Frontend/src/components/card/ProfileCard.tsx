@@ -54,7 +54,6 @@ import { useCreateConversation } from "../../hooks/Chat/chatHooks";
 import TopicSelectionModal from "../modals/InterestedTopics";
 
 export function ProfileCard(props: ProfileCardProps) {
-  // State management - unchanged
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
@@ -688,7 +687,6 @@ export function ProfileCard(props: ProfileCardProps) {
         onSubmit={(selected) => {
           setInterestedTopics(
             {
-              id: userId,
               interestedTopics: selected,
             },
             {

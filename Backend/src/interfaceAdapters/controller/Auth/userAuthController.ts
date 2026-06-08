@@ -25,6 +25,7 @@ import { ITokenInvalidationUseCase } from "@domain/interfaces/useCases/auth/ITok
 import { clearRefreshTokenCookie } from "@shared/utils/clearRefreshTokenCookie";
 import { ResponseHelper } from "@shared/utils/responseHelper";
 import {
+  ForbiddenException,
   InvalidDataException,
   InvalidOTPExecption,
   NotFoundExecption,
@@ -304,9 +305,14 @@ export class UserAuthController {
 
   async handleInterestedTopics(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { id, interestedTopics } = req.body;
+      const { interestedTopics } = req.body;
+      const userId = res.locals?.user?.userId;
 
-      await this._interestedTopics.setTopics(id, interestedTopics);
+      if (!userId) {
+        throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
+      }
+
+      await this._interestedTopics.setTopics(userId, interestedTopics);
 
       ResponseHelper.success(res, MESSAGES.USERS.INTERESTED_TOPICS_SET_SUCCESSFULL, HTTPSTATUS.OK);
     } catch (error) {
