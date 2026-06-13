@@ -5,6 +5,7 @@ import { Errors, REPLY_ERRORS } from "@shared/constants/error";
 import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { MESSAGES } from "@shared/constants/messages";
 import { ResponseHelper } from "@shared/utils/responseHelper";
+import { ReplySchema } from "@shared/validations/replyValidator";
 import { InvalidDataException, NotFoundExecption } from "application/constants/exceptions";
 import { NextFunction, Request, Response } from "express";
 
@@ -20,7 +21,13 @@ export class ReplyController {
       const replierId = res.locals?.user?.userId;
       const replierRole = res.locals?.user?.role;
       const commentId = req.params.commentId;
-      const { replyText } = req.body;
+      const validated = ReplySchema.safeParse(req.body);
+
+      if (!validated.success) {
+        throw new InvalidDataException(validated.error.issues[0]?.message || Errors.INVALID_DATA);
+      }
+
+      const { replyText } = validated.data;
 
       if (!commentId || !replyText) {
         throw new NotFoundExecption(REPLY_ERRORS.INVALID_REPLY_DATA);

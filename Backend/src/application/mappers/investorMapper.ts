@@ -188,6 +188,7 @@ export class InvestorMapper {
       linkedInUrl: data.linkedInUrl || "",
       kycStatus: data.kycStatus,
       kycRejectReason: data.kycRejectReason || "",
+      interestedTopics: data.interestedTopics || [],
     };
   }
 

@@ -4,8 +4,8 @@ import { ISendMessageUseCase } from "@domain/interfaces/useCases/chat/ISendMessa
 import { MessageMapper } from "application/mappers/messageMapper";
 import { SendMessageReqDTO, SendMessageResDTO } from "application/dto/chat/sendMessageDTO";
 import { IChatEventPublisher } from "@domain/interfaces/services/IChatEventPublisher";
-import { NotFoundExecption } from "application/constants/exceptions";
-import { CHAT_ERRORS } from "@shared/constants/error";
+import { ForbiddenException, NotFoundExecption } from "application/constants/exceptions";
+import { CHAT_ERRORS, Errors } from "@shared/constants/error";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { Message } from "@domain/entities/chat/messageEntity";
 
@@ -34,6 +34,20 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       signedUrl = await this._storageService.createSignedUrl(fileUrl, 60 * 60);
     }
 
+    const conversation = await this._conversationRepository.findById(data.conversationId);
+
+    if (!conversation) {
+      throw new NotFoundExecption(CHAT_ERRORS.CONVERSATION_NOT_FOUND);
+    }
+
+    const isParticipant = conversation.participants.some(
+      (participant) => participant.userId === data.senderId
+    );
+
+    if (!isParticipant) {
+      throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
+    }
+
     const messageData = {
       conversationId: data.conversationId,
       senderId: data.senderId,
@@ -60,12 +74,6 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       text: previewText,
       sentAt: new Date(),
     });
-
-    const conversation = await this._conversationRepository.findById(data.conversationId);
-
-    if (!conversation) {
-      throw new NotFoundExecption(CHAT_ERRORS.CONVERSATION_NOT_FOUND);
-    }
 
     const participantIds = conversation.participants.map((p) => p.userId);
 

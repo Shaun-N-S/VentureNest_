@@ -186,8 +186,6 @@ export default function CreatePostModal({
 
     try {
       const formData = new FormData();
-      formData.append("authorId", authorId);
-      formData.append("authorRole", authorRole);
       if (content.trim()) formData.append("content", content.trim());
 
       mediaFiles.forEach((file) => formData.append("mediaUrls", file));

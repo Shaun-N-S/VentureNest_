@@ -29,6 +29,7 @@ import { PostCard } from "../card/PostCard";
 import { useUpdateProjectStatus } from "@/hooks/Admin/ProjectHooks";
 import StatusChangeModal from "./StatusChangeModal";
 import { useQueryClient } from "@tanstack/react-query";
+import { formatPostDate } from "@/utils/dateFormatter";
 
 /* ===================== TYPES ===================== */
 type ReportStatus =
@@ -287,9 +288,7 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
                           avatar: "/placeholder.svg",
                           followers: 0,
                         }}
-                        timestamp={new Date(
-                          postQuery.data.createdAt,
-                        ).toLocaleString()}
+                        timestamp={formatPostDate(postQuery.data.createdAt)}
                         content={postQuery.data.content}
                         mediaUrls={postQuery.data.mediaUrls}
                         likes={postQuery.data.likeCount}
@@ -350,7 +349,7 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
                             variant="secondary"
                             className="bg-slate-100 text-slate-600"
                           >
-                            {new Date(report.createdAt).toLocaleDateString()}
+                            {formatPostDate(report.createdAt)}
                           </Badge>
                         </div>
 

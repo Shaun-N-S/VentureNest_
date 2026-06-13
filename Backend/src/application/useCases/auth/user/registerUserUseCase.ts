@@ -24,9 +24,6 @@ export class RegisterUserUseCase implements ICreateUserUseCase {
     const redisUserData = await this._cacheStorage.getData(`USERDATA/${email}`);
     const userData = redisRegisterSchema.safeParse(JSON.parse(redisUserData!));
 
-    console.log(redisUserData);
-    console.log("userData from redis :", userData.data);
-
     const userEntity = UserMapper.toEntity(userData.data!);
 
     const savedUser = await this._userRepository.save(userEntity);

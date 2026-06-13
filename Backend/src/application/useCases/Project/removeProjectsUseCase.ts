@@ -2,7 +2,7 @@ import { IProjectRepository } from "@domain/interfaces/repositories/IProjectRepo
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IRemoveProjectUseCase } from "@domain/interfaces/useCases/project/IRemoveProjectsUseCase";
 import { Errors, PROJECT_ERRORS } from "@shared/constants/error";
-import { InvalidDataException, NotFoundExecption } from "application/constants/exceptions";
+import { ForbiddenException, NotFoundExecption } from "application/constants/exceptions";
 
 export class RemoveProjectUseCase implements IRemoveProjectUseCase {
   constructor(
@@ -16,7 +16,7 @@ export class RemoveProjectUseCase implements IRemoveProjectUseCase {
     if (!project) throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);
 
     if (project.userId.toString() !== userId) {
-      throw new InvalidDataException(Errors.UNAUTHORIZED_ACCESS);
+      throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
     }
 
     await this._projectRepository.update(projectId, { isActive: false });

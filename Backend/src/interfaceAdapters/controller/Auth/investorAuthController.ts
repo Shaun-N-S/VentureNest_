@@ -18,6 +18,7 @@ import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { MESSAGES } from "@shared/constants/messages";
 import { ResponseHelper } from "@shared/utils/responseHelper";
 import { setRefreshTokenCookie } from "@shared/utils/setRefreshTokenCookie";
+import { changePasswordSchema } from "@shared/validations/changePasswordValidator";
 import { emailSchema } from "@shared/validations/emailValidator";
 import { forgetPasswordResetPasswordSchema } from "@shared/validations/forgetPasswordResetPasswordValidator";
 import { forgetPasswordVerifyOtpSchema } from "@shared/validations/forgetPasswordVerifyOtpValidator";
@@ -26,6 +27,7 @@ import { loginSchema } from "@shared/validations/loginValidator";
 import { otpSchema } from "@shared/validations/otpValidator";
 import { registerUserSchema } from "@shared/validations/userRegisterValidator";
 import {
+  ForbiddenException,
   InvalidDataException,
   InvalidOTPExecption,
   NotFoundExecption,
@@ -65,14 +67,19 @@ export class InvestorAuthController {
     }
     return user.email;
   }
+
   async signUpSendOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const investorData = registerUserSchema.safeParse(req.body);
+      console.log("investorData", investorData);
+
       if (investorData.error) {
-        throw new InvalidDataException(Errors.INVALID_USERDATA);
+        const firstIssue = investorData.error.issues[0];
+
+        throw new InvalidDataException(firstIssue?.message || Errors.INVALID_USERDATA);
       }
 
-      await this._sendOtpUseCase.signUpSendOtp(investorData.data!);
+      await this._sendOtpUseCase.signUpSendOtp(investorData.data);
 
       ResponseHelper.success(res, MESSAGES.OTP.OTP_SUCCESSFULL, HTTPSTATUS.OK);
     } catch (error) {
@@ -84,15 +91,23 @@ export class InvestorAuthController {
     try {
       const validatedEmail = emailSchema.safeParse(req.body.email);
       const validatedOtp = otpSchema.safeParse(req.body.otp);
+      console.log("validatedEmail", validatedEmail);
+      console.log("validatedOtp", validatedOtp);
 
       if (validatedEmail.error) {
-        throw new InvalidDataException(Errors.INVALID_EMAIL);
+        const firstIssue = validatedEmail.error.issues[0];
+        throw new InvalidDataException(firstIssue?.message || Errors.INVALID_EMAIL);
+      }
+
+      if (validatedOtp.error) {
+        const firstIssue = validatedOtp.error.issues[0];
+        throw new InvalidOTPExecption(firstIssue?.message || Errors.INVALID_OTP);
       }
 
       const email = validatedEmail.data;
       const otp = validatedOtp.data;
 
-      const verifiedOtp = await this._verifyOtpUseCase.verifyOtp(email, otp!);
+      const verifiedOtp = await this._verifyOtpUseCase.verifyOtp(email, otp);
 
       if (!verifiedOtp) {
         throw new InvalidOTPExecption(Errors.INVALID_OTP);
@@ -108,13 +123,22 @@ export class InvestorAuthController {
 
   async loginInvestor(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { email, password } = loginSchema.parse(req.body);
+      const data = loginSchema.safeParse(req.body);
+
+      if (data.error) {
+        throw new InvalidDataException(data.error.issues[0]?.message || Errors.INVALID_DATA);
+      }
+
+      const { email, password } = data.data;
 
       const investor = await this._investorLoginUseCase.investorLogin(email, password);
-      console.log("investor Data :", investor);
+
+      if (!investor) {
+        throw new InvalidDataException(Errors.INVALID_CREDENTIALS);
+      }
 
       const token = this._tokenCreationUseCase.createAccessTokenAndRefreshToken({
-        userId: (await investor)._id.toString(),
+        userId: investor._id.toString(),
         role: UserRole.INVESTOR,
       });
 
@@ -136,9 +160,11 @@ export class InvestorAuthController {
   async resendOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const validatedEmail = emailSchema.safeParse(req.body.email);
-      console.log(validatedEmail.data);
+
       if (validatedEmail.error) {
-        throw new InvalidDataException(Errors.INVALID_EMAIL);
+        throw new InvalidDataException(
+          validatedEmail.error.issues[0]?.message || Errors.INVALID_EMAIL
+        );
       }
 
       await this._resendOtpUseCase.resendOtp(validatedEmail.data);
@@ -153,7 +179,9 @@ export class InvestorAuthController {
     try {
       const validatedEmail = emailSchema.safeParse(req.body.email);
       if (validatedEmail.error) {
-        throw new InvalidDataException(Errors.INVALID_EMAIL);
+        throw new InvalidDataException(
+          validatedEmail.error.issues[0]?.message || Errors.INVALID_EMAIL
+        );
       }
 
       await this._forgetPasswordSendOtpUseCase.sendOtp(validatedEmail.data);
@@ -169,7 +197,9 @@ export class InvestorAuthController {
       const data = forgetPasswordVerifyOtpSchema.safeParse(req.body);
 
       if (data.error) {
-        throw new InvalidDataException(Errors.INVALID_DATA);
+        const firstIssue = data.error.issues[0];
+
+        throw new InvalidDataException(firstIssue?.message || Errors.INVALID_DATA);
       }
 
       await this._forgetPasswordVerifyOtpUseCase.verify(data.data);
@@ -187,9 +217,11 @@ export class InvestorAuthController {
   ): Promise<void> {
     try {
       const data = forgetPasswordResetPasswordSchema.safeParse(req.body);
-      console.log(data);
+
       if (data.error) {
-        throw new InvalidDataException(Errors.INVALID_DATA);
+        const firstIssue = data.error.issues[0];
+
+        throw new InvalidDataException(firstIssue?.message || Errors.INVALID_DATA);
       }
 
       await this._forgetPasswordResetPasswordUseCase.reset(data.data);
@@ -202,11 +234,10 @@ export class InvestorAuthController {
 
   async googleLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      console.log(req.body);
       const loginData = googleLoginSchema.safeParse(req.body);
 
       if (loginData.error) {
-        throw new InvalidDataException(loginData.error.message);
+        throw new InvalidDataException(loginData.error.issues[0]?.message || Errors.INVALID_DATA);
       }
 
       const responseDTO = await this._googleLoginUseCase.execute(loginData.data);
@@ -238,6 +269,9 @@ export class InvestorAuthController {
   }
   async requestChangePasswordOtp(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!res.locals.user) {
+        throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
+      }
       const { userId, role } = res.locals.user;
 
       const email = await this.getEmailFromDB(userId, role);
@@ -252,14 +286,23 @@ export class InvestorAuthController {
 
   async verifyChangePasswordOtp(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!res.locals.user) {
+        throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
+      }
       const { otp } = req.body;
       const { userId, role } = res.locals.user;
+
+      const validatedOtp = otpSchema.safeParse(otp);
+
+      if (validatedOtp.error) {
+        throw new InvalidOTPExecption(validatedOtp.error.issues[0]?.message || Errors.INVALID_OTP);
+      }
 
       const email = await this.getEmailFromDB(userId, role);
 
       const token = await this._forgetPasswordVerifyOtpUseCase.verify({
         email,
-        otp,
+        otp: validatedOtp.data,
       });
 
       ResponseHelper.success(res, MESSAGES.OTP.OTP_VERIFIED_SUCCESSFULL, { token }, HTTPSTATUS.OK);
@@ -270,8 +313,18 @@ export class InvestorAuthController {
 
   async changePassword(req: Request, res: Response, next: NextFunction) {
     try {
-      const { password, token } = req.body;
+      if (!res.locals.user) {
+        throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
+      }
       const { userId, role } = res.locals.user;
+
+      const data = changePasswordSchema.safeParse(req.body);
+
+      if (data.error) {
+        throw new InvalidDataException(data.error.issues[0]?.message || Errors.INVALID_DATA);
+      }
+
+      const { password, token } = data.data;
 
       const email = await this.getEmailFromDB(userId, role);
       await this._forgetPasswordResetPasswordUseCase.reset({

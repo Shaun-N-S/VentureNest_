@@ -20,6 +20,7 @@ export interface InvestorProfileDTO {
   connectionsCount?: number;
   postCount?: number;
   investmentCount?: number;
+  interestedTopics?: string[];
 }
 
 export interface InvestorProfileUpdateFormDataDTO {

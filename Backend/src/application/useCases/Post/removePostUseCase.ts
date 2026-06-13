@@ -2,7 +2,7 @@ import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IRemovePostUseCase } from "@domain/interfaces/useCases/post/IRemovePostUseCase";
 import { Errors, POST_ERRORS } from "@shared/constants/error";
-import { InvalidDataException, NotFoundExecption } from "application/constants/exceptions";
+import { ForbiddenException, NotFoundExecption } from "application/constants/exceptions";
 
 export class RemovePostUseCase implements IRemovePostUseCase {
   constructor(
@@ -18,7 +18,7 @@ export class RemovePostUseCase implements IRemovePostUseCase {
     }
 
     if (post.authorId.toString() !== userId) {
-      throw new InvalidDataException(Errors.UNAUTHORIZED_ACCESS);
+      throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
     }
 
     await this._postRepository.update(postId, { isDeleted: true });

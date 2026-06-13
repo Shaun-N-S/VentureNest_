@@ -27,11 +27,10 @@ export class AdminPlanController {
 
   async createPlan(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      console.log(req.body);
       const validated = createPlanSchema.safeParse(req.body);
 
       if (!validated.success) {
-        throw new InvalidDataException(Errors.INVALID_DATA);
+        throw new InvalidDataException(validated.error.issues[0]?.message || Errors.INVALID_DATA);
       }
 
       const result = await this._createPlanUseCase.execute(validated.data);
@@ -84,7 +83,7 @@ export class AdminPlanController {
       const validated = updatePlanSchema.safeParse(req.body);
 
       if (!validated.success) {
-        throw new InvalidDataException(Errors.INVALID_DATA);
+        throw new InvalidDataException(validated.error.issues[0]?.message || Errors.INVALID_DATA);
       }
 
       const cleanData = Object.fromEntries(
@@ -109,7 +108,7 @@ export class AdminPlanController {
       const validated = updatePlanStatusSchema.safeParse(req.body);
 
       if (!validated.success) {
-        throw new InvalidDataException(Errors.INVALID_DATA);
+        throw new InvalidDataException(validated.error.issues[0]?.message || Errors.INVALID_DATA);
       }
 
       const result = await this._updatePlanStatusUseCase.execute(planId, validated.data.status!);

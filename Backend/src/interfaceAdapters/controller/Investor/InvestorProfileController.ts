@@ -11,7 +11,11 @@ import { ResponseHelper } from "@shared/utils/responseHelper";
 import { InvestorKYCSchema } from "@shared/validations/investorKYCValidator";
 import { InvestorProfileCompletionReqSchema } from "@shared/validations/investorProfileCompletionValidator";
 import { investorProfileUpdateSchema } from "@shared/validations/investorProfileUpdateValidator";
-import { DataMissingExecption, InvalidDataException } from "application/constants/exceptions";
+import {
+  DataMissingExecption,
+  ForbiddenException,
+  InvalidDataException,
+} from "application/constants/exceptions";
 import { InvestorKYCUpdateDTO } from "application/dto/investor/investorKYCUpdateDTO";
 import { InvestorProfileCompletionReqDTO } from "application/dto/investor/investorProfileCompletionDTO";
 import { InvestorProfileUpdateDTO } from "application/dto/investor/investorProfileDTO";
@@ -27,8 +31,20 @@ export class InvestorProfileController {
 
   async profileCompletion(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const investorId = req.body?.investorId;
-      const formData = req.body?.formData ? JSON.parse(req.body.formData) : null;
+      const investorId = res.locals?.user?.userId;
+
+      if (!investorId) {
+        throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
+      }
+
+      let formData;
+
+      try {
+        formData = req.body?.formData ? JSON.parse(req.body.formData) : undefined;
+      } catch {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
       const files = req.files as MulterFiles<"profileImg" | "portfolioPdf">;
 
       const data: InvestorProfileCompletionReqDTO = { id: investorId, formData };
@@ -44,11 +60,13 @@ export class InvestorProfileController {
       const validatedData = InvestorProfileCompletionReqSchema.safeParse(data);
 
       if (validatedData.error) {
-        throw new InvalidDataException(Errors.INVALID_DATA);
+        throw new InvalidDataException(
+          validatedData.error.issues[0]?.message || Errors.INVALID_DATA
+        );
       }
 
       const result = await this._investorProfileCompletionUseCase.profileCompletion(
-        validatedData.data!
+        validatedData.data
       );
 
       ResponseHelper.success(
@@ -58,7 +76,6 @@ export class InvestorProfileController {
         HTTPSTATUS.OK
       );
     } catch (error) {
-      console.log(error);
       next(error);
     }
   }
@@ -86,8 +103,19 @@ export class InvestorProfileController {
 
   async updateProfileData(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const investorId = req.body?.id;
-      const formData = req.body?.formData ? JSON.parse(req.body.formData) : null;
+      const investorId = res.locals?.user?.userId;
+
+      if (!investorId) {
+        throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
+      }
+
+      let formData;
+
+      try {
+        formData = req.body?.formData ? JSON.parse(req.body.formData) : undefined;
+      } catch {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
       const files = req.files as MulterFiles<"profileImg">;
 
       const data: InvestorProfileUpdateDTO = { id: investorId, formData };
@@ -96,14 +124,16 @@ export class InvestorProfileController {
         data.profileImg = multerFileToFileConverter(files["profileImg"][0]);
       }
 
-      const validatedData = investorProfileUpdateSchema.parse(data) as InvestorProfileUpdateDTO;
+      const validatedData = investorProfileUpdateSchema.safeParse(data);
 
-      if (!validatedData) {
-        throw new InvalidDataException(Errors.INVALID_DATA);
+      if (validatedData.error) {
+        throw new InvalidDataException(
+          validatedData.error.issues[0]?.message || Errors.INVALID_DATA
+        );
       }
 
       const response = await this._investorProfileUpdateUseCase.updateInvestorProfile(
-        validatedData!
+        validatedData.data as InvestorProfileUpdateDTO
       );
 
       ResponseHelper.success(
@@ -113,15 +143,25 @@ export class InvestorProfileController {
         HTTPSTATUS.OK
       );
     } catch (error) {
-      console.log(error);
       next(error);
     }
   }
 
   async updateKYC(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const id = req.body?.id;
-      const formData = req.body?.formData ? JSON.parse(req.body?.formData) : null;
+      const userId = res.locals?.user?.userId;
+
+      if (!userId) {
+        throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
+      }
+
+      let formData;
+
+      try {
+        formData = req.body?.formData ? JSON.parse(req.body.formData) : undefined;
+      } catch {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
       const files = req.files as MulterFiles<"aadharImg" | "selfieImg">;
 
       const formattedFormData = formData
@@ -131,7 +171,7 @@ export class InvestorProfileController {
           }
         : null;
 
-      const data: InvestorKYCUpdateDTO = { id, formData: formattedFormData };
+      const data: InvestorKYCUpdateDTO = { id: userId, formData: formattedFormData };
 
       if (files["aadharImg"]?.[0]) {
         data.aadharImg = multerFileToFileConverter(files["aadharImg"][0]);
@@ -145,12 +185,16 @@ export class InvestorProfileController {
         ...data,
         formData: {
           ...data.formData,
-          dateOfBirth: data.formData?.dateOfBirth.toISOString(),
+          dateOfBirth: data.formData?.dateOfBirth
+            ? data.formData.dateOfBirth.toISOString()
+            : undefined,
         },
       });
 
       if (!validatedData.success) {
-        throw new InvalidDataException(Errors.INVALID_DATA);
+        throw new InvalidDataException(
+          validatedData.error.issues[0]?.message || Errors.INVALID_DATA
+        );
       }
 
       const response = await this._kycUpdateUseCase.updateKYC(data);

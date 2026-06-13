@@ -3,8 +3,8 @@ import { StorageFolderNames } from "@domain/enum/storageFolderNames";
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IUpdateProjectUseCase } from "@domain/interfaces/useCases/project/IUpdateProjectUseCase";
 import { ProjectRepository } from "@infrastructure/repostiories/projectRepository";
-import { PROJECT_ERRORS } from "@shared/constants/error";
-import { NotFoundExecption } from "application/constants/exceptions";
+import { Errors, PROJECT_ERRORS } from "@shared/constants/error";
+import { ForbiddenException, NotFoundExecption } from "application/constants/exceptions";
 import { UpdateProjectDTO } from "application/dto/project/projectDTO";
 import { ProjectMapper } from "application/mappers/projectMapper";
 
@@ -20,6 +20,10 @@ export class UpdateProjectUseCase implements IUpdateProjectUseCase {
     const existingProject = await this._projectRepository.findById(projectId);
     if (!existingProject) {
       throw new NotFoundExecption(PROJECT_ERRORS.NO_PROJECTS_FOUND);
+    }
+
+    if (existingProject.userId.toString() !== userId) {
+      throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
     }
 
     const uploadedPitchDeckUrl = data.pitchDeckUrl

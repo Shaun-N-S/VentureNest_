@@ -21,7 +21,6 @@ export class InvestorProfileUpdateUseCase implements IInvestorProfileUpdateUseCa
     data: InvestorProfileUpdateDTO
   ): Promise<InvestorProfileUpdateResDTO | null> {
     const { id, formData, profileImg } = data;
-    console.log("data received in the useCase : : : : : :    :", id, formData, profileImg);
 
     const investor = await this._investorRepository.findById(id);
 

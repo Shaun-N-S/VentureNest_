@@ -15,26 +15,58 @@ import { useInvestorProfileUpdate } from "../../hooks/Investor/Profile/InvestorP
 import { useDispatch } from "react-redux";
 import { updateUserData } from "../../store/Slice/authDataSlice";
 import { queryClient } from "../../main";
+import axios from "axios";
 
 const investorSchema = z.object({
   profileImg: z.instanceof(File).optional(),
-  userName: z.string().min(2, "Full name is required").trim(),
-  bio: z.string().trim().optional(),
-  website: z.string().trim().url("Invalid URL").optional().or(z.literal("")),
-  companyName: z.string().trim().optional(),
+
+  userName: z
+    .string()
+    .trim()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username cannot exceed 30 characters"),
+
+  bio: z
+    .string()
+    .trim()
+    .max(500, "Bio cannot exceed 500 characters")
+    .optional(),
+
+  website: z
+    .string()
+    .trim()
+    .url("Invalid website URL format")
+    .optional()
+    .or(z.literal("")),
+
+  companyName: z
+    .string()
+    .trim()
+    .min(2, "Company name must be at least 2 characters")
+    .max(100, "Company name cannot exceed 100 characters")
+    .optional()
+    .or(z.literal("")),
+
   experience: z.preprocess((val) => {
     if (val === "" || val === undefined || val === null) return undefined;
     return Number(val);
-  }, z.number().optional()),
-  location: z.string().trim().optional(),
+  }, z.number().int().nonnegative().optional()),
+
+  location: z
+    .string()
+    .trim()
+    .max(100, "Location cannot exceed 100 characters")
+    .optional(),
+
   investmentMin: z.preprocess((val) => {
     if (val === "" || val === undefined || val === null) return undefined;
     return Number(val);
-  }, z.number().optional()),
+  }, z.number().nonnegative().optional()),
+
   investmentMax: z.preprocess((val) => {
     if (val === "" || val === undefined || val === null) return undefined;
     return Number(val);
-  }, z.number().optional()),
+  }, z.number().nonnegative().optional()),
 });
 
 export type InvestorProfileEditData = z.infer<typeof investorSchema>;
@@ -150,7 +182,6 @@ export default function InvestorEditProfileModal({
       investorSchema.parse(dataToValidate);
       const formDataToSend = new FormData();
 
-      formDataToSend.append("id", investorId);
       formDataToSend.append("formData", JSON.stringify(formData));
       if (hasImageChanged && selectedImage)
         formDataToSend.append("profileImg", selectedImage);
@@ -165,7 +196,13 @@ export default function InvestorEditProfileModal({
           queryClient.invalidateQueries({ queryKey: ["profileImg"] });
         },
         onError: (err) => {
-          toast.error(err.message);
+          if (axios.isAxiosError(err)) {
+            toast.error(
+              err.response?.data?.message || "Failed to update profile",
+            );
+          } else {
+            toast.error("Failed to update profile");
+          }
         },
       });
       onOpenChange(false);
@@ -178,10 +215,8 @@ export default function InvestorEditProfileModal({
           }
         });
         setErrors(newErrors);
-        console.error("Validation errors:", err.issues);
         toast.error("Please correct the errors before saving.");
       } else {
-        console.error("Error:", err);
         toast.error("Something went wrong!");
       }
     }
@@ -259,6 +294,9 @@ export default function InvestorEditProfileModal({
               onChange={handleChange}
               placeholder="Short bio..."
             />
+            {errors.bio && (
+              <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
+            )}
           </div>
 
           <div>
@@ -282,6 +320,9 @@ export default function InvestorEditProfileModal({
               onChange={handleChange}
               placeholder="Company name"
             />
+            {errors.companyName && (
+              <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>
+            )}
           </div>
 
           <div>

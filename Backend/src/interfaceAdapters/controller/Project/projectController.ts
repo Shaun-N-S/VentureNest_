@@ -52,7 +52,6 @@ export class ProjectController {
       const validated = CreateProjectReqSchema.safeParse(rawData);
 
       if (!validated.success) {
-        console.log(validated.error);
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
 
@@ -135,7 +134,6 @@ export class ProjectController {
     try {
       const projectId = req.params.projectId!;
       const userId = res.locals?.user?.userId;
-      console.log(projectId, userId, req.params);
       const result = await this._removeProject.removeProject(projectId, userId);
 
       ResponseHelper.success(
@@ -198,7 +196,6 @@ export class ProjectController {
       const validated = UpdateProjectReqSchema.safeParse(rawData);
 
       if (!validated.success) {
-        console.log(validated.error);
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
 

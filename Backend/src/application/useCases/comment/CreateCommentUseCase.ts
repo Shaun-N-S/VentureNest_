@@ -28,19 +28,6 @@ export class CreateCommentUseCase implements ICreateCommentUseCase {
       $inc: { commentsCount: 1 },
     } as any);
 
-    // if (comment.userId !== data.replierId) {
-    //   await this._notificationUseCase.createNotification({
-    //     recipientId: comment.userId,
-    //     recipientRole: comment.userRole,
-    //     actorId: data.replierId,
-    //     actorRole: data.replierRole,
-    //     type: NotificationType.POST_COMMENTED,
-    //     entityId: comment._id!,
-    //     entityType: NotificationEntityType.COMMENT,
-    //     message: "replied to your comment",
-    //   });
-    // }
-
     const user =
       saved.userRole === UserRole.USER
         ? await this._userRepository.findById(saved.userId)

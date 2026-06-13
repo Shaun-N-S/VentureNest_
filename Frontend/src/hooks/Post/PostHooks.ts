@@ -39,7 +39,7 @@ export const useInfinitePersonalPosts = (limit = 5) => {
 
 export const useInfinitePersonalPostsById = (userId: string, limit = 5) => {
   return useInfiniteQuery({
-    queryKey: ["personal-post-by-id"],
+    queryKey: ["personal-post-by-id", userId],
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       fetchPersonalPostsById(userId, pageParam as number, limit),

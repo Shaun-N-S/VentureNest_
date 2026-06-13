@@ -20,14 +20,10 @@ export class RegisterInvestorUseCase implements ICreateInvestorUseCase {
     if (existingInvestor) {
       throw new AlreadyExisitingExecption(INVESTOR_ERRORS.INVESTOR_ALREADY_EXISTS);
     }
-
     const redisInvestorData = await this._cacheStorage.getData(`USERDATA/${email}`);
     const investorData = redisRegisterSchema.safeParse(JSON.parse(redisInvestorData!));
-
     const investorEntity = InvestorMapper.toEntity(investorData.data!);
-
     const savedInvestor = await this._investorRepository.save(investorEntity);
-
     await this._createWalletUseCase.execute(WalletOwnerType.INVESTOR, savedInvestor._id!);
   }
 }

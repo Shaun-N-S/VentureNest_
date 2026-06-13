@@ -72,7 +72,7 @@ export function PitchModal({
   investorId,
 }: PitchModalProps) {
   const { data: projectData, isLoading: loadingProjects } =
-    useFetchPersonalProjects(1, 10);
+    useFetchPersonalProjects(1, 10, open);
   const { mutate: createPitch, isPending } = useCreatePitch(); // Corrected: use isPending from hook
 
   const projects: ProjectType[] = projectData?.data?.data?.projects ?? [];
@@ -152,13 +152,6 @@ export function PitchModal({
               <p className="mt-2 text-sm text-slate-500 max-w-[250px] mx-auto">
                 You need an active project to pitch to investors.
               </p>
-              <Button
-                variant="default"
-                className="mt-6 bg-slate-900 hover:bg-slate-800"
-                onClick={() => onOpenChange(false)}
-              >
-                Create a Project First
-              </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
