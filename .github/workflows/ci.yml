@@ -60,7 +60,7 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_IP }}
-          username: ubuntu
+          username: ec2-user
           key: ${{ secrets.SSH_KEY }}
           script: |
             docker pull shaun1092/venturenest-backend
