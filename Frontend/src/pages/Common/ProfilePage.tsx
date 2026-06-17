@@ -25,7 +25,8 @@ import type {
   PersonalProjectApiResponse,
   ProjectType,
 } from "../../types/projectType";
-import type { PersonalPostCache } from "../../types/personalPostCache";
+import type { InfiniteData } from "@tanstack/react-query";
+import type { PersonalPostPage } from "../../types/postFeed";
 import { useSelector } from "react-redux";
 import { useInView } from "react-intersection-observer";
 import { Loader2 } from "lucide-react";
@@ -36,6 +37,7 @@ import { ReportTargetType } from "../../types/reportTargetType";
 import { ReportModal } from "../../components/modals/ReportModal";
 import { ReportModalSkeleton } from "../../components/Skelton/ReportModalSkelton";
 import { useFetchInvestorProfile } from "../../hooks/Investor/Profile/InvestorProfileHooks";
+import { formatPostDate } from "@/utils/dateFormatter";
 
 export default function CommonProfilePage() {
   const { id } = useParams<{ id?: string }>();
@@ -71,10 +73,13 @@ export default function CommonProfilePage() {
     useInfinitePersonalPostsById(profileUserId!, 5);
   const posts = data?.pages.flatMap((page) => page.data.data.posts) ?? [];
 
+  const shouldFetchProjects = !!profile && profile.role === "USER";
+
   const { data: projectData } = useFetchPersonalProjectsById(
     profileUserId!,
     1,
     10,
+    shouldFetchProjects,
   );
   const { mutate: likePost } = useLikePost();
   const { mutate: likeProject } = useLikeProject();
@@ -90,45 +95,43 @@ export default function CommonProfilePage() {
   }, [inView, hasNextPage, fetchNextPage]);
 
   const handleProfileLike = (postId: string) => {
-    const previousData = queryClient.getQueryData<PersonalPostCache>([
-      "personal-post",
-      1,
-      10,
-    ]);
-
-    queryClient.setQueryData(
-      ["personal-post", 1, 10],
-      (old: PersonalPostCache) => {
-        if (!old?.data?.data?.posts) return old;
+    queryClient.setQueryData<InfiniteData<PersonalPostPage>>(
+      ["personal-post-by-id", profileUserId],
+      (old) => {
+        if (!old) return old;
 
         return {
           ...old,
-          data: {
-            ...old.data,
+          pages: old.pages.map((page) => ({
+            ...page,
             data: {
-              ...old.data.data,
-              posts: old.data.data.posts.map((post) =>
-                post._id === postId
-                  ? {
-                      ...post,
-                      liked: !post.liked,
-                      likeCount: post.liked
-                        ? post.likeCount - 1
-                        : post.likeCount + 1,
-                    }
-                  : post,
-              ),
+              ...page.data,
+              data: {
+                ...page.data.data,
+                posts: page.data.data.posts.map((post) =>
+                  post._id === postId
+                    ? {
+                        ...post,
+                        liked: !post.liked,
+                        likeCount: post.liked
+                          ? post.likeCount - 1
+                          : post.likeCount + 1,
+                      }
+                    : post,
+                ),
+              },
             },
-          },
+          })),
         };
       },
     );
 
     likePost(postId, {
       onError: () => {
-        if (previousData) {
-          queryClient.setQueryData(["personal-post", 1, 10], previousData);
-        }
+        queryClient.invalidateQueries({
+          queryKey: ["personal-post-by-id", profileUserId],
+        });
+
         toast.error("Failed to like post");
       },
     });
@@ -143,7 +146,7 @@ export default function CommonProfilePage() {
         updateUI(res.data.liked);
 
         queryClient.setQueryData<PersonalProjectApiResponse>(
-          ["personal-project", 1, 10],
+          ["personal-project-by-id", profileUserId, 1, 10],
           (old) => {
             if (!old) return old;
 
@@ -204,9 +207,15 @@ export default function CommonProfilePage() {
 
           {/* Tabs */}
           <Tabs defaultValue="posts" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsList
+              className={`grid w-full ${
+                profile?.role === "INVESTOR" ? "grid-cols-1" : "grid-cols-2"
+              } mb-8`}
+            >
               <TabsTrigger value="posts">Posts</TabsTrigger>
-              <TabsTrigger value="projects">Projects</TabsTrigger>
+              {profile?.role !== "INVESTOR" && (
+                <TabsTrigger value="projects">Projects</TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="posts" className="space-y-6">
@@ -230,7 +239,7 @@ export default function CommonProfilePage() {
                           profileData?.data?.profileData?.profileImg || "",
                         followers: 0,
                       }}
-                      timestamp={new Date(post.createdAt).toLocaleString()}
+                      timestamp={formatPostDate(post.createdAt)}
                       content={post.content}
                       mediaUrls={post.mediaUrls || []}
                       likes={post.likeCount}
@@ -252,54 +261,58 @@ export default function CommonProfilePage() {
               </motion.div>
             </TabsContent>
 
-            <TabsContent value="projects" className="space-y-6">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="grid gap-4"
-              >
-                {projectData?.data?.data?.projects &&
-                projectData.data.data.projects.length > 0 ? (
-                  projectData.data.data.projects.map((project: ProjectType) => (
-                    <ProjectCard
-                      key={project._id}
-                      id={project._id}
-                      title={project.startupName}
-                      description={project.shortDescription}
-                      stage={project.stage!}
-                      logoUrl={project.logoUrl}
-                      likes={project.likeCount}
-                      liked={project.liked}
-                      onLike={(updateUI) =>
-                        handleProjectLike(project._id, updateUI)
-                      }
-                      isOwnProfile={isOwnProfile}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center py-12 text-gray-500">
-                    No projects yet
-                  </div>
-                )}
+            {profile?.role !== "INVESTOR" && (
+              <TabsContent value="projects" className="space-y-6">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="grid gap-4"
+                >
+                  {projectData?.data?.data?.projects &&
+                  projectData.data.data.projects.length > 0 ? (
+                    projectData.data.data.projects.map(
+                      (project: ProjectType) => (
+                        <ProjectCard
+                          key={project._id}
+                          id={project._id}
+                          title={project.startupName}
+                          description={project.shortDescription}
+                          stage={project.stage!}
+                          logoUrl={project.logoUrl}
+                          likes={project.likeCount}
+                          liked={project.liked}
+                          onLike={(updateUI) =>
+                            handleProjectLike(project._id, updateUI)
+                          }
+                          isOwnProfile={isOwnProfile}
+                        />
+                      ),
+                    )
+                  ) : (
+                    <div className="text-center py-12 text-gray-500">
+                      No projects yet
+                    </div>
+                  )}
 
-                {/* Report Modal */}
-                {isReportOpen && reportTargetId && (
-                  <>
-                    {isReportModalLoading ? (
-                      <ReportModalSkeleton />
-                    ) : (
-                      <ReportModal
-                        open={isReportOpen}
-                        onClose={() => setIsReportOpen(false)}
-                        targetId={reportTargetId}
-                        targetType={ReportTargetType.POST}
-                      />
-                    )}
-                  </>
-                )}
-              </motion.div>
-            </TabsContent>
+                  {/* Report Modal */}
+                  {isReportOpen && reportTargetId && (
+                    <>
+                      {isReportModalLoading ? (
+                        <ReportModalSkeleton />
+                      ) : (
+                        <ReportModal
+                          open={isReportOpen}
+                          onClose={() => setIsReportOpen(false)}
+                          targetId={reportTargetId}
+                          targetType={ReportTargetType.POST}
+                        />
+                      )}
+                    </>
+                  )}
+                </motion.div>
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </div>

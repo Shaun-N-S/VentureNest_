@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import { ICreateCommentUseCase } from "@domain/interfaces/useCases/comment/ICreateCommentUseCase";
-import { InvalidDataException, NotFoundExecption } from "application/constants/exceptions";
-import { COMMENT_ERRORS, Errors } from "@shared/constants/error";
+import { InvalidDataException } from "application/constants/exceptions";
+import { Errors } from "@shared/constants/error";
 import { ResponseHelper } from "@shared/utils/responseHelper";
 import { MESSAGES } from "@shared/constants/messages";
 import { HTTPSTATUS } from "@shared/constants/httpStatus";
 import { IGetCommentsUseCase } from "@domain/interfaces/useCases/comment/IGetCommentUseCase";
 import { ILikeCommentUseCase } from "@domain/interfaces/useCases/comment/ILikeCommentUseCase";
+import { CommentSchema } from "@shared/validations/commentValidator";
 
 export class CommentController {
   constructor(
@@ -20,9 +21,13 @@ export class CommentController {
       const userId = res.locals?.user?.userId;
       const userRole = res.locals?.user?.role;
       const postId = req.params.postId!;
-      const { commentText } = req.body;
+      const validated = CommentSchema.safeParse(req.body);
 
-      if (!commentText) throw new NotFoundExecption(COMMENT_ERRORS.NO_COMMENT_FOUND);
+      if (!validated.success) {
+        throw new InvalidDataException(validated.error.issues[0]?.message || Errors.INVALID_DATA);
+      }
+
+      const { commentText } = validated.data;
 
       const data = await this._createCommentUseCase.addComment({
         postId,

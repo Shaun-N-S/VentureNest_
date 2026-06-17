@@ -25,6 +25,7 @@ import { queryClient } from "../../../../main";
 import type { InfiniteData } from "@tanstack/react-query";
 import type { PersonalPostPage } from "../../../../types/postFeed";
 import type { UserRole } from "../../../../types/UserRole";
+import { formatPostDate } from "@/utils/dateFormatter";
 
 export interface PersonalPost {
   _id: string;
@@ -175,7 +176,7 @@ export default function ProfilePage() {
                         avatar: userData.profileImg,
                         followers: 0,
                       }}
-                      timestamp={new Date(post.createdAt).toLocaleString()}
+                      timestamp={formatPostDate(post.createdAt)}
                       content={post.content}
                       mediaUrls={post.mediaUrls || []}
                       likes={post.likeCount}

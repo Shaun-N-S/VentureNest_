@@ -44,6 +44,8 @@ export const Errors = {
   ADMIN_NOT_FOUND: "Platform admin not found",
   INVALID_AMOUNT: "Invalid amount",
   INVALID_LIMIT: "Invalid limit",
+  CANNOT_MESSAGE_SELF: "You cannot create a conversation with yourself",
+  FILE_REQUIRED_FOR_MESSAGE_TYPE: "File is required for the selected message type",
 };
 
 export const USER_ERRORS = {

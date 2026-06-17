@@ -37,12 +37,16 @@ const InvestorSignUpPage = () => {
       onSuccess: (res) => {
         setInvestorData(payload);
         if (res.message === "Otp sent successfully") {
+          toast.success(res.message);
           setOtpModalOpen(true);
         }
       },
       onError: (err) => {
-        console.log("signup error :", err);
-        // toast.error(err.response?.data?.message)
+        if (axios.isAxiosError(err)) {
+          toast.error(err.response?.data?.message || "Something went wrong");
+        } else {
+          toast.error("Something went wrong");
+        }
       },
     });
   };
@@ -59,7 +63,6 @@ const InvestorSignUpPage = () => {
           navigate("/investor/login");
         },
         onError: (err) => {
-
           if (axios.isAxiosError(err)) {
             toast.error(err.response?.data?.message || "Something went wrong");
           } else {
@@ -75,12 +78,15 @@ const InvestorSignUpPage = () => {
       onSuccess: () => {
         toast.success("OTP Resend successfully");
       },
-      onError: () => {
-        toast.error("Failed to resend OTP");
+      onError: (err) => {
+        if (axios.isAxiosError(err)) {
+          toast.error(err.response?.data?.message || "Failed to resend OTP");
+        } else {
+          toast.error("Failed to resend OTP");
+        }
       },
     });
   };
-
 
   return (
     <div className=" md:h-screen grid grid-cols-1 md:grid-cols-2 items-stretch bg-background text-foreground md:overflow-hidden">

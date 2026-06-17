@@ -1,16 +1,26 @@
 import z from "zod";
 import { emailSchema } from "./emailValidator";
+import { passwordSchema } from "./loginValidator";
 
 export const registerUserSchema = z.object({
-  userName: z.string().min(3, "Username must be at least 3 characters"),
+  userName: z
+    .string()
+    .trim()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username cannot exceed 30 characters"),
   email: emailSchema,
-  password: z.string().min(6).max(20),
+  password: passwordSchema,
   //   role: z.enum(UserRole),
 });
 
 export const redisRegisterSchema = z.object({
-  userName: z.string().min(3, "Username must be at least 3 characters"),
+  userName: z
+    .string()
+    .trim()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username cannot exceed 30 characters"),
   email: emailSchema,
-  password: z.string(),
-  //   role: z.enum(UserRole),
+
+  // hashed password
+  password: z.string().min(1),
 });

@@ -11,7 +11,7 @@ import { MESSAGES } from "@shared/constants/messages";
 import { multerFileToFileConverter } from "@shared/utils/fileConverter";
 import { ResponseHelper } from "@shared/utils/responseHelper";
 import { createPostSchema } from "@shared/validations/postValidator";
-import { InvalidDataException } from "application/constants/exceptions";
+import { ForbiddenException, InvalidDataException } from "application/constants/exceptions";
 import { CreatePostDTO } from "application/dto/post/postDTO";
 import { NextFunction, Request, Response } from "express";
 
@@ -27,19 +27,32 @@ export class PostController {
 
   async addPost(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      console.log(res.locals.user);
+      const authorId = res.locals?.user?.userId;
+      const authorRole = res.locals?.user?.role;
+
+      if (!authorId || !authorRole) {
+        throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
+      }
+
       const formData = req.body;
       const files = (req.files as MulterFiles<"mediaUrls">)?.mediaUrls;
 
-      const data: any = { ...formData };
+      const data = {
+        ...formData,
+        authorId,
+        authorRole,
+      };
 
       if (files && Array.isArray(files) && files.length > 0) {
         data.mediaUrls = files.map((file) => multerFileToFileConverter(file));
       }
-
       const validatedData = createPostSchema.safeParse(data);
 
       if (!validatedData.success) {
-        throw new InvalidDataException(Errors.INVALID_DATA);
+        throw new InvalidDataException(
+          validatedData.error.issues[0]?.message || Errors.INVALID_DATA
+        );
       }
 
       const cleanData = validatedData.data as CreatePostDTO;

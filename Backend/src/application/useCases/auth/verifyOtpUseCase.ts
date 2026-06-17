@@ -12,7 +12,7 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
 
   async verifyOtp(email: string, otp: string): Promise<boolean> {
     const cachedOtp = await this._cacheStorage.getData(`otp/${email}`);
-    console.log("cachedOtp : ", cachedOtp);
+
     if (!cachedOtp) {
       throw new OTPExpiredException(Errors.OTP_MISSING);
     }

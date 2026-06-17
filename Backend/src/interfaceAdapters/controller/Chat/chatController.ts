@@ -13,6 +13,8 @@ import { MESSAGES } from "@shared/constants/messages";
 import { multerFileToFileConverter } from "@shared/utils/fileConverter";
 import { MulterFiles } from "@domain/types/multerFilesType";
 import { IDeleteMessageUseCase } from "@domain/interfaces/useCases/chat/IDeleteMessageUseCase";
+import { CreateConversationSchema, SendMessageSchema } from "@shared/validations/chatValidator";
+import { MessageType } from "@domain/enum/messageType";
 
 export class ChatController {
   constructor(
@@ -28,9 +30,15 @@ export class ChatController {
   async createConversation(req: Request, res: Response, next: NextFunction) {
     try {
       const { userId, role } = res.locals.user;
-      const { targetUserId, targetUserRole } = req.body;
+      const validated = CreateConversationSchema.safeParse(req.body);
 
-      if (!userId || !role || !targetUserId || !targetUserRole) {
+      if (!validated.success) {
+        throw new InvalidDataException(validated.error.issues[0]?.message || Errors.INVALID_DATA);
+      }
+
+      const { targetUserId, targetUserRole } = validated.data;
+
+      if (!userId || !role) {
         throw new InvalidDataException(Errors.INVALID_DATA);
       }
 
@@ -50,7 +58,13 @@ export class ChatController {
   async sendMessage(req: Request, res: Response, next: NextFunction) {
     try {
       const { userId, role } = res.locals.user;
-      const { conversationId, content, messageType } = req.body;
+      const validated = SendMessageSchema.safeParse(req.body);
+
+      if (!validated.success) {
+        throw new InvalidDataException(validated.error.issues[0]?.message || Errors.INVALID_DATA);
+      }
+
+      const { conversationId, content, messageType } = validated.data;
 
       const files = req.files as MulterFiles<"file">;
 
@@ -64,14 +78,20 @@ export class ChatController {
         file = multerFileToFileConverter(files.file[0]);
       }
 
-      const result = await this._sendMessageUseCase.execute({
+      if ((messageType === MessageType.FILE || messageType === MessageType.IMAGE) && !file) {
+        throw new InvalidDataException(Errors.FILE_REQUIRED_FOR_MESSAGE_TYPE);
+      }
+
+      const dto = {
         conversationId,
         senderId: userId,
         senderRole: role,
-        content,
         messageType,
-        file,
-      });
+        ...(content && { content }),
+        ...(file && { file }),
+      };
+
+      const result = await this._sendMessageUseCase.execute(dto);
 
       ResponseHelper.success(res, MESSAGES.CHAT.MESSAGE_SENT, result, HTTPSTATUS.OK);
     } catch (error) {

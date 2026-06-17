@@ -16,6 +16,7 @@ import { ReportModal } from "../../components/modals/ReportModal";
 import { ReportModalSkeleton } from "../../components/Skelton/ReportModalSkelton";
 import { ReportTargetType } from "../../types/reportTargetType";
 import type { UserRole } from "../../types/UserRole";
+import { formatPostDate } from "@/utils/dateFormatter";
 
 export interface AllPost {
   _id: string;
@@ -77,7 +78,7 @@ const Home = () => {
   const handleSave = (selected: string[]) => {
     setTopics(selected);
     setInterestedTopics(
-      { id: userData.id, interestedTopics: selected },
+      { interestedTopics: selected },
       {
         onSuccess: () => {
           dispatch(updateUserData({ isFirstLogin: false }));
@@ -158,7 +159,7 @@ const Home = () => {
                 followers: 0,
                 role: post.authorRole,
               }}
-              timestamp={new Date(post.createdAt).toLocaleString()}
+              timestamp={formatPostDate(post.createdAt)}
               content={post.content}
               mediaUrls={post.mediaUrls || []}
               likes={post.likeCount}

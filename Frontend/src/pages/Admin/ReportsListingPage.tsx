@@ -13,6 +13,7 @@ import {
 } from "../../hooks/Admin/ReportHooks";
 import ReportDetailsModal from "../../components/modals/ReportDetailsModal";
 import { ReportReason, ReportStatus } from "../../types/report";
+import { formatDateTime } from "@/utils/dateFormatter";
 
 /* ===================== TYPES ===================== */
 
@@ -132,7 +133,7 @@ const ReportManagementPage = () => {
       label: "Last Reported",
       render: (row: BaseReportRow) => (
         <span className="text-sm text-gray-600">
-          {new Date(row.latestReportAt).toLocaleString()}
+          {formatDateTime(row.latestReportAt)}
         </span>
       ),
     },

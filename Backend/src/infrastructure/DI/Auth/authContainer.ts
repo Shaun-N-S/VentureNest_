@@ -185,11 +185,7 @@ export const investorAuthController = new InvestorAuthController(
   investorRepository
 );
 
-export const adminAuthController = new AdminAuthController(
-  adminLoginUseCase,
-  cacheUserUseCase,
-  tokenCreationUseCase
-);
+export const adminAuthController = new AdminAuthController(adminLoginUseCase, tokenCreationUseCase);
 
 export const authMiddleware = new AuthMiddleware(
   jwtService,

@@ -23,7 +23,7 @@ export class OtpEmailContentGenerator
                   </p>
 
                   <p style="margin:20px 0 0 0;">
-                    This OTP is valid for the next <strong>10 minutes</strong>. For your security, please do not share it with anyone.
+                    This OTP is valid for the next <strong>5 minutes</strong>. For your security, please do not share it with anyone.
                   </p>
 
                   <p style="margin:30px 0 0 0;">

@@ -91,7 +91,7 @@ export class Investor_Router {
 
     this._route.patch(
       ROUTES.KYC.UPDATE,
-      // ...investorGuard,
+      ...investorGuard,
       uploadMulter.fields([
         { name: "aadharImg", maxCount: 1 },
         { name: "selfieImg", maxCount: 1 },

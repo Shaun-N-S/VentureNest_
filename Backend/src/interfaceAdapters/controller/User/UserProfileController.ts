@@ -7,8 +7,15 @@ import { MESSAGES } from "@shared/constants/messages";
 import { multerFileToFileConverter } from "@shared/utils/fileConverter";
 import { ResponseHelper } from "@shared/utils/responseHelper";
 import { userProfileUpdateSchema } from "@shared/validations/userProfileUpdateValidator";
-import { DataMissingExecption, InvalidDataException } from "application/constants/exceptions";
-import { UserProfileUpdateReqDTO } from "application/dto/user/userProfileUpdateDTO";
+import {
+  DataMissingExecption,
+  ForbiddenException,
+  InvalidDataException,
+} from "application/constants/exceptions";
+import {
+  UserProfileUpdateModelDTO,
+  UserProfileUpdateReqDTO,
+} from "application/dto/user/userProfileUpdateDTO";
 import { NextFunction, Request, Response } from "express";
 
 export class UserProfileController {
@@ -33,30 +40,49 @@ export class UserProfileController {
         HTTPSTATUS.OK
       );
     } catch (error) {
-      console.log(error);
       next(error);
     }
   }
 
   async updateProfileData(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.body?.id;
-      const formData = req.body?.formData ? JSON.parse(req.body.formData) : null;
+      const userId = res.locals?.user?.userId;
+      let formData: UserProfileUpdateModelDTO | undefined;
+
+      try {
+        formData = req.body?.formData ? JSON.parse(req.body.formData) : undefined;
+      } catch {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
       const files = req.files as MulterFiles<"profileImg">;
 
-      const data: UserProfileUpdateReqDTO = { id: userId, formData };
+      if (!userId) {
+        throw new ForbiddenException(Errors.UNAUTHORIZED_ACCESS);
+      }
+      const data: UserProfileUpdateReqDTO = {
+        id: userId,
+      };
+
+      if (formData) {
+        data.formData = formData;
+      }
 
       if (files["profileImg"]?.[0]) {
         data.profileImg = multerFileToFileConverter(files["profileImg"][0]);
       }
 
-      const validatedData = userProfileUpdateSchema.parse(data) as UserProfileUpdateReqDTO;
+      const validatedData = userProfileUpdateSchema.safeParse(data);
 
-      if (!validatedData) {
-        throw new InvalidDataException(Errors.INVALID_DATA);
+      if (validatedData.error) {
+        throw new InvalidDataException(
+          validatedData.error.issues[0]?.message || Errors.INVALID_DATA
+        );
       }
 
-      const response = await this._udpateUserProfileUseCase.updateUserProfile(validatedData!);
+      const response = await this._udpateUserProfileUseCase.updateUserProfile(
+        validatedData.data as UserProfileUpdateReqDTO
+      );
 
       ResponseHelper.success(res, MESSAGES.USERS.PROFILE_UPDATED_SUCCESS, response, HTTPSTATUS.OK);
     } catch (error) {

@@ -157,12 +157,10 @@ export const useGetProfileImg = (id: string, enabled: boolean = true) => {
 export const useIntrestedTopics = () => {
   return useMutation({
     mutationFn: ({
-      id,
       interestedTopics,
     }: {
-      id: string;
       interestedTopics: string[];
-    }) => setInterestedTopics({ id, interestedTopics }),
+    }) => setInterestedTopics({ interestedTopics }),
   });
 };
 

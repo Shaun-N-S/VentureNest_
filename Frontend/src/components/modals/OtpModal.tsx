@@ -13,9 +13,9 @@ type OTPModalProps = {
 
 const OTPModal = ({ isOpen, onClose, onVerify, onResend }: OTPModalProps) => {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
-  const [timeLeft, setTimeLeft] = useState<number>(120);
+  const OTP_EXPIRY_SECONDS = 300;
+  const [timeLeft, setTimeLeft] = useState<number>(OTP_EXPIRY_SECONDS);
   const [canResend, setCanResend] = useState(false);
-
 
   useEffect(() => {
     if (!isOpen) return;
@@ -28,7 +28,7 @@ const OTPModal = ({ isOpen, onClose, onVerify, onResend }: OTPModalProps) => {
 
   const startTimer = () => {
     setCanResend(false);
-    setTimeLeft(120);
+    setTimeLeft(OTP_EXPIRY_SECONDS);
 
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
@@ -44,13 +44,11 @@ const OTPModal = ({ isOpen, onClose, onVerify, onResend }: OTPModalProps) => {
     return interval;
   };
 
-
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
-
 
   const handleChange = (index: number, value: string) => {
     if (value && !/^\d+$/.test(value)) return;
@@ -65,7 +63,10 @@ const OTPModal = ({ isOpen, onClose, onVerify, onResend }: OTPModalProps) => {
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       const prevInput = document.getElementById(`otp-input-${index - 1}`);
       prevInput?.focus();
@@ -94,10 +95,10 @@ const OTPModal = ({ isOpen, onClose, onVerify, onResend }: OTPModalProps) => {
     if (otpString.length === 6) onVerify(otpString);
   };
 
-const handleResendClick = () => {
-  onResend();
-  startTimer();
-}
+  const handleResendClick = () => {
+    onResend();
+    startTimer();
+  };
 
   if (!isOpen) return null;
 
@@ -165,10 +166,18 @@ const handleResendClick = () => {
 
             {/* Timer & Resend */}
             <motion.div className="mb-4 text-center">
-              <p className="text-sm text-gray-500">Time left: {formatTime(timeLeft)}</p>
+              <p className="text-sm text-gray-500">
+                Time left: {formatTime(timeLeft)}
+              </p>
+              {timeLeft === 0 && (
+                <p className="text-red-500 text-sm mt-2">
+                  OTP expired. Please request a new OTP.
+                </p>
+              )}
               <button
-                className={`text-indigo-600 font-semibold hover:underline mt-2 ${!canResend ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                className={`text-indigo-600 font-semibold hover:underline mt-2 ${
+                  !canResend ? "opacity-50 cursor-not-allowed" : ""
+                }`}
                 onClick={handleResendClick}
                 disabled={!canResend}
               >

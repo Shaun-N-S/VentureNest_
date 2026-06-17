@@ -43,6 +43,7 @@ import { updateUserData } from "../../../store/Slice/authDataSlice";
 import { useInView } from "react-intersection-observer";
 import { Loader2 } from "lucide-react";
 import type { UserRole } from "../../../types/UserRole";
+import { formatPostDate } from "@/utils/dateFormatter";
 
 export default function ProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false);
@@ -346,7 +347,7 @@ export default function ProfilePage() {
                         avatar: userData.profileImg,
                         followers: 0,
                       }}
-                      timestamp={new Date(post.createdAt).toLocaleString()}
+                      timestamp={formatPostDate(post.createdAt)}
                       content={post.content}
                       mediaUrls={post.mediaUrls || []}
                       likes={post.likeCount}

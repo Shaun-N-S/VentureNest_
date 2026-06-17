@@ -17,7 +17,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { AnimatePresence, motion } from "framer-motion";
 import type { ProfileCardProps } from "../../types/ProfileCardPropsType";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
 import EditInvestorProfileModal from "../modals/InvestorEditProfileModal";
@@ -52,9 +52,9 @@ import { ChangePasswordModal } from "../modals/ChangePasswordModal";
 import { useNavigate } from "react-router-dom";
 import { useCreateConversation } from "../../hooks/Chat/chatHooks";
 import TopicSelectionModal from "../modals/InterestedTopics";
+import axios from "axios";
 
 export function ProfileCard(props: ProfileCardProps) {
-  // State management - unchanged
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
@@ -73,8 +73,8 @@ export function ProfileCard(props: ProfileCardProps) {
   const userData = useSelector((state: Rootstate) => state.authData);
   const dispatch = useDispatch();
 
-  const isInvestor = userData.role === "INVESTOR";
   const profileData = props.userData;
+  const isInvestor = profileData.role === "INVESTOR";
   const profileUserId = profileData.id;
 
   // Hooks - unchanged
@@ -85,13 +85,20 @@ export function ProfileCard(props: ProfileCardProps) {
     !props.isOwnProfile ? profileUserId : undefined,
   );
 
-  const ownConnections = useConnectionsPeopleList(connectionSearch, 5);
+  const isConnectedToProfile =
+    !props.isOwnProfile && relationshipStatus?.status === "accepted";
+
+  const ownConnections = useConnectionsPeopleList(
+    connectionSearch,
+    5,
+    open && props.isOwnProfile,
+  );
   const otherUserConnections = useUserConnectionsPeopleList(
     profileUserId,
     connectionSearch,
     5,
+    open && isConnectedToProfile,
   );
-
   const connectionsSource = props.isOwnProfile
     ? ownConnections
     : otherUserConnections;
@@ -103,9 +110,6 @@ export function ProfileCard(props: ProfileCardProps) {
     isFetchingNextPage,
     isLoading,
   } = connectionsSource;
-
-  const isConnectedToProfile =
-    !props.isOwnProfile && relationshipStatus?.status === "accepted";
 
   const { mutate: requestOtp } = useRequestChangePasswordOtp();
   const { mutate: verifyOtp } = useVerifyChangePasswordOtp();
@@ -120,6 +124,12 @@ export function ProfileCard(props: ProfileCardProps) {
   const handleAddProject = () => setIsAddProjectOpen(true);
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (profileData.interestedTopics) {
+      setSelectedTopics(profileData.interestedTopics);
+    }
+  }, [profileData]);
 
   const handleCreatePost = () => {
     setIsCreatePostModal(true);
@@ -638,12 +648,13 @@ export function ProfileCard(props: ProfileCardProps) {
         onActionClick={handleRemoveConnection}
         onSearch={setConnectionSearch}
       />
-
-      <PitchModal
-        open={isPitchModalOpen}
-        onOpenChange={setIsPitchModalOpen}
-        investorId={profileData.id}
-      />
+      {isPitchModalOpen && (
+        <PitchModal
+          open={isPitchModalOpen}
+          onOpenChange={setIsPitchModalOpen}
+          investorId={profileData.id}
+        />
+      )}
 
       <OtpModal
         isOpen={isOtpModalOpen}
@@ -655,12 +666,27 @@ export function ProfileCard(props: ProfileCardProps) {
               setIsOtpModalOpen(false);
               setIsPasswordModalOpen(true);
             },
-            onError: () => toast.error("Invalid OTP"),
+            onError: (err) => {
+              if (axios.isAxiosError(err)) {
+                toast.error(err.response?.data?.message || "Invalid OTP");
+              } else {
+                toast.error("Invalid OTP");
+              }
+            },
           });
         }}
         onResend={() => {
           requestOtp(undefined, {
             onSuccess: () => toast.success("OTP resent"),
+            onError: (err) => {
+              if (axios.isAxiosError(err)) {
+                toast.error(
+                  err.response?.data?.message || "Failed to resend OTP",
+                );
+              } else {
+                toast.error("Failed to resend OTP");
+              }
+            },
           });
         }}
       />
@@ -688,7 +714,6 @@ export function ProfileCard(props: ProfileCardProps) {
         onSubmit={(selected) => {
           setInterestedTopics(
             {
-              id: userId,
               interestedTopics: selected,
             },
             {

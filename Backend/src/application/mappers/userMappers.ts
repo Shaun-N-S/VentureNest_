@@ -198,6 +198,7 @@ export class UserMapper {
       adminVerified: data.adminVerified,
       kycStatus: data.kycStatus,
       kycRejectReason: data.kycRejectReason || "",
+      interestedTopics: data.interestedTopics || [],
     };
   }
 }

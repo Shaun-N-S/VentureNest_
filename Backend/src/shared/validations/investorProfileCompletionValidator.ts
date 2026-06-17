@@ -6,14 +6,22 @@ export const profileCompletionSchema = z
   .object({
     linkedInUrl: z.string().min(1, "LinkedIn URL is required").url("Enter a valid LinkedIn URL"),
 
-    companyName: z.string().min(1, "Company name is required"),
+    companyName: z
+      .string()
+      .trim()
+      .min(1, "Company name is required")
+      .max(100, "Company name cannot exceed 100 characters"),
 
     experience: z.preprocess(
       (val) => (val === "" ? undefined : Number(val)),
       z.number().min(0, "Experience cannot be negative")
     ),
 
-    location: z.string().min(1, "Location is required"),
+    location: z
+      .string()
+      .trim()
+      .min(1, "Location is required")
+      .max(100, "Location cannot exceed 100 characters"),
 
     preferredSector: z
       .array(z.nativeEnum(PreferredSector))

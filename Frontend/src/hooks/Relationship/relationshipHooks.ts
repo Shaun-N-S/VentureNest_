@@ -50,12 +50,18 @@ export const useConnectionStatusUpdate = () => {
   });
 };
 
-export const useConnectionsPeopleList = (search?: string, limit = 10) => {
+export const useConnectionsPeopleList = (
+  search?: string,
+  limit = 10,
+  enabled = true,
+) => {
   return useInfiniteQuery({
     queryKey: ["connections-people-list", search],
+    enabled,
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getConnectionsPeopleList(pageParam as number, limit, search),
+
     getNextPageParam: (lastPage) => {
       if (lastPage.currentPage < lastPage.totalPages) {
         return lastPage.currentPage + 1;
@@ -83,17 +89,22 @@ export const useUserConnectionsPeopleList = (
   userId: string,
   search?: string,
   limit = 10,
+  enabled = true,
 ) => {
   return useInfiniteQuery({
     queryKey: ["user-connections-people-list", userId, search],
-    enabled: !!userId,
+    enabled,
+
     initialPageParam: 1,
+
     queryFn: ({ pageParam }) =>
       getUserConnectionsPeopleList(userId, pageParam as number, limit, search),
+
     getNextPageParam: (lastPage) => {
       if (lastPage.currentPage < lastPage.totalPages) {
         return lastPage.currentPage + 1;
       }
+
       return undefined;
     },
   });

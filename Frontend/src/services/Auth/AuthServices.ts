@@ -174,14 +174,11 @@ export const getProfileImg = async (id: string) => {
 
 //interested topics
 export const setInterestedTopics = async ({
-  id,
   interestedTopics,
 }: {
-  id: string;
   interestedTopics: string[];
 }) => {
-  const response = await AxiosInstance.post("/auth/users/interested-topics", {
-    id,
+  const response = await AxiosInstance.post(API_ROUTES.AUTH.SET_INTERESTED_TOPICS, {
     interestedTopics,
   });
   return response;

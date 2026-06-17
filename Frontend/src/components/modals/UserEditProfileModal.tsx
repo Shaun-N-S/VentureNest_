@@ -17,12 +17,25 @@ import { updateUserData } from "../../store/Slice/authDataSlice";
 import { queryClient } from "../../main";
 import ImageCropper from "../cropper/ImageCropper";
 import type { UserProfileApiResponse } from "../../types/userProfileApiResponse";
+import axios from "axios";
 
 const userSchema = z.object({
   profileImg: z.instanceof(File).optional(),
-  userName: z.string().trim().min(2, "Full name is required"),
-  bio: z.string().trim().optional(),
-  website: z.string().trim().url("Invalid URL").optional(),
+
+  userName: z
+    .string()
+    .trim()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username cannot exceed 30 characters"),
+
+  bio: z
+    .string()
+    .trim()
+    .max(500, "Bio cannot exceed 500 characters")
+    .optional(),
+
+  website: z.string().trim().url("Invalid website URL").optional(),
+
   linkedInUrl: z.string().trim().url("Invalid LinkedIn URL").optional(),
 });
 
@@ -166,7 +179,6 @@ export default function UserEditProfileModal({
       userSchema.parse(dataToValidate);
 
       const formDataToSend = new FormData();
-      formDataToSend.append("id", userId);
       formDataToSend.append("formData", JSON.stringify(cleanedFormData));
 
       if (hasImageChanged && selectedImage) {
@@ -199,7 +211,15 @@ export default function UserEditProfileModal({
 
           onOpenChange(false);
         },
-        onError: (err) => toast.error(err.message),
+        onError: (err) => {
+          if (axios.isAxiosError(err)) {
+            toast.error(
+              err.response?.data?.message || "Failed to update profile",
+            );
+          } else {
+            toast.error("Failed to update profile");
+          }
+        },
       });
     } catch (err) {
       if (err instanceof z.ZodError) {

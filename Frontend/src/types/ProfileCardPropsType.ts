@@ -19,6 +19,7 @@ export interface ProfileCardProps {
     projectCount?: number;
     connectionsCount?: number;
     investmentCount?: number;
+    interestedTopics?: string[];
   };
   isInvestorProfile?: boolean;
   isFollowing: boolean;

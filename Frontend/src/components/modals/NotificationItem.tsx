@@ -1,5 +1,10 @@
 import { useMarkNotificationRead } from "../../hooks/Notification/notificationHooks";
 import type { Notification } from "../../types/notification";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "../../components/ui/avatar";
 
 interface Props {
   notification: Notification;
@@ -25,17 +30,17 @@ const NotificationItem = ({ notification }: Props) => {
       <div className="flex gap-3">
         {/* Avatar Section */}
         <div className="relative shrink-0">
-          {notification.sender.profileImg ? (
-            <img
-              src={notification.sender.profileImg}
+          <Avatar className="w-11 h-11 ring-2 ring-white">
+            <AvatarImage
+              src={notification.sender.profileImg || undefined}
               alt={notification.sender.userName}
-              className="w-11 h-11 rounded-full object-cover ring-2 ring-white"
+              className="object-cover"
             />
-          ) : (
-            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center font-bold text-gray-600 border border-gray-300">
+            <AvatarFallback className="bg-slate-100 text-slate-600 font-bold">
               {firstLetter}
-            </div>
-          )}
+            </AvatarFallback>
+          </Avatar>
+
           {!notification.isRead && (
             <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-blue-600 border-2 border-white rounded-full" />
           )}

@@ -47,4 +47,5 @@ export interface UserProfileResDTO {
   postCount?: number;
   connectionsCount?: number;
   projectCount?: number;
+  interestedTopics?: string[];
 }

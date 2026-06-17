@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
+import { useCurrentSubscription } from "@/hooks/Subscription/subscriptionHooks";
+import { formatDateTime } from "@/utils/dateFormatter";
 
 const ConfettiPiece = ({
   delay,
@@ -53,6 +55,15 @@ const confettiItems: {
 export default function PaymentSuccess() {
   const navigate = useNavigate();
   const role = useSelector((state: Rootstate) => state.authData.role);
+  const { data: subscription, isLoading } = useCurrentSubscription();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
+  }
 
   const handleGoHome = () => {
     if (role === "INVESTOR") navigate("/investor/home");
@@ -237,7 +248,7 @@ export default function PaymentSuccess() {
             letterSpacing: "-0.01em",
           }}
         >
-          Payment Confirmed
+          {subscription?.plan ? "Subscription Activated" : "Payment Confirmed"}
         </motion.h1>
 
         <motion.p
@@ -252,8 +263,18 @@ export default function PaymentSuccess() {
             fontWeight: 400,
           }}
         >
-          Your payment was processed successfully.
-          <br />A confirmation email is on its way to you.
+          {subscription?.plan ? (
+            <>
+              Your subscription has been activated successfully.
+              <br />
+              Enjoy your premium features.
+            </>
+          ) : (
+            <>
+              Your payment was processed successfully.
+              <br />A confirmation email is on its way to you.
+            </>
+          )}
         </motion.p>
 
         {/* Status badge */}
@@ -291,6 +312,63 @@ export default function PaymentSuccess() {
             />
             Transaction successful
           </span>
+
+          {subscription?.plan && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              style={{
+                marginTop: 16,
+                marginBottom: 28,
+                textAlign: "left",
+                background: "#f9fafb",
+                border: "1px solid #e5e7eb",
+                borderRadius: 16,
+                padding: 20,
+              }}
+            >
+              <h3
+                style={{
+                  fontWeight: 700,
+                  fontSize: "1rem",
+                  marginBottom: 12,
+                  color: "#111827",
+                }}
+              >
+                Subscription Details
+              </h3>
+
+              <div className="space-y-2 text-sm">
+                <p>
+                  <strong>Plan:</strong> {subscription.plan.name}
+                </p>
+
+                <p>
+                  <strong>Price:</strong> ₹{subscription.plan.billing.price}
+                </p>
+
+                <p>
+                  <strong>Duration:</strong>{" "}
+                  {subscription.plan.billing.durationDays} Days
+                </p>
+
+                <p>
+                  <strong>Status:</strong> {subscription.status}
+                </p>
+
+                <p>
+                  <strong>Activated:</strong>{" "}
+                  {formatDateTime(subscription.startedAt)}
+                </p>
+
+                <p>
+                  <strong>Expires:</strong>{" "}
+                  {formatDateTime(subscription.expiresAt)}
+                </p>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Divider */}

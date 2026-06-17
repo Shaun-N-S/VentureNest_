@@ -24,8 +24,7 @@ export class ForgetPasswordOtpUseCase implements IForgetPasswordSendOtpUseCaes {
   async sendOtp(email: string): Promise<void> {
     const user = await this._userRepository.findByEmail(email);
     const investor = await this._investorRepository.findByEmail(email);
-    console.log("investor :", investor);
-    console.log("user :", user);
+
     if (!user?.role && !investor) {
       throw new NotFoundExecption(USER_ERRORS.USER_NOT_FOUND);
     }
@@ -35,7 +34,7 @@ export class ForgetPasswordOtpUseCase implements IForgetPasswordSendOtpUseCaes {
     }
 
     const otp = this._otpService.generateOtp();
-    console.log("forgetpassword otp : ", otp);
+
     const emailTemplate: IOtpEmailTemplate = {
       receiverEmail: email,
       subject: MESSAGES.EMAIL.FORGET_PASSWORD_OTP,

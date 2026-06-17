@@ -1,23 +1,33 @@
-import { Link, useNavigate } from "react-router-dom"
-import SignUpForm, { type SignupFormValues } from "../../../components/auth/SignUpForm"
-import { useUserResendOtp, useUserSignUp, useUserVerifyOtp } from "../../../hooks/Auth/AuthHooks"
-import OTPModal from "../../../components/modals/OtpModal"
-import { useState } from "react"
-import LeftPanel from "../../../components/auth/LeftPanal"
-import toast from "react-hot-toast"
-import { motion } from "framer-motion"
+import { Link, useNavigate } from "react-router-dom";
+import SignUpForm, {
+  type SignupFormValues,
+} from "../../../components/auth/SignUpForm";
+import {
+  useUserResendOtp,
+  useUserSignUp,
+  useUserVerifyOtp,
+} from "../../../hooks/Auth/AuthHooks";
+import OTPModal from "../../../components/modals/OtpModal";
+import { useState } from "react";
+import LeftPanel from "../../../components/auth/LeftPanal";
+import toast from "react-hot-toast";
+import { motion } from "framer-motion";
+import axios from "axios";
 
-
-type SignupPayload = { userName: string; email: string; password: string }
+type SignupPayload = { userName: string; email: string; password: string };
 
 export default function UserSignUpPage() {
-  const [isOtpModalOpen, setOtpModalOpen] = useState(false)
-  const [userData, setUserData] = useState<SignupPayload>({ email: "", password: "", userName: "" })
+  const [isOtpModalOpen, setOtpModalOpen] = useState(false);
+  const [userData, setUserData] = useState<SignupPayload>({
+    email: "",
+    password: "",
+    userName: "",
+  });
 
-  const { mutate: signup } = useUserSignUp()
-  const { mutate: verifyOtp } = useUserVerifyOtp()
+  const { mutate: signup } = useUserSignUp();
+  const { mutate: verifyOtp } = useUserVerifyOtp();
   const { mutate: resendOtp } = useUserResendOtp();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleUserSignUp = (values: SignupFormValues) => {
     const payload = {
@@ -28,14 +38,17 @@ export default function UserSignUpPage() {
 
     signup(payload, {
       onSuccess: (res) => {
-        toast.success("Account created successfully!");
-        setUserData(payload)
+        setUserData(payload);
         if (res.message === "Otp sent successfully") {
-          setOtpModalOpen(true)
+          setOtpModalOpen(true);
         }
       },
       onError: (err) => {
-        toast.error((err as Error).message || "Something went wrong!");
+        if (axios.isAxiosError(err)) {
+          toast.error(err.response?.data?.message || "Something went wrong!");
+        } else {
+          toast.error("Something went wrong!");
+        }
       },
     });
   };
@@ -45,20 +58,24 @@ export default function UserSignUpPage() {
       { otp, email: userData.email },
       {
         onSuccess: (res) => {
+          toast.success("Account created successfully!");
           if (res.success) {
             setOtpModalOpen(false);
           }
-          navigate('/login')
-
-        }, onError: (err) => {
-          if (err) {
-            toast.error("Otp verification failed")
+          navigate("/login");
+        },
+        onError: (err) => {
+          if (axios.isAxiosError(err)) {
+            toast.error(
+              err.response?.data?.message || "OTP verification failed",
+            );
+          } else {
+            toast.error("OTP verification failed");
           }
-        }
-      }
-    )
-  }
-
+        },
+      },
+    );
+  };
 
   const handleResendOtp = (email: string) => {
     resendOtp(email, {
@@ -66,31 +83,36 @@ export default function UserSignUpPage() {
         toast.success("OTP Resent successfully");
       },
       onError: (err) => {
-        console.log(err);
-        toast.error("Failed to resend OTP");
+        if (axios.isAxiosError(err)) {
+          toast.error(err.response?.data?.message || "Failed to resend OTP");
+        } else {
+          toast.error("Failed to resend OTP");
+        }
       },
     });
   };
 
   return (
     <div className=" md:h-screen grid grid-cols-1 md:grid-cols-2 items-stretch bg-background text-foreground md:overflow-hidden">
-      <motion.div
-        className="relative h-full"
-      >
+      <motion.div className="relative h-full">
         <LeftPanel />
       </motion.div>
 
       {/* Right content: form card */}
       <div className="flex items-center justify-center p-4 md:p-8">
-        <motion.div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-lg md:p-8"
+        <motion.div
+          className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-lg md:p-8"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        >
           <div className="mb-6 text-center">
             <h1 className="text-balance text-2xl font-semibold text-foreground md:text-3xl">
               Create your VentureNest account
             </h1>
-            <p className="mt-2 text-sm text-foreground/70">Join a community where innovation meets investment.</p>
+            <p className="mt-2 text-sm text-foreground/70">
+              Join a community where innovation meets investment.
+            </p>
           </div>
 
           <SignUpForm onSubmit={handleUserSignUp} />
@@ -104,7 +126,10 @@ export default function UserSignUpPage() {
 
           <p className="mt-6 text-center text-sm text-foreground/70">
             Already have an account?{" "}
-            <Link to="/login" className="font-medium text-primary underline-offset-4 hover:underline">
+            <Link
+              to="/login"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
               Log in
             </Link>
           </p>
@@ -112,5 +137,5 @@ export default function UserSignUpPage() {
       </div>
       {/* </div> */}
     </div>
-  )
+  );
 }

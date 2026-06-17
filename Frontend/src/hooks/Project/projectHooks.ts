@@ -29,10 +29,15 @@ export const useUpdateProject = () => {
   });
 };
 
-export const useFetchPersonalProjects = (page: number, limit: number) => {
+export const useFetchPersonalProjects = (
+  page: number,
+  limit: number,
+  enabled = true,
+) => {
   return useQuery<PersonalProjectApiResponse>({
     queryKey: ["personal-project", page, limit],
     queryFn: () => fetchPersonalProjects(page, limit),
+    enabled,
   });
 };
 
@@ -40,10 +45,12 @@ export const useFetchPersonalProjectsById = (
   userId: string,
   page: number,
   limit: number,
+  enabled = true,
 ) => {
   return useQuery({
     queryKey: ["personal-project-by-id", userId, page, limit],
     queryFn: () => fetchPersonalProjectsById(userId, page, limit),
+    enabled,
   });
 };
 
