@@ -125,4 +125,4 @@ VentureNest_/
 
 Shaun N S
 - GitHub: https://github.com/Shaun-N-S
-- LinkedIn: add profile URL
+- LinkedIn: www.linkedin.com/in/shaun-n-s-802a32326
