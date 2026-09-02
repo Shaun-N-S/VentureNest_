@@ -68,9 +68,11 @@ jobs:
             docker stop backend || true
             docker rm backend || true
             
+            docker image prune -af || true
+            
             docker run -d \
-              --env-file  ~/VentureNest_/Backend/.env \
-              -p 4000:4000 \
-              --name backend \
-              --restart always \
-              shaun1092/venturenest-backend
+            --env-file ~/venturenest/.env \
+            -p 4000:4000 \
+            --name backend \
+            --restart always \
+            shaun1092/venturenest-backend
