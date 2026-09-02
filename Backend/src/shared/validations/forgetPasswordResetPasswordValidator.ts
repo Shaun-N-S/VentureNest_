@@ -1,8 +1,9 @@
 import z from "zod";
 import { emailSchema } from "./emailValidator";
+import { passwordSchema } from "./loginValidator";
 
 export const forgetPasswordResetPasswordSchema = z.object({
   email: emailSchema,
-  password: z.string().min(6).max(20),
+  password: passwordSchema,
   token: z.string(),
 });

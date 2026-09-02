@@ -1,27 +1,30 @@
-import { TransactionEntity } from "@domain/entities/Transaction/transactionEntity";
+import { AdminTransactionListItem } from "@domain/interfaces/repositories/ITransactionRepository";
 import { AdminTransactionDTO } from "application/dto/admin/adminTransactionDTO";
 
 export class AdminTransactionMapper {
-  static toDTO(entity: TransactionEntity): AdminTransactionDTO {
+  static toDTO(row: AdminTransactionListItem): AdminTransactionDTO {
     const dto: AdminTransactionDTO = {
-      id: entity._id!,
-      amount: entity.amount,
-      action: entity.action,
-      reason: entity.reason,
-      status: entity.status,
-      createdAt: entity.createdAt!,
+      id: row._id,
+      amount: row.amount,
+      action: row.action,
+      reason: row.reason,
+      status: row.status,
+      createdAt: row.createdAt,
+      displayName: row.displayName ?? null,
+      relatedProjectName: row.relatedProjectName ?? null,
+      relatedEntityType: row.relatedEntityType ?? "SYSTEM",
     };
 
-    if (entity.fromWalletId) {
-      dto.fromWalletId = entity.fromWalletId;
+    if (row.fromWalletId) {
+      dto.fromWalletId = row.fromWalletId;
     }
 
-    if (entity.toWalletId) {
-      dto.toWalletId = entity.toWalletId;
+    if (row.toWalletId) {
+      dto.toWalletId = row.toWalletId;
     }
 
-    if (entity.relatedDealId) {
-      dto.relatedDealId = entity.relatedDealId;
+    if (row.relatedDealId) {
+      dto.relatedDealId = row.relatedDealId;
     }
 
     return dto;

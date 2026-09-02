@@ -27,6 +27,7 @@ import type { CreatePlanFormData } from "../../components/modals/PlanFormModal";
 import { QUERY_KEYS } from "../../constants/queryKey";
 import { queryClient } from "../../main";
 import { useDebounce } from "../../hooks/Debounce/useDebounce";
+import { UNLIMITED, formatLimit } from "../../utils/planLimits";
 
 /* ================= TYPES ================= */
 
@@ -114,9 +115,9 @@ const AdminPlansPage = () => {
   const mapFormToPayload = (form: CreatePlanFormData): CreatePlanPayload => ({
     ...form,
     limits: {
-      projects: form.limits.projects ?? -1,
-      proposalsPerMonth: form.limits.proposalsPerMonth ?? -1,
-      investmentOffers: form.limits.investmentOffers ?? -1,
+      projects: form.limits.projects ?? UNLIMITED,
+      proposalsPerMonth: form.limits.proposalsPerMonth ?? UNLIMITED,
+      investmentOffers: form.limits.investmentOffers ?? UNLIMITED,
     },
     permissions: {
       ...form.permissions,
@@ -233,14 +234,14 @@ const AdminPlansPage = () => {
         <div className="text-xs space-y-1">
           {row.role === "USER" && (
             <>
-              <p>Projects: {row.limits.projects}</p>
-              <p>Proposals: {row.limits.proposalsPerMonth}</p>
+              <p>Projects: {formatLimit(row.limits.projects)}</p>
+              <p>Proposals: {formatLimit(row.limits.proposalsPerMonth)}</p>
             </>
           )}
 
           {row.role === "INVESTOR" && (
             <>
-              <p>Offers: {row.limits.investmentOffers}</p>
+              <p>Offers: {formatLimit(row.limits.investmentOffers)}</p>
             </>
           )}
         </div>

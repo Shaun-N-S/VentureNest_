@@ -175,6 +175,7 @@ export const SUBSCRIPTION_ERRORS = {
   PROPOSAL_LIMIT_EXCEEDED: "Proposal sending limit exceeded for this month",
   INVESTMENT_OFFER_LIMIT_EXCEEDED: "Investment offer sending limit exceeded for this month",
   SUBSCRIPTION_EXPIRED: "Your subscription has expired",
+  INVESTOR_INSIGHTS_REQUIRED: "Investor insights require an active subscription",
 };
 
 export const STRIPE_ERRORS = {

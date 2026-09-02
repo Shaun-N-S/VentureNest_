@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -97,6 +97,23 @@ export function VerifyStartupModal({
     },
   });
 
+  // Release cropper blob preview URLs on unmount (values held in a ref so the
+  // cleanup never revokes a URL that is still being displayed).
+  const previewsRef = useRef<{ gst: string | null; reg: string | null }>({
+    gst: null,
+    reg: null,
+  });
+  useEffect(() => {
+    previewsRef.current = { gst: gstPreview, reg: regPreview };
+  }, [gstPreview, regPreview]);
+  useEffect(() => {
+    return () => {
+      const { gst, reg } = previewsRef.current;
+      if (gst?.startsWith("blob:")) URL.revokeObjectURL(gst);
+      if (reg?.startsWith("blob:")) URL.revokeObjectURL(reg);
+    };
+  }, []);
+
   // Fetch countries when modal opens
   useEffect(() => {
     if (!open) {
@@ -144,8 +161,14 @@ export function VerifyStartupModal({
 
     form.setValue(cropField, file, { shouldValidate: true });
 
-    if (cropField === "gstCertificate") setGstPreview(preview);
-    if (cropField === "companyRegistrationCertificate") setRegPreview(preview);
+    if (cropField === "gstCertificate") {
+      if (gstPreview?.startsWith("blob:")) URL.revokeObjectURL(gstPreview);
+      setGstPreview(preview);
+    }
+    if (cropField === "companyRegistrationCertificate") {
+      if (regPreview?.startsWith("blob:")) URL.revokeObjectURL(regPreview);
+      setRegPreview(preview);
+    }
 
     setCropImage(null);
     setCropField(null);

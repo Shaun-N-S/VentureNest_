@@ -77,11 +77,19 @@ export default function AdminWalletPage() {
       },
       {
         id: "deal",
-        label: "Related Deal",
+        label: "Related To",
         render: (row: AdminTransactionRow) => (
-          <span className="font-mono text-xs text-slate-500">
-            {row.relatedDealId || "System"}
-          </span>
+          <div className="flex flex-col">
+            <span className="text-xs font-medium text-slate-700">
+              {row.displayName || "System"}
+            </span>
+            {row.relatedProjectName &&
+              row.relatedProjectName !== row.displayName && (
+                <span className="text-[10px] text-slate-400">
+                  {row.relatedProjectName}
+                </span>
+              )}
+          </div>
         ),
       },
       {
@@ -209,40 +217,7 @@ export default function AdminWalletPage() {
             <option value="REFUND">Refund</option>
             <option value="WALLET_TOPUP">Wallet Topup</option>
           </select>
-
-          {/* <select
-            value={filters.action}
-            onChange={(e) => setFilters({ ...filters, action: e.target.value })}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">All Actions</option>
-            <option value="CREDIT">Credit</option>
-            <option value="DEBIT">Debit</option>
-            <option value="TRANSFER">Transfer</option>
-          </select>
-
-          <select
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">All Status</option>
-            <option value="SUCCESS">Success</option>
-            <option value="PENDING">Pending</option>
-            <option value="FAILED">Failed</option>
-          </select> */}
         </div>
-
-        {/* <div className="relative md:w-64">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search Deal ID..."
-            value={filters.dealId}
-            onChange={(e) => setFilters({ ...filters, dealId: e.target.value })}
-            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none"
-          />
-        </div> */}
       </div>
 
       {/* Responsive Table Container */}
@@ -266,11 +241,11 @@ export default function AdminWalletPage() {
 
       {/* Pagination */}
       {txData && (
-          <Pagination
-            totalPages={txData.totalPages}
-            currentPage={txData.currentPage}
-            setPage={setPage}
-          />
+        <Pagination
+          totalPages={txData.totalPages}
+          currentPage={txData.currentPage}
+          setPage={setPage}
+        />
       )}
     </div>
   );

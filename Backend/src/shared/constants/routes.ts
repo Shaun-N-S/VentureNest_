@@ -123,6 +123,7 @@ export const ROUTES = {
     PERSONAL_PROJECT_BY_ID: "/personal/:userId",
     REMOVE: "/remove/:projectId",
     SINGLE_PROJECT: "/:projectId",
+    PROJECT_INVESTORS: "/:projectId/investors",
     ADD_MONTHLY_REPORT: "/monthly-report/:projectId",
     VERIFY_PROJECT: "/verify/:projectId",
     LIKE: "/likes/:projectId",

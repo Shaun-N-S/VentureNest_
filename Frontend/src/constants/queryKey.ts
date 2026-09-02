@@ -7,4 +7,6 @@ export const QUERY_KEYS = {
   ADMIN_PLAN_DETAIL: "admin-plan-detail",
 
   AVAILABLE_PLANS: "available-plans",
+
+  PROJECT_INVESTORS: "project-investors",
 };

@@ -2,6 +2,7 @@ import { DealEntity } from "@domain/entities/deal/dealEntity";
 import { IBaseRepository } from "./IBaseRepository";
 import { ClientSession } from "mongoose";
 import { InvestorPortfolioData } from "application/dto/dashboard/investorPortfolioDTO";
+import { ProjectInvestorDealRow } from "application/dto/project/projectInvestorDTO";
 
 export interface IDealRepository extends IBaseRepository<DealEntity> {
   findByOfferId(offerId: string): Promise<DealEntity | null>;
@@ -10,6 +11,15 @@ export interface IDealRepository extends IBaseRepository<DealEntity> {
   findByFounderId(founderId: string): Promise<DealEntity[]>;
   countByStatus(status: string): Promise<number>;
   findByProjectId(projectId: string): Promise<DealEntity[]>;
+  /**
+   * Paid deals (amountPaid > 0) for a project joined with the investor record,
+   * newest first, paginated, with optional DB-side search on
+   * investor userName / companyName. Returns the page rows + the matching total.
+   */
+  findProjectInvestorsPage(
+    projectId: string,
+    opts: { skip: number; limit: number; search?: string | undefined }
+  ): Promise<{ rows: ProjectInvestorDealRow[]; total: number }>;
   findInvestorPortfolio(investorId: string): Promise<InvestorPortfolioData>;
   getTopStartups(limit: number): Promise<{ projectId: string; totalFunding: number }[]>;
   getTopInvestors(limit: number): Promise<{ investorId: string; totalInvested: number }[]>;

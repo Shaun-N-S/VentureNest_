@@ -7,6 +7,8 @@ export interface GetAdminTransactionsRequestDTO {
   limit: number;
 }
 
+export type AdminTransactionRelatedEntityType = "PROJECT" | "USER" | "INVESTOR" | "SYSTEM";
+
 export interface AdminTransactionDTO {
   id: string;
   fromWalletId?: string;
@@ -17,4 +19,16 @@ export interface AdminTransactionDTO {
   reason: string;
   status: string;
   createdAt: Date;
+
+  /**
+   * Human-readable name of the party/entity a transaction relates to, resolved
+   * purely via aggregation lookups on existing collections. `null` when it
+   * cannot be resolved (e.g. historical SUBSCRIPTION rows) — callers render "System".
+   */
+  displayName: string | null;
+
+  /** Related project name when one is involved (deal-based or project-wallet based); otherwise `null`. */
+  relatedProjectName: string | null;
+
+  relatedEntityType: AdminTransactionRelatedEntityType;
 }

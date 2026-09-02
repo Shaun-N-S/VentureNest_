@@ -8,27 +8,26 @@ import {
   TabsTrigger,
 } from "../../components/ui/tabs";
 import { Badge } from "../../components/ui/badge";
+import { Input } from "../../components/ui/input";
 import {
   Avatar,
   AvatarImage,
   AvatarFallback,
 } from "../../components/ui/avatar";
 import { Card } from "../../components/ui/card";
+import { Skeleton } from "../../components/ui/skeleton";
 import { PitchDetailsModal } from "../../components/modals/PitchDetailsModal";
 import { InvestmentOfferDetailsModal } from "../../components/modals/InvestmentOfferDetailsModal";
 import {
   Send,
-  Eye,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  AlertCircle,
   Handshake,
   TrendingUp,
   Target,
-  DollarSign,
+  IndianRupee,
   Percent,
   Zap,
+  Filter,
+  Search,
 } from "lucide-react";
 
 import type { PitchStatus } from "../../types/pitchType";
@@ -37,6 +36,9 @@ import { useFetchReceivedInvestmentOffers } from "../../hooks/Investor/Investmen
 import { useFetchSentPitches } from "../../hooks/Pitch/pitchHooks";
 import Pagination from "../../components/pagination/Pagination";
 import { useDebounce } from "../../hooks/Debounce/useDebounce";
+import { StatusBadge } from "../../components/offers/offerStatus";
+import { formatCompactCurrency } from "../../utils/currency";
+import { formatCompactDate } from "../../utils/dateFormatter";
 
 /* ---------------- Types ---------------- */
 
@@ -70,54 +72,102 @@ interface ReceivedOffer {
 
 type ActiveTab = "offers" | "pitches";
 
-/* ---------------- Status Configs ---------------- */
+/* ---------------- Shared bits ---------------- */
 
-const pitchStatusConfig: Record<
-  PitchStatus,
-  { color: string; icon: React.ReactNode; label: string }
-> = {
-  SENT: {
-    color: "bg-amber-50 text-amber-700 border-amber-200",
-    icon: <Send className="w-3 h-3" />,
-    label: "Sent",
-  },
-  VIEWED: {
-    color: "bg-blue-50 text-blue-700 border-blue-200",
-    icon: <Eye className="w-3 h-3" />,
-    label: "Viewed",
-  },
-  RESPONDED: {
-    color: "bg-green-50 text-green-700 border-green-200",
-    icon: <CheckCircle2 className="w-3 h-3" />,
-    label: "Responded",
-  },
-};
+function FilterBar({
+  search,
+  onSearch,
+  status,
+  onStatus,
+  options,
+}: {
+  search: string;
+  onSearch: (v: string) => void;
+  status: string;
+  onStatus: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div className="relative min-w-0 flex-1 sm:max-w-xs">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search project..."
+          value={search}
+          onChange={(e) => onSearch(e.target.value)}
+          className="h-10 pl-9"
+        />
+      </div>
+      <div className="relative">
+        <Filter className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <select
+          value={status}
+          onChange={(e) => onStatus(e.target.value)}
+          className="h-10 rounded-md border border-input bg-transparent pl-9 pr-8 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        >
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+}
 
-const offerStatusConfig: Record<
-  OfferStatus,
-  { color: string; icon: React.ReactNode; label: string }
-> = {
-  PENDING: {
-    color: "bg-amber-50 text-amber-700 border-amber-200",
-    icon: <Clock className="w-3 h-3" />,
-    label: "Pending",
-  },
-  ACCEPTED: {
-    color: "bg-green-50 text-green-700 border-green-200",
-    icon: <CheckCircle2 className="w-3 h-3" />,
-    label: "Accepted",
-  },
-  REJECTED: {
-    color: "bg-red-50 text-red-700 border-red-200",
-    icon: <XCircle className="w-3 h-3" />,
-    label: "Rejected",
-  },
-  EXPIRED: {
-    color: "bg-gray-50 text-gray-700 border-gray-200",
-    icon: <AlertCircle className="w-3 h-3" />,
-    label: "Expired",
-  },
-};
+function CardListSkeleton() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div
+          key={i}
+          className="flex items-start gap-4 rounded-xl border border-border bg-card p-4 sm:p-5"
+        >
+          <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
+          <div className="flex-1 space-y-3">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-3 w-56" />
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <Skeleton className="h-14 rounded-lg" />
+              <Skeleton className="h-14 rounded-lg" />
+              <Skeleton className="h-14 rounded-lg" />
+              <Skeleton className="h-14 rounded-lg" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EmptyState({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-2xl border-2 border-dashed border-border bg-muted/30 px-6 py-16 sm:py-20">
+      <div className="flex flex-col items-center gap-4 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-card text-muted-foreground shadow-sm">
+          {icon}
+        </div>
+        <div className="space-y-1.5">
+          <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+          <p className="mx-auto max-w-xs text-sm text-muted-foreground">
+            {description}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Page ---------------- */
 
 export default function PitchesPage() {
   const [selectedPitchId, setSelectedPitchId] = useState<string | null>(null);
@@ -165,27 +215,27 @@ export default function PitchesPage() {
   const pitchTotalPages = Math.ceil((sentPitchesData?.total ?? 0) / LIMIT);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 py-6 xs:py-8 sm:py-12">
-        {/* Header Section */}
+    <main className="min-h-screen bg-background">
+      <div className="mx-auto max-w-7xl px-3 py-6 xs:px-4 xs:py-8 sm:px-6 sm:py-12 lg:px-8">
+        {/* Header */}
         <motion.div
           className="mb-8 xs:mb-10 sm:mb-12"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="space-y-2 mb-6 xs:mb-8">
-            <h1 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-slate-900">
-              Pitches & Offers
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground xs:text-3xl sm:text-4xl">
+              Pitches &amp; Offers
             </h1>
-            <p className="text-sm xs:text-base text-slate-600">
+            <p className="text-sm text-muted-foreground xs:text-base">
               Track your fundraising progress across pitches and investment
               offers
             </p>
           </div>
         </motion.div>
 
-        {/* Tabs Section */}
+        {/* Tabs */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -200,19 +250,16 @@ export default function PitchesPage() {
             }}
             className="w-full"
           >
-            <TabsList className="w-full xs:w-auto mb-5 xs:mb-6 bg-slate-100 p-1 flex">
+            <TabsList className="mb-5 flex w-full bg-muted p-1 xs:mb-6 xs:w-auto">
               <TabsTrigger
                 value="offers"
-                className="gap-1 xs:gap-2 text-xs xs:text-sm flex-1 xs:flex-none data-[state=active]:bg-white data-[state=active]:text-slate-900"
+                className="flex-1 gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:text-foreground xs:flex-none xs:text-sm"
               >
-                <Handshake className="w-3 xs:w-4 h-3 xs:h-4 flex-shrink-0" />
+                <Handshake className="h-3.5 w-3.5 shrink-0" />
                 <span className="hidden sm:inline">Investment Offers</span>
                 <span className="sm:hidden">Offers</span>
                 {offers.length > 0 && (
-                  <Badge
-                    className="ml-1 bg-purple-600 text-white text-xs"
-                    variant="secondary"
-                  >
+                  <Badge className="ml-1 bg-purple-600 text-xs text-white">
                     {receivedOffersData?.total ?? 0}
                   </Badge>
                 )}
@@ -220,52 +267,38 @@ export default function PitchesPage() {
 
               <TabsTrigger
                 value="pitches"
-                className="gap-1 xs:gap-2 text-xs xs:text-sm flex-1 xs:flex-none data-[state=active]:bg-white data-[state=active]:text-slate-900"
+                className="flex-1 gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:text-foreground xs:flex-none xs:text-sm"
               >
-                <Send className="w-3 xs:w-4 h-3 xs:h-4 flex-shrink-0" />
+                <Send className="h-3.5 w-3.5 shrink-0" />
                 <span className="hidden sm:inline">Sent Pitches</span>
                 <span className="sm:hidden">Pitches</span>
                 {pitches.length > 0 && (
-                  <Badge
-                    className="ml-1 bg-blue-600 text-white text-xs"
-                    variant="secondary"
-                  >
+                  <Badge className="ml-1 bg-blue-600 text-xs text-white">
                     {sentPitchesData?.total ?? 0}
                   </Badge>
                 )}
               </TabsTrigger>
             </TabsList>
 
-            {/* Offers Tab - Featured First */}
+            {/* Offers */}
             <TabsContent value="offers" className="space-y-4">
-              <div className="flex gap-3 mb-4">
-                <input
-                  placeholder="Search project..."
-                  className="border rounded px-3 py-1 text-sm"
-                  value={offerSearch}
-                  onChange={(e) => setOfferSearch(e.target.value)}
-                />
-
-                <select
-                  className="border rounded px-2 py-1 text-sm"
-                  value={offerStatus ?? ""}
-                  onChange={(e) =>
-                    setOfferStatus(
-                      e.target.value
-                        ? (e.target.value as OfferStatus)
-                        : undefined,
-                    )
-                  }
-                >
-                  <option value="">All</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="ACCEPTED">Accepted</option>
-                  <option value="REJECTED">Rejected</option>
-                  <option value="EXPIRED">Expired</option>
-                </select>
-              </div>
+              <FilterBar
+                search={offerSearch}
+                onSearch={setOfferSearch}
+                status={offerStatus ?? ""}
+                onStatus={(v) =>
+                  setOfferStatus(v ? (v as OfferStatus) : undefined)
+                }
+                options={[
+                  { value: "", label: "All statuses" },
+                  { value: "PENDING", label: "Pending" },
+                  { value: "ACCEPTED", label: "Accepted" },
+                  { value: "REJECTED", label: "Rejected" },
+                  { value: "EXPIRED", label: "Expired" },
+                ]}
+              />
               {loadingOffers ? (
-                <LoadingState />
+                <CardListSkeleton />
               ) : offers.length > 0 ? (
                 <div className="space-y-3">
                   {offers.map((offer) => (
@@ -278,44 +311,33 @@ export default function PitchesPage() {
                 </div>
               ) : (
                 <EmptyState
-                  icon={<Handshake className="w-12 h-12" />}
-                  title="No Investment Offers Yet"
-                  description="When investors respond to your pitches, their offers will appear here"
+                  icon={<Handshake className="h-8 w-8" />}
+                  title="No investment offers yet"
+                  description="When investors respond to your pitches, their offers will appear here."
                 />
               )}
             </TabsContent>
 
-            {/* Pitches Tab */}
+            {/* Pitches */}
             <TabsContent value="pitches" className="space-y-4">
-              <div className="flex gap-3 mb-4">
-                <input
-                  placeholder="Search project..."
-                  className="border rounded px-3 py-1 text-sm"
-                  value={pitchSearch}
-                  onChange={(e) => setPitchSearch(e.target.value)}
-                />
-
-                <select
-                  className="border rounded px-2 py-1 text-sm"
-                  value={pitchStatus ?? ""}
-                  onChange={(e) =>
-                    setPitchStatus(
-                      e.target.value
-                        ? (e.target.value as PitchStatus)
-                        : undefined,
-                    )
-                  }
-                >
-                  <option value="">All</option>
-                  <option value="SENT">Sent</option>
-                  <option value="VIEWED">Viewed</option>
-                  <option value="RESPONDED">Responded</option>
-                </select>
-              </div>
+              <FilterBar
+                search={pitchSearch}
+                onSearch={setPitchSearch}
+                status={pitchStatus ?? ""}
+                onStatus={(v) =>
+                  setPitchStatus(v ? (v as PitchStatus) : undefined)
+                }
+                options={[
+                  { value: "", label: "All statuses" },
+                  { value: "SENT", label: "Sent" },
+                  { value: "VIEWED", label: "Viewed" },
+                  { value: "RESPONDED", label: "Responded" },
+                ]}
+              />
               {loadingSent ? (
-                <LoadingState />
+                <CardListSkeleton />
               ) : pitches.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {pitches.map((pitch) => (
                     <PitchCard
                       key={pitch.pitchId}
@@ -326,9 +348,9 @@ export default function PitchesPage() {
                 </div>
               ) : (
                 <EmptyState
-                  icon={<Send className="w-12 h-12" />}
-                  title="No Pitches Sent Yet"
-                  description="Start by creating and sending pitches to potential investors"
+                  icon={<Send className="h-8 w-8" />}
+                  title="No pitches sent yet"
+                  description="Start by creating and sending pitches to potential investors."
                 />
               )}
             </TabsContent>
@@ -372,7 +394,7 @@ export default function PitchesPage() {
   );
 }
 
-/* ================= Components ================= */
+/* ================= Cards ================= */
 
 function PitchCard({
   pitch,
@@ -381,82 +403,81 @@ function PitchCard({
   pitch: SentPitch;
   onClick: () => void;
 }) {
-  const statusInfo = pitchStatusConfig[pitch.status];
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      whileHover={{ y: -4 }}
-      onClick={onClick}
+      whileHover={{ y: -3 }}
     >
       <Card
         onClick={onClick}
-        className="group p-3 xs:p-4 sm:p-5 cursor-pointer transition-all hover:shadow-lg hover:border-slate-300 border-slate-200 bg-white"
+        className="group cursor-pointer border-border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md sm:p-5"
       >
         <div className="flex items-start gap-4">
-          {/* Project Avatar */}
-          <Avatar className="h-12 w-12 ring-2 ring-slate-100 flex-shrink-0">
+          <Avatar className="h-12 w-12 shrink-0 ring-2 ring-border">
             <AvatarImage
               src={pitch.projectLogoUrl || "/placeholder.svg"}
               alt={pitch.projectName}
             />
-            <AvatarFallback className="bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-700 font-bold text-sm">
+            <AvatarFallback className="bg-primary/10 text-sm font-bold text-primary">
               {pitch.projectName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
-          {/* Content */}
-          <div className="flex-1 min-w-0 space-y-2.5">
+          <div className="min-w-0 flex-1 space-y-2.5">
             <div className="space-y-1">
-              <h3 className="font-semibold text-base text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+              <h3 className="line-clamp-1 text-base font-semibold text-foreground transition-colors group-hover:text-primary">
                 {pitch.subject}
               </h3>
-              <p className="text-sm text-slate-600 line-clamp-1">
-                {pitch.projectName} <span className="text-slate-400">→</span>{" "}
+              <p className="line-clamp-1 text-sm text-muted-foreground">
+                {pitch.projectName}{" "}
+                <span className="text-muted-foreground/50">→</span>{" "}
                 {pitch.investorName}
               </p>
             </div>
 
-            <div className="flex items-center gap-3 flex-wrap pt-1">
-              <Badge
-                className={`gap-1.5 text-xs font-medium px-2 py-0.5 border ${statusInfo.color}`}
-                variant="outline"
-              >
-                {statusInfo.icon}
-                {statusInfo.label}
-              </Badge>
-              <span className="text-xs text-slate-500">
-                {new Date(pitch.createdAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year:
-                    new Date(pitch.createdAt).getFullYear() !==
-                    new Date().getFullYear()
-                      ? "numeric"
-                      : undefined,
-                })}
+            <div className="flex flex-wrap items-center gap-3">
+              <StatusBadge kind="pitch" status={pitch.status} />
+              <span className="text-xs text-muted-foreground">
+                {formatCompactDate(pitch.createdAt)}
               </span>
             </div>
           </div>
 
-          {/* Investor Avatar + Arrow */}
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <Avatar className="h-10 w-10 ring-2 ring-slate-100 hidden sm:block">
+          <div className="hidden shrink-0 items-center gap-3 sm:flex">
+            <Avatar className="h-10 w-10 ring-2 ring-border">
               <AvatarImage
                 src={pitch.investorProfileImg || "/placeholder.svg"}
                 alt={pitch.investorName}
               />
-              <AvatarFallback className="bg-gradient-to-br from-purple-100 to-pink-100 text-purple-700 font-bold text-xs">
+              <AvatarFallback className="bg-muted text-xs font-bold text-muted-foreground">
                 {pitch.investorName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <Target className="w-5 h-5 text-slate-300 group-hover:text-blue-400 transition-colors flex-shrink-0 hidden sm:block" />
+            <Target className="h-5 w-5 text-muted-foreground/40 transition-colors group-hover:text-primary/60" />
           </div>
         </div>
       </Card>
     </motion.div>
+  );
+}
+
+function Metric({
+  icon,
+  value,
+  label,
+}: {
+  icon: React.ReactNode;
+  value: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-muted/40 p-2.5 text-center">
+      <span className="mb-1 text-muted-foreground">{icon}</span>
+      <span className="text-sm font-semibold text-foreground">{value}</span>
+      <span className="mt-0.5 text-[11px] text-muted-foreground">{label}</span>
+    </div>
   );
 }
 
@@ -467,164 +488,90 @@ function OfferCard({
   offer: ReceivedOffer;
   onClick: () => void;
 }) {
-  const statusInfo = offerStatusConfig[offer.status];
   const isAccepted = offer.status === "ACCEPTED";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      whileHover={{ y: -4 }}
-      onClick={onClick}
+      whileHover={{ y: -3 }}
     >
-      <div
+      <Card
         onClick={onClick}
-        className={`group p-3 xs:p-4 sm:p-5 cursor-pointer transition-all border-2 rounded-lg ${
+        className={`group cursor-pointer p-4 transition-all hover:shadow-md sm:p-5 ${
           isAccepted
-            ? "bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:shadow-lg hover:border-green-300"
-            : "bg-white border-slate-200 hover:shadow-lg hover:border-slate-300"
+            ? "border-emerald-500/30 bg-emerald-500/[0.04] hover:border-emerald-500/50"
+            : "border-border bg-card hover:border-primary/30"
         }`}
       >
         <div className="flex items-start gap-4">
-          {/* Project Avatar */}
-          <Avatar className="h-12 w-12 ring-2 ring-slate-100 flex-shrink-0">
+          <Avatar className="h-12 w-12 shrink-0 ring-2 ring-border">
             <AvatarImage
               src={offer.projectLogoUrl || "/placeholder.svg"}
               alt={offer.projectName}
             />
-            <AvatarFallback className="bg-gradient-to-br from-green-100 to-emerald-100 text-green-700 font-bold text-sm">
+            <AvatarFallback className="bg-emerald-500/10 text-sm font-bold text-emerald-600 dark:text-emerald-400">
               {offer.projectName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
-          {/* Content */}
-          <div className="flex-1 min-w-0 space-y-3">
-            <div className="space-y-1">
-              <h3 className="font-semibold text-base text-slate-900 group-hover:text-green-600 transition-colors line-clamp-1">
-                {offer.projectName}
-              </h3>
-              <p className="text-sm text-slate-600">
-                from{" "}
-                <span className="font-medium text-slate-900">
-                  {offer.investorName}
-                </span>
-              </p>
-            </div>
-
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 pt-1">
-              <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white bg-opacity-60">
-                <div className="text-slate-500 mb-1">
-                  <DollarSign className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-semibold text-slate-900">
-                  ${(offer.amount / 1000000).toFixed(1)}M
-                </span>
-                <span className="text-xs text-slate-500 mt-0.5 text-center">
-                  Investment
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white bg-opacity-60">
-                <div className="text-slate-500 mb-1">
-                  <Percent className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-semibold text-slate-900">
-                  {offer.equityPercentage}%
-                </span>
-                <span className="text-xs text-slate-500 mt-0.5 text-center">
-                  Equity
-                </span>
-              </div>
-              {offer.valuation && (
-                <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white bg-opacity-60">
-                  <div className="text-slate-500 mb-1">
-                    <TrendingUp className="w-4 h-4" />
-                  </div>
-                  <span className="text-xs font-semibold text-slate-900">
-                    ${(offer.valuation / 1000000).toFixed(0)}M
+          <div className="min-w-0 flex-1 space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 space-y-0.5">
+                <h3 className="line-clamp-1 text-base font-semibold text-foreground transition-colors group-hover:text-primary">
+                  {offer.projectName}
+                </h3>
+                <p className="line-clamp-1 text-sm text-muted-foreground">
+                  from{" "}
+                  <span className="font-medium text-foreground">
+                    {offer.investorName}
                   </span>
-                  <span className="text-xs text-slate-500 mt-0.5 text-center">
-                    Valuation
-                  </span>
-                </div>
+                </p>
+              </div>
+              {isAccepted && (
+                <Zap className="hidden h-5 w-5 shrink-0 text-emerald-500 sm:block" />
               )}
-              <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white bg-opacity-60">
-                <Badge
-                  className={`gap-1 text-xs font-medium whitespace-nowrap ${statusInfo.color}`}
-                  variant="outline"
-                >
-                  {statusInfo.icon}
-                  <span className="hidden sm:inline">{statusInfo.label}</span>
-                </Badge>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <Metric
+                icon={<IndianRupee className="h-4 w-4" />}
+                value={formatCompactCurrency(offer.amount)}
+                label="Investment"
+              />
+              <Metric
+                icon={<Percent className="h-4 w-4" />}
+                value={`${offer.equityPercentage}%`}
+                label="Equity"
+              />
+              <Metric
+                icon={<TrendingUp className="h-4 w-4" />}
+                value={
+                  offer.valuation ? formatCompactCurrency(offer.valuation) : "—"
+                }
+                label="Valuation"
+              />
+              <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-muted/40 p-2.5">
+                <StatusBadge kind="offer" status={offer.status} />
+                <span className="mt-1.5 text-[11px] text-muted-foreground">
+                  {formatCompactDate(offer.createdAt)}
+                </span>
               </div>
             </div>
-
-            <div className="flex items-center justify-between pt-2 text-xs text-slate-500">
-              <span>
-                {new Date(offer.createdAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year:
-                    new Date(offer.createdAt).getFullYear() !==
-                    new Date().getFullYear()
-                      ? "numeric"
-                      : undefined,
-                })}
-              </span>
-            </div>
           </div>
 
-          {/* Investor Avatar + Icon */}
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <Avatar className="h-10 w-10 ring-2 ring-slate-100 hidden sm:block">
-              <AvatarImage
-                src={offer.investorProfileImg || "/placeholder.svg"}
-                alt={offer.investorName}
-              />
-              <AvatarFallback className="bg-gradient-to-br from-purple-100 to-pink-100 text-purple-700 font-bold text-xs">
-                {offer.investorName.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            {isAccepted && (
-              <Zap className="w-5 h-5 text-green-600 flex-shrink-0 hidden sm:block" />
-            )}
-          </div>
+          <Avatar className="hidden h-10 w-10 shrink-0 ring-2 ring-border sm:block">
+            <AvatarImage
+              src={offer.investorProfileImg || "/placeholder.svg"}
+              alt={offer.investorName}
+            />
+            <AvatarFallback className="bg-muted text-xs font-bold text-muted-foreground">
+              {offer.investorName.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
         </div>
-      </div>
+      </Card>
     </motion.div>
-  );
-}
-
-function LoadingState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 space-y-4">
-      <div className="w-12 h-12 border-3 border-slate-200 border-t-slate-700 rounded-full animate-spin" />
-      <p className="text-sm text-slate-600 font-medium">Loading your data...</p>
-    </div>
-  );
-}
-
-function EmptyState({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="py-16 sm:py-20 px-6 border-2 border-dashed border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="flex flex-col items-center text-center space-y-4">
-        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm">
-          {icon}
-        </div>
-        <div className="space-y-2">
-          <h3 className="font-semibold text-lg text-slate-900">{title}</h3>
-          <p className="text-sm text-slate-600 max-w-xs">{description}</p>
-        </div>
-      </div>
-    </div>
   );
 }

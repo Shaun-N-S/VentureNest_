@@ -5,6 +5,9 @@ import { IDealModel } from "@infrastructure/db/models/dealModel";
 import { DealEntity } from "@domain/entities/deal/dealEntity";
 import { DealMapper } from "application/mappers/dealMapper";
 import { InvestorPortfolioItemDTO } from "application/dto/dashboard/investorPortfolioDTO";
+import { ProjectInvestorDealRow } from "application/dto/project/projectInvestorDTO";
+
+const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export class DealRepository
   extends BaseRepository<DealEntity, IDealModel>
@@ -66,6 +69,78 @@ export class DealRepository
     const docs = await this._model.find({ projectId }).sort({ createdAt: -1 });
 
     return docs.map(DealMapper.fromMongooseDocument);
+  }
+
+  async findProjectInvestorsPage(
+    projectId: string,
+    opts: { skip: number; limit: number; search?: string | undefined }
+  ): Promise<{ rows: ProjectInvestorDealRow[]; total: number }> {
+    const { skip, limit, search } = opts;
+
+    const searchStage =
+      search && search.trim()
+        ? [
+            {
+              $match: {
+                $or: [
+                  { "investor.userName": { $regex: escapeRegex(search.trim()), $options: "i" } },
+                  {
+                    "investor.companyName": {
+                      $regex: escapeRegex(search.trim()),
+                      $options: "i",
+                    },
+                  },
+                ],
+              },
+            },
+          ]
+        : [];
+
+    const result = await this._model.aggregate<{
+      rows: ProjectInvestorDealRow[];
+      total: { count: number }[];
+    }>([
+      { $match: { projectId: new mongoose.Types.ObjectId(projectId), amountPaid: { $gt: 0 } } },
+      {
+        $lookup: {
+          from: "investors",
+          localField: "investorId",
+          foreignField: "_id",
+          as: "investor",
+        },
+      },
+      { $unwind: { path: "$investor", preserveNullAndEmptyArrays: true } },
+      ...searchStage,
+      { $sort: { createdAt: -1 } },
+      {
+        $facet: {
+          rows: [
+            { $skip: skip },
+            { $limit: limit },
+            {
+              $project: {
+                _id: 0,
+                investorId: { $toString: "$investorId" },
+                investedAmount: "$amountPaid",
+                equityPercentage: "$equityPercentage",
+                status: "$status",
+                since: "$createdAt",
+                investorName: "$investor.userName",
+                investorCompany: "$investor.companyName",
+                investorAvatar: "$investor.profileImg",
+              },
+            },
+          ],
+          total: [{ $count: "count" }],
+        },
+      },
+    ]);
+
+    const facet = result[0];
+    return {
+      rows: facet?.rows ?? [],
+      total: facet?.total?.[0]?.count ?? 0,
+    };
   }
 
   async findInvestorPortfolio(investorId: string): Promise<InvestorPortfolioItemDTO[]> {

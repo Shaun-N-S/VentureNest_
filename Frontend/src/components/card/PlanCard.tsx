@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Crown, ArrowRight, Check } from "lucide-react";
 import { Button } from "../ui/button";
 import type { Plan } from "../../types/planType";
+import { formatLimit } from "../../utils/planLimits";
 
 interface Props {
   plan: Plan;
@@ -28,8 +29,6 @@ export default function PlanCard({
           },
         ]
       : [{ label: "Investment offers", value: plan.limits.investmentOffers }];
-
-  const formatValue = (value: number) => (value === -1 ? "Unlimited" : value);
 
   return (
     <motion.div
@@ -128,7 +127,7 @@ export default function PlanCard({
               </div>
               <div className="flex items-baseline gap-2 flex-1">
                 <span className="font-bold text-gray-900">
-                  {formatValue(feature.value)}
+                  {formatLimit(feature.value)}
                 </span>
                 <span className="text-sm text-gray-600">{feature.label}</span>
               </div>

@@ -71,8 +71,45 @@ export const useUpdateReportStatus = () => {
       payload,
     }: {
       reportId: string;
+      /** Client-only hint for targeted cache invalidation. Not sent to the API. */
+      target?: "post" | "project";
       payload: { status: string; actionTaken?: string };
     }) => updateReportStatus(reportId, payload),
+
+    onSuccess: (_data, variables) => {
+      // The moderation list rows (reportCount / aggregate status), the pagination
+      // total and the modal's per-report list are all server-derived React Query
+      // caches — invalidate the affected families so the mounted queries refetch.
+      if (variables.target === "post") {
+        queryClient.invalidateQueries({ queryKey: ["reported-posts"] });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.REPORTED_POST_DETAIL],
+        });
+      } else if (variables.target === "project") {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.REPORTED_PROJECTS],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.REPORTED_PROJECT_DETAIL],
+        });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["reported-posts"] });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.REPORTED_PROJECTS],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.REPORTED_POST_DETAIL],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.REPORTED_PROJECT_DETAIL],
+        });
+      }
+      toast.success("Report updated");
+    },
+
+    onError: () => {
+      toast.error("Failed to update report");
+    },
   });
 };
 
@@ -105,6 +142,13 @@ export const useAdminRemovePost = () => {
           ...oldData,
           isActive: data.isActive,
         };
+      });
+
+      // Keep the moderation list + post report detail in sync when a reported
+      // post is blocked/activated from the Content Preview tab.
+      queryClient.invalidateQueries({ queryKey: ["reported-posts"] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.REPORTED_POST_DETAIL],
       });
 
       if (data.isActive) {

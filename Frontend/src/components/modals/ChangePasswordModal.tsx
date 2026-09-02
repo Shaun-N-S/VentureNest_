@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import { useChangePassword } from "../../hooks/Auth/AuthHooks";
 import toast from "react-hot-toast";
 import { Input } from "../ui/input";
@@ -41,7 +42,12 @@ export const ChangePasswordModal = ({
           toast.success("Password updated successfully");
           onClose();
         },
-        onError: () => toast.error("Password update failed"),
+        onError: (err) => {
+          const message = axios.isAxiosError(err)
+            ? err.response?.data?.message
+            : undefined;
+          toast.error(message || "Password update failed");
+        },
       },
     );
   };

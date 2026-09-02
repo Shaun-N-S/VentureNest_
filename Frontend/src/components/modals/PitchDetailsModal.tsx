@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Dialog, DialogContent } from "../ui/dialog";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import {
@@ -17,30 +16,10 @@ import {
   useRespondToPitch,
 } from "../../hooks/Pitch/pitchHooks";
 import { useNavigate } from "react-router-dom";
-import { PitchStatus } from "../../types/pitchType";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
-
-const statusConfig: Record<
-  PitchStatus,
-  { color: string; bgColor: string; label: string }
-> = {
-  SENT: {
-    color: "text-amber-700",
-    bgColor: "bg-amber-50 border border-amber-200",
-    label: "Sent",
-  },
-  VIEWED: {
-    color: "text-blue-700",
-    bgColor: "bg-blue-50 border border-blue-200",
-    label: "Viewed",
-  },
-  RESPONDED: {
-    color: "text-green-700",
-    bgColor: "bg-green-50 border border-green-200",
-    label: "Responded",
-  },
-};
+import { StatusBadge } from "../offers/offerStatus";
+import { formatCompactDate } from "../../utils/dateFormatter";
 
 interface Props {
   open: boolean;
@@ -97,18 +76,14 @@ export function PitchDetailsModal({ open, onClose, pitchId }: Props) {
                     </h1>
                     <p className="text-slate-300 xs:text-slate-200 text-xs xs:text-sm flex items-center gap-2">
                       <Calendar className="w-3 xs:w-4 h-3 xs:h-4 flex-shrink-0" />
-                      {new Date(data.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                      {formatCompactDate(data.createdAt)}
                     </p>
                   </div>
-                  <Badge
-                    className={`${statusConfig[data.status].color} ${statusConfig[data.status].bgColor} font-medium text-xs xs:text-sm flex-shrink-0`}
-                  >
-                    {statusConfig[data.status].label}
-                  </Badge>
+                  <StatusBadge
+                    kind="pitch"
+                    status={data.status}
+                    className="flex-shrink-0 text-xs xs:text-sm"
+                  />
                 </div>
 
                 {/* Parties Involved */}

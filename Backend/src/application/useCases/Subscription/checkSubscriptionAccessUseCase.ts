@@ -7,6 +7,7 @@ import { UserRole } from "@domain/enum/userRole";
 import { SUBSCRIPTION_ERRORS } from "@shared/constants/error";
 import { actionLimitMap } from "@config/subscriptionAccess.config";
 import { mapUserRoleToPlanRole } from "application/mappers/roleMapper";
+import { isUnlimited } from "@shared/constants/plan";
 
 export class CheckSubscriptionAccessUseCase implements ICheckSubscriptionAccessUseCase {
   constructor(
@@ -55,7 +56,7 @@ export class CheckSubscriptionAccessUseCase implements ICheckSubscriptionAccessU
 
       const limit = plan.limits[limitConfig.limitKey as keyof typeof plan.limits];
 
-      if (limit !== undefined && limit !== -1 && used >= limit) {
+      if (!isUnlimited(limit) && used >= limit!) {
         throw new ForbiddenException(limitConfig.error);
       }
     }

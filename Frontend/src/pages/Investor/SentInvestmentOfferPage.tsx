@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import {
-  DollarSign,
+  IndianRupee,
   Percent,
   Calendar,
   Info,
@@ -96,7 +96,7 @@ export default function SendInvestmentOfferPage() {
               <CardHeader className="border-b bg-slate-50/30">
                 <div className="flex items-center gap-2">
                   <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-                    <DollarSign className="w-5 h-5" />
+                    <IndianRupee className="w-5 h-5" />
                   </div>
                   <div>
                     <CardTitle className="text-lg">
@@ -109,9 +109,9 @@ export default function SendInvestmentOfferPage() {
               <CardContent className="pt-6 space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="amount">Investment Amount (USD)</Label>
+                    <Label htmlFor="amount">Investment Amount (INR)</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                      <IndianRupee className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                       <Input
                         id="amount"
                         type="number"

@@ -6,6 +6,7 @@ import {
   fetchPersonalProjects,
   fetchPersonalProjectsById,
   fetchProjectById,
+  fetchProjectInvestors,
   likeProject,
   removeProject,
   updateProject,
@@ -16,6 +17,8 @@ import type {
   ProjectLikeResponse,
   ProjectsPage,
 } from "../../types/projectType";
+import type { ProjectInvestorsResponse } from "../../types/projectInvestorType";
+import { QUERY_KEYS } from "../../constants/queryKey";
 
 export const useCreateProject = () => {
   return useMutation({
@@ -79,6 +82,43 @@ export const useFetchProjectById = (projectId: string) => {
   return useQuery({
     queryKey: ["single-project", projectId],
     queryFn: () => fetchProjectById(projectId),
+  });
+};
+
+export const useProjectInvestors = (
+  projectId: string,
+  page: number,
+  limit = 5,
+  enabled = true,
+) => {
+  return useQuery<ProjectInvestorsResponse>({
+    queryKey: [QUERY_KEYS.PROJECT_INVESTORS, projectId, page, limit],
+    queryFn: () => fetchProjectInvestors(projectId, page, limit),
+    enabled: enabled && Boolean(projectId),
+  });
+};
+
+/**
+ * Infinite-scroll variant for the investor list modal — same endpoint / pagination
+ * as `useProjectInvestors`, with server-side `search`. A search change resets to
+ * page 1 (queryKey includes the term); pages are appended, deduped by the server.
+ */
+export const useInfiniteProjectInvestors = (
+  projectId: string,
+  limit = 10,
+  enabled = true,
+  search = "",
+) => {
+  return useInfiniteQuery<ProjectInvestorsResponse>({
+    queryKey: [QUERY_KEYS.PROJECT_INVESTORS, "infinite", projectId, limit, search],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      fetchProjectInvestors(projectId, pageParam as number, limit, search),
+    getNextPageParam: (lastPage) =>
+      lastPage.currentPage < lastPage.totalPages
+        ? lastPage.currentPage + 1
+        : undefined,
+    enabled: enabled && Boolean(projectId),
   });
 };
 

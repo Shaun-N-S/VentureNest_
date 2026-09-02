@@ -62,7 +62,7 @@ export class HandleCheckoutCompletedUseCase implements IHandleCheckoutCompletedU
       }),
     });
 
-    await this._paymentRepo.save({
+    const savedPayment = await this._paymentRepo.save({
       sessionId: data.sessionId,
       ownerId: data.ownerId,
       ownerRole: data.ownerRole,
@@ -83,6 +83,9 @@ export class HandleCheckoutCompletedUseCase implements IHandleCheckoutCompletedU
 
     await this._transactionRepo.save({
       toWalletId: platformWallet._id!,
+      // Link the ledger row to its Payment so the admin transactions list can
+      // resolve the subscriber (Transaction -> Payment -> User/Investor).
+      relatedPaymentId: savedPayment.id!,
       amount: plan.billing.price,
       action: TransactionAction.CREDIT,
       reason: TransactionReason.SUBSCRIPTION,

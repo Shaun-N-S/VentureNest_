@@ -52,6 +52,8 @@ interface ProjectDetailCardProps {
   isAdmin?: boolean;
   onStatusChange?: (id: string, isActive: boolean) => void;
   isActive?: boolean;
+  /** Optional content rendered directly below the "Our Vision" section. */
+  afterVisionSlot?: React.ReactNode;
 }
 
 const stageColors: Record<string, string> = {
@@ -82,6 +84,7 @@ export function ProjectDetailCard({
   isAdmin,
   onStatusChange,
   isActive,
+  afterVisionSlot,
 }: ProjectDetailCardProps) {
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -295,6 +298,9 @@ export function ProjectDetailCard({
               </p>
             </div>
           </motion.section>
+
+          {/* Investor insights — rendered directly below "Our Vision" */}
+          {afterVisionSlot}
 
           {/* Pitch Deck Section */}
           {pitchDeckUrl && (

@@ -1,8 +1,12 @@
+import { dealModel } from "@infrastructure/db/models/dealModel";
 import { projectModel } from "@infrastructure/db/models/projectModel";
 import { projectMonthlyReportModel } from "@infrastructure/db/models/projectMonthlyReportModel";
 import { projectRegistrationModel } from "@infrastructure/db/models/projectRegistrationModel";
+import { SubscriptionModel } from "@infrastructure/db/models/subscriptionModel";
 import { userModel } from "@infrastructure/db/models/userModel";
 import { walletModel } from "@infrastructure/db/models/walletModel";
+import { DealRepository } from "@infrastructure/repostiories/dealRepository";
+import { SubscriptionRepository } from "@infrastructure/repostiories/subscriptionRepository";
 import { ProjectMonthlyReportRepository } from "@infrastructure/repostiories/projectMontlyReportRepository";
 import { ProjectRegistrationRepository } from "@infrastructure/repostiories/projectRegistrationRepository";
 import { ProjectRepository } from "@infrastructure/repostiories/projectRepository";
@@ -14,6 +18,7 @@ import { CreateProjectUseCase } from "application/useCases/Project/createProject
 import { FetchAllProjectsUseCase } from "application/useCases/Project/fetchAllProjectsUseCase";
 import { FetchPersonalProjectsUseCase } from "application/useCases/Project/fetchPersonalProjectsUseCase";
 import { FetchProjectByIdUseCase } from "application/useCases/Project/fetchProjectByIdUseCase";
+import { GetProjectInvestorsUseCase } from "application/useCases/Project/getProjectInvestorsUseCase";
 import { LikeProjectUseCase } from "application/useCases/Project/likeProjectUseCase";
 import { RegisterProjectUseCase } from "application/useCases/Project/registerProjectUseCase";
 import { RemoveProjectUseCase } from "application/useCases/Project/removeProjectsUseCase";
@@ -29,6 +34,8 @@ const projectRegisterRepo = new ProjectRegistrationRepository(projectRegistratio
 const storageService = new StorageService();
 const walletRepo = new WalletRepository(walletModel);
 const userRepo = new UserRepository(userModel);
+const dealRepo = new DealRepository(dealModel);
+const subscriptionRepo = new SubscriptionRepository(SubscriptionModel);
 
 const createWalletUseCase = new CreateWalletUseCase(walletRepo);
 const createProjectUseCase = new CreateProjectUseCase(
@@ -57,6 +64,12 @@ const updateProjectUseCase = new UpdateProjectUseCase(projectRepo, storageServic
 const createMonthlyReportUseCase = new CreateProjectMonthlyReportUseCase(projectMontlyReportRepo);
 const verifyProjectUseCase = new RegisterProjectUseCase(projectRegisterRepo, storageService);
 const likeProjectUseCase = new LikeProjectUseCase(projectRepo);
+const getProjectInvestorsUseCase = new GetProjectInvestorsUseCase(
+  projectRepo,
+  dealRepo,
+  subscriptionRepo,
+  storageService
+);
 
 export const projectController = new ProjectController(
   createProjectUseCase,
@@ -65,7 +78,8 @@ export const projectController = new ProjectController(
   removeProjectUseCase,
   fetchProjectByIdUseCase,
   updateProjectUseCase,
-  likeProjectUseCase
+  likeProjectUseCase,
+  getProjectInvestorsUseCase
 );
 
 export const projectMonthlyReportController = new MonthlyReportController(

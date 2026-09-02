@@ -18,10 +18,11 @@ export const useCreateCheckout = () => {
   });
 };
 
-export const useCurrentSubscription = () => {
+export const useCurrentSubscription = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ["current-subscription"],
     queryFn: getCurrentSubscription,
     retry: false,
+    enabled: options?.enabled ?? true,
   });
 };

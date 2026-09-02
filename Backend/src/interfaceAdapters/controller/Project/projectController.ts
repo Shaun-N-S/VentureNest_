@@ -12,10 +12,12 @@ import { CreateProjectReqSchema } from "@shared/validations/createProjectValidat
 import { InvalidDataException } from "application/constants/exceptions";
 import { CreateProjectDTO, UpdateProjectDTO } from "application/dto/project/projectDTO";
 import { Request, Response, NextFunction } from "express";
+import { isValidObjectId } from "mongoose";
 import { IFetchProjectByIdUseCase } from "@domain/interfaces/useCases/project/IFetchProjectByIdUseCase";
 import { IUpdateProjectUseCase } from "@domain/interfaces/useCases/project/IUpdateProjectUseCase";
 import { UpdateProjectReqSchema } from "@shared/validations/updateProjectValidator";
 import { ILikeProjectUseCase } from "@domain/interfaces/useCases/project/ILikeProjectUseCase";
+import { IGetProjectInvestorsUseCase } from "@domain/interfaces/useCases/project/IGetProjectInvestorsUseCase";
 
 export class ProjectController {
   constructor(
@@ -25,7 +27,8 @@ export class ProjectController {
     private _removeProject: IRemoveProjectUseCase,
     private _fetchProjectById: IFetchProjectByIdUseCase,
     private _updateProjectUseCase: IUpdateProjectUseCase,
-    private _likeProjectUseCase: ILikeProjectUseCase
+    private _likeProjectUseCase: ILikeProjectUseCase,
+    private _getProjectInvestors: IGetProjectInvestorsUseCase
   ) {}
 
   async addProject(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -162,6 +165,45 @@ export class ProjectController {
         { project },
         HTTPSTATUS.OK
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getProjectInvestors(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const projectId = req.params.projectId;
+
+      if (!projectId || !isValidObjectId(projectId)) {
+        throw new InvalidDataException(Errors.INVALID_DATA);
+      }
+
+      const page = Number(req.query.page ?? 1);
+      const limit = Number(req.query.limit ?? 10);
+
+      if (
+        !Number.isInteger(page) ||
+        page < 1 ||
+        !Number.isInteger(limit) ||
+        limit < 1 ||
+        limit > 100
+      ) {
+        throw new InvalidDataException(Errors.INVALID_PAGINATION_PARAMETERS);
+      }
+
+      const rawSearch = typeof req.query.search === "string" ? req.query.search.trim() : "";
+      const search = rawSearch ? rawSearch.slice(0, 100) : undefined;
+
+      const result = await this._getProjectInvestors.execute({
+        projectId,
+        page,
+        limit,
+        search,
+        viewerId: res.locals.user.userId,
+        viewerRole: res.locals.user.role,
+      });
+
+      ResponseHelper.success(res, MESSAGES.PROJECT.INVESTORS_FETCH_SUCCESS, result, HTTPSTATUS.OK);
     } catch (error) {
       next(error);
     }
