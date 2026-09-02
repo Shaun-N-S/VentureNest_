@@ -7,6 +7,12 @@ export interface AdminTransaction {
   createdAt: string;
   relatedDealId?: string;
   toWalletId?: string;
+
+  /** Resolved business name for the row; `null`/absent -> render "System". */
+  displayName?: string | null;
+  /** Related project name when applicable; otherwise `null`/absent. */
+  relatedProjectName?: string | null;
+  relatedEntityType?: "PROJECT" | "USER" | "INVESTOR" | "SYSTEM";
 }
 
 export interface AdminTransactionsResponse {

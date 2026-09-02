@@ -29,6 +29,7 @@ import { PostCard } from "../card/PostCard";
 import { useUpdateProjectStatus } from "@/hooks/Admin/ProjectHooks";
 import StatusChangeModal from "./StatusChangeModal";
 import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "../../constants/queryKey";
 import { formatPostDate } from "@/utils/dateFormatter";
 
 /* ===================== TYPES ===================== */
@@ -96,6 +97,16 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
     return isPost ? (postReports.data ?? []) : (projectReports.data ?? []);
   }, [isPost, postReports.data, projectReports.data]);
 
+  // Live case status — derived from the (refetched) report detail, not the
+  // stale `data.status` snapshot passed in from the list row.
+  const caseStatus: ReportStatus = useMemo(() => {
+    if (reports.length === 0) return data?.status ?? "pending";
+    if (reports.some((r) => r.status === "pending")) return "pending";
+    return reports.reduce((latest, r) =>
+      new Date(r.createdAt) > new Date(latest.createdAt) ? r : latest,
+    ).status;
+  }, [reports, data?.status]);
+
   /* ===================== LOCAL STATE ===================== */
   const [statusMap, setStatusMap] = useState<Record<string, ReportStatus>>({});
   const [actionMap, setActionMap] = useState<Record<string, string>>({});
@@ -110,6 +121,7 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
 
     updateStatusMutation.mutate({
       reportId,
+      target: isPost ? "post" : "project",
       payload: {
         status,
         ...(status === "action_taken" && { actionTaken }),
@@ -140,6 +152,14 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
               };
             },
           );
+
+          // Keep the moderation list + project report detail in sync.
+          queryClient.invalidateQueries({
+            queryKey: [QUERY_KEYS.REPORTED_PROJECTS],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [QUERY_KEYS.REPORTED_PROJECT_DETAIL],
+          });
 
           setSelectedProject((prev) =>
             prev ? { ...prev, isActive: updatedProject.isActive } : prev,
@@ -195,12 +215,12 @@ const ReportDetailsModal = ({ isOpen, onClose, data }: Props) => {
             </Badge>
             <Badge
               className={`capitalize px-3 py-1 font-semibold ${
-                data.status === "pending"
+                caseStatus === "pending"
                   ? "bg-amber-100 text-amber-700 hover:bg-amber-100"
                   : "bg-blue-100 text-blue-700 hover:bg-blue-100"
               }`}
             >
-              {data.status.replace("_", " ")}
+              {caseStatus.replace("_", " ")}
             </Badge>
           </div>
           <div className="text-sm text-slate-500 font-medium">

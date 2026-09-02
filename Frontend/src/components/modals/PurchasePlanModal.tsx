@@ -5,6 +5,7 @@ import { CheckCircle, X, Sparkles, Clock, Shield, Zap } from "lucide-react";
 import type { Plan } from "../../types/planType";
 import { useCreateCheckout } from "../../hooks/Subscription/subscriptionHooks";
 import { getPlanPermissions } from "@/utils/planPermissions";
+import { formatLimit } from "@/utils/planLimits";
 
 interface Props {
   plan: Plan;
@@ -19,13 +20,17 @@ type Feature = {
 export default function PurchasePlanModal({ plan, onClose }: Props) {
   const { mutate: startCheckout, isPending } = useCreateCheckout();
 
+  // Show a limit row when it grants something: unlimited (-1) or a positive number.
+  // An explicit 0 (no allowance) is hidden.
+  const showLimit = (value: number) => value !== 0;
+
   const baseFeatures: Feature[] =
     plan.role === "USER"
       ? [
-          ...(plan.limits.projects > 0
+          ...(showLimit(plan.limits.projects)
             ? [{ label: "Projects", value: plan.limits.projects }]
             : []),
-          ...(plan.limits.proposalsPerMonth > 0
+          ...(showLimit(plan.limits.proposalsPerMonth)
             ? [
                 {
                   label: "Proposals per month",
@@ -35,7 +40,7 @@ export default function PurchasePlanModal({ plan, onClose }: Props) {
             : []),
         ]
       : [
-          ...(plan.limits.investmentOffers > 0
+          ...(showLimit(plan.limits.investmentOffers)
             ? [
                 {
                   label: "Investment offers",
@@ -178,7 +183,7 @@ export default function PurchasePlanModal({ plan, onClose }: Props) {
                       </div>
                       <span className="text-sm text-gray-700 font-medium leading-snug group-hover:text-gray-900 transition-colors">
                         {typeof feature.value === "number"
-                          ? `${feature.value === -1 ? "Unlimited" : feature.value} ${feature.label}`
+                          ? `${formatLimit(feature.value)} ${feature.label}`
                           : feature.label}
                       </span>
                     </motion.div>

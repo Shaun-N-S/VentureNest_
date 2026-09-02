@@ -6,7 +6,7 @@ import {
 } from "@infrastructure/DI/Project/projectContainer";
 import { ROUTES } from "@shared/constants/routes";
 import { NextFunction, Request, Response, Router } from "express";
-import { userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
+import { authGuard, userOrInvestorGuard } from "interfaceAdapters/middleware/guards";
 import { uploadMulter } from "interfaceAdapters/middleware/multer";
 import { subscriptionGuard } from "interfaceAdapters/middleware/subscriptionMiddleware";
 
@@ -75,6 +75,14 @@ export class Project_Router {
       // ...userOrInvestorGuard,
       (req: Request, res: Response, next: NextFunction) => {
         projectController.findProjectById(req, res, next);
+      }
+    );
+
+    this._route.get(
+      ROUTES.PROJECT.PROJECT_INVESTORS,
+      ...authGuard,
+      (req: Request, res: Response, next: NextFunction) => {
+        projectController.getProjectInvestors(req, res, next);
       }
     );
 

@@ -1,197 +1,128 @@
 # VentureNest
 
-A modern full-stack MERN platform that connects entrepreneurs and investors through real-time chat and video calling. Built with a scalable clean architecture backend, responsive React frontend, and production-ready deployment tools.
+VentureNest is a full-stack platform that connects early-stage startup founders with investors. Founders publish structured startup profiles, manage inbound pitches, and negotiate investment offers through a guided workflow; investors discover startups, evaluate them with premium visibility tools, send and track offers, and manage funded deals with staged payouts. The platform layers on real-time messaging, notifications, a reporting and moderation system, Stripe-backed subscriptions that gate premium capabilities, and an admin console for users, plans, finances, and content review.
 
-![React](https://img.shields.io/badge/React-18-blue)
-![Node](https://img.shields.io/badge/Node.js-green)
-![MongoDB](https://img.shields.io/badge/MongoDB-darkgreen)
-![WebRTC](https://img.shields.io/badge/WebRTC-video-orange)
-![Docker](https://img.shields.io/badge/Docker-enabled-blue)
+## Live Demo
 
----
+- Frontend: https://vn.shaunns.online
+- Backend API: https://api.venturenest.shaunns.online
 
-## 🚀 Project Overview
+## Key Features
 
-VentureNest enables founders and investors to communicate instantly with advanced collaboration features:
+### For Founders
+- Create and publish startup projects with company details, funding terms, founders, vision, and pitch deck
+- Receive and manage investor pitches; respond or carry them into a deal
+- Review, accept, or reject investment offers through a structured workflow
+- Discover and connect with investors and build a professional network
+- Track a project-level investor list once deals are funded
+- Unlock investor insights and higher usage limits through subscription plans
 
-- Real-time chat with send, delete, read, and delivery status
-- File and image sharing in conversations
-- Peer-to-peer video calling using WebRTC
-- Role-based authentication for Entrepreneurs and Investors
-- Clean architecture backend with modular services and repositories
-- Docker support for local development and production
-- CI/CD automation using GitHub Actions
+### For Investors
+- Browse and filter startups by stage, sector, and traction
+- Send investment offers specifying amount, equity, valuation, and terms
+- Track portfolio and per-deal funding progress
+- Follow and connect with founders and other investors
+- Manage accepted deals with staged installment payments via Stripe or wallet
 
----
+### Platform Features
+- Email/password and Google OAuth authentication with OTP verification
+- JWT access tokens with refresh-token rotation
+- Real-time chat with delivery and read status
+- In-app notifications for pitches, offers, deals, and connections
+- User and project reporting with an admin moderation queue
+- Stripe subscriptions with plan-based feature gating and limits
+- Admin console for users, plans, wallet and transactions, and reports
 
-## ✨ Features
+## Tech Stack
 
-- **Full message lifecycle**: send text, track delivery, read receipts, and delete messages
-- **File & image sharing**: upload and share attachments securely in chat
-- **Video calling**: direct WebRTC video sessions for investor and entrepreneur meetings
-- **Authentication**: separate User and Investor roles with secure login and registration
-- **Responsive UI**: React + TypeScript interface optimized for desktop and mobile
-- **Socket-powered updates**: live chat and notification sync using Socket.IO
-- **Docker support**: containerized backend and frontend for easier deployment
-- **CI/CD workflow**: automated build, test, and deployment pipelines with GitHub Actions
+Frontend
+- React 19
+- TypeScript
+- Redux Toolkit (with redux-persist)
+- TanStack React Query
+- Tailwind CSS
+- shadcn/ui (Radix primitives)
+- Vite, React Router, React Hook Form + Zod, Socket.IO client
 
----
+Backend
+- Node.js
+- Express 5
+- TypeScript
+- MongoDB
+- Mongoose
+- Redis, Socket.IO, Zod, JWT + bcrypt, Multer, Nodemailer, node-cron
 
-## 💻 Tech Stack
+Infrastructure
+- AWS (EC2, Amplify, S3)
+- Docker / Docker Compose
+- GitHub Actions
+- Stripe
+- MongoDB Atlas, Redis
 
-- Frontend: `React`, `TypeScript`, `Tailwind CSS`, `Vite`
-- Backend: `Node.js`, `Express`, `TypeScript`
-- Database: `MongoDB`
-- Real-time: `Socket.IO`, `WebRTC`
-- Containerization: `Docker`, `docker-compose`
-- CI/CD: `GitHub Actions`
+## Quick Start
 
----
-
-## 🛠 Installation
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/Shaun-N-S/VentureNest.git
-cd VentureNest
-```
-
-### 2. Install dependencies
-
-```bash
-cd Backend
-npm install
-
-cd ../Frontend
-npm install
-```
-
-### 3. Configure environment variables
-
-Create `.env` files for both backend and frontend as shown below.
-
-### 4. Start development servers
+Prerequisites: Node.js 20+, MongoDB, Redis.
 
 ```bash
+git clone https://github.com/Shaun-N-S/VentureNest_.git
+cd VentureNest_
+
 # Backend
-cd Backend
-npm run dev
+cd Backend && cp .env.example .env && npm install && npm run dev
 
-# Frontend
-cd ../Frontend
-npm run dev
+# Frontend (in a second terminal)
+cd Frontend && cp .env.example .env && npm install && npm run dev
 ```
 
----
+## Architecture Highlights
 
-## ⚙️ Environment Variables
+- Clean Architecture with `domain`, `application`, `infrastructure`, and `interfaceAdapters` layers
+- Dependency injection through per-feature containers
+- Role-based access control (founder, investor, admin) enforced by route guards
+- Modular feature structure with use-case-driven business logic
+- JWT authentication using short-lived access tokens and refresh-token cookies
+- Subscription-driven feature access enforced on both client and server
 
-This project uses `.env` files for configuration.
+## Notable Implementations
 
-👉 Copy the example files and update values:
+- Real-time chat and notifications over Socket.IO with room-based routing and dedicated event publishers
+- Infinite scrolling built on React Query and IntersectionObserver, backed by paginated aggregation queries
+- Premium investor-visibility system: subscription-gated data, server-side enforcement returning 403, and signed S3 URLs for media
+- Subscription feature gating: Stripe Checkout and webhooks drive plan state; plan limits support an explicit unlimited value
+- Secure authentication flows: Google OAuth, OTP email verification, bcrypt hashing, Helmet, and request rate limiting
+- Image cropper and upload pipeline: client-side crop, canvas export, multipart upload to S3, and signed-URL delivery
+- Investment offer workflow: offer to accepted deal to staged installment payments, with scheduled expiry jobs
+- MongoDB aggregation pipelines for admin finance reporting and paginated list views
 
-### Backend (`Backend/.env`)
+## Deployment
 
-```bash
-cd Backend
-cp .env.example .env
+- Frontend deployed on AWS Amplify
+- Backend containerized with Docker and deployed on AWS EC2
+- CI/CD via GitHub Actions: install, lint, and build both apps, then build and push the backend image to Docker Hub and roll it out on EC2 over SSH
+
+## Project Structure
+
+```
+VentureNest_/
+├── Backend/
+│   └── src/
+│       ├── domain/             # entities, repository/service interfaces, enums
+│       ├── application/        # use cases, DTOs, mappers
+│       ├── infrastructure/     # db, cache, realtime, services, cron, DI
+│       ├── interfaceAdapters/  # controllers, middleware, routes
+│       └── shared/             # constants, utils, validation schemas
+└── Frontend/
+    └── src/
+        ├── components/         # UI and feature components
+        ├── pages/              # admin, investor, and founder routes
+        ├── hooks/              # data and socket hooks
+        ├── services/           # API clients
+        ├── store/              # Redux slices
+        └── sockets/            # Socket.IO client
 ```
 
-### Frontend (`Frontend/.env`)
+## Author
 
-```bash
-cd Frontend
-cp .env.example .env
-```
-
----
-
-## 📁 Project Structure
-
-### Backend
-
-- `src/app.ts` — application entry point
-- `src/config/` — configuration and environment setup
-- `src/application/` — use cases, DTOs, and mappers
-- `src/domain/` — entities, interfaces, types, enums
-- `src/infrastructure/` — data access, services, cache, cron jobs
-- `src/interfaceAdapters/` — controllers, middleware, routes
-- `src/shared/` — constants, utils, and validation logic
-
-### Frontend
-
-- `src/main.tsx` — app bootstrap
-- `src/App.tsx` — root application component
-- `src/components/` — reusable UI and feature components
-- `src/hooks/` — custom hooks for auth, chat, socket, etc.
-- `src/pages/` — route pages for admin, investor, and user flows
-- `src/services/` — API service modules
-- `src/routes/` — frontend route definitions
-- `src/lib/` — helper utilities and socket client
-
----
-
-## 🐳 Docker Setup
-
-### Build and run with Docker
-
-```bash
-docker-compose up --build -d
-```
-
-### Stop containers
-
-```bash
-docker-compose down
-```
-
-This repository includes Docker support for both backend and frontend services, making local development and production deployment easier.
-
----
-
-## 🚦 CI/CD
-
-A GitHub Actions pipeline is included to automate:
-
-- dependency installation
-- linting and static checks
-- backend and frontend build processes
-- optional deployment to staging or production environments
-
-> Place workflows in `.github/workflows/` and customize the pipeline to your deployment provider.
-
----
-
-## ☁️ Deployment
-
-To deploy VentureNest in production, use a cloud provider or container hosting service:
-
-- Deploy backend API to AWS, Azure, DigitalOcean, or Render
-- Deploy frontend to Vercel, AWS Amplify, Netlify, or any static site host
-- Use MongoDB Atlas or a managed MongoDB service for database hosting
-- Configure environment variables and secrets in your deployment platform
-
----
-
-## 🔮 Future Improvements
-
-- Add investor onboarding and analytics dashboards
-- Implement in-app notifications and email alerts
-- Add payment/subscription support for premium features
-- Improve video call scheduling and meeting rooms
-- Add advanced search and matching algorithms for deals
-- Expand mobile experience with progressive web app support
-
----
-
-<!-- ## 📌 License
-
-This project is open source. Add your preferred license file to the repository. -->
-
----
-
-## 💬 Contact
-
-For questions or contributions, open an issue or submit a pull request.
-
+Shaun N S
+- GitHub: https://github.com/Shaun-N-S
+- LinkedIn: add profile URL

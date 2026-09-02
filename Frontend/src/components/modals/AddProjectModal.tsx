@@ -1,5 +1,5 @@
 import type React from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -92,7 +92,18 @@ export default function AddProjectModal({ open, onOpenChange, onSubmit, isEditin
         }
     }, [isEditing, initialData, form]);
 
-
+    // Release any blob preview URLs created by the cropper when this modal unmounts.
+    const previewsRef = useRef({ logo: "", cover: "" });
+    useEffect(() => {
+        previewsRef.current = { logo: logoPreview, cover: coverPreview };
+    }, [logoPreview, coverPreview]);
+    useEffect(() => {
+        return () => {
+            const { logo, cover } = previewsRef.current;
+            if (logo.startsWith("blob:")) URL.revokeObjectURL(logo);
+            if (cover.startsWith("blob:")) URL.revokeObjectURL(cover);
+        };
+    }, []);
 
     const handleFileChange = (
         e: React.ChangeEvent<HTMLInputElement>,
@@ -139,9 +150,11 @@ export default function AddProjectModal({ open, onOpenChange, onSubmit, isEditin
         if (!cropType) return
 
         if (cropType === "logo") {
+            if (logoPreview.startsWith("blob:")) URL.revokeObjectURL(logoPreview)
             form.setValue("logo", croppedFile)
             setLogoPreview(previewUrl)
         } else if (cropType === "cover") {
+            if (coverPreview.startsWith("blob:")) URL.revokeObjectURL(coverPreview)
             form.setValue("coverImage", croppedFile)
             setCoverPreview(previewUrl)
         }

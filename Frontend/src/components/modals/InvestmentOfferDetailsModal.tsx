@@ -2,19 +2,14 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import {
   Loader2,
-  CheckCircle,
-  XCircle,
   Calendar,
   TrendingUp,
   Percent,
-  DollarSign,
+  IndianRupee,
   FileText,
-  AlertCircle,
   CreditCard,
   History,
-  Info,
   ShieldCheck,
-  type LucideIcon,
 } from "lucide-react";
 
 import { Dialog, DialogContent } from "../ui/dialog";
@@ -36,41 +31,11 @@ import {
 
 import { OfferStatus } from "../../types/investmentOfferType";
 import type { Rootstate } from "../../store/store";
+import { StatusBadge } from "../offers/offerStatus";
+import { formatCurrency } from "../../utils/currency";
 
 import RejectReasonModal from "../modals/RejectReasonModal";
 import TransferPaymentModal from "./TransferPaymentModal";
-
-/* ---------------- Status Config ---------------- */
-
-const statusConfig: Record<
-  OfferStatus,
-  { color: string; bgColor: string; label: string; icon: LucideIcon }
-> = {
-  PENDING: {
-    color: "text-amber-700",
-    bgColor: "bg-amber-100",
-    label: "Pending Review",
-    icon: Info,
-  },
-  ACCEPTED: {
-    color: "text-emerald-700",
-    bgColor: "bg-emerald-100",
-    label: "Accepted",
-    icon: CheckCircle,
-  },
-  REJECTED: {
-    color: "text-red-700",
-    bgColor: "bg-red-100",
-    label: "Rejected",
-    icon: XCircle,
-  },
-  EXPIRED: {
-    color: "text-slate-700",
-    bgColor: "bg-slate-100",
-    label: "Expired",
-    icon: AlertCircle,
-  },
-};
 
 interface Props {
   open: boolean;
@@ -131,7 +96,6 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
       </Dialog>
     );
 
-  const StatusIcon = data?.status ? statusConfig[data.status].icon : Info;
   const progressPercentage = data?.deal
     ? (data.deal.amountPaid / data.deal.totalAmount) * 100
     : 0;
@@ -150,12 +114,7 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
               <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge
-                      className={`${statusConfig[data!.status].bgColor} ${statusConfig[data!.status].color} border-none`}
-                    >
-                      <StatusIcon className="w-3 h-3 mr-1" />
-                      {statusConfig[data!.status].label}
-                    </Badge>
+                    <StatusBadge kind="offer" status={data!.status} />
                     <span className="text-slate-400 text-xs flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
                       Issued {new Date(data!.createdAt).toLocaleDateString()}
@@ -200,8 +159,8 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <StatCard
                     label="Total Investment"
-                    value={`₹${data!.amount.toLocaleString()}`}
-                    icon={<DollarSign className="text-emerald-500" />}
+                    value={formatCurrency(data!.amount)}
+                    icon={<IndianRupee className="text-emerald-500" />}
                   />
                   <StatCard
                     label="Equity Offered"
@@ -210,7 +169,9 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                   />
                   <StatCard
                     label="Post-Money Valuation"
-                    value={`₹${data!.valuation?.toLocaleString() || "N/A"}`}
+                    value={
+                      data!.valuation ? formatCurrency(data!.valuation) : "N/A"
+                    }
                     icon={<TrendingUp className="text-purple-500" />}
                   />
                 </div>
@@ -225,8 +186,8 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                         Funding Progress
                       </h4>
                       <p className="text-xs text-muted-foreground">
-                        Paid: ₹{data.deal.amountPaid.toLocaleString()} / ₹
-                        {data.deal.totalAmount.toLocaleString()}
+                        Paid: {formatCurrency(data.deal.amountPaid)} /{" "}
+                        {formatCurrency(data.deal.totalAmount)}
                       </p>
                     </div>
                     <span className="text-sm font-bold text-primary">
@@ -271,7 +232,7 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                             </div>
                             <div>
                               <p className="font-medium">
-                                ₹{inst.amount.toLocaleString()}
+                                {formatCurrency(inst.amount)}
                               </p>
                               <p className="text-[10px] text-muted-foreground">
                                 {new Date(inst.createdAt).toLocaleDateString()}
@@ -332,8 +293,9 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                       className="w-full sm:w-auto bg-primary shadow-lg shadow-primary/20"
                       onClick={() => setShowTransferModal(true)}
                     >
-                      Initiate Transfer (₹
-                      {data!.deal.remainingAmount.toLocaleString()})
+                      Initiate Transfer ({formatCurrency(
+                        data!.deal.remainingAmount,
+                      )})
                     </Button>
                   )}
 

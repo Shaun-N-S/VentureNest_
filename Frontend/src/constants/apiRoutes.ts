@@ -112,6 +112,7 @@ export const API_ROUTES = {
     FETCH_PERSONAL_PROJECT_BY_ID: "/projects/personal/:userId",
     REMOVE_PROJECT: "/projects/remove/:projectId",
     FETCH_SINGLE_PROJECT: "/projects/:projectId",
+    PROJECT_INVESTORS: "/projects/:projectId/investors",
     ADD_MONTHLY_REPORT: "/projects/monthly-report/:projectId",
     VERIFY_STARTUP: "/projects/verify/:projectId",
     LIKES: "/projects/likes/:projectId",

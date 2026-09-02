@@ -81,12 +81,12 @@ export default function ImageCropper({
                 </div>
 
                 {/* Cropper Container */}
-                <div className="flex-1 overflow-auto bg-gray-50 rounded-lg border border-gray-300">
-                    <div className="p-4 flex items-center justify-center min-h-full">
+                <div className="flex-1 min-h-0 overflow-hidden bg-gray-50 rounded-lg border border-gray-300">
+                    <div className="p-4 flex items-center justify-center h-full">
                         <style>{`
                             .react-crop-wrapper {
-                                width: 100%;
-                                height: 100%;
+                                max-width: 100%;
+                                max-height: 100%;
                                 display: flex;
                                 align-items: center;
                                 justify-content: center;
@@ -94,11 +94,13 @@ export default function ImageCropper({
 
                             .ReactCrop {
                                 max-width: 100%;
-                                height: auto;
+                                max-height: 65vh;
                             }
 
                             .ReactCrop img {
                                 max-width: 100%;
+                                max-height: 65vh;
+                                width: auto;
                                 height: auto;
                                 display: block;
                             }
@@ -115,7 +117,7 @@ export default function ImageCropper({
                                 ref={imgRef}
                                 src={imageSrc}
                                 alt="Crop target"
-                                className="max-w-full h-auto"
+                                className="block max-w-full max-h-[65vh] w-auto h-auto"
                             />
                         </ReactCrop>
                     </div>

@@ -2,6 +2,13 @@ import { z } from "zod";
 import { PlanRole } from "@domain/enum/planRole";
 import { UpdatePlanStatusDTO } from "application/dto/plan/updatePlanStatusDTO";
 import { PlanStatus } from "@domain/enum/planStatus";
+import { UNLIMITED } from "@shared/constants/plan";
+
+/**
+ * A plan limit: the UNLIMITED sentinel (-1) or a non-negative integer.
+ * `.int()` rejects fractional values; `.min(UNLIMITED)` rejects anything below -1.
+ */
+const limitValue = z.number().int().min(UNLIMITED);
 
 /**
  * CREATE PLAN
@@ -13,9 +20,9 @@ export const createPlanSchema = z
     description: z.string().min(10),
 
     limits: z.object({
-      projects: z.number().min(-1).default(-1),
-      proposalsPerMonth: z.number().min(-1).default(-1),
-      investmentOffers: z.number().min(-1).default(-1),
+      projects: limitValue.default(UNLIMITED),
+      proposalsPerMonth: limitValue.default(UNLIMITED),
+      investmentOffers: limitValue.default(UNLIMITED),
     }),
 
     permissions: z.object({
@@ -72,9 +79,9 @@ export const updatePlanSchema = z
 
     limits: z
       .object({
-        projects: z.number().min(-1).optional(),
-        proposalsPerMonth: z.number().min(-1).optional(),
-        investmentOffers: z.number().min(-1).optional(),
+        projects: limitValue.optional(),
+        proposalsPerMonth: limitValue.optional(),
+        investmentOffers: limitValue.optional(),
       })
       .optional(),
 

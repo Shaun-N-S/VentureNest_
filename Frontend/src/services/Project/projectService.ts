@@ -1,9 +1,11 @@
 import AxiosInstance from "../../axios/axios";
 import { API_ROUTES } from "../../constants/apiRoutes";
+import type { ApiResponse } from "../../types/apiResponseType";
 import type {
   PersonalProjectApiResponse,
   ProjectLikeResponse,
 } from "../../types/projectType";
+import type { ProjectInvestorsResponse } from "../../types/projectInvestorType";
 
 export const addProject = async (formData: FormData) => {
   const response = await AxiosInstance.post(API_ROUTES.PROJECT.ADD, formData, {
@@ -88,6 +90,25 @@ export const fetchProjectById = async (projectId: string) => {
     API_ROUTES.PROJECT.FETCH_SINGLE_PROJECT.replace(":projectId", projectId),
   );
   return response.data;
+};
+
+export const fetchProjectInvestors = async (
+  projectId: string,
+  page = 1,
+  limit = 10,
+  search?: string,
+): Promise<ProjectInvestorsResponse> => {
+  const response = await AxiosInstance.get<ApiResponse<ProjectInvestorsResponse>>(
+    API_ROUTES.PROJECT.PROJECT_INVESTORS.replace(":projectId", projectId),
+    {
+      params: {
+        page,
+        limit,
+        ...(search && search.trim() ? { search: search.trim() } : {}),
+      },
+    },
+  );
+  return response.data.data;
 };
 
 export const addMontlyProjectReport = async (formData: FormData) => {

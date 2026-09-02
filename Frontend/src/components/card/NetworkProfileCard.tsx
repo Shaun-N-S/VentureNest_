@@ -72,9 +72,6 @@ export const NetworkProfileCard = ({
                 {firstLetter}
               </AvatarFallback>
             </Avatar>
-
-            {/* Status Indicator */}
-            <div className="absolute bottom-0.5 right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500 shadow-sm" />
           </div>
 
           {/* User Info - Compact Version */}

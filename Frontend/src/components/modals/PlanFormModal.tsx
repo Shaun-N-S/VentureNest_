@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
+import { UNLIMITED, isUnlimited } from "../../utils/planLimits";
 
 /* ================= TYPES ================= */
 
@@ -79,21 +80,19 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
     if (form.billing.durationDays <= 0)
       newErrors.durationDays = "Duration must be greater than 0";
 
-    if (form.limits.projects !== undefined && form.limits.projects < 0)
-      newErrors.projects = "Projects limit must be a positive number";
+    const limitError = (v: number | undefined) =>
+      v !== undefined && !isUnlimited(v) && (!Number.isInteger(v) || v < 0);
 
-    if (
-      form.limits.proposalsPerMonth !== undefined &&
-      form.limits.proposalsPerMonth < 0
-    )
-      newErrors.proposalsPerMonth = "Proposals limit must be a positive number";
+    if (limitError(form.limits.projects))
+      newErrors.projects = "Enter a whole number (0 or more) or toggle Unlimited";
 
-    if (
-      form.limits.investmentOffers !== undefined &&
-      form.limits.investmentOffers < 0
-    )
+    if (limitError(form.limits.proposalsPerMonth))
+      newErrors.proposalsPerMonth =
+        "Enter a whole number (0 or more) or toggle Unlimited";
+
+    if (limitError(form.limits.investmentOffers))
       newErrors.investmentOffers =
-        "Investment offers limit must be a positive number";
+        "Enter a whole number (0 or more) or toggle Unlimited";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -105,9 +104,9 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
       role: "USER",
       description: "",
       limits: {
-        projects: 0,
-        proposalsPerMonth: 0,
-        investmentOffers: 0,
+        projects: UNLIMITED,
+        proposalsPerMonth: UNLIMITED,
+        investmentOffers: UNLIMITED,
       },
       permissions: {
         canCreateProject: false,
@@ -242,16 +241,16 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
                         limits:
                           role === "USER"
                             ? {
-                                projects: prev.limits.projects ?? 0,
+                                projects: prev.limits.projects ?? UNLIMITED,
                                 proposalsPerMonth:
-                                  prev.limits.proposalsPerMonth ?? 0,
-                                investmentOffers: 0,
+                                  prev.limits.proposalsPerMonth ?? UNLIMITED,
+                                investmentOffers: UNLIMITED,
                               }
                             : {
-                                projects: 0,
-                                proposalsPerMonth: 0,
+                                projects: UNLIMITED,
+                                proposalsPerMonth: UNLIMITED,
                                 investmentOffers:
-                                  prev.limits.investmentOffers ?? 0,
+                                  prev.limits.investmentOffers ?? UNLIMITED,
                               },
                       }));
                     }}
@@ -328,74 +327,91 @@ export function PlanFormModal({ open, onClose, onSubmit, initialData }: Props) {
           {/* ROLE SPECIFIC */}
           {role === "USER" && (
             <Section title="User Limits & Permissions">
-              <LimitsGrid>
-                <NumberInput
-                  label="Projects"
-                  value={form.limits.projects}
-                  onChange={(v) => updateLimits("projects", v)}
-                  error={errors.projects}
-                />
+              <div className="space-y-8">
+                <SubGroup title="Usage Limits">
+                  <LimitsGrid>
+                    <LimitInput
+                      label="Projects"
+                      fieldLabel="Project limit"
+                      value={form.limits.projects}
+                      onChange={(v) => updateLimits("projects", v)}
+                      error={errors.projects}
+                    />
 
-                <NumberInput
-                  label="Proposals / Month"
-                  value={form.limits.proposalsPerMonth}
-                  onChange={(v) => updateLimits("proposalsPerMonth", v)}
-                  error={errors.proposalsPerMonth}
-                />
-              </LimitsGrid>
+                    <LimitInput
+                      label="Proposals / Month"
+                      fieldLabel="Monthly proposal limit"
+                      value={form.limits.proposalsPerMonth}
+                      onChange={(v) => updateLimits("proposalsPerMonth", v)}
+                      error={errors.proposalsPerMonth}
+                    />
+                  </LimitsGrid>
+                </SubGroup>
 
-              <PermissionsGrid>
-                <PermissionToggle
-                  label="Create Project"
-                  value={form.permissions.canCreateProject}
-                  onChange={(v) => updatePermissions("canCreateProject", v)}
-                />
-                <PermissionToggle
-                  label="Send Proposal"
-                  value={form.permissions.canSendProposal}
-                  onChange={(v) => updatePermissions("canSendProposal", v)}
-                />
-                <PermissionToggle
-                  label="Video Call Access"
-                  value={form.permissions.canStartVideoCall}
-                  onChange={(v) => updatePermissions("canStartVideoCall", v)}
-                />
-              </PermissionsGrid>
+                <SubGroup title="Permissions">
+                  <PermissionsGrid>
+                    <PermissionToggle
+                      label="Create Project"
+                      value={form.permissions.canCreateProject}
+                      onChange={(v) => updatePermissions("canCreateProject", v)}
+                    />
+                    <PermissionToggle
+                      label="Send Proposal"
+                      value={form.permissions.canSendProposal}
+                      onChange={(v) => updatePermissions("canSendProposal", v)}
+                    />
+                    <PermissionToggle
+                      label="Video Call Access"
+                      value={form.permissions.canStartVideoCall}
+                      onChange={(v) =>
+                        updatePermissions("canStartVideoCall", v)
+                      }
+                    />
+                  </PermissionsGrid>
+                </SubGroup>
+              </div>
             </Section>
           )}
 
           {role === "INVESTOR" && (
             <Section title="Investor Limits & Permissions">
-              <LimitsGrid>
-                <NumberInput
-                  label="Investment Offers"
-                  value={form.limits.investmentOffers}
-                  onChange={(v) => updateLimits("investmentOffers", v)}
-                  error={errors.investmentOffers}
-                />
-              </LimitsGrid>
+              <div className="space-y-8">
+                <SubGroup title="Usage Limits">
+                  <LimitsGrid>
+                    <LimitInput
+                      label="Investment Offers"
+                      fieldLabel="Investment offer limit"
+                      value={form.limits.investmentOffers}
+                      onChange={(v) => updateLimits("investmentOffers", v)}
+                      error={errors.investmentOffers}
+                    />
+                  </LimitsGrid>
+                </SubGroup>
 
-              <PermissionsGrid>
-                <PermissionToggle
-                  label="Send Investment Offer"
-                  value={form.permissions.canSendInvestmentOffer}
-                  onChange={(v) =>
-                    updatePermissions("canSendInvestmentOffer", v)
-                  }
-                />
-                <PermissionToggle
-                  label="Invest Money"
-                  value={form.permissions.canInvestMoney}
-                  onChange={(v) => updatePermissions("canInvestMoney", v)}
-                />
-                <PermissionToggle
-                  label="View Dashboard"
-                  value={form.permissions.canViewInvestmentDashboard}
-                  onChange={(v) =>
-                    updatePermissions("canViewInvestmentDashboard", v)
-                  }
-                />
-              </PermissionsGrid>
+                <SubGroup title="Permissions">
+                  <PermissionsGrid>
+                    <PermissionToggle
+                      label="Send Investment Offer"
+                      value={form.permissions.canSendInvestmentOffer}
+                      onChange={(v) =>
+                        updatePermissions("canSendInvestmentOffer", v)
+                      }
+                    />
+                    <PermissionToggle
+                      label="Invest Money"
+                      value={form.permissions.canInvestMoney}
+                      onChange={(v) => updatePermissions("canInvestMoney", v)}
+                    />
+                    <PermissionToggle
+                      label="View Dashboard"
+                      value={form.permissions.canViewInvestmentDashboard}
+                      onChange={(v) =>
+                        updatePermissions("canViewInvestmentDashboard", v)
+                      }
+                    />
+                  </PermissionsGrid>
+                </SubGroup>
+              </div>
             </Section>
           )}
         </div>
@@ -429,7 +445,7 @@ const Section = ({
 }) => (
   <div className="space-y-4">
     <h3 className="text-lg font-semibold">{title}</h3>
-    <div className="bg-gray-50 border rounded-lg p-4 space-y-4">{children}</div>
+    <div className="bg-gray-50 border rounded-lg p-5 space-y-5">{children}</div>
   </div>
 );
 
@@ -446,42 +462,106 @@ const Field = ({
   </div>
 );
 
+/** A titled group inside a Section (e.g. "Usage Limits", "Permissions"). */
+const SubGroup = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <div className="space-y-3">
+    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      {title}
+    </p>
+    {children}
+  </div>
+);
+
+/** Vertical stack of limit controls — one full-width card per limit. */
 const LimitsGrid = ({ children }: { children: React.ReactNode }) => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{children}</div>
+  <div className="space-y-4">{children}</div>
 );
 
 const PermissionsGrid = ({ children }: { children: React.ReactNode }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">{children}</div>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{children}</div>
 );
 
-const NumberInput = ({
+/**
+ * One limit control:
+ *   <name>
+ *   Unlimited  [switch]
+ *   (when OFF) <field label> + full-width number input
+ * Toggling ON stores UNLIMITED (-1); OFF stores 0. Behaviour is unchanged.
+ */
+const LimitInput = ({
   label,
+  fieldLabel,
   value,
   onChange,
   error,
 }: {
   label: string;
+  fieldLabel: string;
   value?: number;
   onChange: (v: number) => void;
   error?: string;
-}) => (
-  <Field label={label}>
-    <Input
-      type="number"
-      className={error ? "border-red-500" : ""}
-      min="0"
-      value={value ?? ""}
-      onChange={(e) => {
-        const val = e.target.value;
-        const num = val === "" ? 0 : Math.max(0, Number(val));
-        onChange(num);
-      }}
-    />
+}) => {
+  const unlimited = isUnlimited(value);
+  const switchId = `limit-${fieldLabel.replace(/\s+/g, "-").toLowerCase()}`;
 
-    {/* ✅ ERROR INSIDE */}
-    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-  </Field>
-);
+  return (
+    <div className="rounded-lg border border-border bg-background p-4 space-y-4">
+      {/* Limit name */}
+      <p className="text-sm font-semibold text-foreground">{label}</p>
+
+      {/* Unlimited toggle — stacked label above the switch on mobile, row on wider screens */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-0.5">
+          <Label htmlFor={switchId} className="text-sm font-medium">
+            Unlimited
+          </Label>
+          <p className="text-xs text-muted-foreground">
+            No cap on how many are allowed.
+          </p>
+        </div>
+        <Switch
+          id={switchId}
+          checked={unlimited}
+          onCheckedChange={(checked) => onChange(checked ? UNLIMITED : 0)}
+        />
+      </div>
+
+      {/* Explicit cap — hidden entirely while Unlimited is on */}
+      {!unlimited && (
+        <div className="space-y-1.5">
+          <Label htmlFor={`${switchId}-value`} className="text-sm font-medium">
+            {fieldLabel}
+          </Label>
+          <Input
+            id={`${switchId}-value`}
+            type="number"
+            inputMode="numeric"
+            min="0"
+            step="1"
+            className={`no-spinner h-11 w-full text-base font-medium text-foreground ${
+              error ? "border-red-500" : ""
+            }`}
+            value={value ?? ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              const num =
+                val === "" ? 0 : Math.max(0, Math.floor(Number(val)));
+              onChange(num);
+            }}
+          />
+        </div>
+      )}
+
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
+  );
+};
 
 function PermissionToggle({
   label,
