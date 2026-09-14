@@ -40,6 +40,7 @@ import { updateUserData } from "../../store/Slice/authDataSlice";
 import { useDispatch } from "react-redux";
 import { PitchModal } from "../modals/PitchModal";
 import type { PersonalProjectApiResponse } from "../../types/projectType";
+import type { UserProfileApiResponse } from "../../types/userProfileApiResponse";
 import type { NetworkUser } from "../../types/networkType";
 import type { ConnectionStatus } from "../../types/connectionStatus";
 import {
@@ -193,6 +194,25 @@ export function ProfileCard(props: ProfileCardProps) {
             };
           },
         );
+
+        queryClient.setQueryData<UserProfileApiResponse>(
+          ["userProfile", userId],
+          (oldData) => {
+            if (!oldData?.data?.profileData) return oldData;
+
+            return {
+              ...oldData,
+              data: {
+                ...oldData.data,
+                profileData: {
+                  ...oldData.data.profileData,
+                  projectCount: (oldData.data.profileData.projectCount ?? 0) + 1,
+                },
+              },
+            };
+          },
+        );
+        queryClient.invalidateQueries({ queryKey: ["userProfile", userId] });
 
         setIsAddProjectOpen(false);
       },

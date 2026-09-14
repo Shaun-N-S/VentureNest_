@@ -76,7 +76,7 @@ export function ProjectHero({
 
       <div className="px-5 pb-5 sm:px-6 sm:pb-6">
         {/* Logo overlaps the cover */}
-        <div className="-mt-10 mb-4 sm:-mt-12">
+        <div className="relative z-20 -mt-10 mb-4 sm:-mt-12">
           <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-4 border-card bg-white shadow-md sm:h-24 sm:w-24">
             <img
               src={logoUrl || "/placeholder.svg"}

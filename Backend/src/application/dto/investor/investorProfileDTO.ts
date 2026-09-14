@@ -27,6 +27,7 @@ export interface InvestorProfileUpdateFormDataDTO {
   userName?: string;
   bio?: string;
   website?: string;
+  linkedInUrl?: string;
   companyName?: string;
   experience?: number;
   location?: string;
@@ -46,6 +47,10 @@ export interface InvestorProfileUpdateResDTO {
   website?: string;
   linkedInUrl?: string;
   companyName?: string;
+  experience?: number;
+  location?: string;
+  investmentMin?: number;
+  investmentMax?: number;
   adminVerified?: boolean;
   profileImg?: string;
   kycRejectReason?: string;

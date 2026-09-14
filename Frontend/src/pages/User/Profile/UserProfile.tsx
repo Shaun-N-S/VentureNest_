@@ -76,6 +76,11 @@ export default function ProfilePage() {
 
   const isOwnProfile = profileData?.data?.profileData?._id === userData.id;
 
+  
+  const normalizedUserData = profileData?.data?.profileData
+    ? { ...profileData.data.profileData, id: profileData.data.profileData._id }
+    : null;
+
   useEffect(() => {
     if (inView && hasNextPage) {
       fetchNextPage();
@@ -311,9 +316,9 @@ export default function ProfilePage() {
         {/* Profile Card */}
         <div className="max-w-2xl mx-auto">
           <div className="mb-8 md:mb-12">
-            {profileData?.data?.profileData && isOwnProfile !== undefined && (
+            {normalizedUserData && isOwnProfile !== undefined && (
               <ProfileCard
-                userData={profileData.data.profileData}
+                userData={normalizedUserData}
                 isOwnProfile={isOwnProfile}
                 isFollowing={isFollowing}
                 onFollow={() => setIsFollowing(!isFollowing)}

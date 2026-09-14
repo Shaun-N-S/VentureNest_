@@ -38,6 +38,7 @@ export interface PostsPage {
   posts: AllPost[];
   totalPosts: number;
   hasNextPage: boolean;
+  anchor: string;
 }
 
 export interface PersonalPostPage {

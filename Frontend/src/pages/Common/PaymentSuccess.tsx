@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ArrowRight, TrendingUp, Wallet } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
 import { useCurrentSubscription } from "@/hooks/Subscription/subscriptionHooks";
+import { usePaymentSessionSummary } from "@/hooks/Payment/paymentHooks";
 import { formatDateTime } from "@/utils/dateFormatter";
 
 const ConfettiPiece = ({
@@ -54,10 +55,42 @@ const confettiItems: {
 
 export default function PaymentSuccess() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get("session_id");
   const role = useSelector((state: Rootstate) => state.authData.role);
-  const { data: subscription, isLoading } = useCurrentSubscription();
+  const userName = useSelector((state: Rootstate) => state.authData.userName);
 
-  if (isLoading) {
+  const { data: sessionSummary, isLoading: isSessionLoading } =
+    usePaymentSessionSummary(sessionId);
+
+  // Every PaymentPurpose value must be handled explicitly here. Anything not
+  // matched below (including a future purpose the enum gains later) falls
+  // through to "UNKNOWN", which renders the generic "Payment Confirmed"
+  // screen — never the subscription screen — so new payment types can't
+  // silently inherit subscription copy the way WALLET_TOPUP just did.
+  const purposeKind: "SUBSCRIPTION" | "DEAL_INSTALLMENT" | "WALLET_TOPUP" | "UNKNOWN" =
+    sessionSummary?.purpose === "SUBSCRIPTION"
+      ? "SUBSCRIPTION"
+      : sessionSummary?.purpose === "DEAL_INSTALLMENT"
+        ? "DEAL_INSTALLMENT"
+        : sessionSummary?.purpose === "WALLET_TOPUP"
+          ? "WALLET_TOPUP"
+          : "UNKNOWN";
+
+  const isInvestment = purposeKind === "DEAL_INSTALLMENT";
+  const isWalletTopup = purposeKind === "WALLET_TOPUP";
+  // UNKNOWN only happens with no session_id (or a session the backend
+  // couldn't resolve) — same as before this fix, it falls back to checking
+  // the user's current subscription so old links keep behaving as they did.
+  const needsSubscriptionLookup =
+    purposeKind === "SUBSCRIPTION" || purposeKind === "UNKNOWN";
+
+  const { data: subscription, isLoading: isSubscriptionLoading } =
+    useCurrentSubscription({
+      enabled: !isSessionLoading && needsSubscriptionLookup,
+    });
+
+  if (isSessionLoading || (needsSubscriptionLookup && isSubscriptionLoading)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         Loading...
@@ -204,7 +237,9 @@ export default function PaymentSuccess() {
               position: "absolute",
               inset: -10,
               borderRadius: "50%",
-              border: "2px solid #10b981",
+              border: `2px solid ${
+                isInvestment ? "#6366f1" : isWalletTopup ? "#d97706" : "#10b981"
+              }`,
             }}
           />
           <div
@@ -212,25 +247,39 @@ export default function PaymentSuccess() {
               width: 84,
               height: 84,
               borderRadius: "50%",
-              background: "linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)",
+              background: isInvestment
+                ? "linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)"
+                : isWalletTopup
+                  ? "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)"
+                  : "linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 8px 24px rgba(16,185,129,0.22)",
+              boxShadow: isInvestment
+                ? "0 8px 24px rgba(99,102,241,0.22)"
+                : isWalletTopup
+                  ? "0 8px 24px rgba(217,119,6,0.22)"
+                  : "0 8px 24px rgba(16,185,129,0.22)",
             }}
           >
-            <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
-              <motion.path
-                d="M10 21L17 28L31 14"
-                stroke="#059669"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ delay: 0.45, duration: 0.55, ease: "easeOut" }}
-              />
-            </svg>
+            {isInvestment ? (
+              <TrendingUp width={38} height={38} color="#4338ca" strokeWidth={2.5} />
+            ) : isWalletTopup ? (
+              <Wallet width={36} height={36} color="#b45309" strokeWidth={2.5} />
+            ) : (
+              <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
+                <motion.path
+                  d="M10 21L17 28L31 14"
+                  stroke="#059669"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ delay: 0.45, duration: 0.55, ease: "easeOut" }}
+                />
+              </svg>
+            )}
           </div>
         </motion.div>
 
@@ -248,7 +297,13 @@ export default function PaymentSuccess() {
             letterSpacing: "-0.01em",
           }}
         >
-          {subscription?.plan ? "Subscription Activated" : "Payment Confirmed"}
+          {isInvestment
+            ? "Investment Successful"
+            : isWalletTopup
+              ? "Wallet Top-up Successful"
+              : subscription?.plan
+                ? "Subscription Activated"
+                : "Payment Confirmed"}
         </motion.h1>
 
         <motion.p
@@ -263,7 +318,19 @@ export default function PaymentSuccess() {
             fontWeight: 400,
           }}
         >
-          {subscription?.plan ? (
+          {isInvestment ? (
+            <>
+              Your investment has been processed successfully.
+              <br />
+              The startup founder has been notified.
+            </>
+          ) : isWalletTopup ? (
+            <>
+              Your wallet has been credited successfully.
+              <br />
+              You can use this balance for future payments.
+            </>
+          ) : subscription?.plan ? (
             <>
               Your subscription has been activated successfully.
               <br />
@@ -313,7 +380,123 @@ export default function PaymentSuccess() {
             Transaction successful
           </span>
 
-          {subscription?.plan && (
+          {isInvestment && sessionSummary && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              style={{
+                marginTop: 16,
+                marginBottom: 28,
+                textAlign: "left",
+                background: "#f9fafb",
+                border: "1px solid #e5e7eb",
+                borderRadius: 16,
+                padding: 20,
+              }}
+            >
+              <h3
+                style={{
+                  fontWeight: 700,
+                  fontSize: "1rem",
+                  marginBottom: 12,
+                  color: "#111827",
+                }}
+              >
+                Investment Details
+              </h3>
+
+              <div className="space-y-2 text-sm">
+                {sessionSummary.startupName && (
+                  <p>
+                    <strong>Startup:</strong> {sessionSummary.startupName}
+                  </p>
+                )}
+
+                {typeof sessionSummary.amount === "number" && (
+                  <p>
+                    <strong>Amount:</strong> ₹
+                    {sessionSummary.amount.toLocaleString("en-IN")}
+                  </p>
+                )}
+
+                {userName && (
+                  <p>
+                    <strong>Investor:</strong> {userName}
+                  </p>
+                )}
+
+                <p>
+                  <strong>Status:</strong> SUCCESS
+                </p>
+
+                {sessionSummary.createdAt && (
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {formatDateTime(sessionSummary.createdAt)}
+                  </p>
+                )}
+
+                <p style={{ wordBreak: "break-all" }}>
+                  <strong>Transaction ID:</strong> {sessionSummary.sessionId}
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {isWalletTopup && sessionSummary && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              style={{
+                marginTop: 16,
+                marginBottom: 28,
+                textAlign: "left",
+                background: "#f9fafb",
+                border: "1px solid #e5e7eb",
+                borderRadius: 16,
+                padding: 20,
+              }}
+            >
+              <h3
+                style={{
+                  fontWeight: 700,
+                  fontSize: "1rem",
+                  marginBottom: 12,
+                  color: "#111827",
+                }}
+              >
+                Wallet Top-up Details
+              </h3>
+
+              <div className="space-y-2 text-sm">
+                {typeof sessionSummary.amount === "number" && (
+                  <p>
+                    <strong>Amount Added:</strong> ₹
+                    {sessionSummary.amount.toLocaleString("en-IN")}
+                  </p>
+                )}
+
+                <p>
+                  <strong>Status:</strong> SUCCESS
+                </p>
+
+                {sessionSummary.createdAt && (
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {formatDateTime(sessionSummary.createdAt)}
+                  </p>
+                )}
+
+                <p style={{ wordBreak: "break-all" }}>
+                  <strong>Transaction ID:</strong> {sessionSummary.sessionId}
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {!isInvestment && !isWalletTopup && subscription?.plan && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}

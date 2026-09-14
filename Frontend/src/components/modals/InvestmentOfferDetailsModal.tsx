@@ -10,6 +10,7 @@ import {
   CreditCard,
   History,
   ShieldCheck,
+  AlertTriangle,
 } from "lucide-react";
 
 import { Dialog, DialogContent } from "../ui/dialog";
@@ -200,6 +201,22 @@ export function InvestmentOfferDetailsModal({ open, offerId, onClose }: Props) {
                   />
                 </section>
               )}
+
+              {/* Rejection Feedback (rejected offers only) */}
+              {data!.status === OfferStatus.REJECTED &&
+                data!.rejectionReason && (
+                  <section className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-red-600" />
+                      <h3 className="font-bold text-red-700">
+                        Rejection Feedback
+                      </h3>
+                    </div>
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-800 leading-relaxed whitespace-pre-wrap break-words">
+                      {data!.rejectionReason}
+                    </div>
+                  </section>
+                )}
 
               <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
                 {/* Terms & Conditions */}

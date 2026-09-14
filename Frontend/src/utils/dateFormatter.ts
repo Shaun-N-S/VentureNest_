@@ -30,3 +30,13 @@ export const formatDateTime = (dateString: string) => {
     hour12: true,
   });
 };
+
+/** DD/MM/YY, e.g. "12/09/26" — used for expiry and notification dates. */
+export const formatDDMMYY = (dateString: string | Date) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = String(date.getFullYear()).slice(-2);
+
+  return `${day}/${month}/${year}`;
+};

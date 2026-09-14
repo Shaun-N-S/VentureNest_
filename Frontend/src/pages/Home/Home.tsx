@@ -49,7 +49,7 @@ const Home = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfinitePosts(2);
+  } = useInfinitePosts(5);
 
   const posts = postData?.pages.flatMap((page) => page.posts) ?? [];
 

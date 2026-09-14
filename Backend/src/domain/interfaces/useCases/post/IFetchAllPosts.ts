@@ -4,6 +4,7 @@ export interface IFetchAllPostsUseCase {
   fetchAllPosts(
     currentUserId: string,
     page: number,
-    limit: number
-  ): Promise<{ posts: PostResDTO[]; totalPosts: number; hasNextPage: boolean }>;
+    limit: number,
+    before?: Date
+  ): Promise<{ posts: PostResDTO[]; totalPosts: number; hasNextPage: boolean; anchor: Date }>;
 }

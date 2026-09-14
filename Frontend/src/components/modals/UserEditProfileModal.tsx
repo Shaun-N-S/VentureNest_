@@ -16,7 +16,9 @@ import { useDispatch } from "react-redux";
 import { updateUserData } from "../../store/Slice/authDataSlice";
 import { queryClient } from "../../main";
 import ImageCropper from "../cropper/ImageCropper";
-import type { UserProfileApiResponse } from "../../types/userProfileApiResponse";
+import type {
+  UserProfileApiResponse,
+} from "../../types/userProfileApiResponse";
 import axios from "axios";
 
 const userSchema = z.object({
@@ -193,17 +195,20 @@ export default function UserEditProfileModal({
           queryClient.setQueryData<UserProfileApiResponse>(
             ["userProfile", userId],
             (oldData) => {
-              if (!oldData) return oldData;
+              if (!oldData?.data?.profileData) return oldData;
 
               return {
                 ...oldData,
                 data: {
                   ...oldData.data,
-                  ...cleanedFormData,
-                  profileImg:
-                    hasImageChanged && selectedImage
-                      ? res.data.profileImg
-                      : oldData.data.profileImg,
+                  profileData: {
+                    ...oldData.data.profileData,
+                    ...cleanedFormData,
+                    profileImg:
+                      hasImageChanged && selectedImage
+                        ? res.data.profileImg
+                        : oldData.data.profileData.profileImg,
+                  },
                 },
               };
             },
@@ -306,6 +311,9 @@ export default function UserEditProfileModal({
               onChange={handleChange}
               placeholder="Short bio..."
             />
+            {errors.bio && (
+              <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
+            )}
           </div>
 
           {/* Website */}

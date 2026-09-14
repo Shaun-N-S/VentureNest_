@@ -1,15 +1,15 @@
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { NetworkProfileCard } from "../../components/card/NetworkProfileCard";
 import {
   useGetNetworkUsers,
   useSendConnectionReq,
 } from "../../hooks/Relationship/relationshipHooks";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
 import type { NetworkUser } from "../../types/networkType";
 import toast from "react-hot-toast";
 
 export default function MyNetworkPage() {
-  const [page] = useState(1);
   const [limit] = useState(10);
   const [search, setSearch] = useState("");
 
@@ -20,14 +20,32 @@ export default function MyNetworkPage() {
     return () => clearTimeout(timeout);
   }, [search]);
 
-  const { data: networkUsers, isLoading } = useGetNetworkUsers(
-    page,
-    limit,
-    debouncedSearch,
-  );
+  const {
+    data: networkUsers,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useGetNetworkUsers(limit, debouncedSearch);
   const { mutate: sendConnection } = useSendConnectionReq();
 
-  const users: NetworkUser[] = networkUsers?.data?.users || [];
+  // Same IntersectionObserver + sentinel pattern used by the personal
+  // posts/projects feeds (see UserProfile.tsx) — the page itself scrolls
+  // (there's no bounded overflow container here), so the sentinel just
+  // needs to sit at the end of the grid and watch the window.
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "200px",
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
+
+  const users: NetworkUser[] =
+    networkUsers?.pages.flatMap((page) => page.data.users) ?? [];
 
   const handleConnection = (toUserId: string): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -77,6 +95,10 @@ export default function MyNetworkPage() {
             sendConnection={handleConnection}
           />
         ))}
+      </div>
+
+      <div ref={ref} className="h-10 flex items-center justify-center mt-4">
+        {isFetchingNextPage && <Loader2 className="animate-spin" />}
       </div>
     </div>
   );

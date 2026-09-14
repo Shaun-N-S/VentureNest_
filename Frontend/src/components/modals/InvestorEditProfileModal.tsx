@@ -15,59 +15,73 @@ import { useInvestorProfileUpdate } from "../../hooks/Investor/Profile/InvestorP
 import { useDispatch } from "react-redux";
 import { updateUserData } from "../../store/Slice/authDataSlice";
 import { queryClient } from "../../main";
+import ImageCropper from "../cropper/ImageCropper";
+import type { InvestorProfileApiResponse } from "../../types/investorProfileApiResponse";
 import axios from "axios";
 
-const investorSchema = z.object({
-  profileImg: z.instanceof(File).optional(),
+const investorSchema = z
+  .object({
+    profileImg: z.instanceof(File).optional(),
 
-  userName: z
-    .string()
-    .trim()
-    .min(3, "Username must be at least 3 characters")
-    .max(30, "Username cannot exceed 30 characters"),
+    userName: z
+      .string()
+      .trim()
+      .min(3, "Username must be at least 3 characters")
+      .max(30, "Username cannot exceed 30 characters"),
 
-  bio: z
-    .string()
-    .trim()
-    .max(500, "Bio cannot exceed 500 characters")
-    .optional(),
+    bio: z
+      .string()
+      .trim()
+      .max(500, "Bio cannot exceed 500 characters")
+      .optional(),
 
-  website: z
-    .string()
-    .trim()
-    .url("Invalid website URL format")
-    .optional()
-    .or(z.literal("")),
+    website: z
+      .string()
+      .trim()
+      .url("Invalid website URL format")
+      .optional()
+      .or(z.literal("")),
 
-  companyName: z
-    .string()
-    .trim()
-    .min(2, "Company name must be at least 2 characters")
-    .max(100, "Company name cannot exceed 100 characters")
-    .optional()
-    .or(z.literal("")),
+    linkedInUrl: z
+      .string()
+      .trim()
+      .url("Invalid LinkedIn URL format")
+      .optional()
+      .or(z.literal("")),
 
-  experience: z.preprocess((val) => {
-    if (val === "" || val === undefined || val === null) return undefined;
-    return Number(val);
-  }, z.number().int().nonnegative().optional()),
+    companyName: z
+      .string()
+      .trim()
+      .min(2, "Company name must be at least 2 characters")
+      .max(100, "Company name cannot exceed 100 characters")
+      .optional()
+      .or(z.literal("")),
 
-  location: z
-    .string()
-    .trim()
-    .max(100, "Location cannot exceed 100 characters")
-    .optional(),
+    experience: z.preprocess((val) => {
+      if (val === "" || val === undefined || val === null) return undefined;
+      return Number(val);
+    }, z.number().int().nonnegative("Experience cannot be negative").optional()),
 
-  investmentMin: z.preprocess((val) => {
-    if (val === "" || val === undefined || val === null) return undefined;
-    return Number(val);
-  }, z.number().nonnegative().optional()),
+    location: z
+      .string()
+      .trim()
+      .max(100, "Location cannot exceed 100 characters")
+      .optional(),
 
-  investmentMax: z.preprocess((val) => {
-    if (val === "" || val === undefined || val === null) return undefined;
-    return Number(val);
-  }, z.number().nonnegative().optional()),
-});
+    investmentMin: z.preprocess((val) => {
+      if (val === "" || val === undefined || val === null) return undefined;
+      return Number(val);
+    }, z.number("Investment minimum is required").positive("Investment minimum must be greater than 0")),
+
+    investmentMax: z.preprocess((val) => {
+      if (val === "" || val === undefined || val === null) return undefined;
+      return Number(val);
+    }, z.number("Investment maximum is required").positive("Investment maximum must be greater than 0")),
+  })
+  .refine((data) => data.investmentMax >= data.investmentMin, {
+    message: "Maximum investment must be greater than or equal to minimum investment",
+    path: ["investmentMax"],
+  });
 
 export type InvestorProfileEditData = z.infer<typeof investorSchema>;
 
@@ -77,6 +91,7 @@ interface InvestorEditProfileModalProps {
     userName: string;
     bio?: string;
     website?: string;
+    linkedInUrl?: string;
     companyName?: string;
     experience?: number;
     location?: string;
@@ -98,6 +113,7 @@ export default function InvestorEditProfileModal({
     userName: data?.userName || "",
     bio: data?.bio || "",
     website: data?.website || "",
+    linkedInUrl: data?.linkedInUrl || "",
     companyName: data?.companyName || "",
     experience: data?.experience || 0,
     location: data?.location || "",
@@ -111,16 +127,32 @@ export default function InvestorEditProfileModal({
   );
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [hasImageChanged, setHasImageChanged] = useState(false);
+  const [showCropper, setShowCropper] = useState(false);
+  const [tempImage, setTempImage] = useState<string | null>(null);
   const { mutate: UpdateInvestorProfile } = useInvestorProfileUpdate();
   const dispatch = useDispatch();
 
-  // Set initial preview from signed URL
+  // Reset the form whenever the modal is (re)opened with fresh profile data,
+  // so edits from a previous open don't leak into a new session.
   useEffect(() => {
-    if (data?.profileImg) {
-      setPreview(data.profileImg);
+    if (open && data) {
+      setFormData({
+        userName: data.userName || "",
+        bio: data.bio || "",
+        website: data.website || "",
+        linkedInUrl: data.linkedInUrl || "",
+        companyName: data.companyName || "",
+        experience: data.experience || 0,
+        location: data.location || "",
+        investmentMin: data.investmentMin || 0,
+        investmentMax: data.investmentMax || 0,
+      });
+      setPreview(data.profileImg || null);
+      setSelectedImage(null);
       setHasImageChanged(false);
+      setErrors({});
     }
-  }, [data?.profileImg]);
+  }, [data, open]);
 
   // Cleanup preview URL on unmount (only for blob URLs)
   useEffect(() => {
@@ -146,28 +178,25 @@ export default function InvestorEditProfileModal({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please select an image file");
-        return;
-      }
+    if (!file) return;
 
-      // Validate file size (e.g., max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size should be less than 5MB");
-        return;
-      }
-
-      // Clean up previous blob URL if it exists
-      if (preview && preview.startsWith("blob:")) {
-        URL.revokeObjectURL(preview);
-      }
-
-      setSelectedImage(file);
-      setPreview(URL.createObjectURL(file));
-      setHasImageChanged(true);
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
     }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    setTempImage(url);
+
+    
+    setShowCropper(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -188,12 +217,37 @@ export default function InvestorEditProfileModal({
 
       UpdateInvestorProfile(formDataToSend, {
         onSuccess: (res) => {
-          dispatch(updateUserData(res.data.response));
           toast.success(res.message);
+          dispatch(updateUserData(res.data.response));
+
+          queryClient.setQueryData<InvestorProfileApiResponse>(
+            ["investorProfile", investorId],
+            (oldData) => {
+              if (!oldData?.data?.profileData) return oldData;
+
+              return {
+                ...oldData,
+                data: {
+                  ...oldData.data,
+                  profileData: {
+                    ...oldData.data.profileData,
+                    ...res.data.response,
+                    profileImg:
+                      hasImageChanged && selectedImage
+                        ? res.data.response.profileImg
+                        : oldData.data.profileData.profileImg,
+                  },
+                },
+              };
+            },
+          );
+
           queryClient.invalidateQueries({
             queryKey: ["investorProfile", investorId],
           });
           queryClient.invalidateQueries({ queryKey: ["profileImg"] });
+
+          onOpenChange(false);
         },
         onError: (err) => {
           if (axios.isAxiosError(err)) {
@@ -205,7 +259,6 @@ export default function InvestorEditProfileModal({
           }
         },
       });
-      onOpenChange(false);
     } catch (err) {
       if (err instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
@@ -313,6 +366,19 @@ export default function InvestorEditProfileModal({
           </div>
 
           <div>
+            <Label>LinkedIn URL</Label>
+            <Input
+              name="linkedInUrl"
+              value={formData.linkedInUrl}
+              onChange={handleChange}
+              placeholder="https://linkedin.com/in/username"
+            />
+            {errors.linkedInUrl && (
+              <p className="text-red-500 text-sm mt-1">{errors.linkedInUrl}</p>
+            )}
+          </div>
+
+          <div>
             <Label>Company/Firm</Label>
             <Input
               name="companyName"
@@ -330,10 +396,14 @@ export default function InvestorEditProfileModal({
             <Input
               name="experience"
               type="number"
+              min={0}
               value={formData.experience}
               onChange={handleChange}
               placeholder="e.g. 9"
             />
+            {errors.experience && (
+              <p className="text-red-500 text-sm mt-1">{errors.experience}</p>
+            )}
           </div>
 
           <div>
@@ -344,6 +414,9 @@ export default function InvestorEditProfileModal({
               onChange={handleChange}
               placeholder="Bangalore, India"
             />
+            {errors.location && (
+              <p className="text-red-500 text-sm mt-1">{errors.location}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -352,20 +425,32 @@ export default function InvestorEditProfileModal({
               <Input
                 name="investmentMin"
                 type="number"
+                min={1}
                 value={formData.investmentMin}
                 onChange={handleChange}
                 placeholder="200000"
               />
+              {errors.investmentMin && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.investmentMin}
+                </p>
+              )}
             </div>
             <div>
               <Label>Maximum Amount</Label>
               <Input
                 name="investmentMax"
                 type="number"
+                min={1}
                 value={formData.investmentMax}
                 onChange={handleChange}
                 placeholder="2000000"
               />
+              {errors.investmentMax && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.investmentMax}
+                </p>
+              )}
             </div>
           </div>
 
@@ -386,6 +471,24 @@ export default function InvestorEditProfileModal({
             </Button>
           </div>
         </form>
+
+        {showCropper && tempImage && (
+          <ImageCropper
+            imageSrc={tempImage}
+            aspect={1}
+            onCancel={() => {
+              setShowCropper(false);
+              URL.revokeObjectURL(tempImage);
+            }}
+            onSave={(croppedFile, previewUrl) => {
+              setSelectedImage(croppedFile);
+              setPreview(previewUrl);
+              setHasImageChanged(true);
+              setShowCropper(false);
+              URL.revokeObjectURL(tempImage);
+            }}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

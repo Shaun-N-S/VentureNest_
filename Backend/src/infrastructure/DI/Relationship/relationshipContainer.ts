@@ -26,7 +26,8 @@ const notificationRepo = new NotificationRepository(notificationModel);
 const createNotificationUseCase = new CreateNotificationUseCase(notificationRepo);
 const sendConnectionReqUseCase = new SendConnectionReqUseCase(
   relationshipRepo,
-  createNotificationUseCase
+  createNotificationUseCase,
+  investorRepo
 );
 const getNetworkUseCase = new GetNetworkUsersUseCase(
   userRepo,

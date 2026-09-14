@@ -36,9 +36,13 @@ export const fetchPersonalPostsById = async (
   return response.data;
 };
 
-export const fetchAllPosts = async (page: number, limit: number) => {
+export const fetchAllPosts = async (
+  page: number,
+  limit: number,
+  before?: string,
+) => {
   const response = await AxiosInstance.get(API_ROUTES.POST.FEED, {
-    params: { page, limit },
+    params: { page, limit, ...(before ? { before } : {}) },
     withCredentials: true,
   });
   return response.data.data.data;

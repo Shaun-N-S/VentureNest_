@@ -34,7 +34,7 @@ const ProjectDetailedPage = () => {
   );
 
   const { id } = useParams();
-  const { data, isLoading } = useFetchProjectById(id!);
+  const { data, isLoading, refetch: refetchProject } = useFetchProjectById(id!);
   const { mutate: likeProject, isPending } = useLikeProject();
   const role = useSelector((state: Rootstate) => state.authData.role);
   const userId = useSelector((state: Rootstate) => state.authData.id);
@@ -204,6 +204,7 @@ const ProjectDetailedPage = () => {
         <ProjectPitchDeck
           pitchDeckUrl={project.pitchDeckUrl}
           projectWebsite={project.projectWebsite}
+          onBeforePreview={refetchProject}
         />
 
         {/* Report — footer, de-emphasised */}

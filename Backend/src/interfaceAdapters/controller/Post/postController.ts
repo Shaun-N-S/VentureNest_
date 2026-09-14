@@ -104,8 +104,9 @@ export class PostController {
       const currentUserId = res.locals?.user?.userId;
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
+      const before = req.query.before ? new Date(req.query.before as string) : undefined;
 
-      const data = await this._fetchAllPosts.fetchAllPosts(currentUserId, page, limit);
+      const data = await this._fetchAllPosts.fetchAllPosts(currentUserId, page, limit, before);
 
       ResponseHelper.success(res, MESSAGES.POST.POST_FETCHED_SUCCESSFULLY, { data }, HTTPSTATUS.OK);
     } catch (error) {

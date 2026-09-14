@@ -16,15 +16,17 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
     private _storageService: IStorageService
   ) {}
 
-  async fetchAllPosts(currentUserId: string, page: number, limit: number) {
+  async fetchAllPosts(currentUserId: string, page: number, limit: number, before?: Date) {
+    const anchor = before ?? new Date();
+
     const user = await this._userRepository.findById(currentUserId);
     const interests = user?.interestedTopics || [];
 
-    const authorInterestPosts =
-      await this._postRepository.findPostsByAuthorsWithCommonInterests(interests);
-
-    const contentInterestPosts = await this._postRepository.findPostsMatchingInterests(interests);
-    const { posts: fallbackPosts } = await this._postRepository.findAllPosts(0, limit * 4);
+    const [authorInterestPosts, contentInterestPosts, fallbackPosts] = await Promise.all([
+      this._postRepository.findPostsByAuthorsWithCommonInterests(interests, anchor),
+      this._postRepository.findPostsMatchingInterests(interests, anchor),
+      this._postRepository.findFeedFallbackPosts(anchor),
+    ]);
 
     const merged = [
       ...authorInterestPosts,
@@ -99,6 +101,7 @@ export class FetchAllPostsUseCase implements IFetchAllPostsUseCase {
       posts: result,
       totalPosts: merged.length,
       hasNextPage: end < merged.length,
+      anchor,
     };
   }
 }

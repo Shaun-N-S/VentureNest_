@@ -34,7 +34,12 @@ export class PostRepository
   async findAllPosts(skip: number, limit: number) {
     const filter = { isDeleted: false, isActive: true };
     const [docs, total] = await Promise.all([
-      this._model.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).populate("author"),
+      this._model
+        .find(filter)
+        .sort({ createdAt: -1, _id: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("author"),
       this._model.countDocuments(filter),
     ]);
 
@@ -44,22 +49,31 @@ export class PostRepository
     return { posts, total, hasNextPage };
   }
 
-  async findPostsMatchingInterests(interests: string[]): Promise<PostEntity[]> {
-    if (!interests.length) return [];
+  async findFeedFallbackPosts(before?: Date): Promise<PostEntity[]> {
+    const filter: mongoose.FilterQuery<IPostModel> = { isDeleted: false, isActive: true };
+    if (before) filter.createdAt = { $lte: before };
 
-    const docs = await this._model
-      .find({
-        content: { $regex: interests.join("|"), $options: "i" },
-        isDeleted: false,
-        isActive: true,
-      })
-      .sort({ createdAt: -1 })
-      .populate("author");
+    const docs = await this._model.find(filter).sort({ createdAt: -1, _id: -1 }).populate("author");
 
     return docs.map(PostMapper.fromMongooseDocument);
   }
 
-  async findPostsBySimilarAuthors(interests: string[]): Promise<PostEntity[]> {
+  async findPostsMatchingInterests(interests: string[], before?: Date): Promise<PostEntity[]> {
+    if (!interests.length) return [];
+
+    const filter: mongoose.FilterQuery<IPostModel> = {
+      content: { $regex: interests.join("|"), $options: "i" },
+      isDeleted: false,
+      isActive: true,
+    };
+    if (before) filter.createdAt = { $lte: before };
+
+    const docs = await this._model.find(filter).sort({ createdAt: -1, _id: -1 }).populate("author");
+
+    return docs.map(PostMapper.fromMongooseDocument);
+  }
+
+  async findPostsBySimilarAuthors(interests: string[], before?: Date): Promise<PostEntity[]> {
     if (!interests.length) return [];
 
     const users = await mongoose
@@ -78,19 +92,22 @@ export class PostRepository
 
     const authorIds = [...users.map((u) => u._id), ...investors.map((i) => i._id)];
 
-    const docs = await this._model
-      .find({
-        authorId: { $in: authorIds },
-        isDeleted: false,
-        isActive: true,
-      })
-      .sort({ createdAt: -1 })
-      .populate("author");
+    const filter: mongoose.FilterQuery<IPostModel> = {
+      authorId: { $in: authorIds },
+      isDeleted: false,
+      isActive: true,
+    };
+    if (before) filter.createdAt = { $lte: before };
+
+    const docs = await this._model.find(filter).sort({ createdAt: -1, _id: -1 }).populate("author");
 
     return docs.map(PostMapper.fromMongooseDocument);
   }
 
-  async findPostsByAuthorsWithCommonInterests(interests: string[]): Promise<PostEntity[]> {
+  async findPostsByAuthorsWithCommonInterests(
+    interests: string[],
+    before?: Date
+  ): Promise<PostEntity[]> {
     if (!interests.length) return [];
 
     //Find users who share interests
@@ -111,15 +128,15 @@ export class PostRepository
 
     if (!authorIds.length) return [];
 
+    const filter: mongoose.FilterQuery<IPostModel> = {
+      authorId: { $in: authorIds },
+      isDeleted: false,
+      isActive: true,
+    };
+    if (before) filter.createdAt = { $lte: before };
+
     // Fetch posts from those authors
-    const docs = await this._model
-      .find({
-        authorId: { $in: authorIds },
-        isDeleted: false,
-        isActive: true,
-      })
-      .sort({ createdAt: -1 })
-      .populate("author");
+    const docs = await this._model.find(filter).sort({ createdAt: -1, _id: -1 }).populate("author");
 
     return docs.map(PostMapper.fromMongooseDocument);
   }

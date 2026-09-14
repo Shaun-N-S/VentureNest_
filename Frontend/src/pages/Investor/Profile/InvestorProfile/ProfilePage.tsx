@@ -52,6 +52,11 @@ export default function ProfilePage() {
 
   const isOwnProfile = profileData?.data?.profileData?._id === userData.id;
 
+ 
+  const normalizedUserData = profileData?.data?.profileData
+    ? { ...profileData.data.profileData, id: profileData.data.profileData._id }
+    : null;
+
   const posts = data?.pages.flatMap((page) => page.data.data.posts) ?? [];
 
   const { mutate: likePost } = useLikePost();
@@ -140,9 +145,9 @@ export default function ProfilePage() {
         {/* Profile Card */}
         <div className="max-w-2xl mx-auto">
           <div className="mb-8 md:mb-12">
-            {profileData?.data?.profileData && (
+            {normalizedUserData && (
               <ProfileCard
-                userData={profileData.data.profileData}
+                userData={normalizedUserData}
                 isOwnProfile={isOwnProfile}
                 isFollowing={isFollowing}
                 onFollow={() => setIsFollowing(!isFollowing)}

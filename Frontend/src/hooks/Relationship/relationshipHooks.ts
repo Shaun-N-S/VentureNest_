@@ -8,19 +8,20 @@ import {
   removeConnection,
   sendConnectionReq,
   updateConnectionReqStatus,
-  type GetNetworkUsersResponse,
 } from "../../services/Relationships/relationshipService";
 import type { UpdateConnectionPayload } from "../../types/updateConnectionPayload";
 import type { RelationshipStatus } from "../../types/ConnectionsPeopleResponseType";
 
-export const useGetNetworkUsers = (
-  page: number,
-  limit: number,
-  search?: string,
-) => {
-  return useQuery<GetNetworkUsersResponse>({
-    queryKey: ["network-users", page, limit, search],
-    queryFn: () => getNetworkUsers(page, limit, search),
+export const useGetNetworkUsers = (limit: number, search?: string) => {
+  return useInfiniteQuery({
+    queryKey: ["network-users", limit, search],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      getNetworkUsers(pageParam as number, limit, search),
+    getNextPageParam: (lastPage) =>
+      lastPage.data.currentPage < lastPage.data.totalPages
+        ? lastPage.data.currentPage + 1
+        : undefined,
   });
 };
 

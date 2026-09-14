@@ -1,5 +1,6 @@
 import { useMarkNotificationRead } from "../../hooks/Notification/notificationHooks";
 import type { Notification } from "../../types/notification";
+import { formatDDMMYY } from "../../utils/dateFormatter";
 import {
   Avatar,
   AvatarImage,
@@ -54,7 +55,7 @@ const NotificationItem = ({ notification }: Props) => {
             </p>
             <span className="text-[10px] font-medium text-gray-400 whitespace-nowrap">
               {/* Optional: use formatDistanceToNow for a premium feel */}
-              {new Date(notification.createdAt).toLocaleDateString()}
+              {formatDDMMYY(notification.createdAt)}
             </span>
           </div>
 
