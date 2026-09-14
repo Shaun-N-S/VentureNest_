@@ -78,7 +78,7 @@ export function SessionDetailsModal({
 
   const getProfileRoute = (id: string, type: "FOUNDER" | "INVESTOR") => {
     if (type === "INVESTOR") {
-      return `/investor/profile`;
+      return `/investor/profile/${id}`;
     }
     return `/profile/${id}`;
   };

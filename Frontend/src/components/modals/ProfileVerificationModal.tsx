@@ -6,6 +6,7 @@ import KYCStatusChangeModal from "./KYCStatusChangeModal";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import RejectReasonModal from "./RejectReasonModal";
+import ImagePreviewModal from "./ImagePreviewModal";
 import { queryClient } from "../../main";
 
 interface BaseVerificationData {
@@ -462,22 +463,32 @@ interface DocumentPreviewProps {
     imageUrl: string;
 }
 
-const DocumentPreview: React.FC<DocumentPreviewProps> = ({ label, imageUrl }) => (
-    <div>
-        <p className="text-xs text-gray-500 mb-2">{label}</p>
-        <a
-            href={imageUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block border border-gray-300 rounded-lg overflow-hidden hover:border-blue-500 transition"
-        >
-            <img
-                src={imageUrl}
-                alt={label}
-                className="w-full h-32 object-cover"
+const DocumentPreview: React.FC<DocumentPreviewProps> = ({ label, imageUrl }) => {
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+    return (
+        <div>
+            <p className="text-xs text-gray-500 mb-2">{label}</p>
+            <button
+                type="button"
+                onClick={() => setIsPreviewOpen(true)}
+                className="block w-full border border-gray-300 rounded-lg overflow-hidden hover:border-blue-500 transition"
+            >
+                <img
+                    src={imageUrl}
+                    alt={label}
+                    className="w-full h-32 object-cover"
+                />
+            </button>
+
+            <ImagePreviewModal
+                open={isPreviewOpen}
+                onClose={() => setIsPreviewOpen(false)}
+                imageUrl={imageUrl}
+                title={label}
             />
-        </a>
-    </div>
-);
+        </div>
+    );
+};
 
 export default VerificationModal;

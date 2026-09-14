@@ -216,7 +216,7 @@ export function PostCard({
             className="h-12 w-12 cursor-pointer"
             onClick={handleAuthorClick}
           >
-            <AvatarImage src={author.avatar || "/placeholder.svg"} />
+            <AvatarImage src={author.avatar} />
             <AvatarFallback>{author.name[0]}</AvatarFallback>
           </Avatar>
           <div>

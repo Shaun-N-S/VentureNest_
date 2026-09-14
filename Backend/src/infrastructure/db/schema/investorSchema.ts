@@ -30,8 +30,31 @@ const investorSchema = new mongoose.Schema(
 
     preferredStartupStage: [{ type: String, enum: Object.values(StartupStage) }],
 
-    investmentMin: { type: Number },
-    investmentMax: { type: Number },
+    // NOTE: this only guards against corrupt/negative values (e.g. -10000),
+    // not against 0. A freshly-registered investor legitimately has
+    // investmentMin/investmentMax = 0 as a "not set yet" sentinel (see
+    // InvestorMapper.toEntity) until they complete/update their profile —
+    // Mongoose's create() runs validators unconditionally, on every write,
+    // so a `> 0` rule here would (and did) reject that legitimate initial
+    // state. The stricter "must be greater than 0" business rule belongs to
+    // the request/domain layers that only run when the investor is actually
+    // submitting a real value — see investorProfileUpdateValidator.ts,
+    // investorProfileCompletionValidator.ts, and
+    // investorProfileUpdateUseCase.ts.
+    investmentMin: {
+      type: Number,
+      validate: {
+        validator: (v: number) => v === null || v === undefined || v >= 0,
+        message: "Minimum investment cannot be negative",
+      },
+    },
+    investmentMax: {
+      type: Number,
+      validate: {
+        validator: (v: number) => v === null || v === undefined || v >= 0,
+        message: "Maximum investment cannot be negative",
+      },
+    },
 
     portfolioPdf: { type: String },
 

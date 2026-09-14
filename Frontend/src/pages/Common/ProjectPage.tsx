@@ -33,7 +33,7 @@ const ProjectPage = () => {
   const debouncedSector = useDebounce(sector, 300);
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteProjects(2, debouncedSearch, debouncedStage, debouncedSector);
+    useInfiniteProjects(5, debouncedSearch, debouncedStage, debouncedSector);
 
   const projects =
     data?.pages.flatMap((page: ProjectsPage) => page.projects) ?? [];

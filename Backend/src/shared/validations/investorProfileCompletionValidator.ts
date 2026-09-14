@@ -33,17 +33,17 @@ export const profileCompletionSchema = z
 
     investmentMin: z.preprocess(
       (val) => (val === "" ? undefined : Number(val)),
-      z.number().min(0, "Investment minimum cannot be negative")
+      z.number().positive("Investment minimum must be greater than 0")
     ),
 
     investmentMax: z.preprocess(
       (val) => (val === "" ? undefined : Number(val)),
-      z.number().min(0, "Investment maximum cannot be negative")
+      z.number().positive("Investment maximum must be greater than 0")
     ),
   })
-  .refine((data) => data.investmentMin <= data.investmentMax, {
-    message: "Investment minimum cannot be greater than maximum",
-    path: ["investmentMin"],
+  .refine((data) => data.investmentMax >= data.investmentMin, {
+    message: "Investment maximum must be greater than or equal to minimum",
+    path: ["investmentMax"],
   });
 
 export const InvestorProfileCompletionReqSchema = z.object({

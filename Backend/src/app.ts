@@ -19,6 +19,7 @@ import { Report_Router } from "interfaceAdapters/routes/reportRoutes";
 import { Plan_Routes } from "interfaceAdapters/routes/planRoutes";
 import { Webhook_Routes } from "interfaceAdapters/routes/webhookRoutes";
 import { Subscription_Routes } from "interfaceAdapters/routes/subscriptionRoutes";
+import { Payment_Routes } from "interfaceAdapters/routes/paymentRoutes";
 import { Ticket_Router } from "interfaceAdapters/routes/ticketRoutes";
 import { Session_Router } from "interfaceAdapters/routes/sessionRoute";
 import { Pitch_Router } from "interfaceAdapters/routes/pitchRoutes";
@@ -83,6 +84,7 @@ class Express_app {
     this._app.use("/reports", new Report_Router().get_router());
     this._app.use("/plans", new Plan_Routes().get_router());
     this._app.use("/subscriptions", new Subscription_Routes().get_router());
+    this._app.use("/payment", new Payment_Routes().get_router());
     this._app.use("/tickets", new Ticket_Router().get_router());
     this._app.use("/sessions", new Session_Router().get_router());
     this._app.use("/pitches", new Pitch_Router().get_router());

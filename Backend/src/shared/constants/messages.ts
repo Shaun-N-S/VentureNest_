@@ -182,6 +182,7 @@ export const MESSAGES = {
     ALL_MARKED_READ: "Marked all as read",
     NOTIFICATION_MARKED_READ: "Marked as read",
     CREATE_INVESTMENT_NOTIFICATION_SENT: "sent you an investment offer",
+    CREATE_CONNECTION_NOTIFICATION_SENT: "sent you a connection request",
   },
 
   CHAT: {
@@ -195,6 +196,7 @@ export const MESSAGES = {
 
   PAYMENT: {
     CHECKOUT_CREATED: "Payment checkout created!",
+    SESSION_FETCHED_SUCCESSFULLY: "Payment session details fetched",
   },
 
   DEAL: {

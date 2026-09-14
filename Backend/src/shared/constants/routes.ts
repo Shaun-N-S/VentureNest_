@@ -169,6 +169,10 @@ export const ROUTES = {
     CURRENT: "/current",
   },
 
+  PAYMENT: {
+    SESSION_SUMMARY: "/session/:sessionId",
+  },
+
   TICKET: {
     CREATE: "/investor/tickets",
     INVESTOR_TICKETS: "/investor",

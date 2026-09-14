@@ -56,15 +56,22 @@ export const useFetchAllPosts = (page: number, limit: number) => {
   });
 };
 
-export const useInfinitePosts = (limit = 2) => {
-  return useInfiniteQuery<PostsPage>({
-    queryKey: ["posts-feed"],
-    initialPageParam: 1,
+interface FeedPageParam {
+  page: number;
+  before?: string;
+}
 
-    queryFn: ({ pageParam }) => fetchAllPosts(pageParam as number, limit),
+export const useInfinitePosts = (limit = 2) => {
+  return useInfiniteQuery<PostsPage, Error, InfiniteData<PostsPage>, string[], FeedPageParam>({
+    queryKey: ["posts-feed"],
+    initialPageParam: { page: 1 },
+
+    queryFn: ({ pageParam }) => fetchAllPosts(pageParam.page, limit, pageParam.before),
 
     getNextPageParam: (lastPage, allPages) =>
-      lastPage.hasNextPage ? allPages.length + 1 : undefined,
+      lastPage.hasNextPage
+        ? { page: allPages.length + 1, before: lastPage.anchor }
+        : undefined,
 
     staleTime: 1000 * 60 * 2,
     refetchOnWindowFocus: false,

@@ -35,8 +35,9 @@ export class StripePaymentService implements IPaymentService {
         purpose: data.purpose,
         ...data.metadata,
       },
-      success_url: `${CONFIG.FRONTEND_URL}/payment-success`,
-      cancel_url: `${CONFIG.FRONTEND_URL}/payment-cancel`,
+
+      success_url: `${CONFIG.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${CONFIG.FRONTEND_URL}/payment-cancel?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     return session.url!;

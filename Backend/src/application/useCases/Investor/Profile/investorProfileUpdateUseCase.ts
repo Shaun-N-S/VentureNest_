@@ -4,7 +4,7 @@ import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRe
 import { IStorageService } from "@domain/interfaces/services/IStorage/IStorageService";
 import { IInvestorProfileUpdateUseCase } from "@domain/interfaces/useCases/investor/profile/IInvestorProfileUpdateUseCase";
 import { INVESTOR_ERRORS } from "@shared/constants/error";
-import { NotFoundExecption } from "application/constants/exceptions";
+import { InvalidDataException, NotFoundExecption } from "application/constants/exceptions";
 import {
   InvestorProfileUpdateDTO,
   InvestorProfileUpdateResDTO,
@@ -28,6 +28,20 @@ export class InvestorProfileUpdateUseCase implements IInvestorProfileUpdateUseCa
       throw new NotFoundExecption(INVESTOR_ERRORS.NO_INVESTORS_FOUND);
     }
 
+    const effectiveMin = formData.investmentMin ?? investor.investmentMin;
+    const effectiveMax = formData.investmentMax ?? investor.investmentMax;
+
+    if (
+      (formData.investmentMin !== undefined && formData.investmentMin <= 0) ||
+      (formData.investmentMax !== undefined && formData.investmentMax <= 0)
+    ) {
+      throw new InvalidDataException(INVESTOR_ERRORS.INVALID_INVESTMENT_AMOUNT);
+    }
+
+    if (effectiveMin !== undefined && effectiveMax !== undefined && effectiveMax < effectiveMin) {
+      throw new InvalidDataException(INVESTOR_ERRORS.INVALID_INVESTMENT_RANGE);
+    }
+
     let profileImgKey = investor.profileImg || "";
 
     if (profileImg) {
@@ -35,17 +49,13 @@ export class InvestorProfileUpdateUseCase implements IInvestorProfileUpdateUseCa
         profileImg,
         StorageFolderNames.PROFILE_IMAGE + "/" + id + Date.now()
       );
-      console.log("if", profileImgKey);
     }
-    console.log("out", profileImgKey);
 
     const updatedData = {
       ...formData,
       profileImg: profileImgKey ?? "",
       updatedAt: new Date(),
     };
-
-    console.log("udpated data ???????? : : : ;   ", updatedData);
 
     const updatedInvestor = await this._investorRepository.update(id, updatedData);
 

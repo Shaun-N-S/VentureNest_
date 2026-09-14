@@ -1,7 +1,7 @@
 import { InvestorEntity } from "@domain/entities/investor/investorEntity";
 import { BaseRepository } from "./baseRepository";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
-import mongoose, { Model } from "mongoose";
+import mongoose, { ClientSession, Model, UpdateQuery } from "mongoose";
 import { InvestorMapper } from "application/mappers/investorMapper";
 import { IInvestorModel } from "@infrastructure/db/models/investorModel";
 import { UserStatus } from "@domain/enum/userStatus";
@@ -49,9 +49,28 @@ export class InvestorRepository
     id: string,
     data: Partial<InvestorEntity>
   ): Promise<InvestorEntity | null> {
-    const updatedDoc = await this._model.findByIdAndUpdate(id, data, { new: true });
+    const updatedDoc = await this._model.findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
+      context: "query",
+    });
     if (!updatedDoc) return null;
     return InvestorMapper.fromMongooseDocument(updatedDoc);
+  }
+
+  async update(
+    id: string,
+    data: Partial<InvestorEntity>,
+    session?: ClientSession
+  ): Promise<InvestorEntity | null> {
+    const updated = await this._model.findByIdAndUpdate(id, data as UpdateQuery<IInvestorModel>, {
+      new: true,
+      runValidators: true,
+      context: "query",
+      ...(session ? { session } : {}),
+    });
+
+    return updated ? InvestorMapper.fromMongooseDocument(updated) : null;
   }
 
   async googleSignUp(investor: InvestorEntity): Promise<string> {

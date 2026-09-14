@@ -1,5 +1,9 @@
 import { useRef, useState } from "react";
-import ReactCrop, { type Crop } from "react-image-crop";
+import ReactCrop, {
+    centerCrop,
+    makeAspectCrop,
+    type PixelCrop,
+} from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { Button } from "../ui/button";
 import { X } from "lucide-react";
@@ -17,18 +21,42 @@ export default function ImageCropper({
     onSave,
     onCancel,
 }: ImageCropperProps) {
-    const [crop, setCrop] = useState<Crop>({
-        height: 0,
-        unit: "px",
-        width: 0,
-        x: 0,
-        y: 0,
-    });
+    // Both start undefined until the image finishes loading, at which point
+    // onImageLoad below centers a crop box sized to the requested aspect
+    // ratio in pixel units. Without this, ReactCrop renders no visible
+    // selection box at all until the user manually drags one, which reads as
+    // "the cropper is broken" — this was the root cause behind Bug 2's
+    // "crop area appears broken or incorrectly sized".
+    const [crop, setCrop] = useState<PixelCrop>();
+    // Tracks the last crop the user actually finished dragging (fires on
+    // mouseup, unlike `crop` which fires continuously). Falls back to the
+    // centered default so "Save Crop" still works if the user never drags.
+    const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
 
     const imgRef = useRef<HTMLImageElement | null>(null);
 
+    const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+        const { width, height } = e.currentTarget;
+
+        const initialCrop = centerCrop(
+            makeAspectCrop(
+                { unit: "px", width: width * 0.9 },
+                aspect || width / height,
+                width,
+                height,
+            ),
+            width,
+            height,
+        ) as PixelCrop;
+
+        setCrop(initialCrop);
+        setCompletedCrop(initialCrop);
+    };
+
     const handleCropComplete = async () => {
-        if (!imgRef.current || !crop.width || !crop.height) {
+        const finalCrop = completedCrop ?? crop;
+
+        if (!imgRef.current || !finalCrop?.width || !finalCrop?.height) {
             onCancel();
             return;
         }
@@ -37,23 +65,34 @@ export default function ImageCropper({
         const scaleX = imageEl.naturalWidth / imageEl.width;
         const scaleY = imageEl.naturalHeight / imageEl.height;
 
+        const sourceWidth = finalCrop.width * scaleX;
+        const sourceHeight = finalCrop.height * scaleY;
+
+        const MAX_OUTPUT_DIMENSION = 2000;
+        const outputScale = Math.min(
+            1,
+            MAX_OUTPUT_DIMENSION / Math.max(sourceWidth, sourceHeight)
+        );
+        const outputWidth = Math.round(sourceWidth * outputScale);
+        const outputHeight = Math.round(sourceHeight * outputScale);
+
         const canvas = document.createElement("canvas");
-        canvas.width = crop.width;
-        canvas.height = crop.height;
+        canvas.width = outputWidth;
+        canvas.height = outputHeight;
 
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
         ctx.drawImage(
             imageEl,
-            crop.x * scaleX,
-            crop.y * scaleY,
-            crop.width * scaleX,
-            crop.height * scaleY,
+            finalCrop.x * scaleX,
+            finalCrop.y * scaleY,
+            sourceWidth,
+            sourceHeight,
             0,
             0,
-            crop.width,
-            crop.height
+            outputWidth,
+            outputHeight
         );
 
         canvas.toBlob((blob) => {
@@ -63,7 +102,7 @@ export default function ImageCropper({
             const previewUrl = URL.createObjectURL(file);
 
             onSave(file, previewUrl);
-        }, "image/jpeg");
+        }, "image/jpeg", 0.95);
     };
 
     return (
@@ -109,6 +148,7 @@ export default function ImageCropper({
                         <ReactCrop
                             crop={crop}
                             onChange={(c) => setCrop(c)}
+                            onComplete={(c) => setCompletedCrop(c)}
                             aspect={aspect || undefined}
                             ruleOfThirds
                             className="react-crop-wrapper"
@@ -117,6 +157,7 @@ export default function ImageCropper({
                                 ref={imgRef}
                                 src={imageSrc}
                                 alt="Crop target"
+                                onLoad={onImageLoad}
                                 className="block max-w-full max-h-[65vh] w-auto h-auto"
                             />
                         </ReactCrop>

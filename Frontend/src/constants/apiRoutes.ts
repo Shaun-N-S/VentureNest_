@@ -154,6 +154,10 @@ export const API_ROUTES = {
     CURRENT: "/subscriptions/current",
   },
 
+  PAYMENT: {
+    SESSION_SUMMARY: "/payment/session/:sessionId",
+  },
+
   TICKET: {
     CREATE: "/tickets/investor/tickets",
     GET_BY_INVESTOR: "/tickets/investor",

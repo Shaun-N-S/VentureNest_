@@ -65,6 +65,9 @@ export const INVESTOR_ERRORS = {
   INVESTOR_INVALIDATION: "Error while validating investor !",
   NO_INVESTORS_FOUND: "No investors found",
   PROFILE_UPDATION_FAILED: "Failed to update investor profile",
+  INVALID_INVESTMENT_AMOUNT: "Investment amount must be greater than 0",
+  INVALID_INVESTMENT_RANGE:
+    "Maximum investment must be greater than or equal to minimum investment",
 };
 
 export const POST_ERRORS = {

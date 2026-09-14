@@ -6,6 +6,7 @@ import PurchasePlanModal from "../../components/modals/PurchasePlanModal";
 import { useGetAvailablePlans } from "../../hooks/Plan/PlanHooks";
 import type { Plan } from "../../types/planType";
 import { useCurrentSubscription } from "../../hooks/Subscription/subscriptionHooks";
+import { formatDDMMYY } from "../../utils/dateFormatter";
 
 export default function PlansPage() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
@@ -162,9 +163,7 @@ export default function PlansPage() {
                   </span>
                   <span>
                     ⏳ Expires on{" "}
-                    {new Date(
-                      currentSubscription.expiresAt,
-                    ).toLocaleDateString()}
+                    {formatDDMMYY(currentSubscription.expiresAt)}
                   </span>
                 </div>
               </div>

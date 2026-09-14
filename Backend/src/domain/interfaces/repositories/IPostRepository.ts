@@ -14,12 +14,14 @@ export interface IPostRepository extends IBaseRepository<PostEntity> {
     limit: number
   ): Promise<{ posts: PostEntity[]; total: number; hasNextPage: boolean }>;
 
+  findFeedFallbackPosts(before?: Date): Promise<PostEntity[]>;
+
   addLike(postId: string, likerId: string, likerRole: UserRole): Promise<void>;
   removeLike(postId: string, likerId: string): Promise<void>;
 
-  findPostsMatchingInterests(interests: string[]): Promise<PostEntity[]>;
-  findPostsBySimilarAuthors(interests: string[]): Promise<PostEntity[]>;
-  findPostsByAuthorsWithCommonInterests(interests: string[]): Promise<PostEntity[]>;
+  findPostsMatchingInterests(interests: string[], before?: Date): Promise<PostEntity[]>;
+  findPostsBySimilarAuthors(interests: string[], before?: Date): Promise<PostEntity[]>;
+  findPostsByAuthorsWithCommonInterests(interests: string[], before?: Date): Promise<PostEntity[]>;
   countPostsByAuthor(authorId: string): Promise<number>;
   getPostLikes(
     postId: string,

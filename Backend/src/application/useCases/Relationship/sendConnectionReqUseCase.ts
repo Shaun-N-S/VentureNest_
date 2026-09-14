@@ -4,17 +4,26 @@ import { RELATIONSHIP_ERRORS } from "@shared/constants/error";
 import { RelationshipMapper } from "application/mappers/relationshipMapper";
 import { ISendConnectionReqUseCase } from "@domain/interfaces/useCases/relationship/ISendConnectionReqUseCase";
 import { IRelationshipRepository } from "@domain/interfaces/repositories/IRelationshipRepository";
+import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { RelationshipResDTO } from "application/dto/relationship/relationshipDTO";
 import { UserRole } from "@domain/enum/userRole";
 import { NotificationType } from "@domain/enum/notificationType";
 import { NotificationEntityType } from "@domain/enum/notificationEntityType";
 import { ICreateNotificationUseCase } from "@domain/interfaces/useCases/notification/ICreateNotificationUseCase";
+import { MESSAGES } from "@shared/constants/messages";
 
 export class SendConnectionReqUseCase implements ISendConnectionReqUseCase {
   constructor(
     private _relationshipRepo: IRelationshipRepository,
-    private _notificationUseCase: ICreateNotificationUseCase
+    private _notificationUseCase: ICreateNotificationUseCase,
+    private _investorRepository: IInvestorRepository
   ) {}
+
+  private async resolveRole(id: string): Promise<UserRole> {
+    const investor = await this._investorRepository.findById(id);
+    if (investor) return UserRole.INVESTOR;
+    return UserRole.USER;
+  }
 
   async execute(fromUserId: string, toUserId: string): Promise<RelationshipResDTO> {
     const existing = await this._relationshipRepo.findRelationship(
@@ -52,19 +61,25 @@ export class SendConnectionReqUseCase implements ISendConnectionReqUseCase {
     });
 
     const saved = await this._relationshipRepo.save(entity);
+
+    const [fromUserRole, toUserRole] = await Promise.all([
+      this.resolveRole(fromUserId),
+      this.resolveRole(toUserId),
+    ]);
+
     await this._notificationUseCase.createNotification({
       recipientId: toUserId,
-      recipientRole: UserRole.USER,
+      recipientRole: toUserRole,
 
       actorId: fromUserId,
-      actorRole: UserRole.USER,
+      actorRole: fromUserRole,
 
       type: NotificationType.CONNECTION_REQUEST,
 
       entityId: fromUserId,
       entityType: NotificationEntityType.USER,
 
-      message: "sent you a connection request",
+      message: MESSAGES.NOTIFICATION.CREATE_CONNECTION_NOTIFICATION_SENT,
     });
 
     return RelationshipMapper.toDTO(saved);

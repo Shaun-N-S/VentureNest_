@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ArrowRight, RotateCcw } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
 
@@ -48,11 +48,17 @@ const floatingDots = [
 
 export default function PaymentCancelled() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get("session_id");
   const role = useSelector((state: Rootstate) => state.authData.role);
 
   const handleGoHome = () => {
     if (role === "INVESTOR") navigate("/investor/home");
     else navigate("/home");
+  };
+
+  const handleRetry = () => {
+    navigate(-1);
   };
 
   return (
@@ -305,6 +311,20 @@ export default function PaymentCancelled() {
         >
           {[
             { icon: "💳", text: "No payment was charged to your card" },
+            { icon: "⚠️", text: "Reason: Payment was cancelled or could not be completed" },
+            { icon: "🔖", text: "Status: FAILED" },
+            ...(sessionId
+              ? [
+                  {
+                    icon: "🧾",
+                    text: `Reference: ${
+                      sessionId.length > 28
+                        ? `${sessionId.slice(0, 28)}…`
+                        : sessionId
+                    }`,
+                  },
+                ]
+              : []),
           ].map((item, i) => (
             <motion.div
               key={i}
@@ -347,6 +367,32 @@ export default function PaymentCancelled() {
           transition={{ delay: 0.78 }}
           style={{ display: "flex", flexDirection: "column", gap: 10 }}
         >
+          {/* Primary: Retry Payment */}
+          <button
+            onClick={handleRetry}
+            className="pc-primary"
+            style={{
+              width: "100%",
+              height: 52,
+              fontSize: "0.95rem",
+              fontWeight: 700,
+              borderRadius: 14,
+              background: "linear-gradient(135deg, #ef4444 0%, #f97316 100%)",
+              boxShadow: "0 8px 24px rgba(239,68,68,0.28)",
+              border: "none",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              cursor: "pointer",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              letterSpacing: "0.01em",
+            }}
+          >
+            <RotateCcw size={16} />
+            Retry Payment
+          </button>
 
           {/* Secondary: Go Home */}
           <button

@@ -25,11 +25,15 @@ export class StorageService implements IStorageService {
   async upload(file: File | Buffer, key: string): Promise<string> {
     const data =
       file instanceof Buffer ? file : file instanceof File ? await fileToBuffer(file) : file;
+
+    const contentType = file instanceof File && file.type ? file.type : undefined;
+
     try {
       const command = new PutObjectCommand({
         Bucket: CONFIG.S3_BUCKET_NAME,
         Key: key,
         Body: data,
+        ...(contentType ? { ContentType: contentType } : {}),
       });
 
       await this._client.send(command);

@@ -199,6 +199,10 @@ export class InvestorMapper {
       website: data.website || "",
       linkedInUrl: data.linkedInUrl || "",
       companyName: data.companyName,
+      experience: data.experience,
+      location: data.location,
+      investmentMin: data.investmentMin,
+      investmentMax: data.investmentMax,
       adminVerified: data.adminVerified,
       profileImg: data.profileImg || "",
     };

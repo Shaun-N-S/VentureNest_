@@ -23,6 +23,7 @@ import {
 import toast from "react-hot-toast";
 import ImageCropper from "../cropper/ImageCropper";
 import { useVerifyProject } from "../../hooks/Project/projectHooks";
+import { COUNTRIES } from "../../types/CountryList";
 import type { AxiosError } from "axios";
 
 interface VerifyStartupModalProps {
@@ -30,11 +31,6 @@ interface VerifyStartupModalProps {
   onOpenChange: (open: boolean) => void;
   projectId: string | null;
   founderId: string | null;
-}
-
-interface Country {
-  name: { common: string };
-  cca2: string;
 }
 
 const verifyStartupSchema = z.object({
@@ -75,9 +71,6 @@ export function VerifyStartupModal({
   projectId,
   founderId,
 }: VerifyStartupModalProps) {
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [loadingCountries, setLoadingCountries] = useState(true);
-
   const [cropImage, setCropImage] = useState<string | null>(null);
   const [cropField, setCropField] = useState<
     "gstCertificate" | "companyRegistrationCertificate" | null
@@ -114,31 +107,12 @@ export function VerifyStartupModal({
     };
   }, []);
 
-  // Fetch countries when modal opens
   useEffect(() => {
     if (!open) {
       form.reset();
       setGstPreview(null);
       setRegPreview(null);
-      return;
     }
-
-    const fetchCountries = async () => {
-      setLoadingCountries(true);
-      try {
-        const res = await fetch(
-          "https://restcountries.com/v3.1/all?fields=name,cca2",
-        );
-        const data: Country[] = await res.json();
-        data.sort((a, b) => a.name.common.localeCompare(b.name.common));
-        setCountries(data);
-      } catch {
-        toast.error("Failed to load countries");
-      } finally {
-        setLoadingCountries(false);
-      }
-    };
-    fetchCountries();
   }, [open, form]);
 
   const handleFileSelect = (
@@ -384,16 +358,17 @@ export function VerifyStartupModal({
                           <SelectValue placeholder="Select country" />
                         </SelectTrigger>
                         <SelectContent className="max-h-64">
-                          {loadingCountries ? (
-                            <div className="py-8 text-center">
-                              <Loader2 className="h-5 w-5 animate-spin mx-auto" />
-                            </div>
-                          ) : (
-                            countries.map((c) => (
+                          {COUNTRIES.length > 0 ? (
+                            COUNTRIES.map((c) => (
                               <SelectItem key={c.cca2} value={c.name.common}>
                                 {c.name.common}
                               </SelectItem>
                             ))
+                          ) : (
+                            <div className="py-8 text-center text-sm text-muted-foreground">
+                              Unable to load countries. Please try again
+                              later.
+                            </div>
                           )}
                         </SelectContent>
                       </Select>
