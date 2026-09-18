@@ -19,7 +19,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@radix-ui/react-select";
+} from "../../components/ui/select";
 import { useInView } from "react-intersection-observer";
 import ProjectSkeleton from "../../components/Skelton/ProjectSkelton";
 import type { InfiniteData } from "@tanstack/react-query";
@@ -134,19 +134,16 @@ const ProjectPage = () => {
                 setStage(value === "all" ? undefined : value);
               }}
             >
-              <SelectTrigger className="w-full md:w-44 h-10 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-50 hover:border-slate-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 focus:border-transparent transition-all duration-200 data-[state=open]:ring-2 data-[state=open]:ring-blue-500">
-                <div>
-                  {/* <ChevronDown className="h-4 w-4 opacity-50 " /> */}
-                  <SelectValue>{stage ?? "All Stages"}</SelectValue>
-                </div>
-              </SelectTrigger>
-              <SelectContent
-                position="popper"
-                side="bottom"
-                align="start"
-                sideOffset={8}
-                className="z-50 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg"
+              <SelectTrigger
+                className={`w-full md:w-44 h-10 rounded-lg bg-white dark:bg-slate-800 border text-slate-900 dark:text-slate-50 hover:border-slate-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 focus:border-transparent transition-all duration-200 data-[state=open]:ring-2 data-[state=open]:ring-blue-500 ${
+                  stage
+                    ? "border-blue-400 dark:border-blue-500 text-blue-700 dark:text-blue-300 bg-blue-50/60 dark:bg-blue-950/30"
+                    : "border-slate-300 dark:border-slate-600"
+                }`}
               >
+                <SelectValue>{stage ?? "All Stages"}</SelectValue>
+              </SelectTrigger>
+              <SelectContent className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg">
                 <SelectItem value="all">All Stages</SelectItem>
                 {STAGES.map((s) => (
                   <SelectItem key={s} value={s}>
@@ -163,17 +160,16 @@ const ProjectPage = () => {
                 setSector(value === "all" ? undefined : value);
               }}
             >
-              <SelectTrigger className="w-full md:w-44 h-10 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-50 hover:border-slate-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 focus:border-transparent transition-all duration-200 data-[state=open]:ring-2 data-[state=open]:ring-blue-500">
-                <SelectValue>{sector ?? "All Sectors"}</SelectValue>
-                {/* <ChevronDown className="h-4 w-4  opacity-50" /> */}
-              </SelectTrigger>
-              <SelectContent
-                position="popper"
-                side="bottom"
-                align="start"
-                sideOffset={8}
-                className="z-50 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg"
+              <SelectTrigger
+                className={`w-full md:w-44 h-10 rounded-lg bg-white dark:bg-slate-800 border text-slate-900 dark:text-slate-50 hover:border-slate-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 focus:border-transparent transition-all duration-200 data-[state=open]:ring-2 data-[state=open]:ring-blue-500 ${
+                  sector
+                    ? "border-blue-400 dark:border-blue-500 text-blue-700 dark:text-blue-300 bg-blue-50/60 dark:bg-blue-950/30"
+                    : "border-slate-300 dark:border-slate-600"
+                }`}
               >
+                <SelectValue>{sector ?? "All Sectors"}</SelectValue>
+              </SelectTrigger>
+              <SelectContent className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg">
                 <SelectItem value="all">All Sectors</SelectItem>
                 {SECTOR.map((s) => (
                   <SelectItem key={s} value={s}>

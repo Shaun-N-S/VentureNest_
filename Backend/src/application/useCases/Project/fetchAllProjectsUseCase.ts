@@ -5,11 +5,13 @@ import { ProjectMapper } from "application/mappers/projectMapper";
 import { ProjectResDTO } from "application/dto/project/projectDTO";
 import { CONFIG } from "@config/config";
 import { IProjectRegistrationRepository } from "@domain/interfaces/repositories/IProjectRegistrationRepository";
+import { IUserRepository } from "@domain/interfaces/repositories/IUserRepository";
 
 export class FetchAllProjectsUseCase implements IFetchAllProjectsUseCase {
   constructor(
     private _projectRepository: IProjectRepository,
     private _projectRegistrationRepository: IProjectRegistrationRepository,
+    private _userRepo: IUserRepository,
     private _storageService: IStorageService
   ) {}
 
@@ -19,16 +21,20 @@ export class FetchAllProjectsUseCase implements IFetchAllProjectsUseCase {
     limit: number,
     search?: string,
     stage?: string,
-    sector?: string
+    sector?: string[]
   ) {
     const skip = (page - 1) * limit;
+
+    const userData = await this._userRepo.findById(userId);
+    const interestedTopics = userData?.interestedTopics;
 
     const { projects, total, hasNextPage } = await this._projectRepository.findAllProjects(
       skip,
       limit,
       search,
       stage,
-      sector
+      sector,
+      interestedTopics
     );
 
     const dtoProjects: ProjectResDTO[] = await Promise.all(

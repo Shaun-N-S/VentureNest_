@@ -7,7 +7,7 @@ export interface IFetchAllProjectsUseCase {
     limit: number,
     search?: string,
     stage?: string,
-    sector?: string
+    sector?: string[]
   ): Promise<{
     projects: ProjectResDTO[];
     totalProjects: number;
