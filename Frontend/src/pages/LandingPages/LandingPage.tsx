@@ -4,9 +4,10 @@ import { Link } from "react-router-dom"
 import { Button } from "../../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Avatar, AvatarFallback } from "../../components/ui/avatar"
-import { Users, Handshake, Rocket, Shield, ArrowRight, Twitter, Linkedin, Mail, Menu, X } from "lucide-react"
+import { Users, Handshake, Rocket, Shield, ArrowRight, Menu, X } from "lucide-react"
 import { useState } from "react"
 import Snowfall from 'react-snowfall'
+import Footer from "../../components/bar/Footer"
 
 type Feature = {
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
@@ -447,23 +448,7 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                {/* Footer */}
-                <footer className="border-t py-12">
-                    <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between text-sm text-muted-foreground">
-                        <div>© {new Date().getFullYear()} VentureNest. All rights reserved.</div>
-                        <div className="flex gap-6 mt-4 md:mt-0">
-                            <a href="#" className="hover:text-foreground transition-colors">
-                                <Twitter className="h-5 w-5" />
-                            </a>
-                            <a href="#" className="hover:text-foreground transition-colors">
-                                <Linkedin className="h-5 w-5" />
-                            </a>
-                            <a href="mailto:hello@venturenest.com" className="hover:text-foreground transition-colors">
-                                <Mail className="h-5 w-5" />
-                            </a>
-                        </div>
-                    </div>
-                </footer>
+                <Footer />
         </main>
     )
 }
