@@ -20,6 +20,7 @@ export interface Notification {
 export interface NotificationResponse {
   notifications: Notification[];
   unreadCount: number;
+  hasNextPage: boolean;
 }
 
 export type NotificationType =

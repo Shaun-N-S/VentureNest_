@@ -1,7 +1,9 @@
 import {
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
+  type InfiniteData,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import {
@@ -20,6 +22,21 @@ export const useGetNotifications = (
     queryKey: ["notifications", page],
     queryFn: () => getMyNotifications(page, limit),
     enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useInfiniteNotifications = (
+  limit: number = 10,
+  enabled: boolean = true,
+) => {
+  return useInfiniteQuery({
+    queryKey: ["notifications-infinite"],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => getMyNotifications(pageParam as number, limit),
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasNextPage ? allPages.length + 1 : undefined,
+    enabled,
     refetchOnWindowFocus: false,
   });
 };
@@ -46,6 +63,29 @@ export const useMarkNotificationRead = () => {
           };
         },
       );
+
+      queryClient.setQueryData<InfiniteData<NotificationResponse>>(
+        ["notifications-infinite"],
+        (old) => {
+          if (!old) return old;
+
+          const newUnreadCount = Math.max(
+            (old.pages[0]?.unreadCount ?? 0) - 1,
+            0,
+          );
+
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              unreadCount: newUnreadCount,
+              notifications: page.notifications.map((n) =>
+                n._id === notificationId ? { ...n, isRead: true } : n,
+              ),
+            })),
+          };
+        },
+      );
     },
   });
 };
@@ -69,6 +109,25 @@ export const useMarkAllNotificationsRead = () => {
               isRead: true,
             })),
             unreadCount: 0,
+          };
+        },
+      );
+
+      queryClient.setQueryData<InfiniteData<NotificationResponse>>(
+        ["notifications-infinite"],
+        (old) => {
+          if (!old) return old;
+
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              unreadCount: 0,
+              notifications: page.notifications.map((n) => ({
+                ...n,
+                isRead: true,
+              })),
+            })),
           };
         },
       );

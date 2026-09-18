@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { X, Bell, CheckCheck, Inbox } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, Bell, CheckCheck, Inbox, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion"; // Added for smooth slide-in
 import {
-  useGetNotifications,
+  useInfiniteNotifications,
   useMarkAllNotificationsRead,
 } from "../../hooks/Notification/notificationHooks";
 import NotificationItem from "./NotificationItem";
@@ -29,13 +29,42 @@ const NotificationModal = ({ isOpen, onClose }: Props) => {
   const role = useSelector((state: Rootstate) => state.authData.role);
   const isUserOrInvestor = role === "USER" || role === "INVESTOR";
 
-  const { data, isLoading } = useGetNotifications(1, 10, isUserOrInvestor);
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteNotifications(10, isUserOrInvestor);
 
   const { data: connectionData } = useGetConnectionReq(1, 10, isUserOrInvestor);
 
   const connectionRequests: NetworkUser[] = connectionData?.data?.users ?? [];
-  const notifications = data?.notifications ?? [];
-  const unreadCount = data?.unreadCount ?? 0;
+  const notifications = data?.pages.flatMap((page) => page.notifications) ?? [];
+  const unreadCount = data?.pages[0]?.unreadCount ?? 0;
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+
+    if (
+      scrollTop + clientHeight >= scrollHeight - 20 &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      fetchNextPage();
+    }
+  };
 
   const handleAccept = (userId: string) => {
     updateConnectionStatus(
@@ -87,7 +116,7 @@ const NotificationModal = ({ isOpen, onClose }: Props) => {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="relative w-full max-w-[400px] h-full bg-slate-50 shadow-2xl flex flex-col"
+            className="relative w-full max-w-[400px] h-dvh min-h-0 bg-slate-50 shadow-2xl flex flex-col"
           >
             {/* Header */}
             <div className="p-5 bg-white border-b border-slate-200">
@@ -139,7 +168,10 @@ const NotificationModal = ({ isOpen, onClose }: Props) => {
             </div>
 
             {/* Content Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+            <div
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-4 custom-scrollbar"
+              onScroll={handleScroll}
+            >
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center h-40 space-y-2">
                   <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -189,6 +221,12 @@ const NotificationModal = ({ isOpen, onClose }: Props) => {
                       />
                     ))}
                   </div>
+
+                  {isFetchingNextPage && (
+                    <div className="flex items-center justify-center py-3">
+                      <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                    </div>
+                  )}
                 </>
               )}
             </div>

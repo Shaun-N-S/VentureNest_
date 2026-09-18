@@ -36,7 +36,7 @@ export default function RejectReasonModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="max-w-md rounded-xl p-0 overflow-hidden">
+            <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-md rounded-xl p-0 overflow-hidden">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}

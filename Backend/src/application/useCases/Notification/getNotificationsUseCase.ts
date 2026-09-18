@@ -1,4 +1,7 @@
-import { IGetNotificationsUseCase } from "@domain/interfaces/useCases/notification/IGetNotificationsUseCase";
+import {
+  GetNotificationsResultDTO,
+  IGetNotificationsUseCase,
+} from "@domain/interfaces/useCases/notification/IGetNotificationsUseCase";
 import { INotificationRepository } from "@domain/interfaces/repositories/INotificationRepository";
 import {
   GetNotificationsReqDTO,
@@ -14,12 +17,11 @@ export class GetNotificationsUseCase implements IGetNotificationsUseCase {
     private _storageService: IStorageService
   ) {}
 
-  async getNotifications(data: GetNotificationsReqDTO): Promise<NotificationResponseDTO[]> {
-    const notifications = await this._notificationRepo.findByRecipient(
-      data.userId,
-      data.skip,
-      data.limit
-    );
+  async getNotifications(data: GetNotificationsReqDTO): Promise<GetNotificationsResultDTO> {
+    const [notifications, total] = await Promise.all([
+      this._notificationRepo.findByRecipient(data.userId, data.skip, data.limit),
+      this._notificationRepo.countByRecipient(data.userId),
+    ]);
 
     const result: NotificationResponseDTO[] = [];
 
@@ -38,6 +40,9 @@ export class GetNotificationsUseCase implements IGetNotificationsUseCase {
       result.push(dto);
     }
 
-    return result;
+    return {
+      notifications: result,
+      hasNextPage: data.skip + notifications.length < total,
+    };
   }
 }

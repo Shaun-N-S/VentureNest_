@@ -1,7 +1,9 @@
+import { dealModel } from "@infrastructure/db/models/dealModel";
 import { investorModel } from "@infrastructure/db/models/investorModel";
 import { postModel } from "@infrastructure/db/models/postModel";
 import { relationshipModel } from "@infrastructure/db/models/relationshipModel";
 import { userModel } from "@infrastructure/db/models/userModel";
+import { DealRepository } from "@infrastructure/repostiories/dealRepository";
 import { InvestorRepository } from "@infrastructure/repostiories/investorRepository";
 import { PostRepository } from "@infrastructure/repostiories/postRepository";
 import { RelationshipRepository } from "@infrastructure/repostiories/relationshipRepository";
@@ -18,6 +20,7 @@ const investorRepository = new InvestorRepository(investorModel);
 const userRepository = new UserRepository(userModel);
 const relationshipRepository = new RelationshipRepository(relationshipModel);
 const postRepository = new PostRepository(postModel);
+const dealRepository = new DealRepository(dealModel);
 const storageService = new StorageService();
 
 //useCases
@@ -29,6 +32,7 @@ const fetchInvestorProfileUseCase = new FetchInvestorProfileUseCase(
   investorRepository,
   relationshipRepository,
   postRepository,
+  dealRepository,
   storageService
 );
 const investorProfileUpdateUseCase = new InvestorProfileUpdateUseCase(

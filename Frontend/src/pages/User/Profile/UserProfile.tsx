@@ -44,6 +44,8 @@ import { useInView } from "react-intersection-observer";
 import { Loader2 } from "lucide-react";
 import type { UserRole } from "../../../types/UserRole";
 import { formatPostDate } from "@/utils/dateFormatter";
+import PostSkeleton from "../../../components/Skelton/PostSkelton";
+import type { InfiniteData } from "@tanstack/react-query";
 
 export default function ProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false);
@@ -58,7 +60,7 @@ export default function ProfilePage() {
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [verifyProjectId, setVerifyProjectId] = useState<string | null>(null);
   const { data: profileData } = useFetchUserProfile(userId);
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfinitePersonalPosts(5);
   const posts = data?.pages.flatMap((page) => page.data.data.posts) ?? [];
 
@@ -225,36 +227,37 @@ export default function ProfilePage() {
   };
 
   const handleProfileLike = (postId: string) => {
-    const previousData = queryClient.getQueryData<PersonalPostCache>([
-      "personal-post",
-      1,
-      10,
-    ]);
+    const queryKey = ["personal-post"];
+    const previousData =
+      queryClient.getQueryData<InfiniteData<PersonalPostCache>>(queryKey);
 
-    queryClient.setQueryData(
-      ["personal-post", 1, 10],
-      (old: PersonalPostCache) => {
-        if (!old?.data?.data?.posts) return old;
+    queryClient.setQueryData<InfiniteData<PersonalPostCache>>(
+      queryKey,
+      (old) => {
+        if (!old) return old;
 
         return {
           ...old,
-          data: {
-            ...old.data,
+          pages: old.pages.map((page) => ({
+            ...page,
             data: {
-              ...old.data.data,
-              posts: old.data.data.posts.map((post) =>
-                post._id === postId
-                  ? {
-                      ...post,
-                      liked: !post.liked,
-                      likeCount: post.liked
-                        ? post.likeCount - 1
-                        : post.likeCount + 1,
-                    }
-                  : post,
-              ),
+              ...page.data,
+              data: {
+                ...page.data.data,
+                posts: page.data.data.posts.map((post) =>
+                  post._id === postId
+                    ? {
+                        ...post,
+                        liked: !post.liked,
+                        likeCount: post.liked
+                          ? post.likeCount - 1
+                          : post.likeCount + 1,
+                      }
+                    : post,
+                ),
+              },
             },
-          },
+          })),
         };
       },
     );
@@ -262,12 +265,12 @@ export default function ProfilePage() {
     likePost(postId, {
       onError: () => {
         if (previousData) {
-          queryClient.setQueryData(["personal-post", 1, 10], previousData);
+          queryClient.setQueryData(queryKey, previousData);
         }
         toast.error("Failed to like post");
       },
     });
-  }; 
+  };
 
   const handleProjectLike = (
     projectId: string,
@@ -312,7 +315,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-12 py-8 md:py-12">
         {/* Profile Card */}
         <div className="max-w-2xl mx-auto">
           <div className="mb-8 md:mb-12">
@@ -340,7 +343,13 @@ export default function ProfilePage() {
                 transition={{ duration: 0.3 }}
                 className="grid gap-6"
               >
-                {posts && posts.length > 0 ? (
+                {isLoading ? (
+                  <div className="space-y-6">
+                    {[...Array(3)].map((_, i) => (
+                      <PostSkeleton key={i} />
+                    ))}
+                  </div>
+                ) : posts && posts.length > 0 ? (
                   posts.map((post: PersonalPost) => (
                     <PostCard
                       key={post._id}

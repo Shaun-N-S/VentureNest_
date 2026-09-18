@@ -188,7 +188,11 @@ export function SessionCard({
 
           {/* ACTION BUTTONS */}
           <div className="space-y-2.5">
-            {isScheduled && <Button onClick={handleJoin}>Join Session</Button>}{" "}
+            {isScheduled && (
+              <Button onClick={handleJoin} className="w-full">
+                Join Session
+              </Button>
+            )}
             <Button
               variant="outline"
               className="w-full h-10 gap-2 font-medium hover:bg-accent transition-all"

@@ -10,12 +10,8 @@ export interface IDealRepository extends IBaseRepository<DealEntity> {
   findByInvestorId(investorId: string): Promise<DealEntity[]>;
   findByFounderId(founderId: string): Promise<DealEntity[]>;
   countByStatus(status: string): Promise<number>;
+  countByInvestorId(investorId: string): Promise<number>;
   findByProjectId(projectId: string): Promise<DealEntity[]>;
-  /**
-   * Paid deals (amountPaid > 0) for a project joined with the investor record,
-   * newest first, paginated, with optional DB-side search on
-   * investor userName / companyName. Returns the page rows + the matching total.
-   */
   findProjectInvestorsPage(
     projectId: string,
     opts: { skip: number; limit: number; search?: string | undefined }
