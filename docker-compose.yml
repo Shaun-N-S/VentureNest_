@@ -7,7 +7,7 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - ./Backend/.env
+      - .env
     restart: always
 
     # Security + stability
@@ -58,7 +58,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     env_file:
-      - ./Backend/.env
+      - .env
     environment:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
