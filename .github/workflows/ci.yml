@@ -55,7 +55,20 @@ jobs:
       - name: Push Docker Image
         run: docker push shaun1092/venturenest-backend
 
-      # 8. Deploy to EC2
+      # 8. Copy Compose + monitoring config to EC2.
+      #    Deliberately does NOT include .env — production secrets on the
+      #    server are never touched by this workflow.
+      - name: Copy deployment files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          source: "docker-compose.yml,monitoring"
+          target: "~/venturenest"
+          strip_components: 0
+
+      # 9. Deploy to EC2 via Docker Compose
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1
         with:
@@ -63,16 +76,46 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker pull shaun1092/venturenest-backend
-            
-            docker stop backend || true
-            docker rm backend || true
-            
+            set -e
+
+            mkdir -p ~/venturenest
+            cd ~/venturenest
+
+            # Idempotent: install the Compose plugin only if it's missing.
+            if ! docker compose version >/dev/null 2>&1; then
+              echo "docker compose plugin not found - installing..."
+              sudo apt-get update -y
+              sudo apt-get install -y docker-compose-plugin
+            fi
+
+            # One-time migration safety net: if a container named "backend"
+            # exists from the old `docker run` deployment (no compose
+            # labels), remove it so Compose can claim the name. Once Compose
+            # owns "backend", this check is a no-op on every future deploy -
+            # it only ever touches the legacy, non-compose container.
+            if docker inspect backend >/dev/null 2>&1; then
+              OWNER=$(docker inspect backend --format '{{ index .Config.Labels "com.docker.compose.project" }}' 2>/dev/null || true)
+              if [ -z "$OWNER" ]; then
+                echo "Removing legacy (non-compose) backend container..."
+                docker stop backend || true
+                docker rm backend || true
+              fi
+            fi
+
+            docker compose pull
+            docker compose up -d
+
             docker image prune -af || true
-            
-            docker run -d \
-            --env-file ~/venturenest/.env \
-            -p 4000:4000 \
-            --name backend \
-            --restart always \
-            shaun1092/venturenest-backend
+
+            echo "Waiting for backend health check..."
+            for i in $(seq 1 15); do
+              if curl -sf http://localhost:4000/health >/dev/null; then
+                echo "Backend is healthy."
+                exit 0
+              fi
+              sleep 4
+            done
+
+            echo "Backend did not become healthy in time."
+            docker compose logs --tail=50 backend
+            exit 1
