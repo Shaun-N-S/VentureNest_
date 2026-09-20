@@ -28,7 +28,7 @@ export class NotificationController {
 
       const skip = (Number(page) - 1) * Number(limit);
 
-      const notifications = await this._getNotificationsUseCase.getNotifications({
+      const { notifications, hasNextPage } = await this._getNotificationsUseCase.getNotifications({
         userId,
         skip,
         limit: Number(limit),
@@ -39,7 +39,7 @@ export class NotificationController {
       ResponseHelper.success(
         res,
         MESSAGES.NOTIFICATION.NOTIFICATIONS_FETCHED,
-        { notifications, unreadCount },
+        { notifications, unreadCount, hasNextPage },
         HTTPSTATUS.OK
       );
     } catch (error) {

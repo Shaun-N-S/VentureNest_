@@ -99,37 +99,37 @@ export default function MySessionsPage() {
             </div>
 
             {/* STATS CARDS */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-card border rounded-xl p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Calendar className="w-5 h-5 text-primary" />
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
+              <div className="bg-card border rounded-xl p-3 sm:p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{upcomingCount}</p>
+                    <p className="text-xl sm:text-2xl font-bold">{upcomingCount}</p>
                     <p className="text-xs text-muted-foreground">Upcoming</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-card border rounded-xl p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500/10 rounded-lg">
-                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+              <div className="bg-card border rounded-xl p-3 sm:p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 bg-green-500/10 rounded-lg">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{completedCount}</p>
+                    <p className="text-xl sm:text-2xl font-bold">{completedCount}</p>
                     <p className="text-xs text-muted-foreground">Completed</p>
                   </div>
                 </div>
               </div>
-              <div className="bg-card border rounded-xl p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-500/10 rounded-lg">
-                    <XCircle className="w-5 h-5 text-red-600" />
+              <div className="bg-card border rounded-xl p-3 sm:p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 bg-red-500/10 rounded-lg">
+                    <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{cancelledCount}</p>
+                    <p className="text-xl sm:text-2xl font-bold">{cancelledCount}</p>
                     <p className="text-xs text-muted-foreground">Cancelled</p>
                   </div>
                 </div>
@@ -137,14 +137,14 @@ export default function MySessionsPage() {
             </div>
 
             {/* TAB SWITCHER */}
-            <div className="flex items-center justify-between">
-              <div className="inline-flex bg-muted/50 backdrop-blur-sm rounded-full p-1 border shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="inline-flex self-start bg-muted/50 backdrop-blur-sm rounded-full p-1 border shadow-sm">
                 {(["UPCOMING", "COMPLETED", "CANCELLED"] as Tab[]).map((t) => (
                   <button
                     key={t}
                     onClick={() => setTab(t)}
                     className={`
-                      relative px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200
+                      relative px-3 py-2 sm:px-6 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200
                       ${
                         tab === t
                           ? "bg-primary text-primary-foreground shadow-md"

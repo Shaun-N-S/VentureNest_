@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useMarkNotificationRead } from "../../hooks/Notification/notificationHooks";
 import type { Notification } from "../../types/notification";
 import { formatDDMMYY } from "../../utils/dateFormatter";
@@ -77,4 +78,4 @@ const NotificationItem = ({ notification }: Props) => {
   );
 };
 
-export default NotificationItem;
+export default memo(NotificationItem);

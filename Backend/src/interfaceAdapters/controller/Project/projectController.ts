@@ -116,7 +116,12 @@ export class ProjectController {
       const limit = Number(req.query.limit) || 10;
       const search = req.query.search as string | undefined;
       const stage = req.query.stage as string | undefined;
-      const sector = req.query.sector as string | undefined;
+      const rawSector = req.query.sector;
+      const sector = rawSector
+        ? Array.isArray(rawSector)
+          ? (rawSector as string[])
+          : [rawSector as string]
+        : [];
 
       const data = await this._fetchAllProjects.fetchAllProjects(
         userId,

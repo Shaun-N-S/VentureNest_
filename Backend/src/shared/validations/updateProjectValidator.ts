@@ -29,7 +29,12 @@ export const UpdateProjectReqSchema = z.object({
   donationTarget: z.preprocess((v) => (v === "" ? undefined : Number(v)), z.number()).optional(),
 
   // File uploads (optional)
-  pitchDeckUrl: z.any().optional(),
+  pitchDeckUrl: z
+    .instanceof(File)
+    .refine((file) => file.type === "application/pdf", {
+      message: "Pitch deck must be a PDF file",
+    })
+    .optional(),
   logoUrl: z.any().optional(),
   coverImageUrl: z.any().optional(),
 });

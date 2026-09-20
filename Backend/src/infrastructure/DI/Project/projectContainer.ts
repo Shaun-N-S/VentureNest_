@@ -47,6 +47,7 @@ const createProjectUseCase = new CreateProjectUseCase(
 const fetchAllProjectsUseCase = new FetchAllProjectsUseCase(
   projectRepo,
   projectRegisterRepo,
+  userRepo,
   storageService
 );
 const fetchPersonalProjectsUseCase = new FetchPersonalProjectsUseCase(

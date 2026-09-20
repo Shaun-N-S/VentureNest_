@@ -33,6 +33,12 @@ export class NotificationRepository
     return docs.map((doc) => NotificationMapper.fromMongooseDocument(doc));
   }
 
+  async countByRecipient(recipientId: string): Promise<number> {
+    return this._model.countDocuments({
+      recipientId: new mongoose.Types.ObjectId(recipientId),
+    });
+  }
+
   async countUnread(recipientId: string): Promise<number> {
     return this._model.countDocuments({
       recipientId: new mongoose.Types.ObjectId(recipientId),

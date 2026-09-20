@@ -16,7 +16,8 @@ export interface IProjectRepository extends IBaseRepository<ProjectEntity> {
     limit: number,
     search?: string,
     stage?: string,
-    sector?: string
+    sector?: string[],
+    interestedTopics?: string[]
   ): Promise<{ projects: ProjectEntity[]; total: number; hasNextPage: boolean }>;
 
   fetchPopulatedProjectById(id: string): Promise<PopulatedProjectRepoDTO | null>;

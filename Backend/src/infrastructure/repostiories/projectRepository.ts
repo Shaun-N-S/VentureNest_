@@ -33,7 +33,8 @@ export class ProjectRepository
     limit: number,
     search?: string,
     stage?: string,
-    sector?: string
+    sector?: string[],
+    interestedTopics?: string[]
   ) {
     const filter: any = { isActive: true };
 
@@ -42,10 +43,35 @@ export class ProjectRepository
     }
 
     if (stage) filter.stage = stage;
-    if (sector) filter.category = sector;
+    if (sector && sector.length > 0) filter.category = { $in: sector };
+
+    const hasRanking = Boolean(interestedTopics && interestedTopics.length > 0);
+
+    if (!hasRanking) {
+      const [docs, total] = await Promise.all([
+        this._model.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+        this._model.countDocuments(filter),
+      ]);
+
+      return {
+        projects: docs.map((doc) => ProjectMapper.fromMongooseDocument(doc)),
+        total,
+        hasNextPage: skip + docs.length < total,
+      };
+    }
 
     const [docs, total] = await Promise.all([
-      this._model.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      this._model.aggregate([
+        { $match: filter },
+        {
+          $addFields: {
+            _interestRank: { $cond: [{ $in: ["$category", interestedTopics] }, 0, 1] },
+          },
+        },
+        { $sort: { _interestRank: 1, createdAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+      ]),
       this._model.countDocuments(filter),
     ]);
 

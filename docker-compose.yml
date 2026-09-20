@@ -7,7 +7,7 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - .env
+      - ./Backend/.env
     restart: always
 
     # Security + stability
@@ -28,6 +28,63 @@ services:
     networks:
       - app-network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    restart: always
+    depends_on:
+      - backend
+
+    # Loopback-only: Prometheus's UI has no built-in auth
+    ports:
+      - "127.0.0.1:9090:9090"
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    env_file:
+      - ./Backend/.env
+    environment:
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    restart: always
+    depends_on:
+      - prometheus
+
+    # Published on the host: Grafana is the human-facing, authenticated part of this stack
+    ports:
+      - "3001:3000"
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:

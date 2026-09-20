@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import type { Rootstate } from "../../store/store";
 import { UserPlus, Clock, CheckCircle2, RotateCcw } from "lucide-react";
 
-export const NetworkProfileCard = ({
+const NetworkProfileCardComponent = ({
   id,
   profileImg,
   name,
@@ -131,3 +131,27 @@ export const NetworkProfileCard = ({
     </motion.div>
   );
 };
+
+function arePropsEqual(
+  prev: NetworkProfileCardProps,
+  next: NetworkProfileCardProps,
+): boolean {
+  return (
+    prev.id === next.id &&
+    prev.profileImg === next.profileImg &&
+    prev.name === next.name &&
+    prev.desc === next.desc &&
+    prev.role === next.role &&
+    prev.connectionStatus === next.connectionStatus
+  );
+  // sendConnection is intentionally excluded: MyNetworkPage recreates this
+  // closure on every render (including every search keystroke, before the
+  // debounce fires) without memoizing it, but the closure only ever
+  // forwards `id` (already compared above) to a stable mutation function —
+  // using whichever instance is current is behaviorally identical.
+}
+
+export const NetworkProfileCard = memo(
+  NetworkProfileCardComponent,
+  arePropsEqual,
+);

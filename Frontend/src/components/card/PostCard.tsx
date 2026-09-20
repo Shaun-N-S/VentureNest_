@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { motion } from "framer-motion";
 import type { PostCardProps } from "../../types/PostCardPropsType";
 import { MediaCarousel } from "../Carousel/MediaCarousel";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import {
   CommentSection,
   SingleComment,
@@ -26,7 +26,7 @@ import type { PostLikeUser } from "../../types/postLikes";
 import { useNavigate } from "react-router";
 import { getSocket } from "../../lib/socket";
 
-export function PostCard({
+function PostCardComponent({
   id,
   author,
   timestamp,
@@ -390,3 +390,36 @@ export function PostCard({
     </motion.div>
   );
 }
+
+function areMediaUrlsEqual(a: string[], b: string[]) {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  return a.every((url, i) => url === b[i]);
+}
+
+function arePropsEqual(prev: PostCardProps, next: PostCardProps): boolean {
+  return (
+    prev.id === next.id &&
+    prev.timestamp === next.timestamp &&
+    prev.content === next.content &&
+    prev.link === next.link &&
+    prev.likes === next.likes &&
+    prev.comments === next.comments &&
+    prev.liked === next.liked &&
+    prev.context === next.context &&
+    prev.isActive === next.isActive &&
+    prev.author.id === next.author.id &&
+    prev.author.name === next.author.name &&
+    prev.author.avatar === next.author.avatar &&
+    prev.author.role === next.author.role &&
+    prev.author.followers === next.author.followers &&
+    areMediaUrlsEqual(prev.mediaUrls, next.mediaUrls)
+  );
+  // onLike/onRemove/onReport are intentionally not compared: every call site
+  // passes a fresh inline closure on each render, but each closure only
+  // ever captures `id` (already compared above), so using whichever
+  // instance is current is behaviorally identical — comparing their
+  // identity would defeat memoization for no observable benefit.
+}
+
+export const PostCard = memo(PostCardComponent, arePropsEqual);

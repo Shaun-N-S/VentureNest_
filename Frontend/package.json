@@ -43,7 +43,7 @@
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.544.0",
     "motion": "^12.23.25",
-    "pdfjs-dist": "^5.4.449",
+    "pdfjs-dist": "5.4.296",
     "radix-ui": "^1.4.3",
     "react": "^19.1.1",
     "react-advanced-cropper": "^0.20.1",

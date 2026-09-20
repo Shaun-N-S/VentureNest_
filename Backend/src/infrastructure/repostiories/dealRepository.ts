@@ -65,6 +65,10 @@ export class DealRepository
     return this._model.countDocuments({ status });
   }
 
+  async countByInvestorId(investorId: string): Promise<number> {
+    return this._model.countDocuments({ investorId, amountPaid: { $gt: 0 } });
+  }
+
   async findByProjectId(projectId: string): Promise<DealEntity[]> {
     const docs = await this._model.find({ projectId }).sort({ createdAt: -1 });
 

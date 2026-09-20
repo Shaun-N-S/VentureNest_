@@ -1,4 +1,5 @@
 import { CONFIG } from "@config/config";
+import { IDealRepository } from "@domain/interfaces/repositories/IDealRepository";
 import { IInvestorRepository } from "@domain/interfaces/repositories/IInvestorRespository";
 import { IPostRepository } from "@domain/interfaces/repositories/IPostRepository";
 import { IRelationshipRepository } from "@domain/interfaces/repositories/IRelationshipRepository";
@@ -14,6 +15,7 @@ export class FetchInvestorProfileUseCase implements IFetchInvestorProfileUseCase
     private _investorRepository: IInvestorRepository,
     private _relationshipRepo: IRelationshipRepository,
     private _postRepo: IPostRepository,
+    private _dealRepo: IDealRepository,
     private _storageService: IStorageService
   ) {}
 
@@ -36,6 +38,8 @@ export class FetchInvestorProfileUseCase implements IFetchInvestorProfileUseCase
     profileData.connectionsCount = await this._relationshipRepo.countConnections(id);
 
     profileData.postCount = await this._postRepo.countPostsByAuthor(id);
+
+    profileData.investmentCount = await this._dealRepo.countByInvestorId(id);
 
     return profileData;
   }

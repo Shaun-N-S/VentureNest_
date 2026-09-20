@@ -1,0 +1,12 @@
+apiVersion: 1
+
+policies:
+  - orgId: 1
+    receiver: VentureNest Critical Contact
+    group_by: ["alertname"]
+    routes:
+      - receiver: VentureNest Critical Contact
+        object_matchers:
+          - ["severity", "=", "critical"]
+        group_by: ["alertname"]
+        continue: false

@@ -105,7 +105,7 @@ export function SessionDetailsModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-3xl max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-3xl max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 flex flex-col overflow-hidden">
           {/* HEADER SECTION WITH GRADIENT - Fixed */}
           <div className="flex-shrink-0 bg-gradient-to-br from-primary/10 via-primary/5 to-background p-4 sm:p-6 border-b">
             <DialogHeader>
