@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { FRONTEND_ROUTES } from "../constants/frontendRoutes";
 import ProtectedLogin from "../components/protectedComponents/ProtectedLogin";
 import ProtectedRoute from "../components/protectedComponents/ProtectedRoute";
@@ -26,9 +27,11 @@ import WaitingPage from "../pages/Common/WaitingPage";
 import VideoPage from "../pages/Common/VideoPage";
 import InvestorDashboardPage from "../pages/Investor/InvestorDashboardPage";
 import PaymentCancelled from "@/pages/Common/PaymentCancelled";
+import NotFoundPage from "../pages/Common/NotFoundPage";
 
 const InvestorRoutes = () => {
   return (
+    <ErrorBoundary>
     <Routes>
       {/*Public (login-related) routes */}
       <Route element={<ProtectedLogin />}>
@@ -132,7 +135,10 @@ const InvestorRoutes = () => {
           />
         </Route>
       </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </ErrorBoundary>
   );
 };
 

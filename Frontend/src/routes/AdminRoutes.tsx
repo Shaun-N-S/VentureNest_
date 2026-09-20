@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { FRONTEND_ROUTES } from "../constants/frontendRoutes";
 import AdminLoginPage from "../pages/Admin/AdminLoginPage";
 import ProtectedLogin from "../components/protectedComponents/ProtectedLogin";
@@ -14,9 +15,11 @@ import AdminPlansPage from "../pages/Admin/PlanManagementPage";
 import AdminWalletPage from "../pages/Admin/AdminWalletPage";
 import WithdrawalListing from "../pages/Admin/WithdrawalListing";
 import AdminDashboardPage from "../pages/Admin/AdminDashboardPage";
+import NotFoundPage from "../pages/Common/NotFoundPage";
 
 const AdminRoutes = () => {
   return (
+    <ErrorBoundary>
     <Routes>
       {/* Admin login route */}
       <Route element={<ProtectedLogin />}>
@@ -74,7 +77,10 @@ const AdminRoutes = () => {
           />
         </Route>
       </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </ErrorBoundary>
   );
 };
 

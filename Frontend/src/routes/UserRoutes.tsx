@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { FRONTEND_ROUTES } from "../constants/frontendRoutes";
 import UserSignUpPage from "../pages/User/Auth/UserSignUpPage";
 import UserLoginPage from "../pages/User/Auth/UserLoginPage";
@@ -24,9 +25,11 @@ import UserDashboardPage from "../pages/User/UserDashboardPage";
 import VideoPage from "../pages/Common/VideoPage";
 import WaitingPage from "../pages/Common/WaitingPage";
 import PaymentCancelled from "@/pages/Common/PaymentCancelled";
+import NotFoundPage from "../pages/Common/NotFoundPage";
 
 const UserRoutes = () => {
   return (
+    <ErrorBoundary>
     <Routes>
       {/*Public route */}
       <Route path={FRONTEND_ROUTES.LANDING} element={<LandingPage />} />
@@ -106,7 +109,10 @@ const UserRoutes = () => {
           <Route path={FRONTEND_ROUTES.USER.WAITING_AREA} element={<WaitingPage />} />
         </Route>
       </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </ErrorBoundary>
   );
 };
 

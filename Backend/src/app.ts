@@ -3,6 +3,8 @@ import { mongoConnect } from "@infrastructure/db/connectDB/mongoConnect";
 import express, { Express, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import { apiRateLimiter } from "interfaceAdapters/middleware/rateLimitMiddleware";
 import { User_Router } from "interfaceAdapters/routes/userRoutes";
 import { Investor_Router } from "interfaceAdapters/routes/investorRoutes";
 import { Admin_Routes } from "interfaceAdapters/routes/adminRoutes";
@@ -33,6 +35,8 @@ import { platformInitializationService } from "@infrastructure/DI/Wallet/walletC
 import { MESSAGES } from "@shared/constants/messages";
 import { cronContainer } from "@infrastructure/DI/Cron/cronContainer";
 import { Dashboard_Router } from "interfaceAdapters/routes/dashboardRoutes";
+import { Health_Router } from "interfaceAdapters/routes/healthRoutes";
+import { Metrics_Router } from "interfaceAdapters/routes/metricsRoutes";
 
 class Express_app {
   private _app: Express;
@@ -52,12 +56,16 @@ class Express_app {
   }
 
   private _setMiddleware() {
+    this._app.use(helmet());
+
     this._app.use(
       cors({
         origin: CONFIG.FRONTEND_URL,
         credentials: true,
       })
     );
+
+    this._app.use(apiRateLimiter);
 
     this._app.use(express.json());
     this._app.use(cookieParser());
@@ -68,6 +76,9 @@ class Express_app {
   }
 
   private _setRoutes() {
+    this._app.use("/health", new Health_Router().get_router());
+    this._app.use("/metrics", new Metrics_Router().get_router());
+
     this._app.use("/auth", new User_Router().get_router());
     this._app.use("/auth", new Investor_Router().get_router());
     this._app.use("/auth", new Admin_Routes().get_router());

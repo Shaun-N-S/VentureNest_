@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import type { PersonDTO, SessionDTO } from "../../types/session";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { SessionDetailsModal } from "../modals/SessionDetailsModal";
 import { useNavigate } from "react-router-dom";
 import { useJoinSession } from "../../hooks/Session/sessionHooks";
@@ -24,7 +24,7 @@ interface Props {
   stage: string;
 }
 
-export function SessionCard({
+function SessionCardComponent({
   session,
   project,
   investor,
@@ -220,3 +220,5 @@ export function SessionCard({
     </>
   );
 }
+
+export const SessionCard = memo(SessionCardComponent);

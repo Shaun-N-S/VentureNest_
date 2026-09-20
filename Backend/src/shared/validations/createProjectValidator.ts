@@ -36,7 +36,12 @@ export const CreateProjectReqSchema = z.object({
     .optional(),
 
   // Files
-  pitchDeckUrl: z.any().optional(),
+  pitchDeckUrl: z
+    .instanceof(File)
+    .refine((file) => file.type === "application/pdf", {
+      message: "Pitch deck must be a PDF file",
+    })
+    .optional(),
   logoUrl: z.any().optional(),
   coverImageUrl: z.any().optional(),
 });

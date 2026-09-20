@@ -3,6 +3,10 @@ export const MESSAGES = {
     NOT_FOUND: "Route not found",
   },
 
+  RATE_LIMIT: {
+    TOO_MANY_REQUESTS: "Too many requests, please try again later.",
+  },
+
   USERS: {
     REGISTER_SUCCESS: "User registered successfully.",
     LOGIN_SUCCESS: "User logged in successfully.",

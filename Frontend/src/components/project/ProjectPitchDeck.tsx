@@ -1,27 +1,21 @@
-import { useState } from "react";
-import { Download, FileText, Globe, Loader2 } from "lucide-react";
-import { Document, Page } from "react-pdf";
-import { ProjectSection } from "./ProjectSection";
+import { useEffect, useState } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+  AlertTriangle,
+  FileText,
+  Globe,
+  Loader2,
+  RotateCw,
+  X,
+} from "lucide-react";
+import { Document, Page } from "react-pdf";
+import toast from "react-hot-toast";
+import { ProjectSection } from "./ProjectSection";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 
 interface Props {
   pitchDeckUrl?: string;
   projectWebsite?: string;
-  /**
-   * pitchDeckUrl is an S3 presigned URL with a short expiry (see
-   * CONFIG.SIGNED_URL_EXPIRY on the backend). It's signed once when the
-   * project details query resolves, so if the user stays on the page past
-   * that expiry and then opens the preview, react-pdf fetches an
-   * already-expired URL and S3 rejects it. Passing the project query's
-   * `refetch` here re-signs the URL immediately before the preview opens,
-   * so the <Document> below never loads a stale one.
-   */
   onBeforePreview?: () => Promise<unknown>;
 }
 
@@ -39,16 +33,46 @@ export function ProjectPitchDeck({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isPreparingPreview, setIsPreparingPreview] = useState(false);
   const [numPages, setNumPages] = useState<number | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [pageWidth, setPageWidth] = useState(0);
+  const [pageContainer, setPageContainer] = useState<HTMLDivElement | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (!pageContainer) return;
+
+    const updateWidth = () => setPageWidth(pageContainer.clientWidth);
+    updateWidth();
+
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(pageContainer);
+    return () => observer.disconnect();
+  }, [pageContainer]);
 
   if (!pitchDeckUrl && !projectWebsite) return null;
 
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsPreviewOpen(open);
+    if (!open) {
+      setLoadError(false);
+      setNumPages(null);
+    }
+  };
+
   const onDocumentLoadSuccess = (pdf: { numPages: number }) => {
-    console.log("PDF loaded successfully", pdf);
+    setLoadError(false);
     setNumPages(pdf.numPages);
+  };
+
+  const handleLoadFailure = (error: unknown) => {
+    console.error("PDF Load Error:", error);
+    setLoadError(true);
   };
 
   const handleOpenPreview = async () => {
     if (!onBeforePreview) {
+      setLoadError(false);
       setIsPreviewOpen(true);
       return;
     }
@@ -56,13 +80,33 @@ export function ProjectPitchDeck({
     setIsPreparingPreview(true);
     try {
       await onBeforePreview();
+      setLoadError(false);
+      setIsPreviewOpen(true);
+    } catch (error) {
+      console.error("Failed to refresh pitch deck link:", error);
+      toast.error("Couldn't load the pitch deck. Please try again.");
     } finally {
       setIsPreparingPreview(false);
-      setIsPreviewOpen(true);
     }
   };
 
-  console.log("Pitch Deck URL:", pitchDeckUrl);
+  const handleRetryPreview = async () => {
+    if (!onBeforePreview) {
+      setLoadError(false);
+      return;
+    }
+
+    setIsPreparingPreview(true);
+    try {
+      await onBeforePreview();
+      setLoadError(false);
+    } catch (error) {
+      console.error("Failed to refresh pitch deck link:", error);
+      toast.error("Couldn't refresh the pitch deck link. Please try again.");
+    } finally {
+      setIsPreparingPreview(false);
+    }
+  };
 
   return (
     <ProjectSection title="Resources" icon={FileText}>
@@ -114,45 +158,72 @@ export function ProjectPitchDeck({
       </div>
 
       {pitchDeckUrl && (
-        <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-          <DialogContent className="flex h-[90vh] max-w-4xl flex-col overflow-hidden">
-            <DialogHeader className="flex-shrink-0">
-              <div className="flex items-center justify-between gap-4 pr-8">
+        <Dialog open={isPreviewOpen} onOpenChange={handleDialogOpenChange}>
+          <DialogContent className="flex h-[100dvh] w-screen max-w-none flex-col gap-0 overflow-hidden rounded-none p-0 sm:h-[90vh] sm:w-[90vw] sm:max-w-[1000px] sm:rounded-lg">
+            <DialogHeader className="flex-shrink-0 border-b p-4 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
                 <DialogTitle className="font-display text-xl">
                   Pitch Deck Preview
                 </DialogTitle>
-                <Button variant="outline" size="sm" asChild className="gap-2">
-                  <a href={pitchDeckUrl} download>
-                    <Download className="h-4 w-4" />
-                    Download
-                  </a>
-                </Button>
+                <button
+                  type="button"
+                  onClick={() => handleDialogOpenChange(false)}
+                  aria-label="Close preview"
+                  className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
             </DialogHeader>
 
-            <div className="flex-1 overflow-y-auto rounded-xl bg-muted/50 p-4">
-              <Document
-                file={pitchDeckUrl}
-                onLoadSuccess={onDocumentLoadSuccess}
-                onLoadError={(error) => {
-                  console.error("PDF Load Error:", error);
-                }}
-                onSourceError={(error) => {
-                  console.error("PDF Source Error:", error);
-                }}
-                className="flex flex-col items-center gap-4"
-              >
-                {Array.from(new Array(numPages || 0), (_, idx) => (
-                  <Page
-                    key={idx + 1}
-                    pageNumber={idx + 1}
-                    scale={1.2}
-                    renderTextLayer={false}
-                    renderAnnotationLayer={false}
-                    className="overflow-hidden rounded-lg shadow-md"
-                  />
-                ))}
-              </Document>
+            <div className="flex-1 overflow-y-auto overflow-x-hidden bg-muted/50 p-4">
+              {loadError ? (
+                <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+                  <AlertTriangle className="h-10 w-10 text-destructive" />
+                  <p className="font-medium text-foreground">
+                    We couldn't load the pitch deck
+                  </p>
+                  <p className="max-w-sm text-sm text-muted-foreground">
+                    The preview link may have expired or the file couldn't be
+                    reached. You can try again below.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRetryPreview}
+                    disabled={isPreparingPreview}
+                    className="gap-2"
+                  >
+                    {isPreparingPreview ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <RotateCw className="h-4 w-4" />
+                    )}
+                    Try again
+                  </Button>
+                </div>
+              ) : (
+                <div ref={setPageContainer} className="mx-auto w-full max-w-full">
+                  <Document
+                    file={pitchDeckUrl}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                    onLoadError={handleLoadFailure}
+                    onSourceError={handleLoadFailure}
+                    className="flex flex-col items-center gap-4"
+                  >
+                    {Array.from(new Array(numPages || 0), (_, idx) => (
+                      <Page
+                        key={idx + 1}
+                        pageNumber={idx + 1}
+                        width={pageWidth || undefined}
+                        renderTextLayer={false}
+                        renderAnnotationLayer={false}
+                        className="overflow-hidden rounded-lg shadow-md"
+                      />
+                    ))}
+                  </Document>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
