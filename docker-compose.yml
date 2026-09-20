@@ -7,7 +7,7 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - .env
+      - ./Backend/.env
     restart: always
 
     # Security + stability
@@ -58,9 +58,15 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     env_file:
-      - .env
+      - ./Backend/.env
     environment:
       - GF_USERS_ALLOW_SIGN_UP=false
+
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=smtp.gmail.com:587
+      - GF_SMTP_FROM_NAME=VentureNest Monitoring
+
+
     volumes:
       - grafana-data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
