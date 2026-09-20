@@ -10,8 +10,8 @@ export class Metrics_Router {
   }
 
   private _setRoutes() {
-    this._route.get("/", (req: Request, res: Response) => {
-      metricsController.getMetrics(req, res);
+    this._route.get("/", async (req: Request, res: Response) => {
+      await metricsController.getMetrics(req, res);
     });
   }
 

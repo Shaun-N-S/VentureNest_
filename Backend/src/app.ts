@@ -5,6 +5,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import { apiRateLimiter } from "interfaceAdapters/middleware/rateLimitMiddleware";
+import { httpMetricsMiddleware } from "interfaceAdapters/middleware/httpMetricsMiddleware";
 import { User_Router } from "interfaceAdapters/routes/userRoutes";
 import { Investor_Router } from "interfaceAdapters/routes/investorRoutes";
 import { Admin_Routes } from "interfaceAdapters/routes/adminRoutes";
@@ -56,6 +57,8 @@ class Express_app {
   }
 
   private _setMiddleware() {
+    this._app.use(httpMetricsMiddleware);
+
     this._app.use(helmet());
 
     this._app.use(
