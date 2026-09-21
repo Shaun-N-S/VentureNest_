@@ -62,6 +62,11 @@ services:
     environment:
       - GF_USERS_ALLOW_SIGN_UP=false
 
+      # Public URL Grafana uses when generating links (alert emails, etc.)
+      # Without this, Grafana falls back to its own container-internal
+      # http://localhost:3000, which is unreachable outside the container.
+      - GF_SERVER_ROOT_URL=http://13.204.97.104:3001
+
       - GF_SMTP_ENABLED=true
       - GF_SMTP_HOST=smtp.gmail.com:587
       - GF_SMTP_FROM_NAME=VentureNest Monitoring
