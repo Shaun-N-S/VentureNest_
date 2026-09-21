@@ -22,7 +22,6 @@ import {
 } from "../../components/ui/select";
 import { useInView } from "react-intersection-observer";
 import ProjectSkeleton from "../../components/Skelton/ProjectSkelton";
-import type { InfiniteData } from "@tanstack/react-query";
 
 const ProjectPage = () => {
   const [search, setSearch] = useState("");
@@ -57,28 +56,7 @@ const ProjectPage = () => {
     likeProject(projectId, {
       onSuccess: (res) => {
         updateUI(res.data?.liked, res.data.likeCount);
-        queryClient.setQueryData<InfiniteData<ProjectsPage>>(
-          ["projects", 2, debouncedSearch, debouncedStage, debouncedSector],
-          (old) => {
-            if (!old) return old;
-
-            return {
-              ...old,
-              pages: old.pages.map((page) => ({
-                ...page,
-                projects: page.projects.map((p) =>
-                  p._id === projectId
-                    ? {
-                        ...p,
-                        liked: res.data.liked,
-                        likeCount: res.data.likeCount,
-                      }
-                    : p,
-                ),
-              })),
-            };
-          },
-        );
+        queryClient.invalidateQueries({ queryKey: ["projects"], exact: false });
       },
       onError: () => {
         toast.error("Failed to like project");

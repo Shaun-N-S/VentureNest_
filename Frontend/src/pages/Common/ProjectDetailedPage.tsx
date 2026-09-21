@@ -74,22 +74,7 @@ const ProjectDetailedPage = () => {
           },
         );
 
-        queryClient.setQueryData(
-          ["projects", 1, 10],
-          (old: { data: { projects: ProjectType[] } } | undefined) => {
-            if (!old?.data?.projects) return old;
-
-            return {
-              ...old,
-              data: {
-                ...old.data,
-                projects: old.data.projects.map((p) =>
-                  p._id === projectId ? { ...p, liked, likeCount } : p,
-                ),
-              },
-            };
-          },
-        );
+        queryClient.invalidateQueries({ queryKey: ["projects"], exact: false });
       },
       onError: () => toast.error("Failed to like project"),
     });
